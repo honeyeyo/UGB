@@ -82,3 +82,10 @@ Assets/Oculus/VR/Editor/Tools/ovr-platform-util.exe.meta
 Assets/Oculus/VR/Editor/Tools.meta
 
 keystore-passwords.txt
+
+# Private individual user cursor rules
+.cursor/rules/_*.mdc
+
+# Documentation and templates
+xnotes/
+docs/

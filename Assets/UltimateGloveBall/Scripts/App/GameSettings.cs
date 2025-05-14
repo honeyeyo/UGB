@@ -7,24 +7,31 @@ using UnityEngine;
 namespace UltimateGloveBall.App
 {
     /// <summary>
-    /// Wrapper over PlayerPrefs for the different settings we have in the game. The settings instance can be access
-    /// to get or set the game settings.
+    /// 游戏设置的包装类，基于PlayerPrefs实现。可以通过settings实例来获取或设置游戏设置。
     /// </summary>
     public class GameSettings
     {
         #region singleton
+        /// <summary>
+        /// 单例实例
+        /// </summary>
         private static GameSettings s_instance;
 
+        /// <summary>
+        /// 获取GameSettings的单例实例
+        /// </summary>
         public static GameSettings Instance
         {
             get
             {
                 s_instance ??= new GameSettings();
-
                 return s_instance;
             }
         }
 
+        /// <summary>
+        /// 在子系统注册时销毁实例
+        /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         public static void DestroyInstance()
         {
@@ -32,6 +39,10 @@ namespace UltimateGloveBall.App
         }
         #endregion
 
+        #region 常量定义
+        /// <summary>
+        /// PlayerPrefs中存储的键名
+        /// </summary>
         private const string KEY_MUSIC_VOLUME = "MusicVolume";
         private const string KEY_SFX_VOLUME = "SfxVolume";
         private const string KEY_CROWD_VOLUME = "CrowdVolume";
@@ -41,6 +52,9 @@ namespace UltimateGloveBall.App
         private const string KEY_SELECTED_USER_ICON_SKU = "SelectedUserIcon";
         private const string KEY_OWNED_CAT_COUNT = "OwnedCatCount";
 
+        /// <summary>
+        /// 默认值设置
+        /// </summary>
         private const float DEFAULT_MUSIC_VOLUME = 0.5f;
         private const float DEFAULT_SFX_VOLUME = 1.0f;
         private const float DEFAULT_CROWD_VOLUME = 1.0f;
@@ -49,7 +63,12 @@ namespace UltimateGloveBall.App
         private const bool DEFAULT_LOCOMOTION_VIGNETTE = true;
         private const string DEFAULT_USER_ICON_SKU = null;
         private const int DEFAULT_OWNED_CAT_COUNT = 0;
+        #endregion
 
+        #region 音频设置
+        /// <summary>
+        /// 音乐音量
+        /// </summary>
         private float m_musicVolume;
         public float MusicVolume
         {
@@ -61,6 +80,9 @@ namespace UltimateGloveBall.App
             }
         }
 
+        /// <summary>
+        /// 音效音量
+        /// </summary>
         private float m_sfxVolume;
         public float SfxVolume
         {
@@ -71,6 +93,10 @@ namespace UltimateGloveBall.App
                 SetFloat(KEY_SFX_VOLUME, m_sfxVolume);
             }
         }
+
+        /// <summary>
+        /// 人群音量
+        /// </summary>
         private float m_crowdVolume;
         public float CrowdVolume
         {
@@ -81,8 +107,12 @@ namespace UltimateGloveBall.App
                 SetFloat(KEY_CROWD_VOLUME, m_crowdVolume);
             }
         }
+        #endregion
 
-
+        #region 移动设置
+        /// <summary>
+        /// 是否在瞬移时使用黑屏效果
+        /// </summary>
         private bool m_useBlackoutOnSnap;
         public bool UseBlackoutOnSnap
         {
@@ -93,6 +123,10 @@ namespace UltimateGloveBall.App
                 SetBool(KEY_SNAP_BLACKOUT, m_useBlackoutOnSnap);
             }
         }
+
+        /// <summary>
+        /// 是否禁用自由移动
+        /// </summary>
         private bool m_isFreeLocomotionDisabled;
         public bool IsFreeLocomotionDisabled
         {
@@ -104,6 +138,9 @@ namespace UltimateGloveBall.App
             }
         }
 
+        /// <summary>
+        /// 是否使用移动时的晕影效果
+        /// </summary>
         private bool m_useLocomotionVignette;
         public bool UseLocomotionVignette
         {
@@ -114,9 +151,13 @@ namespace UltimateGloveBall.App
                 SetBool(KEY_LOCOMOTION_VIGNETTE, m_useLocomotionVignette);
             }
         }
+        #endregion
 
+        #region 用户设置
+        /// <summary>
+        /// 用户选择的图标SKU
+        /// </summary>
         private string m_selectedUserIconSku;
-
         public string SelectedUserIconSku
         {
             get => m_selectedUserIconSku;
@@ -127,8 +168,10 @@ namespace UltimateGloveBall.App
             }
         }
 
+        /// <summary>
+        /// 拥有的猫咪数量
+        /// </summary>
         private int m_ownedCatsCount;
-
         public int OwnedCatsCount
         {
             get => m_ownedCatsCount;
@@ -138,7 +181,11 @@ namespace UltimateGloveBall.App
                 SetInt(KEY_OWNED_CAT_COUNT, m_ownedCatsCount);
             }
         }
+        #endregion
 
+        /// <summary>
+        /// 构造函数，初始化所有设置值
+        /// </summary>
         private GameSettings()
         {
             m_musicVolume = PlayerPrefs.GetFloat(KEY_MUSIC_VOLUME, DEFAULT_MUSIC_VOLUME);
@@ -151,29 +198,46 @@ namespace UltimateGloveBall.App
             m_ownedCatsCount = PlayerPrefs.GetInt(KEY_OWNED_CAT_COUNT, DEFAULT_OWNED_CAT_COUNT);
         }
 
+        #region PlayerPrefs辅助方法
+        /// <summary>
+        /// 设置浮点数值
+        /// </summary>
         private void SetFloat(string key, float value)
         {
             PlayerPrefs.SetFloat(key, value);
         }
 
+        /// <summary>
+        /// 获取布尔值
+        /// </summary>
         private bool GetBool(string key, bool defaultValue)
         {
             return PlayerPrefs.GetInt(key, defaultValue ? 1 : 0) != 0;
         }
 
+        /// <summary>
+        /// 设置布尔值
+        /// </summary>
         private void SetBool(string key, bool value)
         {
             SetInt(key, value ? 1 : 0);
         }
 
+        /// <summary>
+        /// 设置字符串值
+        /// </summary>
         private void SetString(string key, string value)
         {
             PlayerPrefs.SetString(key, value);
         }
 
+        /// <summary>
+        /// 设置整数值
+        /// </summary>
         private void SetInt(string key, int value)
         {
             PlayerPrefs.SetInt(key, value);
         }
+        #endregion
     }
 }

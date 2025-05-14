@@ -11,8 +11,8 @@ using UnityEngine.UI;
 namespace UltimateGloveBall.MainMenu
 {
     /// <summary>
-    /// This menu controller presents the Store were we can buy items. It handles showing the icons to be purchased and
-    /// selected. It also handles the purchase flow.
+    /// 商店菜单控制器
+    /// 负责展示可购买的商品图标,处理商品的选择和购买流程
     /// </summary>
     public class StoreMenuController : BaseMenuController
     {
@@ -46,11 +46,17 @@ namespace UltimateGloveBall.MainMenu
             UpdateCatPurchaseState();
         }
 
+        /// <summary>
+        /// 当对象启用时更新猫咪购买状态
+        /// </summary>
         private void OnEnable()
         {
             UpdateCatPurchaseState();
         }
 
+        /// <summary>
+        /// 更新猫咪购买状态UI
+        /// </summary>
         private void UpdateCatPurchaseState()
         {
             var catCount = GameSettings.Instance.OwnedCatsCount;
@@ -58,10 +64,17 @@ namespace UltimateGloveBall.MainMenu
             m_catBuyButton.gameObject.SetActive(catCount < 3);
         }
 
+        /// <summary>
+        /// 设置商店图标
+        /// 创建"无图标"选项和所有可购买的图标按钮
+        /// </summary>
         private void SetupIcons()
         {
+            // 创建"无图标"选项
             var noneIconButton = Instantiate(m_storeIconButtonPrefab, m_grid);
             noneIconButton.Setup(null, "None", null, null, true, OnIconClicked);
+
+            // 创建所有可购买的图标按钮
             var iap = IAPManager.Instance;
             foreach (var sku in iap.GetProductSkusForCategory(ProductCategories.ICONS))
             {
@@ -72,6 +85,8 @@ namespace UltimateGloveBall.MainMenu
                     iconButton.Setup(sku, product.Name, product.FormattedPrice, UserIconManager.Instance.GetIconForSku(sku),
                         iap.IsPurchased(sku), OnIconClicked);
                     m_skuToButton[sku] = iconButton;
+
+                    // 如果当前SKU是已选择的图标,则选中该按钮
                     if (sku == GameSettings.Instance.SelectedUserIconSku)
                     {
                         SelectButton(iconButton);
@@ -79,12 +94,17 @@ namespace UltimateGloveBall.MainMenu
                 }
             }
 
+            // 如果没有选中的按钮,默认选中"无图标"选项
             if (m_selectedButton == null)
             {
                 SelectButton(noneIconButton);
             }
         }
 
+        /// <summary>
+        /// 处理图标按钮点击事件
+        /// </summary>
+        /// <param name="button">被点击的按钮</param>
         private void OnIconClicked(StoreIconButton button)
         {
             if (button.Owned)
@@ -97,6 +117,10 @@ namespace UltimateGloveBall.MainMenu
             }
         }
 
+        /// <summary>
+        /// 显示购买流程界面
+        /// </summary>
+        /// <param name="sku">要购买的商品SKU</param>
         private void ShowPurchaseFlow(string sku)
         {
             m_iconSelectionView.gameObject.SetActive(false);
@@ -112,6 +136,9 @@ namespace UltimateGloveBall.MainMenu
             m_purchasePrice.text = price.Contains("0.00") ? "Free" : price;
         }
 
+        /// <summary>
+        /// 取消购买流程
+        /// </summary>
         public void OnCancelPurchaseFlowClicked()
         {
             m_iconSelectionView.gameObject.SetActive(true);
@@ -120,6 +147,9 @@ namespace UltimateGloveBall.MainMenu
             m_skuToPurchase = null;
         }
 
+        /// <summary>
+        /// 处理购买按钮点击
+        /// </summary>
         public void OnBuyClicked()
         {
             m_purchaseFlowRoot.SetActive(false);
@@ -127,11 +157,16 @@ namespace UltimateGloveBall.MainMenu
             IAPManager.Instance.Purchase(m_skuToPurchase, OnPurchaseFlowCompleted);
         }
 
+        /// <summary>
+        /// 处理购买猫咪按钮点击
+        /// </summary>
         public void OnBuyCatClicked()
         {
             m_iconSelectionView.SetActive(false);
             m_processingMessage.SetActive(true);
             m_backButton.SetActive(false);
+
+            // 检查是否已购买但未使用
             if (IAPManager.Instance.IsPurchased(ProductCategories.CAT))
             {
                 // if something happened and we already had purchased it, but not used it
@@ -144,11 +179,14 @@ namespace UltimateGloveBall.MainMenu
             }
         }
 
+        /// <summary>
+        /// 处理猫咪购买完成回调
+        /// </summary>
         private void OnCatPurchaseCompleted(string sku, bool success, string errorMsg)
         {
             if (success)
             {
-                // After successful purchase we consume the purchase and save it in our inventory
+                // 购买成功后消费该商品并保存到库存
                 IAPManager.Instance.ConsumePurchase(ProductCategories.CAT, OnCatPurchaseConsumed);
             }
             else
@@ -164,6 +202,9 @@ namespace UltimateGloveBall.MainMenu
             }
         }
 
+        /// <summary>
+        /// 处理猫咪购买消费完成回调
+        /// </summary>
         private void OnCatPurchaseConsumed(string sku, bool success)
         {
             if (success)
@@ -175,6 +216,9 @@ namespace UltimateGloveBall.MainMenu
             OnPurchaseComplete();
         }
 
+        /// <summary>
+        /// 处理商品购买完成回调
+        /// </summary>
         private void OnPurchaseFlowCompleted(string sku, bool success, string errorMsg)
         {
             if (success)
@@ -191,6 +235,9 @@ namespace UltimateGloveBall.MainMenu
             OnPurchaseComplete();
         }
 
+        /// <summary>
+        /// 处理购买完成后的界面更新
+        /// </summary>
         private void OnPurchaseComplete()
         {
             m_purchaseFlowRoot.SetActive(false);
@@ -199,6 +246,10 @@ namespace UltimateGloveBall.MainMenu
             m_backButton.SetActive(true);
         }
 
+        /// <summary>
+        /// 选中指定按钮
+        /// </summary>
+        /// <param name="button">要选中的按钮</param>
         private void SelectButton(StoreIconButton button)
         {
             if (m_selectedButton)

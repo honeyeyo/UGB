@@ -12,37 +12,64 @@ using UnityEngine.Assertions;
 namespace UltimateGloveBall.Networking.Pooling
 {
     /// <summary>
-    /// This class is used to pool networked objects and provides public methods extracting and returning
-    /// those networked objects to a queue.
-    /// 
-    /// This script is based on the Unity's Network Object pooling tutorial
+    /// 网络对象池类
+    /// 用于管理和复用网络对象,提供从池中获取和返回网络对象的公共方法
+    /// 基于Unity的网络对象池教程实现
     /// https://docs-multiplayer.unity3d.com/netcode/current/advanced-topics/object-pooling/index.html
     /// </summary>
     public class NetworkObjectPool : NetworkBehaviour
     {
+        /// <summary>
+        /// 预制体配置结构体
+        /// 用于配置需要池化的预制体及其预热数量
+        /// </summary>
         [Serializable]
         private struct PoolConfigObject
         {
-            public GameObject Prefab;
-            public int PrewarmCount;
+            public GameObject Prefab;      // 要池化的预制体
+            public int PrewarmCount;       // 预热时创建的实例数量
         }
 
         #region Fields
 
+        /// <summary>
+        /// 单例实例
+        /// 用于全局访问对象池
+        /// </summary>
         public static NetworkObjectPool Singleton { get; private set; }
 
+        /// <summary>
+        /// 预制体配置列表
+        /// 在Inspector中配置需要池化的预制体
+        /// </summary>
         [SerializeField] private List<PoolConfigObject> m_pooledPrefabsList = new();
 
+        /// <summary>
+        /// 初始化标志
+        /// 防止重复初始化
+        /// </summary>
         private bool m_hasInitialized;
 
+        /// <summary>
+        /// 已注册的预制体集合
+        /// 用于快速查找预制体是否已注册
+        /// </summary>
         private readonly HashSet<GameObject> m_prefabs = new();
 
+        /// <summary>
+        /// 对象池字典
+        /// 键为预制体,值为该预制体的对象队列
+        /// </summary>
         private readonly Dictionary<GameObject, Queue<NetworkObject>> m_pooledObjects = new();
 
         #endregion
 
         #region Lifecycle
 
+        /// <summary>
+        /// 初始化单例
+        /// 如果已存在实例则销毁当前对象
+        /// </summary>
         private void Awake()
         {
             if (Singleton != null && Singleton != this)
@@ -51,16 +78,26 @@ namespace UltimateGloveBall.Networking.Pooling
                 Singleton = this;
         }
 
+        /// <summary>
+        /// 网络对象生成时初始化对象池
+        /// </summary>
         public override void OnNetworkSpawn()
         {
             InitializePool();
         }
 
+        /// <summary>
+        /// 网络对象销毁时清理对象池
+        /// </summary>
         public override void OnNetworkDespawn()
         {
             ClearPool();
         }
 
+        /// <summary>
+        /// 验证预制体配置
+        /// 确保所有预制体都有NetworkObject组件
+        /// </summary>
         private void OnValidate()
         {
             for (var i = 0; i < m_pooledPrefabsList.Count; i++)
@@ -79,31 +116,34 @@ namespace UltimateGloveBall.Networking.Pooling
         #region Public Methods
 
         /// <summary>
-        ///     Grab a network object from the pool. Returns the object placed in origin.
+        /// 从对象池获取网络对象
+        /// 返回放置在原点位置的网络对象
         /// </summary>
-
+        /// <param name="prefab">要获取的预制体</param>
+        /// <returns>获取的网络对象</returns>
         public NetworkObject GetNetworkObject(GameObject prefab)
         {
             return GetNetworkObjectInternal(prefab, Vector3.zero, Quaternion.identity);
         }
 
         /// <summary>
-        ///     Grab a network object from the pool. Returns the object placed in a given location.
+        /// 从对象池获取网络对象
+        /// 返回放置在指定位置和旋转的网络对象
         /// </summary>
-        /// <param name="prefab">The prefab to be dequeued.</param>
-        /// <param name="position">Spawn position.</param>
-        /// <param name="rotation">Spawn rotation.</param>
-        /// <returns>The dequeued networked object.</returns>
+        /// <param name="prefab">要获取的预制体</param>
+        /// <param name="position">生成位置</param>
+        /// <param name="rotation">生成旋转</param>
+        /// <returns>获取的网络对象</returns>
         public NetworkObject GetNetworkObject(GameObject prefab, Vector3 position, Quaternion rotation)
         {
             return GetNetworkObjectInternal(prefab, position, rotation);
         }
 
         /// <summary>
-        ///     Return a networked object to the queue of objects connected to a specific prefab.
+        /// 将网络对象返回到对象池
         /// </summary>
-        /// <param name="networkObject">The object to be returned.</param>
-        /// <param name="prefab">The prefab which spawns the networked object.</param>
+        /// <param name="networkObject">要返回的网络对象</param>
+        /// <param name="prefab">生成该网络对象的预制体</param>
         public void ReturnNetworkObject(NetworkObject networkObject, GameObject prefab)
         {
             var go = networkObject.gameObject;
@@ -112,10 +152,10 @@ namespace UltimateGloveBall.Networking.Pooling
         }
 
         /// <summary>
-        ///     Add a new prefab to the pool of networked objects.
+        /// 添加新的预制体到对象池
         /// </summary>
-        /// <param name="prefab">The prefab to pool.</param>
-        /// <param name="prewarmCount">How many objects should be spawned (pre-warmed) upon adding the prefab to the pool.</param>
+        /// <param name="prefab">要池化的预制体</param>
+        /// <param name="prewarmCount">预热时创建的实例数量</param>
         public void AddPrefab(GameObject prefab, int prewarmCount = 0)
         {
             var networkObject = prefab.GetComponent<NetworkObject>();
@@ -130,6 +170,10 @@ namespace UltimateGloveBall.Networking.Pooling
 
         #region Private Methods
 
+        /// <summary>
+        /// 内部获取网络对象方法
+        /// 从对象池获取或创建新的网络对象
+        /// </summary>
         private NetworkObject GetNetworkObjectInternal(GameObject prefab, Vector3 position, Quaternion rotation)
         {
             var queue = m_pooledObjects[prefab];
@@ -144,6 +188,10 @@ namespace UltimateGloveBall.Networking.Pooling
             return networkObject;
         }
 
+        /// <summary>
+        /// 初始化对象池
+        /// 注册所有配置的预制体
+        /// </summary>
         private void InitializePool()
         {
             if (m_hasInitialized) return;
@@ -154,8 +202,11 @@ namespace UltimateGloveBall.Networking.Pooling
         }
 
         /// <summary>
-        ///     Builds up the cache for a prefab.
+        /// 注册预制体到对象池
+        /// 创建预热数量的实例并添加到对象池
         /// </summary>
+        /// <param name="prefab">要注册的预制体</param>
+        /// <param name="prewarmCount">预热实例数量</param>
         private void RegisterPrefabInternal(GameObject prefab, int prewarmCount)
         {
             _ = m_prefabs.Add(prefab);
@@ -171,6 +222,11 @@ namespace UltimateGloveBall.Networking.Pooling
             _ = NetworkManager.Singleton.PrefabHandler.AddHandler(prefab, new PooledPrefabInstanceHandler(prefab, this));
         }
 
+        /// <summary>
+        /// 创建预制体实例
+        /// </summary>
+        /// <param name="prefab">要实例化的预制体</param>
+        /// <returns>创建的实例</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private GameObject CreateInstance(GameObject prefab)
         {
@@ -178,7 +234,8 @@ namespace UltimateGloveBall.Networking.Pooling
         }
 
         /// <summary>
-        ///  Unregisters all objects in <see cref="m_pooledPrefabsList"/> from the cache.
+        /// 清理对象池
+        /// 移除所有预制体的处理器并清空对象池
         /// </summary>
         private void ClearPool()
         {
