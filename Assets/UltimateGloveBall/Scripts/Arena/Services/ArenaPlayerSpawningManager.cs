@@ -14,36 +14,92 @@ using Random = UnityEngine.Random;
 namespace UltimateGloveBall.Arena.Services
 {
     /// <summary>
-    /// The Spawning Manager handles player connecting to an arena. It handles spawning players in the right teams and
-    /// the right position. When a player requests to be spawned in the game, this controller will assess what player
-    /// or spectator prefab to generate, their position, team and team color.
+    /// 竞技场玩家生成管理器
+    /// 负责处理玩家连接到竞技场的生成逻辑。管理玩家在正确的队伍和位置生成。
+    /// 当玩家请求在游戏中生成时,该控制器将评估要生成的玩家或观众预制体、
+    /// 他们的位置、队伍和队伍颜色。
     /// </summary>
     public class ArenaPlayerSpawningManager : SpawningManagerBase
     {
+        /// <summary>
+        /// 玩家预制体
+        /// </summary>
         [SerializeField] private NetworkObject m_playerPrefab;
+        
+        /// <summary>
+        /// 手套骨骼预制体
+        /// </summary>
         [SerializeField] private NetworkObject m_gloveArmaturePrefab;
+        
+        /// <summary>
+        /// 手套手部预制体
+        /// </summary>
         [SerializeField] private NetworkObject m_gloveHandPrefab;
 
+        /// <summary>
+        /// 观众预制体
+        /// </summary>
         [SerializeField] private NetworkObject m_spectatorPrefab;
 
+        /// <summary>
+        /// 游戏管理器引用
+        /// </summary>
         [SerializeField] private GameManager m_gameManager;
 
+        /// <summary>
+        /// A队出生点数组
+        /// </summary>
         [SerializeField] private Transform[] m_teamASpawnPoints = Array.Empty<Transform>();
+        
+        /// <summary>
+        /// B队出生点数组
+        /// </summary>
         [SerializeField] private Transform[] m_teamBSpawnPoints = Array.Empty<Transform>();
 
+        /// <summary>
+        /// A队观众出生点服务
+        /// </summary>
         [SerializeField] private SpawnPointReservingService m_spectatorASpawnPoints;
+        
+        /// <summary>
+        /// B队观众出生点服务
+        /// </summary>
         [SerializeField] private SpawnPointReservingService m_spectatorBSpawnPoints;
 
+        /// <summary>
+        /// 胜利方出生点服务
+        /// </summary>
         [SerializeField] private SpawnPointReservingService m_winnerSpawnPoints;
+        
+        /// <summary>
+        /// 失败方出生点服务
+        /// </summary>
         [SerializeField] private SpawnPointReservingService m_loserSpawnPoints;
+        
+        /// <summary>
+        /// 平局时是否轮流分配到胜利方出生点
+        /// </summary>
         private bool m_tieAlternateToWin = true;
 
-        // spawn point randomizer
+        // 出生点随机化队列
+        /// <summary>
+        /// A队随机出生点顺序队列
+        /// </summary>
         private Queue<int> m_teamARandomSpawnOrder = new();
+        
+        /// <summary>
+        /// B队随机出生点顺序队列
+        /// </summary>
         private Queue<int> m_teamBRandomSpawnOrder = new();
 
+        /// <summary>
+        /// 临时存储出生点索引的列表
+        /// </summary>
         private readonly List<int> m_tempListForSpawnPoints = new();
 
+        /// <summary>
+        /// 初始化时随机化出生点顺序
+        /// </summary>
         protected override void Awake()
         {
             RandomizeSpawnPoints(m_teamASpawnPoints.Length, ref m_teamARandomSpawnOrder);
@@ -51,6 +107,11 @@ namespace UltimateGloveBall.Arena.Services
             base.Awake();
         }
 
+        /// <summary>
+        /// 随机化出生点顺序
+        /// </summary>
+        /// <param name="length">出生点数量</param>
+        /// <param name="randomQueue">存储随机顺序的队列</param>
         private void RandomizeSpawnPoints(int length, ref Queue<int> randomQueue)
         {
             m_tempListForSpawnPoints.Clear();
@@ -78,6 +139,14 @@ namespace UltimateGloveBall.Arena.Services
             m_tempListForSpawnPoints.Clear();
         }
 
+        /// <summary>
+        /// 生成玩家或观众
+        /// </summary>
+        /// <param name="clientId">客户端ID</param>
+        /// <param name="playerId">玩家ID</param>
+        /// <param name="isSpectator">是否为观众</param>
+        /// <param name="playerPos">玩家位置</param>
+        /// <returns>生成的网络对象</returns>
         public override NetworkObject SpawnPlayer(ulong clientId, string playerId, bool isSpectator, Vector3 playerPos)
         {
             if (isSpectator)
@@ -88,7 +157,7 @@ namespace UltimateGloveBall.Arena.Services
 
             ArenaSessionManager.Instance.SetupPlayerData(clientId, playerId, new ArenaPlayerData(clientId, playerId));
             var playerData = ArenaSessionManager.Instance.GetPlayerData(playerId).Value;
-            // setup data based on gamePhase
+            // 根据游戏阶段设置生成数据
             GetSpawnData(ref playerData, playerPos, out var position, out var rotation, out var team,
                 out var color, out var spawnTeam);
 
@@ -96,6 +165,7 @@ namespace UltimateGloveBall.Arena.Services
             player.SpawnAsPlayerObject(clientId);
             player.GetComponent<NetworkedTeam>().MyTeam = team;
 
+            // 生成左手手套
             var leftArmatureNet = Instantiate(m_gloveArmaturePrefab, Vector3.down, Quaternion.identity);
             var leftArmature = leftArmatureNet.GetComponent<GloveArmatureNetworking>();
             leftArmature.Side = Glove.GloveSide.Left;
@@ -105,6 +175,7 @@ namespace UltimateGloveBall.Arena.Services
             leftHand.Side = Glove.GloveSide.Left;
             leftHandNet.GetComponent<TeamColoringNetComponent>().TeamColor = color;
 
+            // 生成右手手套
             var rightArmatureNet = Instantiate(m_gloveArmaturePrefab, Vector3.down, Quaternion.identity);
             var rightArmature = rightArmatureNet.GetComponent<GloveArmatureNetworking>();
             rightArmature.Side = Glove.GloveSide.Right;
@@ -118,6 +189,7 @@ namespace UltimateGloveBall.Arena.Services
             leftArmatureNet.SpawnWithOwnership(clientId);
             leftHandNet.SpawnWithOwnership(clientId);
 
+            // 设置玩家控制器的手套引用
             player.GetComponent<PlayerControllerNetwork>().ArmatureLeft = leftArmature;
             player.GetComponent<PlayerControllerNetwork>().ArmatureRight = rightArmature;
             player.GetComponent<PlayerControllerNetwork>().GloveLeft = leftHand;
@@ -130,18 +202,31 @@ namespace UltimateGloveBall.Arena.Services
             return player;
         }
 
+        /// <summary>
+        /// 重置游戏结束后的出生点
+        /// </summary>
         public void ResetPostGameSpawnPoints()
         {
             m_winnerSpawnPoints.Reset();
             m_loserSpawnPoints.Reset();
         }
 
+        /// <summary>
+        /// 重置游戏中的出生点
+        /// </summary>
         public void ResetInGameSpawnPoints()
         {
             RandomizeSpawnPoints(m_teamASpawnPoints.Length, ref m_teamARandomSpawnOrder);
             RandomizeSpawnPoints(m_teamBSpawnPoints.Length, ref m_teamBRandomSpawnOrder);
         }
 
+        /// <summary>
+        /// 获取重生点位置和旋转
+        /// </summary>
+        /// <param name="clientId">客户端ID</param>
+        /// <param name="team">队伍</param>
+        /// <param name="position">输出位置</param>
+        /// <param name="rotation">输出旋转</param>
         public override void GetRespawnPoint(ulong clientId, NetworkedTeam.Team team,
             out Vector3 position, out Quaternion rotation)
         {
@@ -150,6 +235,12 @@ namespace UltimateGloveBall.Arena.Services
             ArenaSessionManager.Instance.SetPlayerData(clientId, playerData);
         }
 
+        /// <summary>
+        /// 切换观众视角的队伍
+        /// </summary>
+        /// <param name="clientId">客户端ID</param>
+        /// <param name="spectator">观众网络对象</param>
+        /// <returns>新的出生点Transform</returns>
         public Transform SwitchSpectatorSide(ulong clientId, SpectatorNetwork spectator)
         {
             var playerData = ArenaSessionManager.Instance.GetPlayerData(clientId).Value;
@@ -163,7 +254,7 @@ namespace UltimateGloveBall.Arena.Services
                 : m_spectatorBSpawnPoints;
             spawnPoints.ReleaseSpawnPoint(playerData.SpawnPointIndex);
 
-            // switch teams
+            // 切换队伍
             playerData.SelectedTeam = playerData.SelectedTeam == NetworkedTeam.Team.TeamA
                 ? NetworkedTeam.Team.TeamB
                 : NetworkedTeam.Team.TeamA;
@@ -179,6 +270,10 @@ namespace UltimateGloveBall.Arena.Services
             return newLocation;
         }
 
+        /// <summary>
+        /// 处理客户端断开连接
+        /// </summary>
+        /// <param name="clientId">客户端ID</param>
         protected override void OnClientDisconnected(ulong clientId)
         {
             var playerData = ArenaSessionManager.Instance.GetPlayerData(clientId);
@@ -205,6 +300,13 @@ namespace UltimateGloveBall.Arena.Services
             }
         }
 
+        /// <summary>
+        /// 生成观众
+        /// </summary>
+        /// <param name="clientId">客户端ID</param>
+        /// <param name="playerId">玩家ID</param>
+        /// <param name="playerPos">玩家位置</param>
+        /// <returns>生成的观众网络对象</returns>
         private NetworkObject SpawnSpectator(ulong clientId, string playerId, Vector3 playerPos)
         {
             ArenaSessionManager.Instance.SetupPlayerData(clientId, playerId,
@@ -268,6 +370,16 @@ namespace UltimateGloveBall.Arena.Services
             return spectator;
         }
 
+        /// <summary>
+        /// 获取生成数据
+        /// </summary>
+        /// <param name="playerData">玩家数据引用</param>
+        /// <param name="currentPos">当前位置</param>
+        /// <param name="position">输出位置</param>
+        /// <param name="rotation">输出旋转</param>
+        /// <param name="team">输出队伍</param>
+        /// <param name="teamColor">输出队伍颜色</param>
+        /// <param name="spawnTeam">输出生成队伍</param>
         private void GetSpawnData(ref ArenaPlayerData playerData, Vector3 currentPos, out Vector3 position,
             out Quaternion rotation, out NetworkedTeam.Team team, out TeamColor teamColor,
             out NetworkedTeam.Team spawnTeam)
@@ -291,6 +403,12 @@ namespace UltimateGloveBall.Arena.Services
             teamColor = GetTeamColor(spawnTeam);
         }
 
+        /// <summary>
+        /// 获取玩家队伍
+        /// </summary>
+        /// <param name="playerData">玩家数据</param>
+        /// <param name="currentPos">当前位置</param>
+        /// <returns>分配的队伍</returns>
         private NetworkedTeam.Team GetTeam(ArenaPlayerData playerData, Vector3 currentPos)
         {
             if (playerData.SelectedTeam != NetworkedTeam.Team.NoTeam)
@@ -330,6 +448,14 @@ namespace UltimateGloveBall.Arena.Services
             return team;
         }
 
+        /// <summary>
+        /// 根据队伍获取生成位置
+        /// </summary>
+        /// <param name="gamePhase">游戏阶段</param>
+        /// <param name="team">队伍</param>
+        /// <param name="playerData">玩家数据引用</param>
+        /// <param name="position">输出位置</param>
+        /// <param name="rotation">输出旋转</param>
         private void GetSpawnPositionForTeam(GameManager.GamePhase gamePhase, NetworkedTeam.Team team,
             ref ArenaPlayerData playerData,
             out Vector3 position, out Quaternion rotation)
@@ -389,6 +515,11 @@ namespace UltimateGloveBall.Arena.Services
             }
         }
 
+        /// <summary>
+        /// 获取队伍颜色
+        /// </summary>
+        /// <param name="team">队伍</param>
+        /// <returns>队伍颜色</returns>
         private TeamColor GetTeamColor(NetworkedTeam.Team team)
         {
             var useTeamA = team == NetworkedTeam.Team.TeamA;

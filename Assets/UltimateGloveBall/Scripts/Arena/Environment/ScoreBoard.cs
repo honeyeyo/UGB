@@ -11,24 +11,29 @@ using UnityEngine;
 namespace UltimateGloveBall.Arena.Environment
 {
     /// <summary>
-    /// The scoreboard visual is handled by this class. It keeps a reference of the dynamic text and handles the
-    /// rendering of the scoreboard when it changes to the render texture. This listens to the game phase changes from
-    /// the game manager to handle the different phase messages.
+    /// 记分牌视觉效果控制类。
+    /// 主要功能:
+    /// 1. 维护动态文本的引用
+    /// 2. 处理记分牌变化时的渲染纹理更新
+    /// 3. 监听游戏管理器的阶段变化来显示不同阶段的消息
     /// </summary>
     public class ScoreBoard : MonoBehaviour, IGamePhaseListener
     {
-        [SerializeField] private GameManager m_gameManager;
-        [SerializeField] private Camera m_scoreCamera;
-        [SerializeField] private Camera m_phaseCamera;
-        [SerializeField] private TMP_Text m_teamATitle;
-        [SerializeField] private TMP_Text m_teamAScore;
-        [SerializeField] private TMP_Text m_teamBTitle;
-        [SerializeField] private TMP_Text m_teamBScore;
+        [SerializeField] private GameManager m_gameManager;          // 游戏管理器引用
+        [SerializeField] private Camera m_scoreCamera;               // 分数显示相机
+        [SerializeField] private Camera m_phaseCamera;               // 游戏阶段显示相机
+        [SerializeField] private TMP_Text m_teamATitle;             // A队标题文本
+        [SerializeField] private TMP_Text m_teamAScore;             // A队分数文本
+        [SerializeField] private TMP_Text m_teamBTitle;             // B队标题文本
+        [SerializeField] private TMP_Text m_teamBScore;             // B队分数文本
 
-        [SerializeField] private TMP_Text m_stateText;
+        [SerializeField] private TMP_Text m_stateText;              // 游戏状态文本
 
-        private long m_lastTimeLeftShown = 0;
+        private long m_lastTimeLeftShown = 0;                       // 上次显示的剩余时间
 
+        /// <summary>
+        /// 初始化时注册分数更新和阶段监听器
+        /// </summary>
         private void Start()
         {
             GameState.Instance.Score.OnScoreUpdated += OnScoreUpdated;
@@ -37,12 +42,20 @@ namespace UltimateGloveBall.Arena.Environment
             m_scoreCamera.enabled = m_phaseCamera.enabled = false;
         }
 
+        /// <summary>
+        /// 销毁时取消注册监听器
+        /// </summary>
         private void OnDestroy()
         {
             m_gameManager.UnregisterPhaseListener(this);
             GameState.Instance.Score.OnScoreUpdated -= OnScoreUpdated;
         }
 
+        /// <summary>
+        /// 更新队伍颜色时的回调
+        /// </summary>
+        /// <param name="teamAColor">A队颜色</param>
+        /// <param name="teamBColor">B队颜色</param>
         public void OnTeamColorUpdated(TeamColor teamAColor, TeamColor teamBColor)
         {
             var colorA = TeamColorProfiles.Instance.GetColorForKey(teamAColor);
@@ -55,6 +68,10 @@ namespace UltimateGloveBall.Arena.Environment
             m_scoreCamera.Render();
         }
 
+        /// <summary>
+        /// 游戏阶段变化时的回调
+        /// </summary>
+        /// <param name="phase">新的游戏阶段</param>
         public void OnPhaseChanged(GameManager.GamePhase phase)
         {
             string msg = null;
@@ -81,6 +98,10 @@ namespace UltimateGloveBall.Arena.Environment
             m_phaseCamera.Render();
         }
 
+        /// <summary>
+        /// 更新阶段剩余时间的回调
+        /// </summary>
+        /// <param name="timeLeft">剩余时间(秒)</param>
         public void OnPhaseTimeUpdate(double timeLeft)
         {
             var timeFloored = (long)Math.Floor(timeLeft);
@@ -100,6 +121,11 @@ namespace UltimateGloveBall.Arena.Environment
             m_phaseCamera.Render();
         }
 
+        /// <summary>
+        /// 分数更新时的回调
+        /// </summary>
+        /// <param name="teamA">A队分数</param>
+        /// <param name="teamB">B队分数</param>
         private void OnScoreUpdated(int teamA, int teamB)
         {
             m_teamAScore.text = teamA.ToString();

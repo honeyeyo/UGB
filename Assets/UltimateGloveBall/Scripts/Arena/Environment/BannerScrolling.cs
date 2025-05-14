@@ -8,39 +8,51 @@ using UnityEngine;
 namespace UltimateGloveBall.Arena.Environment
 {
     /// <summary>
-    /// Scrolls the banner around the Arena. It animates the movement of the banner and changing the logo periodically.
+    /// 控制竞技场横幅的滚动。主要功能包括:
+    /// 1. 横幅的滚动动画
+    /// 2. 定期更换横幅上的Logo
     /// </summary>
     public class BannerScrolling : MonoBehaviour
     {
+        /// <summary>
+        /// 横幅动画的阶段枚举
+        /// </summary>
         private enum Phases
         {
-            Paused,
-            Scroll,
-            Swap,
+            Paused,     // 暂停阶段
+            Scroll,     // 滚动阶段
+            Swap,       // 切换Logo阶段
         }
-        [SerializeField, AutoSet] private MeshRenderer m_meshRenderer;
+        [SerializeField, AutoSet] private MeshRenderer m_meshRenderer;  // 横幅的网格渲染器
 
-        [SerializeField] private float m_movementStep = -0.05f;
-        [SerializeField] private float m_stepSpeed = 0.1f;
+        [SerializeField] private float m_movementStep = -0.05f;        // 横向滚动步长
+        [SerializeField] private float m_stepSpeed = 0.1f;            // 滚动速度
 
-        [SerializeField] private float m_swapStep = 0.1f;
+        [SerializeField] private float m_swapStep = 0.1f;             // Logo切换步长
 
-        [SerializeField] private float m_scrollTime = 2f;
-        [SerializeField] private float m_pauseTime = 2f;
+        [SerializeField] private float m_scrollTime = 2f;             // 滚动持续时间
+        [SerializeField] private float m_pauseTime = 2f;              // 暂停持续时间
 
-        private float m_timer;
-        private float m_stepTimer;
-        private int m_stepCount;
-        private Phases m_phase = Phases.Paused;
-        private Vector2 m_scrollPosition = Vector2.zero;
+        private float m_timer;                                        // 阶段计时器
+        private float m_stepTimer;                                    // 步进计时器
+        private int m_stepCount;                                      // 步进计数器
+        private Phases m_phase = Phases.Paused;                       // 当前动画阶段
+        private Vector2 m_scrollPosition = Vector2.zero;              // 纹理偏移位置
 
-        private Material m_material;
+        private Material m_material;                                  // 横幅材质
+
+        /// <summary>
+        /// 初始化时获取横幅材质
+        /// </summary>
         private void Awake()
         {
-            // since it's the only instance we don't need to use property block
+            // 由于只有一个实例,直接使用材质而不需要属性块
             m_material = m_meshRenderer.material;
         }
 
+        /// <summary>
+        /// 每帧更新横幅动画状态
+        /// </summary>
         private void Update()
         {
             m_timer += Time.deltaTime;
@@ -60,6 +72,10 @@ namespace UltimateGloveBall.Arena.Environment
                     break;
             }
         }
+
+        /// <summary>
+        /// 处理暂停阶段
+        /// </summary>
         private void HandlePause()
         {
             if (m_timer >= m_pauseTime)
@@ -69,6 +85,9 @@ namespace UltimateGloveBall.Arena.Environment
             }
         }
 
+        /// <summary>
+        /// 处理横向滚动阶段
+        /// </summary>
         private void HandleScroll()
         {
             if (m_timer >= m_scrollTime)
@@ -88,9 +107,11 @@ namespace UltimateGloveBall.Arena.Environment
             }
         }
 
+        /// <summary>
+        /// 处理Logo切换阶段
+        /// </summary>
         private void HandleSwap()
         {
-
             m_stepTimer += Time.deltaTime;
             if (m_stepTimer >= m_stepSpeed)
             {
@@ -108,6 +129,9 @@ namespace UltimateGloveBall.Arena.Environment
             }
         }
 
+        /// <summary>
+        /// 执行横幅横向滚动
+        /// </summary>
         private void ScrollImage()
         {
             m_scrollPosition.x += m_movementStep;
@@ -122,9 +146,12 @@ namespace UltimateGloveBall.Arena.Environment
             m_material.mainTextureOffset = m_scrollPosition;
         }
 
+        /// <summary>
+        /// 执行Logo垂直切换
+        /// </summary>
         private void SwapImage()
         {
-            m_scrollPosition.y += m_swapStep / 4f; // 4 images
+            m_scrollPosition.y += m_swapStep / 4f; // 在4个Logo图像间切换
             if (m_scrollPosition.y > 1)
             {
                 m_scrollPosition.y -= 1;

@@ -16,44 +16,52 @@ using Object = UnityEngine.Object;
 namespace UltimateGloveBall.Arena.Player
 {
     /// <summary>
-    /// Controls the player state. Handles the state of the shield, the invulnerability, team state and reference the
-    /// respawn controller.
+    /// 控制玩家状态。处理护盾状态、无敌状态、队伍状态,并引用重生控制器。
+    /// 主要功能:
+    /// - 管理护盾的激活、充能和消耗
+    /// - 处理玩家的无敌状态
+    /// - 控制玩家的队伍归属
+    /// - 管理玩家重生
     /// </summary>
     public class PlayerControllerNetwork : NetworkBehaviour
     {
-        private const float SHIELD_USAGE_RATE = 20f;
-        private const float SHIELD_CHARGE_RATE = 32f;
-        private const float SHIELD_MAX_CHARGE = 100f;
-        private const float SHIELD_RESET_TIME = 0.5f;
+        // 护盾相关常量
+        private const float SHIELD_USAGE_RATE = 20f; // 护盾使用消耗速率
+        private const float SHIELD_CHARGE_RATE = 32f; // 护盾充能速率
+        private const float SHIELD_MAX_CHARGE = 100f; // 护盾最大充能值
+        private const float SHIELD_RESET_TIME = 0.5f; // 护盾重置时间
 
-        [SerializeField] private Collider m_collider;
-        [SerializeField] private PlayerAvatarEntity m_avatar;
-        [SerializeField, AutoSet] private NetworkedTeam m_networkedTeam;
-        [SerializeField, AutoSet] private RespawnController m_respawnController;
+        [SerializeField] private Collider m_collider; // 玩家碰撞体
+        [SerializeField] private PlayerAvatarEntity m_avatar; // 玩家Avatar实体
+        [SerializeField, AutoSet] private NetworkedTeam m_networkedTeam; // 网络同步的队伍组件
+        [SerializeField, AutoSet] private RespawnController m_respawnController; // 重生控制器
 
-        private bool m_shieldActivated = false;
-        private Glove.GloveSide m_shieldSide = Glove.GloveSide.Left;
+        private bool m_shieldActivated = false; // 护盾是否激活
+        private Glove.GloveSide m_shieldSide = Glove.GloveSide.Left; // 当前激活护盾的手套侧
 
-        public GloveArmatureNetworking ArmatureRight;
-        public GloveArmatureNetworking ArmatureLeft;
+        public GloveArmatureNetworking ArmatureRight; // 右手装甲网络组件
+        public GloveArmatureNetworking ArmatureLeft; // 左手装甲网络组件
 
-        public GloveNetworking GloveRight;
-        public GloveNetworking GloveLeft;
+        public GloveNetworking GloveRight; // 右手手套网络组件
+        public GloveNetworking GloveLeft; // 左手手套网络组件
 
-        private NetworkVariable<float> m_shieldCharge = new(SHIELD_MAX_CHARGE);
+        private NetworkVariable<float> m_shieldCharge = new(SHIELD_MAX_CHARGE); // 护盾充能值
+        private NetworkVariable<float> m_shieldOffTimer = new(); // 护盾关闭计时器
+        private NetworkVariable<bool> m_shieldInResetMode = new(false); // 护盾是否处于重置模式
+        private NetworkVariable<bool> m_shieldDisabled = new(false); // 护盾是否被禁用
 
-        private NetworkVariable<float> m_shieldOffTimer = new();
-        private NetworkVariable<bool> m_shieldInResetMode = new(false);
-        private NetworkVariable<bool> m_shieldDisabled = new(false);
+        public NetworkVariable<bool> IsInvulnerable = new(); // 是否处于无敌状态
+        private readonly HashSet<Object> m_invulnerabilityActors = new(); // 赋予无敌状态的对象集合
 
-        public NetworkVariable<bool> IsInvulnerable = new();
-        private readonly HashSet<Object> m_invulnerabilityActors = new();
+        public NetworkedTeam NetworkedTeamComp => m_networkedTeam; // 获取网络队伍组件
+        public RespawnController RespawnController => m_respawnController; // 获取重生控制器
 
-        public NetworkedTeam NetworkedTeamComp => m_networkedTeam;
-        public RespawnController RespawnController => m_respawnController;
+        public Action<bool> OnInvulnerabilityStateUpdatedEvent; // 无敌状态更新事件
 
-        public Action<bool> OnInvulnerabilityStateUpdatedEvent;
-
+        /// <summary>
+        /// 当网络对象生成时调用
+        /// 初始化本地玩家引用和事件监听
+        /// </summary>
         public override void OnNetworkSpawn()
         {
             enabled = IsServer;
@@ -70,6 +78,10 @@ namespace UltimateGloveBall.Arena.Player
             OnInvulnerabilityStateChanged(IsInvulnerable.Value, IsInvulnerable.Value);
         }
 
+        /// <summary>
+        /// 设置玩家无敌状态
+        /// </summary>
+        /// <param name="setter">设置无敌状态的对象</param>
         public void SetInvulnerability(Object setter)
         {
             if (IsServer)
@@ -82,6 +94,10 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 移除玩家无敌状态
+        /// </summary>
+        /// <param name="setter">移除无敌状态的对象</param>
         public void RemoveInvulnerability(Object setter)
         {
             if (IsServer)
@@ -94,6 +110,9 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 清除所有无敌状态
+        /// </summary>
         public void ClearInvulnerability()
         {
             if (IsServer)
@@ -103,6 +122,9 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 当无敌状态改变时的处理
+        /// </summary>
         private void OnInvulnerabilityStateChanged(bool previousValue, bool newValue)
         {
             m_collider.enabled = !newValue;
@@ -110,13 +132,15 @@ namespace UltimateGloveBall.Arena.Player
             OnInvulnerabilityStateUpdatedEvent?.Invoke(newValue);
         }
 
+        /// <summary>
+        /// 设置Avatar的状态效果
+        /// </summary>
         private IEnumerator SetAvatarState()
         {
             if (!m_avatar.IsSkeletonReady)
             {
                 yield return new WaitUntil(() => m_avatar.IsSkeletonReady);
             }
-
 
             var material = m_avatar.Material;
             material.SetKeyword("ENABLE_GHOST_EFFECT", IsInvulnerable.Value);
@@ -129,6 +153,10 @@ namespace UltimateGloveBall.Arena.Player
             GloveRight.SetGhostEffect(IsInvulnerable.Value);
         }
 
+        /// <summary>
+        /// 触发护盾
+        /// </summary>
+        /// <param name="side">护盾激活的手套侧</param>
         public void TriggerShield(Glove.GloveSide side)
         {
             if (m_shieldDisabled.Value)
@@ -148,6 +176,10 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 处理护盾被击中的效果
+        /// </summary>
+        /// <param name="side">被击中的护盾侧</param>
         public void OnShieldHit(Glove.GloveSide side)
         {
             m_shieldCharge.Value = 0;
@@ -160,6 +192,10 @@ namespace UltimateGloveBall.Arena.Player
             ArmatureRight.ShieldChargeLevel = m_shieldCharge.Value;
         }
 
+        /// <summary>
+        /// 服务器RPC:触发护盾
+        /// </summary>
+        /// <param name="side">护盾激活的手套侧</param>
         [ServerRpc]
         public void TriggerShieldServerRPC(Glove.GloveSide side)
         {
@@ -169,7 +205,7 @@ namespace UltimateGloveBall.Arena.Player
                 {
                     return;
                 }
-                // We are switching sides, deactivate current side first
+                // 切换护盾侧时,先停用当前侧的护盾
                 {
                     if (m_shieldSide == Glove.GloveSide.Right)
                     {
@@ -195,12 +231,20 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 服务器RPC:停止护盾
+        /// </summary>
+        /// <param name="side">要停止的护盾侧</param>
         [ServerRpc]
         public void StopShieldServerRPC(Glove.GloveSide side)
         {
             StopShield(side);
         }
 
+        /// <summary>
+        /// 停止指定侧的护盾
+        /// </summary>
+        /// <param name="side">要停止的护盾侧</param>
         private void StopShield(Glove.GloveSide side)
         {
             if (!IsServer)
@@ -225,6 +269,10 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 每帧更新
+        /// 处理护盾的充能、消耗和重置逻辑
+        /// </summary>
         private void Update()
         {
             if (!IsServer)

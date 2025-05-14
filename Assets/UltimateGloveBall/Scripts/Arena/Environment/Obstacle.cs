@@ -14,38 +14,45 @@ using UnityEngine;
 namespace UltimateGloveBall.Arena.Environment
 {
     /// <summary>
-    /// Networked obstacles in the game. They keep the inflation state in sync. Handles sounds on collision and color.
+    /// 游戏中的网络同步障碍物。主要功能包括:
+    /// 1. 同步障碍物的充气/放气状态
+    /// 2. 处理碰撞音效和颜色变化
+    /// 3. 管理障碍物的形变和碰撞体积
     /// </summary>
     public class Obstacle : NetworkBehaviour
     {
-        private const float INFLATION_RATE = 70f;
-        private const float DEFLATION_RATE = 60f;
-        private const float TIME_BEFORE_REFLATION = 6f;
-        [SerializeField, AutoSet] private TeamColoringNetComponent m_teamColoring;
-        [SerializeField] private Collider m_collisionCollider;
-        [SerializeField] private SkinnedMeshRenderer m_mesh;
+        // 充气和放气的速率常量
+        private const float INFLATION_RATE = 70f;        // 充气速率
+        private const float DEFLATION_RATE = 60f;       // 放气速率
+        private const float TIME_BEFORE_REFLATION = 6f; // 重新充气前的等待时间
+
+        [SerializeField, AutoSet] private TeamColoringNetComponent m_teamColoring;  // 队伍颜色组件
+        [SerializeField] private Collider m_collisionCollider;                      // 碰撞体
+        [SerializeField] private SkinnedMeshRenderer m_mesh;                        // 网格渲染器
 
         [Header("Collider Data")]
-        [SerializeField] private Vector3 m_colliderCenterInflated;
-        [SerializeField] private Vector3 m_colliderCenterDeflated;
-        [SerializeField] private float m_colliderHeightInflated;
-        [SerializeField] private float m_colliderHeightDeflated;
+        [SerializeField] private Vector3 m_colliderCenterInflated;   // 充气状态下碰撞体中心点
+        [SerializeField] private Vector3 m_colliderCenterDeflated;   // 放气状态下碰撞体中心点
+        [SerializeField] private float m_colliderHeightInflated;     // 充气状态下碰撞体高度
+        [SerializeField] private float m_colliderHeightDeflated;     // 放气状态下碰撞体高度
 
         [Header("Sounds")]
-        [SerializeField] private AudioSource m_audioSource;
-        [SerializeField] private AudioClip m_inflateSound;
-        [SerializeField] private AudioClip m_deflateSound;
-        [SerializeField] private AudioClip m_punctureSound;
+        [SerializeField] private AudioSource m_audioSource;          // 音频源
+        [SerializeField] private AudioClip m_inflateSound;          // 充气音效
+        [SerializeField] private AudioClip m_deflateSound;          // 放气音效
+        [SerializeField] private AudioClip m_punctureSound;         // 刺破音效
 
-        private NetworkVariable<bool> m_inflated = new(true);
+        private NetworkVariable<bool> m_inflated = new(true);       // 网络同步的充气状态
 
-        private CapsuleCollider m_capsuleCollider = null;
-        private SphereCollider m_sphereCollider = null;
+        private CapsuleCollider m_capsuleCollider = null;           // 胶囊碰撞体引用
+        private SphereCollider m_sphereCollider = null;             // 球形碰撞体引用
 
-        private float m_deflatedPct = 100;
+        private float m_deflatedPct = 100;                          // 放气百分比
+        private float m_reflationTimer = 0;                         // 重新充气计时器
 
-        private float m_reflationTimer = 0;
-
+        /// <summary>
+        /// 初始化时获取碰撞体类型
+        /// </summary>
         private void Awake()
         {
             if (m_collisionCollider is CapsuleCollider)
@@ -58,11 +65,17 @@ namespace UltimateGloveBall.Arena.Environment
             }
         }
 
+        /// <summary>
+        /// 网络对象生成时注册状态变化回调
+        /// </summary>
         public override void OnNetworkSpawn()
         {
             m_inflated.OnValueChanged += OnInflatedStateChanged;
         }
 
+        /// <summary>
+        /// 处理充气状态变化,播放相应音效
+        /// </summary>
         private void OnInflatedStateChanged(bool previousvalue, bool newvalue)
         {
             if (previousvalue != newvalue)
@@ -87,11 +100,17 @@ namespace UltimateGloveBall.Arena.Environment
             }
         }
 
+        /// <summary>
+        /// 更新障碍物的队伍颜色
+        /// </summary>
         public void UpdateColor(TeamColor color)
         {
             m_teamColoring.TeamColor = color;
         }
 
+        /// <summary>
+        /// 处理与玩家的碰撞,导致放气
+        /// </summary>
         private void OnCollisionEnter(Collision collision)
         {
             if (IsServer)
@@ -103,6 +122,9 @@ namespace UltimateGloveBall.Arena.Environment
             }
         }
 
+        /// <summary>
+        /// 处理与手套和电球的触发碰撞
+        /// </summary>
         private void OnTriggerEnter(Collider other)
         {
             var glove = other.gameObject.GetComponentInParent<Glove>();
@@ -128,9 +150,11 @@ namespace UltimateGloveBall.Arena.Environment
                     VFXManager.Instance.PlayHitVFX(contact, ballPosition - contact);
                 }
             }
-
         }
 
+        /// <summary>
+        /// 每帧更新充气/放气状态和形变
+        /// </summary>
         private void Update()
         {
             if (m_inflated.Value && m_deflatedPct > 0)
@@ -168,6 +192,9 @@ namespace UltimateGloveBall.Arena.Environment
             }
         }
 
+        /// <summary>
+        /// 更新障碍物的形变和碰撞体积
+        /// </summary>
         private void UpdateDeflation()
         {
             m_mesh.SetBlendShapeWeight(0, m_deflatedPct);
@@ -183,6 +210,9 @@ namespace UltimateGloveBall.Arena.Environment
             }
         }
 
+        /// <summary>
+        /// 在所有客户端上触发刺破音效的RPC
+        /// </summary>
         [ClientRpc]
         private void TriggerPunctureClientRPC()
         {

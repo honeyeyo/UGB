@@ -11,28 +11,61 @@ using UnityEngine;
 namespace UltimateGloveBall.Arena.Player
 {
     /// <summary>
-    /// The player shield controller will handle changing the visual state on hit and update the color of the shield
-    /// based on the energy level.
+    /// 玩家护盾控制器
+    /// 负责处理护盾被击中时的视觉状态变化,并根据能量等级更新护盾颜色
     /// </summary>
     public class Shield : MonoBehaviour
     {
+        /// <summary>
+        /// 护盾被击中纹理显示时间
+        /// </summary>
         private const float HIT_TEXTURE_TIME = 1f;
 
+        /// <summary>
+        /// 护盾颜色着色器参数ID
+        /// </summary>
         private static readonly int s_shieldColorParam = Shader.PropertyToID("_Color");
+        /// <summary>
+        /// 击中时间着色器参数ID
+        /// </summary>
         private static readonly int s_hitTimeParam = Shader.PropertyToID("_HitTime");
 
+        /// <summary>
+        /// 手套骨骼网络组件引用
+        /// </summary>
         [SerializeField] private GloveArmatureNetworking m_armatureNet;
 
+        /// <summary>
+        /// 满能量时的护盾颜色
+        /// </summary>
         [SerializeField] private Color m_fullEnergyColor;
+        /// <summary>
+        /// 低能量时的护盾颜色
+        /// </summary>
         [SerializeField] private Color m_lowEnergyColor;
 
+        /// <summary>
+        /// 护盾渲染器数组
+        /// </summary>
         [SerializeField] private MeshRenderer[] m_shieldRenderers;
 
+        /// <summary>
+        /// 击中纹理计时器
+        /// </summary>
         private float m_hitTextureTimer;
+        /// <summary>
+        /// 是否处于被击中状态
+        /// </summary>
         private bool m_inHitState;
 
+        /// <summary>
+        /// 材质属性块,用于批量修改材质属性
+        /// </summary>
         private MaterialPropertyBlock m_materialBlock;
 
+        /// <summary>
+        /// 组件禁用时的处理
+        /// </summary>
         private void OnDisable()
         {
             if (m_inHitState)
@@ -43,6 +76,10 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 碰撞开始时的处理
+        /// 检测是否被球击中
+        /// </summary>
         private void OnCollisionEnter(Collision collision)
         {
             var ball = collision.gameObject.GetComponent<BallNetworking>();
@@ -52,6 +89,10 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 触发器进入时的处理
+        /// 检测是否被电球击中
+        /// </summary>
         private void OnTriggerEnter(Collider other)
         {
             if (!NetworkManager.Singleton.IsServer)
@@ -69,6 +110,10 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 更新护盾充能等级
+        /// </summary>
+        /// <param name="chargeLevel">充能等级(0-100)</param>
         public void UpdateChargeLevel(float chargeLevel)
         {
             m_materialBlock ??= new MaterialPropertyBlock();
@@ -82,6 +127,9 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 处理球击中护盾的效果
+        /// </summary>
         private void OnBallHit()
         {
             m_hitTextureTimer = HIT_TEXTURE_TIME;
@@ -93,6 +141,9 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 协程:等待击中效果结束后恢复正常状态
+        /// </summary>
         private IEnumerator SwapBackToUnhitWhenReady()
         {
             while (m_hitTextureTimer >= 0)
@@ -106,6 +157,11 @@ namespace UltimateGloveBall.Arena.Player
             RemoveKeyWord("_HITENABLED");
         }
 
+        /// <summary>
+        /// 设置材质属性值
+        /// </summary>
+        /// <param name="valueId">属性ID</param>
+        /// <param name="value">属性值</param>
         private void SetValue(int valueId, float value)
         {
             m_materialBlock ??= new MaterialPropertyBlock();
@@ -118,6 +174,10 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 启用材质关键字
+        /// </summary>
+        /// <param name="keyword">关键字名称</param>
         private void SetKeyWord(string keyword)
         {
             foreach (var shieldRenderer in m_shieldRenderers)
@@ -126,6 +186,10 @@ namespace UltimateGloveBall.Arena.Player
             }
         }
 
+        /// <summary>
+        /// 禁用材质关键字
+        /// </summary>
+        /// <param name="keyword">关键字名称</param>
         private void RemoveKeyWord(string keyword)
         {
             foreach (var shieldRenderer in m_shieldRenderers)
