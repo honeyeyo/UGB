@@ -12,35 +12,72 @@ using UnityEngine;
 namespace UltimateGloveBall.App
 {
     /// <summary>
-    /// This is the Entry Point of the whole Ultimate Glove Ball application.
-    /// Initializes the core of the application on Start, loads controllers and handlers.
-    /// This singleton also exposes controllers and handlers to be used through the application.
-    /// Initializes the Oculus Platform, fetch the player state on login and handles join intent.
+    /// Ultimate Glove Ball应用程序的入口点
+    /// 在启动时初始化应用程序核心,加载控制器和处理器
+    /// 这个单例类还暴露了可在整个应用程序中使用的控制器和处理器
+    /// 初始化Oculus平台,在登录时获取玩家状态并处理加入意图
     /// </summary>
     public class UGBApplication : Singleton<UGBApplication>
     {
+        /// <summary>
+        /// 网络层组件
+        /// </summary>
         public NetworkLayer NetworkLayer;
+
+        /// <summary>
+        /// 语音控制器
+        /// </summary>
         public VoipController Voip;
+
+        /// <summary>
+        /// 网络会话预制体
+        /// </summary>
         [SerializeField] private NetworkSession m_sessionPrefab;
 
+        /// <summary>
+        /// 启动类型
+        /// </summary>
         private LaunchType m_launchType;
 
+        /// <summary>
+        /// 本地玩家状态实例
+        /// </summary>
         private LocalPlayerState LocalPlayerState => LocalPlayerState.Instance;
 
+        /// <summary>
+        /// 导航控制器
+        /// </summary>
         public NavigationController NavigationController { get; private set; }
+
+        /// <summary>
+        /// 玩家存在处理器
+        /// </summary>
         public PlayerPresenceHandler PlayerPresenceHandler { get; private set; }
+
+        /// <summary>
+        /// 网络状态处理器
+        /// </summary>
         public NetworkStateHandler NetworkStateHandler { get; private set; }
 
+        /// <summary>
+        /// 内部Awake方法,确保对象在场景切换时不被销毁
+        /// </summary>
         protected override void InternalAwake()
         {
             DontDestroyOnLoad(this);
         }
 
+        /// <summary>
+        /// 销毁时释放网络状态处理器
+        /// </summary>
         private void OnDestroy()
         {
             NetworkStateHandler?.Dispose();
         }
 
+        /// <summary>
+        /// 启动时初始化应用程序
+        /// </summary>
         private void Start()
         {
             if (UnityEngine.Application.isEditor)
@@ -55,11 +92,17 @@ namespace UltimateGloveBall.App
             _ = StartCoroutine(Init());
         }
 
+        /// <summary>
+        /// 初始化协程
+        /// 初始化Oculus模块、玩家存在处理器、导航控制器和网络状态处理器
+        /// 获取产品信息和购买记录
+        /// 设置群组存在状态并初始化网络层
+        /// </summary>
         private IEnumerator Init()
         {
             _ = InitializeOculusModules();
 
-            // Initialize Player Presence
+            // 初始化玩家存在处理器
             PlayerPresenceHandler = new PlayerPresenceHandler();
             yield return PlayerPresenceHandler.Init();
 #if !UNITY_EDITOR && !UNITY_STANDALONE_WIN
@@ -72,10 +115,11 @@ namespace UltimateGloveBall.App
                 new NavigationController(this, NetworkLayer, LocalPlayerState, PlayerPresenceHandler);
             NetworkStateHandler = new NetworkStateHandler(this, NetworkLayer, NavigationController, Voip,
                 LocalPlayerState, PlayerPresenceHandler, InstantiateSession);
-            // Get the products and the purchases of the current logged in user
-            // get all icons products
+
+            // 获取当前登录用户的产品和购买记录
+            // 获取所有图标产品
             IAPManager.Instance.FetchProducts(UserIconManager.Instance.AllSkus, ProductCategories.ICONS);
-            // get cat consumable
+            // 获取猫消耗品
             IAPManager.Instance.FetchProducts(new[] { ProductCategories.CAT }, ProductCategories.CONSUMABLES);
             IAPManager.Instance.FetchPurchases();
 
@@ -103,6 +147,10 @@ namespace UltimateGloveBall.App
                 PlayerPresenceHandler.GetRegionFromDestination(PlayerPresenceHandler.GroupPresenceState.Destination));
         }
 
+        /// <summary>
+        /// 初始化Oculus模块
+        /// 初始化Oculus平台SDK,检查用户权限,设置回调函数,获取用户信息
+        /// </summary>
         private async Task InitializeOculusModules()
         {
             try
@@ -125,8 +173,8 @@ namespace UltimateGloveBall.App
 
                 m_launchType = ApplicationLifecycle.GetLaunchDetails().LaunchType;
 
-                GroupPresence.SetJoinIntentReceivedNotificationCallback(OnJoinIntentReceived);
-                GroupPresence.SetInvitationsSentNotificationCallback(OnInvitationsSent);
+                GroupPresence.SetJoinIntentReceivedNotificationCallback(OnJoinIntentReceived);//设置加入意图接收回调
+                GroupPresence.SetInvitationsSentNotificationCallback(OnInvitationsSent);//设置邀请发送回调
 
                 var getLoggedInuser = await Users.GetLoggedInUser().Gen();
                 if (getLoggedInuser.IsError)
@@ -135,10 +183,10 @@ namespace UltimateGloveBall.App
                     return;
                 }
 
-                // Workaround.
-                // At the moment, Platform.Users.GetLoggedInUser() seems to only be returning the user ID.
-                // Display name is blank.
-                // Platform.Users.Get(ulong userID) returns the display name.
+                // 临时解决方案
+                // 目前Platform.Users.GetLoggedInUser()似乎只返回用户ID
+                // 显示名称为空
+                // Platform.Users.Get(ulong userID)返回显示名称
                 var getUser = await Users.Get(getLoggedInuser.Data.ID).Gen();
                 LocalPlayerState.Init(getUser.Data.DisplayName, getUser.Data.ID);
             }
@@ -148,6 +196,10 @@ namespace UltimateGloveBall.App
             }
         }
 
+        /// <summary>
+        /// 处理加入意图接收回调
+        /// 处理用户通过应用内直接邀请或深度链接启动应用时的加入意图
+        /// </summary>
         private void OnJoinIntentReceived(Message<Oculus.Platform.Models.GroupPresenceJoinIntent> message)
         {
             Debug.Log("------JOIN INTENT RECEIVED------");
@@ -159,9 +211,9 @@ namespace UltimateGloveBall.App
 
             var messageLobbySessionId = message.Data.LobbySessionId;
 
-            // no Group Presence yet:
-            // app is being launched by this join intent, either
-            // through an in-app direct invite, or through a deeplink
+            // 还没有群组存在状态:
+            // 应用正在通过这个加入意图启动,要么
+            // 通过应用内直接邀请,要么通过深度链接
             if (PlayerPresenceHandler.GroupPresenceState == null)
             {
                 var lobbySessionID = message.Data.DestinationApiName.StartsWith("Arena") && !string.IsNullOrEmpty(messageLobbySessionId)
@@ -172,8 +224,8 @@ namespace UltimateGloveBall.App
                     message.Data.DestinationApiName,
                     lobbySessionID));
             }
-            // game was already running, meaning the user already has a Group Presence, and
-            // is already either hosting or a client of another host.
+            // 游戏已经在运行,意味着用户已经有群组存在状态,并且
+            // 已经是另一个主机的客户端或主机
             else
             {
                 NavigationController.SwitchRoomFromInvite(
@@ -181,6 +233,10 @@ namespace UltimateGloveBall.App
             }
         }
 
+        /// <summary>
+        /// 处理邀请发送回调
+        /// 记录被邀请用户的信息
+        /// </summary>
         private void OnInvitationsSent(Message<Oculus.Platform.Models.LaunchInvitePanelFlowResult> message)
         {
             Debug.Log("-------INVITED USERS LIST-------");
@@ -194,6 +250,9 @@ namespace UltimateGloveBall.App
             Debug.Log("--------------------------------");
         }
 
+        /// <summary>
+        /// 记录错误信息
+        /// </summary>
         private void LogError(string message, Oculus.Platform.Models.Error error)
         {
             Debug.LogError(message);

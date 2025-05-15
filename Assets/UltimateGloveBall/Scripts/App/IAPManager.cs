@@ -11,15 +11,21 @@ using UnityEngine;
 namespace UltimateGloveBall.App
 {
     /// <summary>
-    /// Manages in app purchases. It's a wrapper on the Oculus.Platform.IAP functionalities.
-    /// This makes it easy to fetch all products and purchases as well as make a purchase.
-    /// Referenced from: https://developer.oculus.com/documentation/unity/ps-iap/
+    /// 应用内购买管理器
+    /// 封装了Oculus.Platform.IAP的功能,简化了商品和购买记录的获取以及购买流程
+    /// 参考文档: https://developer.oculus.com/documentation/unity/ps-iap/
     /// </summary>
     public class IAPManager
     {
         #region Singleton
+        /// <summary>
+        /// 单例实例
+        /// </summary>
         private static IAPManager s_instance;
 
+        /// <summary>
+        /// 获取单例实例
+        /// </summary>
         public static IAPManager Instance
         {
             get
@@ -29,6 +35,9 @@ namespace UltimateGloveBall.App
             }
         }
 
+        /// <summary>
+        /// 在子系统注册时销毁实例
+        /// </summary>
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         public static void DestroyInstance()
         {
@@ -37,31 +46,52 @@ namespace UltimateGloveBall.App
         #endregion // Singleton
 
         /// <summary>
-        /// The data we get from the error message json string on purchase
+        /// 购买错误消息的数据结构
+        /// 从购买时的错误消息JSON字符串中获取
         /// </summary>
         private class PurchaseErrorMessage
         {
-            // Since we convert from json the naming must stay the same as the json format, which is all lowercase
+            // 由于从JSON转换,命名必须与JSON格式保持一致(全小写)
 #pragma warning disable IDE1006
             // ReSharper disable once InconsistentNaming
-            public string category;
+            public string category; // 错误类别
             // ReSharper disable once InconsistentNaming
-            public int code;
+            public int code; // 错误代码
             // ReSharper disable once InconsistentNaming
-            public string message;
+            public string message; // 错误消息
 #pragma warning restore IDE1006
         }
 
+        /// <summary>
+        /// 商品字典,key为商品SKU
+        /// </summary>
         private Dictionary<string, Product> m_products = new();
+
+        /// <summary>
+        /// 购买记录字典,key为商品SKU
+        /// </summary>
         private Dictionary<string, Purchase> m_purchases = new();
 
+        /// <summary>
+        /// 按类别分组的商品SKU字典
+        /// </summary>
         private Dictionary<string, List<string>> m_productsByCategory = new();
+
+        /// <summary>
+        /// 可用商品SKU列表
+        /// </summary>
         private List<string> m_availableSkus = new();
+
+        /// <summary>
+        /// 获取可用商品SKU列表
+        /// </summary>
         public IList<string> AvailableSkus => m_availableSkus;
 
         /// <summary>
-        /// Asynchronously fetch all products based on the sku
+        /// 异步获取指定SKU的商品信息
         /// </summary>
+        /// <param name="skus">商品SKU数组</param>
+        /// <param name="category">商品类别(可选)</param>
         public void FetchProducts(string[] skus, string category = null)
         {
             _ = IAP.GetProductsBySKU(skus).OnComplete(message =>
@@ -71,18 +101,28 @@ namespace UltimateGloveBall.App
         }
 
         /// <summary>
-        /// Asynchronously fetch all purchases that were made by the user
+        /// 异步获取用户的所有购买记录
         /// </summary>
         public void FetchPurchases()
         {
             _ = IAP.GetViewerPurchases().OnComplete(GetViewerPurchasesCallback);
         }
 
+        /// <summary>
+        /// 获取指定类别的所有商品SKU
+        /// </summary>
+        /// <param name="category">商品类别</param>
+        /// <returns>商品SKU列表,如果类别不存在则返回null</returns>
         public List<string> GetProductSkusForCategory(string category)
         {
             return m_productsByCategory.TryGetValue(category, out var categorySkus) ? categorySkus : null;
         }
 
+        /// <summary>
+        /// 获取指定SKU的商品信息
+        /// </summary>
+        /// <param name="sku">商品SKU</param>
+        /// <returns>商品信息,如果商品不存在则返回null</returns>
         public Product GetProduct(string sku)
         {
             if (m_products.TryGetValue(sku, out var product))
@@ -94,20 +134,36 @@ namespace UltimateGloveBall.App
             return null;
         }
 
+        /// <summary>
+        /// 检查指定SKU的商品是否已购买
+        /// </summary>
+        /// <param name="sku">商品SKU</param>
+        /// <returns>是否已购买</returns>
         public bool IsPurchased(string sku)
         {
             return m_purchases.TryGetValue(sku, out _);
         }
 
+        /// <summary>
+        /// 获取指定SKU的购买记录
+        /// </summary>
+        /// <param name="sku">商品SKU</param>
+        /// <returns>购买记录,如果未购买则返回null</returns>
         public Purchase GetPurchase(string sku)
         {
             return m_purchases.TryGetValue(sku, out var purchase) ? purchase : null;
         }
 
+        /// <summary>
+        /// 购买指定SKU的商品
+        /// </summary>
+        /// <param name="sku">商品SKU</param>
+        /// <param name="onPurchaseFlowCompleted">购买流程完成回调</param>
         public void Purchase(string sku, Action<string, bool, string> onPurchaseFlowCompleted)
         {
 #if UNITY_EDITOR
-            m_purchases[sku] = null; // we can't create a purchase in Editor, but we need to keep track of the purchase
+            // 在编辑器中无法创建购买记录,但需要跟踪购买状态
+            m_purchases[sku] = null;
             onPurchaseFlowCompleted?.Invoke(sku, true, null);
 #else
             IAP.LaunchCheckoutFlow(sku).OnComplete((Message<Purchase> msg) =>
@@ -129,6 +185,11 @@ namespace UltimateGloveBall.App
 #endif
         }
 
+        /// <summary>
+        /// 消费指定SKU的购买记录
+        /// </summary>
+        /// <param name="sku">商品SKU</param>
+        /// <param name="onConsumptionCompleted">消费完成回调</param>
         public void ConsumePurchase(string sku, Action<string, bool> onConsumptionCompleted)
         {
 #if UNITY_EDITOR
@@ -151,6 +212,11 @@ namespace UltimateGloveBall.App
 #endif
         }
 
+        /// <summary>
+        /// 获取商品信息的回调处理
+        /// </summary>
+        /// <param name="msg">商品列表消息</param>
+        /// <param name="category">商品类别</param>
         private void GetProductsBySKUCallback(Message<ProductList> msg, string category)
         {
             if (msg.IsError)
@@ -177,6 +243,10 @@ namespace UltimateGloveBall.App
             }
         }
 
+        /// <summary>
+        /// 获取购买记录的回调处理
+        /// </summary>
+        /// <param name="msg">购买记录列表消息</param>
         private void GetViewerPurchasesCallback(Message<PurchaseList> msg)
         {
             if (msg.IsError)
