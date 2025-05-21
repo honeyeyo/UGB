@@ -2,12 +2,12 @@
 // Use of the material below is subject to the terms of the MIT License
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
-using UltimateGloveBall.App;
-using UltimateGloveBall.Arena.Gameplay;
+using PongHub.App;
+using PongHub.Arena.Gameplay;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Services
+namespace PongHub.Arena.Services
 {
     /// <summary>
     /// This is the base class for any spawning logic in a networked scene. When a player request to be spawned it will

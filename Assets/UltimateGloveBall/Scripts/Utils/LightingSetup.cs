@@ -31,7 +31,7 @@ GI (Global Illumination) 是全局光照的缩写，在Unity中是一个重要�
 
 */
 
-namespace UltimateGloveBall.Utils
+namespace PongHub.Utils
 {
     /// <summary>
     /// 光照设置工具类

@@ -4,7 +4,7 @@
 
 using Unity.Netcode;
 
-namespace UltimateGloveBall.Arena.Services
+namespace PongHub.Arena.Services
 {
     /// <summary>
     /// Handles client disconnect from the arena.

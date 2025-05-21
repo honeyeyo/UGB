@@ -3,12 +3,12 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using Meta.Utilities;
-using UltimateGloveBall.Arena.Player.Respawning;
-using UltimateGloveBall.Utils;
+using PongHub.Arena.Player.Respawning;
+using PongHub.Utils;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// 玩家HUD控制器,负责将HUD界面保持在玩家相机前方,并进行平滑跟随。

@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-namespace UltimateGloveBall.Utils
+namespace PongHub.Utils
 {
     public class AudioFadeInOut : MonoBehaviour
     {

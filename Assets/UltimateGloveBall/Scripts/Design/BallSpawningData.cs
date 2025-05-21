@@ -8,7 +8,7 @@ using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace UltimateGloveBall.Design
+namespace PongHub.Design
 {
     /// <summary>
     /// Configurable scriptable object to define the ball types that can be randomly spawn and their weight for the

@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player.Menu
+namespace PongHub.Arena.Player.Menu
 {
     /// <summary>
     /// Base Menu view for in game menu.

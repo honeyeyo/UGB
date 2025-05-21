@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// 游戏设置的包装类，基于PlayerPrefs实现。可以通过settings实例来获取或设置游戏设置。

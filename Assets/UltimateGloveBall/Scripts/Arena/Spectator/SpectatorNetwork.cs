@@ -3,13 +3,13 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using System.Collections;
-using UltimateGloveBall.Arena.Crowd;
-using UltimateGloveBall.Arena.Player;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Crowd;
+using PongHub.Arena.Player;
+using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Spectator
+namespace PongHub.Arena.Spectator
 {
     /// <summary>
     /// Network representation of the spectator. It chooses a random body form and spectators can selection which item

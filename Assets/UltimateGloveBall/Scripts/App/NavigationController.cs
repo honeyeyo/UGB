@@ -4,11 +4,11 @@
 
 using System.Collections;
 using Meta.Multiplayer.Core;
-using UltimateGloveBall.Arena.Services;
-using UltimateGloveBall.MainMenu;
+using PongHub.Arena.Services;
+using PongHub.MainMenu;
 using UnityEngine;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// Handles the Navigation through the application.

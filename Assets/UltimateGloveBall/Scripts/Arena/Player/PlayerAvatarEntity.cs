@@ -4,11 +4,11 @@
 
 using Meta.Multiplayer.Avatar;
 using Oculus.Avatar2;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// 手套球游戏专用的Avatar实体实现。

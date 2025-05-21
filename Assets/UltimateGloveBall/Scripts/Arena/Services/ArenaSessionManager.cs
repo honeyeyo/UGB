@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Meta.Utilities;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Services
+namespace PongHub.Arena.Services
 {
     /// <summary>
     /// 竞技场会话管理器

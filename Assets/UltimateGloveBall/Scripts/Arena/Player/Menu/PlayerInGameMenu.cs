@@ -3,10 +3,10 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using System.Collections;
-using UltimateGloveBall.App;
+using PongHub.App;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player.Menu
+namespace PongHub.Arena.Player.Menu
 {
     /// <summary>
     /// 游戏内玩家菜单类，根据选中的标签页显示不同的菜单内容。

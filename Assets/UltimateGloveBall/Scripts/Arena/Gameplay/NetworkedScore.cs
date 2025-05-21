@@ -5,7 +5,7 @@
 using System;
 using Unity.Netcode;
 
-namespace UltimateGloveBall.Arena.Gameplay
+namespace PongHub.Arena.Gameplay
 {
     /// <summary>
     /// 网络化分数系统

@@ -10,7 +10,7 @@ using System.Text;
 using Meta.Utilities;
 using UnityEngine;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// 本地玩家状态管理类，继承自Singleton。

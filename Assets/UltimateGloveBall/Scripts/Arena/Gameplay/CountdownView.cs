@@ -7,7 +7,7 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Gameplay
+namespace PongHub.Arena.Gameplay
 {
     /// <summary>
     /// 处理游戏开始时的倒计时视图

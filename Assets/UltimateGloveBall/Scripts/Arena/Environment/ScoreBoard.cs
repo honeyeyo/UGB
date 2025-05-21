@@ -4,11 +4,11 @@
 
 using System;
 using TMPro;
-using UltimateGloveBall.Arena.Gameplay;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Gameplay;
+using PongHub.Arena.Services;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Environment
+namespace PongHub.Arena.Environment
 {
     /// <summary>
     /// 记分牌视觉效果控制类。

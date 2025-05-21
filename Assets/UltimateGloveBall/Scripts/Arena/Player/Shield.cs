@@ -3,12 +3,12 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using System.Collections;
-using UltimateGloveBall.Arena.Balls;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Balls;
+using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// 玩家护盾控制器

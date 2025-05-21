@@ -22,6 +22,7 @@
     "com.unity.render-pipelines.universal": "14.0.11",
     "com.unity.test-framework": "1.1.33",
     "com.unity.textmeshpro": "3.0.9",
+    "com.unity.toolchain.win-x86_64-linux-x86_64": "2.0.10",
     "com.unity.ugui": "1.0.0",
     "com.unity.xr.interaction.toolkit": "2.6.3",
     "com.unity.xr.management": "4.4.1",

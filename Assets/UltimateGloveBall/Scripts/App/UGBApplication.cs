@@ -9,7 +9,7 @@ using Meta.Utilities;
 using Oculus.Platform;
 using UnityEngine;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// Ultimate Glove Ball应用程序的入口点

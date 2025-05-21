@@ -4,11 +4,11 @@
 
 using Meta.Multiplayer.Core;
 using TMPro;
-using UltimateGloveBall.App;
+using PongHub.App;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UltimateGloveBall.Arena.Player.Menu
+namespace PongHub.Arena.Player.Menu
 {
     /// <summary>
     /// 玩家信息项组件，显示在游戏内菜单的玩家列表中。

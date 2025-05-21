@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace UltimateGloveBall.Design
+namespace PongHub.Design
 {
     /// <summary>
     /// Configurable scriptable object that exposes the Ball data. 

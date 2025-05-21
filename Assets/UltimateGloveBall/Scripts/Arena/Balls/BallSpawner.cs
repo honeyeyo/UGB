@@ -6,14 +6,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Meta.Utilities;
-using UltimateGloveBall.Arena.Gameplay;
-using UltimateGloveBall.Design;
-using UltimateGloveBall.Networking.Pooling;
+using PongHub.Arena.Gameplay;
+using PongHub.Design;
+using PongHub.Networking.Pooling;
 using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace UltimateGloveBall.Arena.Balls
+namespace PongHub.Arena.Balls
 {
     /// <summary>
     /// Handles the spawning and despawning of the balls using the network object pool for them.

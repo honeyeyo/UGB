@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using PongHub.Core;
+using PongHub.Gameplay.Paddle;
 
 namespace PongHub.Gameplay.Paddle
 {
@@ -20,7 +21,7 @@ namespace PongHub.Gameplay.Paddle
         private NetworkVariable<Quaternion> m_networkRotation = new NetworkVariable<Quaternion>();
         private NetworkVariable<Vector3> m_networkVelocity = new NetworkVariable<Vector3>();
         private NetworkVariable<bool> m_isForehand = new NetworkVariable<bool>();
-        private NetworkVariable<PaddleState> m_networkState = new NetworkVariable<PaddleState>();
+        private NetworkVariable<PaddleGripState> m_networkGripState = new NetworkVariable<PaddleGripState>();
 
         // 插值变量
         private Vector3 m_targetPosition;
@@ -43,7 +44,7 @@ namespace PongHub.Gameplay.Paddle
                 m_networkRotation.Value = transform.rotation;
                 m_networkVelocity.Value = Vector3.zero;
                 m_isForehand.Value = true;
-                m_networkState.Value = PaddleState.Anchored;
+                m_networkGripState.Value = PaddleState.Anchored;
             }
         }
 
@@ -66,7 +67,7 @@ namespace PongHub.Gameplay.Paddle
             m_networkRotation.Value = transform.rotation;
             m_networkVelocity.Value = m_paddle.Velocity;
             m_isForehand.Value = m_paddle.IsForehand;
-            m_networkState.Value = m_paddle.State;
+            m_networkGripState.Value = m_paddle.State;
         }
 
         private void SmoothInterpolate()
@@ -91,10 +92,10 @@ namespace PongHub.Gameplay.Paddle
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SetStateServerRpc(PaddleState state)
+        public void SetGripStateServerRpc(PaddleGripState state)
         {
-            m_networkState.Value = state;
-            m_paddle.SetState(state);
+            m_networkGripState.Value = state;
+            m_paddle.SetGripState(state);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -138,6 +139,6 @@ namespace PongHub.Gameplay.Paddle
         public Quaternion NetworkRotation => m_networkRotation.Value;
         public Vector3 NetworkVelocity => m_networkVelocity.Value;
         public bool IsForehand => m_isForehand.Value;
-        public PaddleState NetworkState => m_networkState.Value;
+        public PaddleGripState NetworkGripState => m_networkGripState.Value;
     }
 }

@@ -4,11 +4,11 @@
 
 using System.Collections.Generic;
 using TMPro;
-using UltimateGloveBall.App;
+using PongHub.App;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UltimateGloveBall.MainMenu
+namespace PongHub.MainMenu
 {
     /// <summary>
     /// 商店菜单控制器

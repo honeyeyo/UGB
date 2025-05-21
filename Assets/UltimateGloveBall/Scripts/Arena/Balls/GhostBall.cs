@@ -3,11 +3,11 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using Meta.Utilities;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Balls
+namespace PongHub.Arena.Balls
 {
     /// <summary>
     /// The ghost ball will change to a bland ball after the effect timer runs out. It also set the player holding the

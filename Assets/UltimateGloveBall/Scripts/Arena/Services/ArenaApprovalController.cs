@@ -6,12 +6,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Meta.Multiplayer.Core;
-using UltimateGloveBall.App;
+using PongHub.App;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Services
+namespace PongHub.Arena.Services
 {
     /// <summary>
     /// 竞技场连接审批控制器

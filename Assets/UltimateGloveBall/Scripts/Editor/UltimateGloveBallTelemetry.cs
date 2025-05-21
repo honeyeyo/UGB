@@ -4,7 +4,7 @@
 
 using UnityEditor;
 
-namespace UltimateGloveBall.Editor
+namespace PongHub.Editor
 {
     /// <summary>
     /// This class helps us track the usage of this showcase

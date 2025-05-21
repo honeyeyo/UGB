@@ -2,11 +2,11 @@
 // Use of the material below is subject to the terms of the MIT License
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
-using UltimateGloveBall.Design;
+using PongHub.Design;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace UltimateGloveBall.Arena.Balls
+namespace PongHub.Arena.Balls
 {
     /// <summary>
     /// Handles the ball spinning behaviour. We can change the state of the ball and this behaviour will handle

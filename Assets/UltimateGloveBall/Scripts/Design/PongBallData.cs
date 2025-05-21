@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace PongHub.Design
 {
-    [CreateAssetMenu(fileName = "BallData", menuName = "PongHub/Ball Data")]
-    public class BallData : ScriptableObject
+    [CreateAssetMenu(fileName = "PongBallData", menuName = "PongHub/Pong Ball Data")]
+    public class PongBallData : ScriptableObject
     {
         [Header("物理参数")]
         public float Mass = 0.0027f;           // 球的质量(标准乒乓球2.7g)

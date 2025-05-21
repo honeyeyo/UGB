@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UltimateGloveBall.MainMenu
+namespace PongHub.MainMenu
 {
     /// <summary>
     /// 菜单控制器的基类，用于控制主菜单中的不同视图

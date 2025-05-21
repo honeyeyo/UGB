@@ -2,10 +2,10 @@
 // Use of the material below is subject to the terms of the MIT License
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
-using UltimateGloveBall.Arena.Player;
+using PongHub.Arena.Player;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Environment
+namespace PongHub.Arena.Environment
 {
     /// <summary>
     /// Used on floor collider to detect collision between the floor and the glove.

@@ -6,7 +6,7 @@ using Meta.Utilities;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Balls
+namespace PongHub.Arena.Balls
 {
     /// <summary>
     /// The electric ball needs to handle it's vfx when the state of the ball changes.

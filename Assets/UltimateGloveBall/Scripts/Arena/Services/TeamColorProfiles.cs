@@ -8,7 +8,7 @@ using Meta.Utilities;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace UltimateGloveBall.Arena.Services
+namespace PongHub.Arena.Services
 {
     /// <summary>
     /// Setup of the different colors for all the profiles. Each profiled is paired for team A and B.

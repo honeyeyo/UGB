@@ -5,13 +5,13 @@
 using System;
 using System.Collections;
 using Meta.Utilities;
-using UltimateGloveBall.Arena.Gameplay;
-using UltimateGloveBall.Arena.Services;
-using UltimateGloveBall.Arena.VFX;
+using PongHub.Arena.Gameplay;
+using PongHub.Arena.Services;
+using PongHub.Arena.VFX;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player.Respawning
+namespace PongHub.Arena.Player.Respawning
 {
     /// <summary>
     /// Handles the state of a player when they get knocked out. Set the state of the player on knock out and handles

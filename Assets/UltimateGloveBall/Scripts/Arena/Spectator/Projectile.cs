@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Spectator
+namespace PongHub.Arena.Spectator
 {
     /// <summary>
     /// Projectile logic used to move a gameobject based on the launched information.

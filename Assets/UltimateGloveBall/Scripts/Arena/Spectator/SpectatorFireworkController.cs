@@ -6,7 +6,7 @@ using System.Collections;
 using Meta.Utilities;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Spectator
+namespace PongHub.Arena.Spectator
 {
     /// <summary>
     /// Singleton to control the fireworks triggered by the spectators.

@@ -5,7 +5,7 @@
 using Meta.Utilities;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Gameplay
+namespace PongHub.Arena.Gameplay
 {
     /// <summary>
     /// Keeps track of specific game state.

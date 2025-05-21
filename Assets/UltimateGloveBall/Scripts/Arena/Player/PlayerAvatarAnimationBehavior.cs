@@ -5,7 +5,7 @@ using Oculus.Avatar2;
 using Oculus.Avatar2.Experimental;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// 此脚本是MecanimLegsAnimationController.cs的补充,因为我们不想完全重写该脚本,以避免在更新Avatar SDK和示例时出现复杂的更改。

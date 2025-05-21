@@ -5,12 +5,12 @@
 using System;
 using System.Collections;
 using Meta.Multiplayer.Core;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// Handles the callbacks from the NetworkLayer.

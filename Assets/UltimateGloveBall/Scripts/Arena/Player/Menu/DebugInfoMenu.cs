@@ -3,11 +3,11 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using TMPro;
-using UltimateGloveBall.App;
+using PongHub.App;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player.Menu
+namespace PongHub.Arena.Player.Menu
 {
     /// <summary>
     /// Menu that shows some debug info to the user.

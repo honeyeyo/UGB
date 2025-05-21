@@ -8,7 +8,7 @@ using Oculus.Platform;
 using Oculus.Platform.Models;
 using UnityEngine;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// 应用内购买管理器

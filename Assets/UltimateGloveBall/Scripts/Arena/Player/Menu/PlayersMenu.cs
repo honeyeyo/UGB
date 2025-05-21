@@ -6,11 +6,11 @@
 using Oculus.Platform;
 #endif
 using System.Collections.Generic;
-using UltimateGloveBall.App;
+using PongHub.App;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace UltimateGloveBall.Arena.Player.Menu
+namespace PongHub.Arena.Player.Menu
 {
     /// <summary>
     /// In game menu that shows information of the current players in the game.

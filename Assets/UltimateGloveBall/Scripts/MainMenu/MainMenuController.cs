@@ -3,13 +3,13 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using System;
-using UltimateGloveBall.App;
-using UltimateGloveBall.Arena.Player;
-using UltimateGloveBall.Arena.Services;
-using UltimateGloveBall.Utils;
+using PongHub.App;
+using PongHub.Arena.Player;
+using PongHub.Arena.Services;
+using PongHub.Utils;
 using UnityEngine;
 
-namespace UltimateGloveBall.MainMenu
+namespace PongHub.MainMenu
 {
     /// <summary>
     /// 主菜单场景控制器

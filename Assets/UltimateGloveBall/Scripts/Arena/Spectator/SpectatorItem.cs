@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Spectator
+namespace PongHub.Arena.Spectator
 {
     /// <summary>
     /// Base class for all spectator items so we can set the team color on the item.

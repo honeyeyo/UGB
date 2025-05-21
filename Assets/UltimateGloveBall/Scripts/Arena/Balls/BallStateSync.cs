@@ -5,12 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UltimateGloveBall.Arena.Player;
+using PongHub.Arena.Player;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace UltimateGloveBall.Arena.Balls
+namespace PongHub.Arena.Balls
 {
     /// <summary>
     /// This class handles synchronization of the ball position. We synchronize the balls using rpcs, each packet

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace UltimateGloveBall.Arena.Services
+namespace PongHub.Arena.Services
 {
     /// <summary>
     /// This is a reserving system for spawn points. By keeping track of the points in use, we can ensure that we don't

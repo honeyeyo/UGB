@@ -3,10 +3,10 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using System.Collections.Generic;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Services;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Environment
+namespace PongHub.Arena.Environment
 {
     /// <summary>
     /// This manager will keep a list of the obstacles to easily be able to color them the appropriate team color.

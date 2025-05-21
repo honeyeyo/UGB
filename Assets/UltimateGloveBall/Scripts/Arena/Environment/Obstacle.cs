@@ -3,15 +3,15 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using Meta.Utilities;
-using UltimateGloveBall.Arena.Balls;
-using UltimateGloveBall.Arena.Gameplay;
-using UltimateGloveBall.Arena.Player;
-using UltimateGloveBall.Arena.Services;
-using UltimateGloveBall.Arena.VFX;
+using PongHub.Arena.Balls;
+using PongHub.Arena.Gameplay;
+using PongHub.Arena.Player;
+using PongHub.Arena.Services;
+using PongHub.Arena.VFX;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Environment
+namespace PongHub.Arena.Environment
 {
     /// <summary>
     /// 游戏中的网络同步障碍物。主要功能包括:

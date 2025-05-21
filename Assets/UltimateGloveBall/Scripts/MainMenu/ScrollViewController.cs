@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace UltimateGloveBall.MainMenu
+namespace PongHub.MainMenu
 {
     /// <summary>
     /// 滚动视图控制器

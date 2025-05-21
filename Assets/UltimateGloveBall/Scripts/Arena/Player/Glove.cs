@@ -6,13 +6,13 @@ using System;
 using Meta.Utilities;
 using Oculus.Avatar2;
 using Oculus.Interaction;
-using UltimateGloveBall.Arena.Balls;
-using UltimateGloveBall.Arena.Environment;
-using UltimateGloveBall.Arena.Gameplay;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Balls;
+using PongHub.Arena.Environment;
+using PongHub.Arena.Gameplay;
+using PongHub.Arena.Services;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// 处理手套的本地逻辑，包括手套移动、动作触发、追踪目标（用于追踪球）、地面和球的目标指示器、持球等。

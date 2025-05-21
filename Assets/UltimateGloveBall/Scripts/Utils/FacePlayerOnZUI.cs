@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace UltimateGloveBall.Utils
+namespace PongHub.Utils
 {
     /// <summary>
     /// Add this to a gameobject that we want to face the main camera and flip based on the position on the

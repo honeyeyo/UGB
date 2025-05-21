@@ -8,7 +8,7 @@ using Meta.Multiplayer.Core;
 using Oculus.Platform;
 using UnityEngine;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// Handles the current user presence.

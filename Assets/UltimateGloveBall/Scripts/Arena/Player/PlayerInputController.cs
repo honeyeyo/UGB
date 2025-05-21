@@ -3,16 +3,16 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using Meta.Utilities;
-using UltimateGloveBall.App;
-using UltimateGloveBall.Arena.Player.Menu;
-using UltimateGloveBall.Arena.Services;
-using UltimateGloveBall.Arena.Spectator;
-using UltimateGloveBall.Arena.VFX;
+using PongHub.App;
+using PongHub.Arena.Player.Menu;
+using PongHub.Arena.Services;
+using PongHub.Arena.Spectator;
+using PongHub.Arena.VFX;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.InputSystem.InputAction;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// 玩家输入控制器,负责处理玩家的所有输入操作。

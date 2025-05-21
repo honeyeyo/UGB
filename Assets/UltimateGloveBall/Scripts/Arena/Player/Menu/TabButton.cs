@@ -3,11 +3,11 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using Meta.Utilities;
-using UltimateGloveBall.MainMenu;
+using PongHub.MainMenu;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UltimateGloveBall.Arena.Player.Menu
+namespace PongHub.Arena.Player.Menu
 {
     /// <summary>
     /// Controls the Tab button at the top of the Player in game menu.

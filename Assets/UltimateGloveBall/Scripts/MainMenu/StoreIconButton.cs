@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UltimateGloveBall.MainMenu
+namespace PongHub.MainMenu
 {
     /// <summary>
     /// 商店图标按钮控制器类

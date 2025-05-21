@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.VFX
+namespace PongHub.Arena.VFX
 {
     /// <summary>
     /// Component added to the electric vfx gameobject using a line renderer.

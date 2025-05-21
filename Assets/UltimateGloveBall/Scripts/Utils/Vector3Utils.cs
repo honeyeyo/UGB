@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace UltimateGloveBall.Utils
+namespace PongHub.Utils
 {
     /// <summary>
     /// Utility functions added to vector3 to easily change one of the components (x, y or z) of a vector3.

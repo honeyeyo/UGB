@@ -5,18 +5,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using UltimateGloveBall.App;
-using UltimateGloveBall.Arena.Balls;
-using UltimateGloveBall.Arena.Environment;
-using UltimateGloveBall.Arena.Player;
-using UltimateGloveBall.Arena.Services;
+using PongHub.App;
+using PongHub.Arena.Balls;
+using PongHub.Arena.Environment;
+using PongHub.Arena.Player;
+using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 #if !(UNITY_EDITOR || UNITY_STANDALONE_WIN)
 using Oculus.Platform;
 #endif
 
-namespace UltimateGloveBall.Arena.Gameplay
+namespace PongHub.Arena.Gameplay
 {
     /// <summary>
     /// 游戏管理器类,负责管理游戏的整体状态和流程

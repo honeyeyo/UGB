@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Meta.Utilities;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.VFX
+namespace PongHub.Arena.VFX
 {
     /// <summary>
     /// Manages the game vfx.

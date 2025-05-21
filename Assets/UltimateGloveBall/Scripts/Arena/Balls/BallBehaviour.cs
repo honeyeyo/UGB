@@ -4,7 +4,7 @@
 
 using Unity.Netcode;
 
-namespace UltimateGloveBall.Arena.Balls
+namespace PongHub.Arena.Balls
 {
     /// <summary>
     /// Base network ball behaviour to be implemented by the different types of balls.

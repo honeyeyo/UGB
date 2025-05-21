@@ -8,10 +8,18 @@ namespace PongHub.Gameplay.Paddle
     public class Paddle : MonoBehaviour
     {
         // 球拍状态
-        public enum State
+        public enum PaddleGripState
         {
             Anchored,   // 固定在手上
             Free        // 自由状态(比如掉在地上)
+        }
+
+        // 球拍状态枚举
+        public enum PaddleState
+        {
+            Inactive,   // 非活动状态
+            Active,     // 活动状态
+            Disabled    // 禁用状态
         }
 
         [Header("组件引用")]
@@ -26,14 +34,13 @@ namespace PongHub.Gameplay.Paddle
         [SerializeField] private PaddleData m_paddleData;
 
         // 球拍状态
-        private State m_currentState = State.Anchored;
+        private PaddleGripState m_gripState = PaddleGripState.Anchored;
         private bool m_isForehand = true;  // 当前使用正手面
         private Vector3 m_lastVelocity;    // 上一帧速度
         private Vector3 m_currentVelocity; // 当前速度
         private Vector3 m_acceleration;    // 加速度
         private float m_lastHitTime;       // 上次击球时间
         private Vector3 m_velocity;
-        private bool m_isForehand;
         private PaddleState m_state;
         private float m_lastVibrationTime;
 
@@ -78,7 +85,7 @@ namespace PongHub.Gameplay.Paddle
 
         private void FixedUpdate()
         {
-            if (m_currentState == State.Anchored)
+            if (m_gripState == PaddleGripState.Anchored)
             {
                 UpdateMotionState();
             }
@@ -208,11 +215,11 @@ namespace PongHub.Gameplay.Paddle
             m_isForehand = !m_isForehand;
         }
 
-        // 设置球拍状态
-        public void SetState(State newState)
+        // 设置球拍握持状态
+        public void SetGripState(PaddleGripState newState)
         {
-            m_currentState = newState;
-            m_rigidbody.isKinematic = (newState == State.Anchored);
+            m_gripState = newState;
+            m_rigidbody.isKinematic = (newState == PaddleGripState.Anchored);
         }
 
         // 设置速度
@@ -252,7 +259,7 @@ namespace PongHub.Gameplay.Paddle
         }
 
         // 属性
-        public State CurrentState => m_currentState;
+        public PaddleGripState GripState => m_gripState;
         public bool IsForehand => m_isForehand;
         public Vector3 CurrentVelocity => m_currentVelocity;
         public Vector3 Acceleration => m_acceleration;
@@ -262,11 +269,5 @@ namespace PongHub.Gameplay.Paddle
         public PaddleData PaddleData => m_paddleData;
     }
 
-    // 球拍状态枚举
-    public enum PaddleState
-    {
-        Inactive,   // 非活动状态
-        Active,     // 活动状态
-        Disabled    // 禁用状态
-    }
+    
 }

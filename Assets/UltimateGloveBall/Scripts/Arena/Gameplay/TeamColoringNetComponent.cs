@@ -3,11 +3,11 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using System.Collections.Generic;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Gameplay
+namespace PongHub.Arena.Gameplay
 {
     /// <summary>
     /// Sync team color for colored renderers to all clients. This component will color all renderers listed with the

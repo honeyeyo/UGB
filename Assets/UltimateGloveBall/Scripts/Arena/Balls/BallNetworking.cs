@@ -6,17 +6,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meta.Utilities;
-using UltimateGloveBall.Arena.Environment;
-using UltimateGloveBall.Arena.Gameplay;
-using UltimateGloveBall.Arena.Player;
-using UltimateGloveBall.Arena.Player.Respawning;
-using UltimateGloveBall.Arena.VFX;
-using UltimateGloveBall.Design;
+using PongHub.Arena.Environment;
+using PongHub.Arena.Gameplay;
+using PongHub.Arena.Player;
+using PongHub.Arena.Player.Respawning;
+using PongHub.Arena.VFX;
+using PongHub.Design;
 using Unity.Netcode;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
-namespace UltimateGloveBall.Arena.Balls
+namespace PongHub.Arena.Balls
 {
     /// <summary>
     /// Handles the network state of the ball as well as the game logic. This is the core of the ball behaviour,

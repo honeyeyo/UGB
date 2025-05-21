@@ -4,14 +4,14 @@
 
 using System;
 using System.Collections.Generic;
-using UltimateGloveBall.Arena.Gameplay;
-using UltimateGloveBall.Arena.Player;
-using UltimateGloveBall.Arena.Spectator;
+using PongHub.Arena.Gameplay;
+using PongHub.Arena.Player;
+using PongHub.Arena.Spectator;
 using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace UltimateGloveBall.Arena.Services
+namespace PongHub.Arena.Services
 {
     /// <summary>
     /// 竞技场玩家生成管理器

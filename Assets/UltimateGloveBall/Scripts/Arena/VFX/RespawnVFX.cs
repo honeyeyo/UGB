@@ -6,7 +6,7 @@ using Meta.Multiplayer.Avatar;
 using Oculus.Avatar2;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.VFX
+namespace PongHub.Arena.VFX
 {
     /// <summary>
     /// Component to be placed on the Respawn VFX game object. It animates the disolve amount on the material overtime.

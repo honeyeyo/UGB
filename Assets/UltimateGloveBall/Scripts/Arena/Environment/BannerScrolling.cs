@@ -5,7 +5,7 @@
 using Meta.Utilities;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Environment
+namespace PongHub.Arena.Environment
 {
     /// <summary>
     /// 控制竞技场横幅的滚动。主要功能包括:

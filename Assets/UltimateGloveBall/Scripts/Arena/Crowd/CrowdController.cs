@@ -3,13 +3,13 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using System.Collections;
-using UltimateGloveBall.Arena.Gameplay;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Gameplay;
+using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace UltimateGloveBall.Arena.Crowd
+namespace PongHub.Arena.Crowd
 {
     /// <summary>
     /// 控制看台上的NPC观众。主要功能包括:

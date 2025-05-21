@@ -5,11 +5,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using Oculus.Platform;
-using UltimateGloveBall.App;
+using PongHub.App;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UltimateGloveBall.MainMenu
+namespace PongHub.MainMenu
 {
     /// <summary>
     /// 好友菜单控制器类

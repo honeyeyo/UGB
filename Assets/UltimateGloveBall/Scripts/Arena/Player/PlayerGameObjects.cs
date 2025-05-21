@@ -4,9 +4,9 @@
 
 using System.Collections.Generic;
 using Oculus.Avatar2;
-using UltimateGloveBall.Arena.Gameplay;
+using PongHub.Arena.Gameplay;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// 保存构成玩家实体的游戏对象引用,并在所有组件分配完成后进行初始化。

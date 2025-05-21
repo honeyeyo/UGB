@@ -5,11 +5,11 @@
 using Oculus.Platform;
 using Oculus.Platform.Models;
 using TMPro;
-using UltimateGloveBall.App;
+using PongHub.App;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UltimateGloveBall.MainMenu
+namespace PongHub.MainMenu
 {
     /// <summary>
     /// 好友列表元素类，用于显示好友信息、在线状态，并处理加入/观战按钮点击事件

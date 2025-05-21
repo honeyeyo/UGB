@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// Maps Photon regions to user readable names.

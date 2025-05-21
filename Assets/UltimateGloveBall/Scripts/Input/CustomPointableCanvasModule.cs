@@ -5,7 +5,7 @@
 using Oculus.Interaction;
 using UnityEngine.XR;
 
-namespace UltimateGloveBall.Input
+namespace PongHub.Input
 {
     /// <summary>
     /// Override of the PointableCanvasModule so that we can use the mouse pointer in editor when not headset is

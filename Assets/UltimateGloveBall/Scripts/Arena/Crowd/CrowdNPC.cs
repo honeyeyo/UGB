@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Crowd
+namespace PongHub.Arena.Crowd
 {
     /// <summary>
     /// NPC观众成员的表现类。主要功能包括:

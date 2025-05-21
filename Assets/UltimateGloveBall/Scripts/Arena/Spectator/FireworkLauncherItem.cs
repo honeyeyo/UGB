@@ -6,7 +6,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Spectator
+namespace PongHub.Arena.Spectator
 {
     /// <summary>
     /// This spectator item has custom logic to launch a firework in the arena.

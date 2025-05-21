@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using Meta.Utilities;
 using Oculus.Interaction;
 using Oculus.Interaction.Input;
-using UltimateGloveBall.App;
-using UltimateGloveBall.Arena.Gameplay;
-using UltimateGloveBall.Arena.Player;
+using PongHub.App;
+using PongHub.Arena.Gameplay;
+using PongHub.Arena.Player;
 using Unity.Netcode;
 
-namespace UltimateGloveBall.Arena.Services
+namespace PongHub.Arena.Services
 {
     /// <summary>
     /// 跟踪玩家实体。

@@ -8,7 +8,7 @@ using Netcode.Transports.PhotonRealtime;
 using Photon.Realtime;
 using UnityEngine;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// Photon连接处理器

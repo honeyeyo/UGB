@@ -3,10 +3,10 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using Meta.Utilities;
-using UltimateGloveBall.App;
+using PongHub.App;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.VFX
+namespace PongHub.Arena.VFX
 {
     /// <summary>
     /// Manages the screen fx, the vignette for death and locomotion. This singleton can be access to enable and disable

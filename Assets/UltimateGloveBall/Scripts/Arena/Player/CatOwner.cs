@@ -3,10 +3,10 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using Meta.Utilities;
-using UltimateGloveBall.Arena.Player.Respawning;
+using PongHub.Arena.Player.Respawning;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// You own a cat? You can spawn or despawn the cat as an owner. This also is an interface for the Cat to get

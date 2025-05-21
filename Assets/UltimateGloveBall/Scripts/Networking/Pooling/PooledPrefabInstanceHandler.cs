@@ -5,7 +5,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Networking.Pooling
+namespace PongHub.Networking.Pooling
 {
     /// <summary>
     /// Handles the pooled instances for the NetworkObjectPool.

@@ -6,14 +6,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Meta.Utilities;
-using UltimateGloveBall.Arena.Gameplay;
-using UltimateGloveBall.Arena.Player.Respawning;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Gameplay;
+using PongHub.Arena.Player.Respawning;
+using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// 控制玩家状态。处理护盾状态、无敌状态、队伍状态,并引用重生控制器。

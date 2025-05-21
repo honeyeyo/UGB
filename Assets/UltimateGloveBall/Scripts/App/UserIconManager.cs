@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using Meta.Utilities;
 using UnityEngine;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// Manages the icons that can be used in game. This singleton will be on a gameObject in the startup scene

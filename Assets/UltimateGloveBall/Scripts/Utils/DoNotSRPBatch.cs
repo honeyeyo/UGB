@@ -4,7 +4,7 @@
 
 using UnityEngine;
 
-namespace UltimateGloveBall.Utils
+namespace PongHub.Utils
 {
     /// <summary>
     /// Add this monobehaviour on a gameobject with a renderer to disable SRP Batching

@@ -3,13 +3,13 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using TMPro;
-using UltimateGloveBall.App;
-using UltimateGloveBall.Arena.Spectator;
+using PongHub.App;
+using PongHub.Arena.Spectator;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UltimateGloveBall.Arena.Player.Menu
+namespace PongHub.Arena.Player.Menu
 {
     /// <summary>
     /// Game settings menu view for the in game menu.

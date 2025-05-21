@@ -5,7 +5,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace UltimateGloveBall.MainMenu
+namespace PongHub.MainMenu
 {
     /// <summary>
     /// 错误面板控制器类

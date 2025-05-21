@@ -6,7 +6,7 @@ using Meta.Utilities;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Balls
+namespace PongHub.Arena.Balls
 {
     /// <summary>
     /// The triple ball will spawn 3 balls shortly after being thrown. The split is done only on the server and

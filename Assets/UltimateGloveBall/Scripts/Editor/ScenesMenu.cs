@@ -7,7 +7,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityToolbarExtender;
 
-namespace UltimateGloveBall.Editor
+namespace PongHub.Editor
 {
     /// <summary>
     /// Adds a quick way to load the different scenes by adding a button for each scene on the toolbar.

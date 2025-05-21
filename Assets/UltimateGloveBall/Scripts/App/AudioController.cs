@@ -6,7 +6,7 @@ using Meta.Utilities;
 using UnityEngine;
 using UnityEngine.Audio;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// Controls the game audio, we can set the volume for Music, SFX and Crowd.

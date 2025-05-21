@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace UltimateGloveBall.App
+namespace PongHub.App
 {
     /// <summary>
     /// Manages muting users voice. It keeps track of the users mute state.

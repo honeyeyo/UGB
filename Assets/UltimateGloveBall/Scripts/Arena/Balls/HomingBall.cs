@@ -4,11 +4,11 @@
 
 using Meta.Utilities;
 using Oculus.Avatar2;
-using UltimateGloveBall.Arena.Services;
+using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Balls
+namespace PongHub.Arena.Balls
 {
     /// <summary>
     /// When this ball is thrown it doesn't follow physics, but rather homes towards its target.

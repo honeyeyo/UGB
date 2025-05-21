@@ -4,12 +4,12 @@
 
 using Meta.Multiplayer.Core;
 using Meta.Utilities;
-using UltimateGloveBall.App;
+using PongHub.App;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// 玩家状态网络同步组件

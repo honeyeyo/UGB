@@ -4,12 +4,12 @@
 
 using Meta.Multiplayer.Core;
 using Meta.Utilities;
-using UltimateGloveBall.App;
-using UltimateGloveBall.Arena.Services;
-using UltimateGloveBall.Utils;
+using PongHub.App;
+using PongHub.Arena.Services;
+using PongHub.Utils;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// 玩家移动控制器,负责处理玩家的所有移动相关功能。

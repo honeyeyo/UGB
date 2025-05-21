@@ -9,7 +9,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace UltimateGloveBall.Networking.Pooling
+namespace PongHub.Networking.Pooling
 {
     /// <summary>
     /// 网络对象池类

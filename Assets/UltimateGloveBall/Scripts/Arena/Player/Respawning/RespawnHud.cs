@@ -6,7 +6,7 @@ using System;
 using TMPro;
 using UnityEngine;
 
-namespace UltimateGloveBall.Arena.Player.Respawning
+namespace PongHub.Arena.Player.Respawning
 {
     /// <summary>
     /// Hud that tracks the players camera to show the respawn count down and message.

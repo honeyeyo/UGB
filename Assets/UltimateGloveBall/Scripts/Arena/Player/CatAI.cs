@@ -3,11 +3,11 @@
 // https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE
 
 using Meta.Utilities;
-using UltimateGloveBall.Arena.Balls;
+using PongHub.Arena.Balls;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace UltimateGloveBall.Arena.Player
+namespace PongHub.Arena.Player
 {
     /// <summary>
     /// This Cat AI component integrate logic for the cat to follow it's owner on a navigation mesh.

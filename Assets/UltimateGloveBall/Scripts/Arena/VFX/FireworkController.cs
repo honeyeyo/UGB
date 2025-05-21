@@ -5,7 +5,7 @@
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace UltimateGloveBall.Arena.VFX
+namespace PongHub.Arena.VFX
 {
     /// <summary>
     /// Controls the end game fireworks to play them randomly inside the winning and losing side colliders, used as
