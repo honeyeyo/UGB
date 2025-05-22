@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using PongHub.Core;
 using PongHub.Gameplay;
+using PongHub.Gameplay.Ball;
 
 namespace PongHub.UI
 {
@@ -174,10 +175,7 @@ namespace PongHub.UI
         {
             if (m_gameManager != null)
             {
-                m_gameManager.StartGame(
-                    m_gameModeDropdown.value,
-                    m_difficultyDropdown.value
-                );
+                m_gameManager.StartGame(m_gameModeDropdown.value == 0); // 0表示单打模式
                 HideMainMenu();
                 ShowHUD();
             }
@@ -211,7 +209,7 @@ namespace PongHub.UI
         {
             if (m_gameManager != null)
             {
-                m_gameManager.EndGame();
+                m_gameManager.SetState(PongHub.Gameplay.GameManager.GameState.MainMenu);
                 HideScoreboard();
                 ShowMainMenu();
             }

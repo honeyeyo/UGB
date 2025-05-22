@@ -26,7 +26,18 @@ namespace PongHub.Core
         [SerializeField] private AudioSource musicSource;
         [SerializeField] private AudioClip[] backgroundMusic;
 
+        [Header("音频设置")]
+        [SerializeField] private float m_masterVolume = 1f;
+        [SerializeField] private float m_sfxVolume = 1f;
+
+        [Header("音效")]
+        [SerializeField] private AudioClip m_paddleHitSound;
+        [SerializeField] private AudioClip m_tableHitSound;
+        [SerializeField] private AudioClip m_netHitSound;
+        [SerializeField] private AudioClip m_edgeHitSound;
+
         private Dictionary<string, SoundEffect> soundEffectDict;
+        private AudioSource m_audioSource;
 
         private void Awake()
         {
@@ -39,6 +50,12 @@ namespace PongHub.Core
             else
             {
                 Destroy(gameObject);
+            }
+
+            m_audioSource = GetComponent<AudioSource>();
+            if (m_audioSource == null)
+            {
+                m_audioSource = gameObject.AddComponent<AudioSource>();
             }
         }
 
@@ -109,17 +126,48 @@ namespace PongHub.Core
         // 乒乓球特定的音效播放方法
         public void PlayPaddleHit()
         {
-            PlaySound("PaddleHit");
+            PlaySound(m_paddleHitSound);
         }
 
-        public void PlayTableHit()
+        public void PlayTableHit(Vector3 position)
         {
-            PlaySound("TableHit");
+            PlaySoundAtPosition(m_tableHitSound, position);
         }
 
-        public void PlayNetHit()
+        public void PlayNetHit(Vector3 position)
         {
-            PlaySound("NetHit");
+            PlaySoundAtPosition(m_netHitSound, position);
+        }
+
+        public void PlayEdgeHit(Vector3 position)
+        {
+            PlaySoundAtPosition(m_edgeHitSound, position);
+        }
+
+        private void PlaySound(AudioClip clip)
+        {
+            if (clip != null)
+            {
+                m_audioSource.PlayOneShot(clip, m_sfxVolume * m_masterVolume);
+            }
+        }
+
+        private void PlaySoundAtPosition(AudioClip clip, Vector3 position)
+        {
+            if (clip != null)
+            {
+                AudioSource.PlayClipAtPoint(clip, position, m_sfxVolume * m_masterVolume);
+            }
+        }
+
+        public void SetMasterVolume(float volume)
+        {
+            m_masterVolume = Mathf.Clamp01(volume);
+        }
+
+        public void SetSFXVolume(float volume)
+        {
+            m_sfxVolume = Mathf.Clamp01(volume);
         }
 
         public void PlayScore()

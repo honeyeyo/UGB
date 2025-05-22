@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using PongHub.Core;
+using PongHub.Gameplay;
 
 namespace PongHub.UI
 {
@@ -47,7 +48,7 @@ namespace PongHub.UI
             {
                 m_mainMenuButton.onClick.AddListener(() =>
                 {
-                    GameManager.Instance.EndGame();
+                    GameManager.Instance.SetState(GameManager.GameState.MainMenu);
                 });
             }
         }

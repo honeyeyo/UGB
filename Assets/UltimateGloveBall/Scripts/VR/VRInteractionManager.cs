@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR;
+using XRController = UnityEngine.XR.Interaction.Toolkit.XRController;
 using PongHub.Core;
 
 namespace PongHub.VR
@@ -9,8 +10,8 @@ namespace PongHub.VR
     public class VRInteractionManager : MonoBehaviour
     {
         [Header("XR引用")]
-        [SerializeField] private XRController m_leftController;
-        [SerializeField] private XRController m_rightController;
+        [SerializeField] private XRBaseController m_leftController;
+        [SerializeField] private XRBaseController m_rightController;
         [SerializeField] private XRDirectInteractor m_leftInteractor;
         [SerializeField] private XRDirectInteractor m_rightInteractor;
         [SerializeField] private XRRayInteractor m_leftRayInteractor;
@@ -69,14 +70,14 @@ namespace PongHub.VR
             // 设置控制器
             if (m_leftController != null)
             {
-                m_leftController.selectActionTrigger = XRController.ButtonTriggerType.StateChange;
-                m_leftController.activateActionTrigger = XRController.ButtonTriggerType.StateChange;
+                m_leftController.selectActionTrigger = XRBaseController.InputTriggerType.StateChange;
+                m_leftController.activateActionTrigger = XRBaseController.InputTriggerType.StateChange;
             }
 
             if (m_rightController != null)
             {
-                m_rightController.selectActionTrigger = XRController.ButtonTriggerType.StateChange;
-                m_rightController.activateActionTrigger = XRController.ButtonTriggerType.StateChange;
+                m_rightController.selectActionTrigger = XRBaseController.InputTriggerType.StateChange;
+                m_rightController.activateActionTrigger = XRBaseController.InputTriggerType.StateChange;
             }
         }
 
@@ -337,7 +338,7 @@ namespace PongHub.VR
         }
 
         // 发送触觉反馈
-        public void SendHapticImpulse(XRController controller, float intensity, float duration)
+        public void SendHapticImpulse(XRBaseController controller, float intensity, float duration)
         {
             if (controller != null)
             {

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using PongHub.Core;
+using PongHub.Gameplay;
 
 namespace PongHub.UI
 {
@@ -162,6 +163,11 @@ namespace PongHub.UI
             {
                 m_settingsPanel.SetActive(show);
             }
+        }
+
+        private void OnStartGameClicked()
+        {
+            GameManager.Instance.StartGame(true); // true表示单打模式
         }
     }
 }

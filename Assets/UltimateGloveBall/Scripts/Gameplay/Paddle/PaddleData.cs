@@ -10,6 +10,8 @@ namespace PongHub.Gameplay.Paddle
         public float Bounce = 0.8f;          // 球拍弹性
         public float Friction = 0.2f;        // 球拍摩擦系数
 
+        public float Drag = 0.01f;          // 空气阻力
+
         [Header("运动参数")]
         public float MaxSpeed = 20f;         // 最大速度
         public float MinSpeed = 2f;          // 最小速度
@@ -19,6 +21,7 @@ namespace PongHub.Gameplay.Paddle
         public float TrailWidth = 0.1f;      // 拖尾宽度
         public float TrailTime = 0.5f;       // 拖尾时间
         public Color TrailColor = Color.white; // 拖尾颜色
+        public Color PaddleColor = Color.red; // 球拍颜色
 
         [Header("乒乓球拍特定参数")]
         public float ForehandPower = 1.2f;   // 正手力量系数

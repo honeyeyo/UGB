@@ -4,23 +4,24 @@ using PongHub.Core;
 
 namespace PongHub.Gameplay.Paddle
 {
+    // 球拍状态
+    public enum PaddleGripState
+    {
+        Anchored,   // 固定在手上
+        Free        // 自由状态(比如掉在地上)
+    }
+
+    // 球拍状态枚举
+    public enum PaddleState
+    {
+        Inactive,   // 非活动状态
+        Active,     // 活动状态
+        Disabled    // 禁用状态
+    }
     [RequireComponent(typeof(Rigidbody))]
     public class Paddle : MonoBehaviour
     {
-        // 球拍状态
-        public enum PaddleGripState
-        {
-            Anchored,   // 固定在手上
-            Free        // 自由状态(比如掉在地上)
-        }
-
-        // 球拍状态枚举
-        public enum PaddleState
-        {
-            Inactive,   // 非活动状态
-            Active,     // 活动状态
-            Disabled    // 禁用状态
-        }
+        
 
         [Header("组件引用")]
         [SerializeField] private Rigidbody m_rigidbody;
@@ -61,8 +62,8 @@ namespace PongHub.Gameplay.Paddle
         private void SetupRigidbody()
         {
             m_rigidbody.mass = m_paddleData.Mass;
-            m_rigidbody.drag = m_paddleData.AirResistance;
-            m_rigidbody.angularDrag = m_paddleData.AirResistance * 2f;
+            m_rigidbody.drag = m_paddleData.Drag;
+            m_rigidbody.angularDrag = m_paddleData.Drag * 2f;
             m_rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
             m_rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
             m_rigidbody.constraints = RigidbodyConstraints.FreezeRotation | RigidbodyConstraints.FreezePositionY;
@@ -80,7 +81,7 @@ namespace PongHub.Gameplay.Paddle
 
         private void SetupVisuals()
         {
-            m_renderer.material.color = m_paddleData.Color;
+            m_renderer.material.color = m_paddleData.PaddleColor;
         }
 
         private void FixedUpdate()
