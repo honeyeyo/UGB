@@ -1,6 +1,7 @@
 using UnityEngine;
 using PongHub.Gameplay.Ball;
 using PongHub.Core;
+using System.Threading.Tasks;
 
 namespace PongHub.Gameplay.Table
 {
@@ -14,6 +15,9 @@ namespace PongHub.Gameplay.Table
         [SerializeField] private MeshRenderer m_tableRenderer;
         [SerializeField] private MeshRenderer m_netRenderer;
         [SerializeField] private MeshRenderer m_lineRenderer;
+        [SerializeField] private MeshRenderer m_renderer;
+        [SerializeField] private Collider m_collider;
+        [SerializeField] private Transform m_netTransform;
 
         [Header("配置")]
         [SerializeField] private TableData m_tableData;
@@ -42,6 +46,10 @@ namespace PongHub.Gameplay.Table
                 m_netRenderer = transform.Find("Net").GetComponent<MeshRenderer>();
             if (m_lineRenderer == null)
                 m_lineRenderer = transform.Find("Lines").GetComponent<MeshRenderer>();
+            if (m_renderer == null)
+                m_renderer = GetComponent<MeshRenderer>();
+            if (m_collider == null)
+                m_collider = GetComponent<Collider>();
 
             SetupColliders();
             SetupVisuals();
@@ -106,43 +114,29 @@ namespace PongHub.Gameplay.Table
         {
             if (collision.gameObject.TryGetComponent<BallPhysics>(out var ball))
             {
-                HandleBallCollision(collision, ball);
+                var contact = collision.GetContact(0);
+                var contactPoint = contact.point;
+                var contactNormal = contact.normal;
+
+                // 计算击球力度
+                float hitForce = CalculateHitForce(ball.Velocity);
+
+                // 应用碰撞力
+                ball.ApplyCollisionForce(contactPoint, contactNormal, hitForce, HitType.Table);
+
+                // 播放击球音效
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayTableHit(contactPoint, m_tableData.HitVolume);
+                }
             }
         }
 
-        private void HandleBallCollision(Collision collision, BallPhysics ball)
+        private float CalculateHitForce(Vector3 ballVelocity)
         {
-            var contact = collision.GetContact(0);
-            var contactPoint = contact.point;
-            var contactNormal = contact.normal;
-
-            // 确定碰撞类型
-            if (m_netBounds.Contains(contactPoint))
-            {
-                // 球网碰撞
-                PlayHitSound(m_tableData.NetHitVolume);
-                ball.ApplyCollisionForce(contactPoint, contactNormal, m_tableData.NetBounce);
-            }
-            else if (m_edgeBounds.Contains(contactPoint) && !m_tableBounds.Contains(contactPoint))
-            {
-                // 边缘碰撞
-                PlayHitSound(m_tableData.EdgeHitVolume);
-                ball.ApplyCollisionForce(contactPoint, contactNormal, m_tableData.Bounce * 1.2f);
-            }
-            else
-            {
-                // 球桌面碰撞
-                PlayHitSound(m_tableData.TableHitVolume);
-                ball.ApplyCollisionForce(contactPoint, contactNormal, m_tableData.Bounce);
-            }
-        }
-
-        private void PlayHitSound(float volume)
-        {
-            if (AudioManager.Instance != null)
-            {
-                AudioManager.Instance.PlayTableHit(volume);
-            }
+            // 计算击球力度
+            float hitForce = ballVelocity.magnitude * m_tableData.HitMultiplier;
+            return hitForce;
         }
 
         // 检查球是否在有效区域内
@@ -157,22 +151,11 @@ namespace PongHub.Gameplay.Table
             return m_tableData.IsPointInServiceArea(ballPosition, isRightSide);
         }
 
-        // 获取球桌数据
-        public TableData GetTableData()
+        public void SetTableData(TableData data)
         {
-            return m_tableData;
-        }
-
-        // 设置颜色
-        public void SetColors(Color tableColor, Color netColor, Color lineColor)
-        {
-            m_tableColor = tableColor;
-            m_netColor = netColor;
-            m_lineColor = lineColor;
-
-            m_tableRenderer.material.color = m_tableColor;
-            m_netRenderer.material.color = m_netColor;
-            m_lineRenderer.material.color = m_lineColor;
+            m_tableData = data;
+            SetupColliders();
+            SetupVisuals();
         }
 
         // 属性
@@ -180,5 +163,36 @@ namespace PongHub.Gameplay.Table
         public Color NetColor => m_netColor;
         public Color LineColor => m_lineColor;
         public TableData TableData => m_tableData;
+        public Transform NetTransform => m_netTransform;
+
+        public void ResetTable()
+        {
+            // 重置球桌状态
+            SetupVisuals();
+        }
+
+        public void SetTableColor(Color color)
+        {
+            m_tableColor = color;
+            m_tableRenderer.material.color = m_tableColor;
+        }
+
+        public void SetNetColor(Color color)
+        {
+            m_netColor = color;
+            m_netRenderer.material.color = m_netColor;
+        }
+
+        public void SetLineColor(Color color)
+        {
+            m_lineColor = color;
+            m_lineRenderer.material.color = m_lineColor;
+        }
+
+        public async Task InitializeAsync()
+        {
+            await Task.Yield();
+            // 初始化桌子
+        }
     }
 }

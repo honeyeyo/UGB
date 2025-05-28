@@ -2,21 +2,42 @@ using UnityEngine;
 
 namespace PongHub.Gameplay.Ball
 {
-    [CreateAssetMenu(fileName = "BallData", menuName = "PongHub/Ball Data")]
+    [CreateAssetMenu(fileName = "BallData", menuName = "PongHub/Ball/BallData")]
     public class BallData : ScriptableObject
     {
-        [Header("物理参数")]
-        public float Mass = 0.0027f;        // 标准乒乓球约2.7g
-        public float Radius = 0.02f;        // 标准乒乓球直径40mm
-        public float Bounce = 0.8f;         // 球的弹性
-        public float Friction = 0.1f;       // 球的摩擦系数
-        public float AirResistance = 0.1f;  // 空气阻力系数
+        [Header("物理属性")]
+        [SerializeField] private float m_mass = 0.0027f;
+        [SerializeField] private float m_radius = 0.02f;
+        [SerializeField] private float m_bounce = 0.8f;
+        [SerializeField] private float m_friction = 0.1f;
+        [SerializeField] private float m_drag = 0.1f;
+        [SerializeField] private float m_angularDrag = 0.1f;
+        [SerializeField] private float m_maxSpeed = 10f;
+        [SerializeField] private float m_minSpeed = 0.5f;
+        [SerializeField] private float m_maxSpin = 20f;
+        [SerializeField] private float m_spinDecay = 0.95f;
 
-        [Header("运动参数")]
-        public float MaxSpeed = 20f;        // 最大速度
-        public float MinSpeed = 2f;         // 最小速度
-        public float MaxSpin = 100f;        // 最大旋转速度
-        public Vector3 SpinDecay = new(0.95f, 0.95f, 0.95f); // 旋转衰减
+        [Header("音效设置")]
+        [SerializeField] private float m_paddleHitMultiplier = 1f;
+        [SerializeField] private float m_tableHitMultiplier = 1f;
+        [SerializeField] private float m_netHitMultiplier = 1f;
+
+        // 物理属性
+        public float Mass => m_mass;
+        public float Radius => m_radius;
+        public float Bounce => m_bounce;
+        public float Friction => m_friction;
+        public float Drag => m_drag;
+        public float AngularDrag => m_angularDrag;
+        public float MaxSpeed => m_maxSpeed;
+        public float MinSpeed => m_minSpeed;
+        public float MaxSpin => m_maxSpin;
+        public float SpinDecay => m_spinDecay;
+
+        // 音效设置
+        public float PaddleHitMultiplier => m_paddleHitMultiplier;
+        public float TableHitMultiplier => m_tableHitMultiplier;
+        public float NetHitMultiplier => m_netHitMultiplier;
 
         [Header("视觉效果")]
         public float TrailWidth = 0.01f;    // 拖尾宽度
@@ -25,9 +46,6 @@ namespace PongHub.Gameplay.Ball
         public float SpinVisualMultiplier = 1f; // 旋转视觉效果系数
 
         [Header("乒乓球特定参数")]
-        public float PaddleHitMultiplier = 1.2f;  // 球拍击球系数
-        public float TableHitMultiplier = 0.8f;   // 球桌击球系数
-        public float NetHitMultiplier = 0.5f;     // 球网击球系数
         public float SpinInfluence = 1.5f;        // 旋转影响系数
 
         // 获取球的体积
@@ -45,15 +63,13 @@ namespace PongHub.Gameplay.Ball
         // 获取空气阻力
         public Vector3 GetAirResistance(Vector3 velocity)
         {
-            float speed = velocity.magnitude;
-            float dragForce = 0.5f * AirResistance * GetSurfaceArea() * speed * speed;
-            return -velocity.normalized * dragForce;
+            return -velocity.normalized * Drag * velocity.sqrMagnitude;
         }
 
         // 获取旋转衰减
         public Vector3 GetSpinDecay(Vector3 angularVelocity)
         {
-            return Vector3.Scale(angularVelocity, SpinDecay);
+            return angularVelocity * SpinDecay;
         }
 
         // 获取击球系数

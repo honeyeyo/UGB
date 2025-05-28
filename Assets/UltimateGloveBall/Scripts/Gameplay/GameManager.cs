@@ -16,6 +16,17 @@ namespace PongHub.Gameplay
         private float m_currentGameTime;
         private bool m_isGameActive;
 
+        public enum GameState
+        {
+            None,
+            MainMenu,
+            Playing,
+            Paused,
+            GameOver
+        }
+
+        private GameState m_currentState = GameState.None;
+
         private void Awake()
         {
             if (Instance == null)
@@ -82,10 +93,39 @@ namespace PongHub.Gameplay
             }
         }
 
+        public void SetState(GameState newState)
+        {
+            if (m_currentState == newState)
+                return;
+
+            m_currentState = newState;
+            OnStateChanged(m_currentState);
+        }
+
+        private void OnStateChanged(GameState newState)
+        {
+            switch (newState)
+            {
+                case GameState.MainMenu:
+                    // 处理主菜单状态
+                    break;
+                case GameState.Playing:
+                    // 处理游戏进行中状态
+                    break;
+                case GameState.Paused:
+                    // 处理暂停状态
+                    break;
+                case GameState.GameOver:
+                    // 处理游戏结束状态
+                    break;
+            }
+        }
+
         // 属性
         public bool IsGameActive => m_isGameActive;
         public int PlayerScore => m_playerScore;
         public int OpponentScore => m_opponentScore;
         public float GameTime => m_currentGameTime;
+        public GameState CurrentState => m_currentState;
     }
 } 

@@ -2,26 +2,40 @@ using UnityEngine;
 
 namespace PongHub.Gameplay.Paddle
 {
-    [CreateAssetMenu(fileName = "PaddleData", menuName = "PongHub/Paddle Data")]
+    [CreateAssetMenu(fileName = "PaddleData", menuName = "PongHub/Paddle/PaddleData")]
     public class PaddleData : ScriptableObject
     {
-        [Header("物理参数")]
-        public float Mass = 0.17f;           // 标准乒乓球拍约170g
-        public float Bounce = 0.8f;          // 球拍弹性
-        public float Friction = 0.2f;        // 球拍摩擦系数
-
-        public float Drag = 0.01f;          // 空气阻力
-
-        [Header("运动参数")]
-        public float MaxSpeed = 20f;         // 最大速度
-        public float MinSpeed = 2f;          // 最小速度
-        public Vector3 SpinDecay = new(0.95f, 0.95f, 0.95f); // 旋转衰减
+        [Header("物理属性")]
+        [SerializeField] private float m_mass = 0.17f;
+        [SerializeField] private float m_drag = 0.1f;
+        [SerializeField] private float m_bounce = 0.8f;
+        [SerializeField] private float m_friction = 0.1f;
+        [SerializeField] private float m_maxSpeed = 10f;
+        [SerializeField] private float m_hitMultiplier = 1.0f;
+        [SerializeField] private float m_hitVolume = 1.0f;
 
         [Header("视觉效果")]
-        public float TrailWidth = 0.1f;      // 拖尾宽度
-        public float TrailTime = 0.5f;       // 拖尾时间
-        public Color TrailColor = Color.white; // 拖尾颜色
-        public Color PaddleColor = Color.red; // 球拍颜色
+        [SerializeField] private Color m_paddleColor = Color.red;
+        [SerializeField] private float m_trailWidth = 0.01f;
+        [SerializeField] private float m_trailTime = 0.5f;
+
+        // 物理属性
+        public float Mass => m_mass;
+        public float Drag => m_drag;
+        public float Bounce => m_bounce;
+        public float Friction => m_friction;
+        public float MaxSpeed => m_maxSpeed;
+        public float HitMultiplier => m_hitMultiplier;
+        public float HitVolume => m_hitVolume;
+
+        // 视觉效果
+        public Color PaddleColor => m_paddleColor;
+        public float TrailWidth => m_trailWidth;
+        public float TrailTime => m_trailTime;
+
+        [Header("运动参数")]
+        public float MinSpeed = 2f;          // 最小速度
+        public Vector3 SpinDecay = new(0.95f, 0.95f, 0.95f); // 旋转衰减
 
         [Header("乒乓球拍特定参数")]
         public float ForehandPower = 1.2f;   // 正手力量系数

@@ -2,75 +2,88 @@ using UnityEngine;
 
 namespace PongHub.Gameplay.Table
 {
-    [CreateAssetMenu(fileName = "TableData", menuName = "PongHub/Table Data")]
+    [CreateAssetMenu(fileName = "TableData", menuName = "PongHub/Table/TableData")]
     public class TableData : ScriptableObject
     {
-        [Header("球桌尺寸")]
-        public float Length = 2.74f;        // 标准乒乓球桌长度
-        public float Width = 1.525f;        // 标准乒乓球桌宽度
-        public float Height = 0.76f;        // 标准乒乓球桌高度
-        public float NetHeight = 0.1525f;   // 球网高度
+        [Header("尺寸设置")]
+        [SerializeField] private float m_width = 1.525f;
+        [SerializeField] private float m_length = 2.74f;
+        [SerializeField] private float m_height = 0.76f;
+        [SerializeField] private float m_netHeight = 0.1525f;
+        [SerializeField] private float m_edgeWidth = 0.1f;
 
-        [Header("物理参数")]
-        public float Bounce = 0.8f;         // 球桌弹性
-        public float Friction = 0.2f;       // 球桌摩擦系数
-        public float NetBounce = 0.5f;      // 球网弹性
-        public float NetFriction = 0.1f;    // 球网摩擦系数
+        [Header("物理属性")]
+        [SerializeField] private float m_bounce = 0.8f;
+        [SerializeField] private float m_friction = 0.1f;
+        [SerializeField] private float m_netBounce = 0.5f;
+        [SerializeField] private float m_netFriction = 0.2f;
+        [SerializeField] private float m_hitMultiplier = 1.0f;
+        [SerializeField] private float m_hitVolume = 1.0f;
 
-        [Header("区域参数")]
-        public float ServiceAreaLength = 0.5f;  // 发球区长度
-        public float ServiceAreaWidth = 0.5f;   // 发球区宽度
-        public float EdgeWidth = 0.02f;         // 球桌边缘宽度
+        [Header("颜色设置")]
+        [SerializeField] private Color m_tableColor = Color.blue;
+        [SerializeField] private Color m_netColor = Color.white;
+        [SerializeField] private Color m_lineColor = Color.white;
 
-        [Header("视觉效果")]
-        public Color TableColor = new Color(0.2f, 0.4f, 0.2f);  // 球桌颜色
-        public Color LineColor = Color.white;                   // 线条颜色
-        public Color NetColor = Color.white;                    // 球网颜色
-        public float LineWidth = 0.02f;                         // 线条宽度
+        // 尺寸属性
+        public float Width => m_width;
+        public float Length => m_length;
+        public float Height => m_height;
+        public float NetHeight => m_netHeight;
+        public float EdgeWidth => m_edgeWidth;
 
-        [Header("音效参数")]
-        public float TableHitVolume = 1f;       // 球桌击球音量
-        public float NetHitVolume = 0.8f;       // 球网击球音量
-        public float EdgeHitVolume = 1.2f;      // 边缘击球音量
+        // 物理属性
+        public float Bounce => m_bounce;
+        public float Friction => m_friction;
+        public float NetBounce => m_netBounce;
+        public float NetFriction => m_netFriction;
+        public float HitMultiplier => m_hitMultiplier;
+        public float HitVolume => m_hitVolume;
+
+        // 颜色属性
+        public Color TableColor => m_tableColor;
+        public Color NetColor => m_netColor;
+        public Color LineColor => m_lineColor;
 
         // 获取球桌中心点
         public Vector3 GetTableCenter()
         {
-            return new Vector3(0f, Height, 0f);
+            return new Vector3(0f, m_height / 2f, 0f);
         }
 
         // 获取球网位置
         public Vector3 GetNetPosition()
         {
-            return new Vector3(0f, Height + NetHeight * 0.5f, 0f);
-        }
-
-        // 获取发球区中心点
-        public Vector3 GetServiceAreaCenter(bool isRightSide)
-        {
-            float z = isRightSide ? Length * 0.25f : -Length * 0.25f;
-            return new Vector3(0f, Height, z);
+            return new Vector3(0f, m_netHeight / 2f, 0f);
         }
 
         // 检查点是否在球桌范围内
         public bool IsPointInTable(Vector3 point)
         {
-            return Mathf.Abs(point.x) <= Width * 0.5f &&
-                   Mathf.Abs(point.z) <= Length * 0.5f &&
-                   point.y >= Height &&
-                   point.y <= Height + NetHeight;
+            float halfWidth = m_width / 2f;
+            float halfLength = m_length / 2f;
+            return Mathf.Abs(point.x) <= halfWidth && Mathf.Abs(point.z) <= halfLength;
         }
 
         // 检查点是否在发球区内
         public bool IsPointInServiceArea(Vector3 point, bool isRightSide)
         {
-            float zMin = isRightSide ? 0f : -Length * 0.5f;
-            float zMax = isRightSide ? Length * 0.5f : 0f;
-            return Mathf.Abs(point.x) <= ServiceAreaWidth * 0.5f &&
-                   point.z >= zMin &&
-                   point.z <= zMax &&
-                   point.y >= Height &&
-                   point.y <= Height + NetHeight;
+            float halfWidth = m_width / 2f;
+            float halfLength = m_length / 2f;
+            float serviceLength = m_length / 4f;
+
+            if (isRightSide)
+            {
+                return Mathf.Abs(point.x) <= halfWidth && 
+                       point.z >= -halfLength && 
+                       point.z <= -halfLength + serviceLength;
+            }
+            else
+            {
+                return Mathf.Abs(point.x) <= halfWidth && 
+                       point.z <= halfLength && 
+                       point.z >= halfLength - serviceLength;
+            }
         }
     }
 }

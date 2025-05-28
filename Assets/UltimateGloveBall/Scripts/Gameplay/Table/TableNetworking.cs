@@ -83,53 +83,61 @@ namespace PongHub.Gameplay.Table
             m_targetLineColor = Color.Lerp(m_targetLineColor, m_networkLineColor.Value, m_colorLerpSpeed * Time.deltaTime);
 
             // 应用插值后的颜色
-            m_table.SetColors(m_targetTableColor, m_targetNetColor, m_targetLineColor);
+            m_table.SetTableColor(m_targetTableColor);
+            m_table.SetNetColor(m_targetNetColor);
+            m_table.SetLineColor(m_targetLineColor);
         }
 
         // 网络命令
         [ServerRpc(RequireOwnership = false)]
-        public void SetTransformServerRpc(Vector3 position, Quaternion rotation)
+        public void ResetTableServerRpc()
         {
-            m_networkPosition.Value = position;
-            m_networkRotation.Value = rotation;
-            transform.position = position;
-            transform.rotation = rotation;
+            // 重置球桌状态
+            m_table.ResetTable();
+
+            // 同步重置状态
+            m_networkPosition.Value = transform.position;
+            m_networkRotation.Value = transform.rotation;
+            m_networkTableColor.Value = m_table.TableColor;
+            m_networkNetColor.Value = m_table.NetColor;
+            m_networkLineColor.Value = m_table.LineColor;
+
+            // 广播重置事件
+            ResetTableClientRpc();
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        public void SetColorsServerRpc(Color tableColor, Color netColor, Color lineColor)
+        [ClientRpc]
+        private void ResetTableClientRpc()
         {
-            m_networkTableColor.Value = tableColor;
-            m_networkNetColor.Value = netColor;
-            m_networkLineColor.Value = lineColor;
-            m_table.SetColors(tableColor, netColor, lineColor);
+            // 重置视觉效果
+            m_table.ResetTable();
         }
 
         // 客户端RPC
         [ClientRpc]
-        private void PlayTableHitSoundClientRpc(float volume)
+        private void PlayTableHitSoundClientRpc(Vector3 position, float volume)
         {
             if (AudioManager.Instance != null)
             {
-                AudioManager.Instance.PlayTableHit(volume);
+                AudioManager.Instance.PlayTableHit(position, volume);
             }
         }
 
         [ClientRpc]
-        private void PlayNetHitSoundClientRpc(float volume)
+        private void PlayNetHitSoundClientRpc(Vector3 position, float volume)
         {
             if (AudioManager.Instance != null)
             {
-                AudioManager.Instance.PlayNetHit(volume);
+                AudioManager.Instance.PlayNetHit(position, volume);
             }
         }
 
         [ClientRpc]
-        private void PlayEdgeHitSoundClientRpc(float volume)
+        private void PlayEdgeHitSoundClientRpc(Vector3 position, float volume)
         {
             if (AudioManager.Instance != null)
             {
-                AudioManager.Instance.PlayEdgeHit(volume);
+                AudioManager.Instance.PlayEdgeHit(position, volume);
             }
         }
 

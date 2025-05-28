@@ -8,6 +8,13 @@ using Meta.Multiplayer.Core;
 using Meta.Utilities;
 using Oculus.Platform;
 using UnityEngine;
+using PongHub.Core;
+using PongHub.Gameplay;
+using PongHub.UI;
+using PongHub.Networking;
+using PongHub.Gameplay.Table;
+using PongHub.Gameplay.Ball;
+using PongHub.Gameplay.Paddle;
 
 namespace PongHub.App
 {
@@ -59,6 +66,27 @@ namespace PongHub.App
         /// </summary>
         public NetworkStateHandler NetworkStateHandler { get; private set; }
 
+        [Header("核心系统")]
+        [SerializeField] private GameCore m_gameCore;
+        [SerializeField] private AudioManager m_audioManager;
+        [SerializeField] private VibrationManager m_vibrationManager;
+        [SerializeField] private NetworkManager m_networkManager;
+
+        [Header("UI系统")]
+        [SerializeField] private UIManager m_uiManager;
+        [SerializeField] private ScoreboardPanel m_scoreboardPanel;
+        [SerializeField] private MainMenuPanel m_mainMenuPanel;
+        [SerializeField] private SettingsPanel m_settingsPanel;
+        [SerializeField] private PauseMenuPanel m_pauseMenuPanel;
+
+        [Header("游戏系统")]
+        [SerializeField] private Table m_table;
+        [SerializeField] private BallPhysics m_ball;
+        [SerializeField] private Paddle m_leftPaddle;
+        [SerializeField] private Paddle m_rightPaddle;
+
+        private bool m_isInitialized = false;
+
         /// <summary>
         /// 内部Awake方法,确保对象在场景切换时不被销毁
         /// </summary>
@@ -73,23 +101,139 @@ namespace PongHub.App
         private void OnDestroy()
         {
             NetworkStateHandler?.Dispose();
+
+            // 清理资源
+            if (m_audioManager != null)
+            {
+                m_audioManager.Cleanup();
+            }
+
+            if (m_vibrationManager != null)
+            {
+                m_vibrationManager.Cleanup();
+            }
+
+            if (m_networkManager != null)
+            {
+                m_networkManager.Shutdown();
+            }
+
+            if (m_gameCore != null)
+            {
+                m_gameCore.Cleanup();
+            }
         }
 
         /// <summary>
         /// 启动时初始化应用程序
         /// </summary>
-        private void Start()
+        private async void Start()
         {
-            if (UnityEngine.Application.isEditor)
+            await InitializeAsync();
+        }
+
+        private async Task InitializeAsync()
+        {
+            if (m_isInitialized)
+                return;
+
+            // 初始化核心系统
+            await InitializeCoreSystems();
+
+            // 初始化UI系统
+            await InitializeUISystems();
+
+            // 初始化游戏系统
+            await InitializeGameSystems();
+
+            m_isInitialized = true;
+            Debug.Log("UGBApplication初始化完成");
+        }
+
+        private async Task InitializeCoreSystems()
+        {
+            // 初始化音频管理器
+            if (m_audioManager != null)
             {
-                if (NetworkSettings.Autostart)
-                {
-                    LocalPlayerState.SetApplicationID(
-                        NetworkSettings.UseDeviceRoom ? SystemInfo.deviceUniqueIdentifier : NetworkSettings.RoomName);
-                }
+                await m_audioManager.InitializeAsync();
             }
 
-            _ = StartCoroutine(Init());
+            // 初始化振动管理器
+            if (m_vibrationManager != null)
+            {
+                await m_vibrationManager.InitializeAsync();
+            }
+
+            // 初始化网络管理器
+            if (m_networkManager != null)
+            {
+                await m_networkManager.InitializeAsync();
+            }
+
+            // 初始化游戏核心
+            if (m_gameCore != null)
+            {
+                await m_gameCore.InitializeAsync();
+            }
+        }
+
+        private async Task InitializeUISystems()
+        {
+            // 初始化UI管理器
+            if (m_uiManager != null)
+            {
+                await m_uiManager.InitializeAsync();
+            }
+
+            // 初始化记分牌面板
+            if (m_scoreboardPanel != null)
+            {
+                await m_scoreboardPanel.InitializeAsync();
+            }
+
+            // 初始化主菜单面板
+            if (m_mainMenuPanel != null)
+            {
+                await m_mainMenuPanel.InitializeAsync();
+            }
+
+            // 初始化设置面板
+            if (m_settingsPanel != null)
+            {
+                await m_settingsPanel.InitializeAsync();
+            }
+
+            // 初始化暂停菜单面板
+            if (m_pauseMenuPanel != null)
+            {
+                await m_pauseMenuPanel.InitializeAsync();
+            }
+        }
+
+        private async Task InitializeGameSystems()
+        {
+            // 初始化球桌
+            if (m_table != null)
+            {
+                await m_table.InitializeAsync();
+            }
+
+            // 初始化球
+            if (m_ball != null)
+            {
+                await m_ball.InitializeAsync();
+            }
+
+            // 初始化球拍
+            if (m_leftPaddle != null)
+            {
+                await m_leftPaddle.InitializeAsync();
+            }
+
+            if (m_rightPaddle != null)
+            {
+                await m_rightPaddle.InitializeAsync();
+            }
         }
 
         /// <summary>
@@ -155,40 +299,39 @@ namespace PongHub.App
         {
             try
             {
-                var coreInit = await Core.AsyncInitialize().Gen();
-                if (coreInit.IsError)
+                var coreInitResult = await Core.Initialize();
+                if (!coreInitResult)
                 {
-                    LogError("Failed to initialize Oculus Platform SDK", coreInit.GetError());
+                    Debug.LogError("Failed to initialize Oculus Platform SDK");
                     return;
                 }
 
                 Debug.Log("Oculus Platform SDK initialized successfully");
 
-                var isUserEntitled = await Entitlements.IsUserEntitledToApplication().Gen();
-                if (isUserEntitled.IsError)
+                var isUserEntitled = await Entitlements.IsUserEntitledToApplication();
+                if (!isUserEntitled)
                 {
-                    LogError("You are not entitled to use this app", isUserEntitled.GetError());
+                    Debug.LogError("You are not entitled to use this app");
                     return;
                 }
 
                 m_launchType = ApplicationLifecycle.GetLaunchDetails().LaunchType;
 
-                GroupPresence.SetJoinIntentReceivedNotificationCallback(OnJoinIntentReceived);//设置加入意图接收回调
-                GroupPresence.SetInvitationsSentNotificationCallback(OnInvitationsSent);//设置邀请发送回调
+                GroupPresence.SetJoinIntentReceivedNotificationCallback(OnJoinIntentReceived);
+                GroupPresence.SetInvitationsSentNotificationCallback(OnInvitationsSent);
 
-                var getLoggedInuser = await Users.GetLoggedInUser().Gen();
-                if (getLoggedInuser.IsError)
+                var loggedInUser = await Users.GetLoggedInUser();
+                if (loggedInUser == null)
                 {
-                    LogError("Cannot get user info", getLoggedInuser.GetError());
+                    Debug.LogError("Cannot get user info");
                     return;
                 }
 
-                // 临时解决方案
-                // 目前Platform.Users.GetLoggedInUser()似乎只返回用户ID
-                // 显示名称为空
-                // Platform.Users.Get(ulong userID)返回显示名称
-                var getUser = await Users.Get(getLoggedInuser.Data.ID).Gen();
-                LocalPlayerState.Init(getUser.Data.DisplayName, getUser.Data.ID);
+                var user = await Users.Get(loggedInUser.ID);
+                if (user != null)
+                {
+                    LocalPlayerState.Init(user.DisplayName, user.ID);
+                }
             }
             catch (System.Exception exception)
             {
@@ -256,9 +399,9 @@ namespace PongHub.App
         private void LogError(string message, Oculus.Platform.Models.Error error)
         {
             Debug.LogError(message);
-            Debug.LogError("ERROR MESSAGE:   " + error.Message);
-            Debug.LogError("ERROR CODE:      " + error.Code);
-            Debug.LogError("ERROR HTTP CODE: " + error.HttpCode);
+            Debug.LogError($"ERROR MESSAGE: {error.Message}");
+            Debug.LogError($"ERROR CODE: {error.Code}");
+            Debug.LogError($"ERROR HTTP CODE: {error.HttpCode}");
         }
 
         private NetworkSession InstantiateSession()

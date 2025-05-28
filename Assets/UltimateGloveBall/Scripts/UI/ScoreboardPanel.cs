@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using PongHub.Core;
-using PongHub.Gameplay;
+using System.Threading.Tasks;
 
 namespace PongHub.UI
 {
@@ -27,6 +27,39 @@ namespace PongHub.UI
         [SerializeField] private Button m_rematchButton;
         [SerializeField] private Button m_mainMenuButton;
 
+        [Header("UI引用")]
+        [SerializeField] private TextMeshProUGUI m_leftPlayerScoreText;
+        [SerializeField] private TextMeshProUGUI m_rightPlayerScoreText;
+
+        private void Awake()
+        {
+            UpdateScoreDisplay();
+        }
+
+        public async Task InitializeAsync()
+        {
+            await Task.Yield();
+            UpdateScoreDisplay();
+        }
+
+        private void Update()
+        {
+            if (GameCore.Instance != null)
+            {
+                UpdateScoreDisplay();
+            }
+        }
+
+        private void UpdateScoreDisplay()
+        {
+            if (GameCore.Instance != null)
+            {
+                m_leftPlayerScoreText.text = GameCore.Instance.LeftPlayerScore.ToString();
+                m_rightPlayerScoreText.text = GameCore.Instance.RightPlayerScore.ToString();
+                m_gameStatusText.text = GameCore.Instance.IsGameActive ? "游戏进行中" : "游戏暂停";
+            }
+        }
+
         private void Start()
         {
             SetupButtons();
@@ -39,7 +72,7 @@ namespace PongHub.UI
             {
                 m_rematchButton.onClick.AddListener(() =>
                 {
-                    GameManager.Instance.RestartGame();
+                    GameCore.Instance.ResetGame();
                 });
             }
 
@@ -48,7 +81,7 @@ namespace PongHub.UI
             {
                 m_mainMenuButton.onClick.AddListener(() =>
                 {
-                    GameManager.Instance.SetState(GameManager.GameState.MainMenu);
+                    GameCore.Instance.EndGame();
                 });
             }
         }

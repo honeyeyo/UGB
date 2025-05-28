@@ -1,6 +1,8 @@
 using UnityEngine;
 using PongHub.Gameplay.Ball;
 using PongHub.Core;
+using UnityEngine.XR.Interaction.Toolkit;
+using System.Threading.Tasks;
 
 namespace PongHub.Gameplay.Paddle
 {
@@ -14,15 +16,14 @@ namespace PongHub.Gameplay.Paddle
     // 球拍状态枚举
     public enum PaddleState
     {
-        Inactive,   // 非活动状态
-        Active,     // 活动状态
-        Disabled    // 禁用状态
+        None,
+        Free,
+        Grabbed,
+        Throwing
     }
     [RequireComponent(typeof(Rigidbody))]
     public class Paddle : MonoBehaviour
     {
-        
-
         [Header("组件引用")]
         [SerializeField] private Rigidbody m_rigidbody;
         [SerializeField] private MeshRenderer m_renderer;
@@ -30,6 +31,7 @@ namespace PongHub.Gameplay.Paddle
         [SerializeField] private PaddleRubber m_forehandRubber;  // 正手胶皮
         [SerializeField] private PaddleRubber m_backhandRubber;  // 反手胶皮
         [SerializeField] private PaddleBlade m_blade;           // 底板
+        [SerializeField] private XRController m_controller;     // XR控制器引用
 
         [Header("配置")]
         [SerializeField] private PaddleData m_paddleData;
@@ -42,7 +44,7 @@ namespace PongHub.Gameplay.Paddle
         private Vector3 m_acceleration;    // 加速度
         private float m_lastHitTime;       // 上次击球时间
         private Vector3 m_velocity;
-        private PaddleState m_state;
+        private PaddleState m_currentState;
         private float m_lastVibrationTime;
 
         private void Awake()
@@ -90,7 +92,7 @@ namespace PongHub.Gameplay.Paddle
             {
                 UpdateMotionState();
             }
-            if (m_state == PaddleState.Active)
+            if (m_currentState == PaddleState.Free || m_currentState == PaddleState.Grabbed || m_currentState == PaddleState.Throwing)
             {
                 UpdateMovement();
             }
@@ -126,88 +128,41 @@ namespace PongHub.Gameplay.Paddle
         {
             if (collision.gameObject.TryGetComponent<BallPhysics>(out var ball))
             {
-                HandleBallCollision(collision, ball);
+                var contact = collision.GetContact(0);
+                var contactPoint = contact.point;
+                var contactNormal = contact.normal;
+
+                // 计算击球力度
+                float hitForce = CalculateHitForce(ball.Velocity);
+
+                // 应用碰撞力
+                ball.ApplyCollisionForce(contactPoint, contactNormal, hitForce, HitType.Paddle);
+
+                // 播放击球音效
+                if (AudioManager.Instance != null)
+                {
+                    AudioManager.Instance.PlayPaddleHit(contactPoint, m_paddleData.HitVolume);
+                }
+
+                // 触发振动反馈
+                TriggerHapticFeedback();
             }
         }
 
-        private void HandleBallCollision(Collision collision, BallPhysics ball)
+        private void TriggerHapticFeedback()
         {
-            // 计算碰撞信息
-            var contact = collision.GetContact(0);
-            var contactPoint = contact.point;
-            var contactNormal = contact.normal;
-            var relativeVelocity = m_currentVelocity - ball.Velocity;
-
-            // 计算击球力
-            var impactForce = CalculateImpactForce(relativeVelocity, contactNormal);
-
-            // 应用击球力
-            ball.ApplyCollisionForce(contactPoint, contactNormal, impactForce, GetHitMultiplier());
-
-            // 播放击球音效
-            if (AudioManager.Instance != null)
+            // 使用XR控制器进行振动反馈
+            if (m_controller != null)
             {
-                AudioManager.Instance.PlayPaddleHit();
-            }
-
-            // 更新击球时间
-            m_lastHitTime = Time.time;
-        }
-
-        private Vector3 CalculateImpactForce(Vector3 relativeVelocity, Vector3 contactNormal)
-        {
-            // 获取当前使用的胶皮
-            var rubber = m_isForehand ? m_forehandRubber : m_backhandRubber;
-
-            // 计算法向力和切向力
-            var normalForce = Vector3.Dot(relativeVelocity, contactNormal) * contactNormal;
-            var tangentialForce = relativeVelocity - normalForce;
-
-            // 计算旋转影响
-            var spinInfluence = CalculateSpinInfluence(relativeVelocity, contactNormal);
-
-            // 结合胶皮和底板的物理属性计算最终力
-            var normalModifier = rubber.GetNormalForceModifier() * m_blade.GetNormalForceModifier();
-            var tangentialModifier = rubber.GetTangentialForceModifier() * m_blade.GetTangentialForceModifier();
-
-            return (normalForce * normalModifier + tangentialForce * tangentialModifier) * spinInfluence;
-        }
-
-        private float CalculateSpinInfluence(Vector3 relativeVelocity, Vector3 contactNormal)
-        {
-            // 计算击球方向与垂直方向的夹角
-            float verticalAngle = Vector3.Angle(relativeVelocity, Vector3.up);
-
-            // 根据击球角度确定旋转类型
-            if (verticalAngle < 45f)
-            {
-                // 上旋
-                return m_paddleData.TopspinMultiplier;
-            }
-            else if (verticalAngle > 135f)
-            {
-                // 下旋
-                return m_paddleData.BackspinMultiplier;
-            }
-            else
-            {
-                // 侧旋
-                return m_paddleData.SidespinMultiplier;
+                m_controller.SendHapticImpulse(0.5f, 0.1f);
             }
         }
 
-        private float GetHitMultiplier()
+        private float CalculateHitForce(Vector3 ballVelocity)
         {
-            // 基础力量系数
-            float basePower = m_isForehand ? m_paddleData.ForehandPower : m_paddleData.BackhandPower;
-
-            // 检查是否是扣杀
-            if (m_currentVelocity.magnitude > m_paddleData.MaxSpeed * 0.8f)
-            {
-                return basePower * m_paddleData.SmashMultiplier;
-            }
-
-            return basePower;
+            // 计算击球力度
+            float hitForce = ballVelocity.magnitude * m_paddleData.HitMultiplier;
+            return hitForce;
         }
 
         // 切换正反手
@@ -236,13 +191,20 @@ namespace PongHub.Gameplay.Paddle
         }
 
         // 设置状态
-        public void SetState(PaddleState state)
+        public void SetState(PaddleState newState)
         {
-            m_state = state;
-            if (state == PaddleState.Inactive)
+            m_currentState = newState;
+            switch (newState)
             {
-                m_rigidbody.velocity = Vector3.zero;
-                m_velocity = Vector3.zero;
+                case PaddleState.Free:
+                    // 处理自由状态
+                    break;
+                case PaddleState.Grabbed:
+                    // 处理抓取状态
+                    break;
+                case PaddleState.Throwing:
+                    // 处理投掷状态
+                    break;
             }
         }
 
@@ -253,9 +215,9 @@ namespace PongHub.Gameplay.Paddle
                 return;
 
             m_lastVibrationTime = Time.time;
-            if (VibrationManager.Instance != null)
+            if (m_controller != null)
             {
-                VibrationManager.Instance.PlayVibration(intensity);
+                m_controller.SendHapticImpulse(intensity, 0.1f);
             }
         }
 
@@ -266,9 +228,13 @@ namespace PongHub.Gameplay.Paddle
         public Vector3 Acceleration => m_acceleration;
         public float LastHitTime => m_lastHitTime;
         public Vector3 Velocity => m_rigidbody.velocity;
-        public PaddleState State => m_state;
+        public PaddleState CurrentState => m_currentState;
         public PaddleData PaddleData => m_paddleData;
-    }
 
-    
+        public async Task InitializeAsync()
+        {
+            await Task.Yield();
+            SetState(PaddleState.Free);
+        }
+    }
 }

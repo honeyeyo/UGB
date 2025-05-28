@@ -62,6 +62,12 @@ namespace PongHub.Networking.Pooling
         /// </summary>
         private readonly Dictionary<GameObject, Queue<NetworkObject>> m_pooledObjects = new();
 
+        [SerializeField] private NetworkManager m_networkManager;
+        [SerializeField] private GameObject m_prefab;
+        [SerializeField] private int m_poolSize = 10;
+
+        private Queue<NetworkObject> m_pool;
+
         #endregion
 
         #region Lifecycle
@@ -76,6 +82,11 @@ namespace PongHub.Networking.Pooling
                 Destroy(gameObject);
             else
                 Singleton = this;
+
+            if (m_networkManager == null)
+                m_networkManager = FindObjectOfType<NetworkManager>();
+
+            m_pool = new Queue<NetworkObject>();
         }
 
         /// <summary>
@@ -83,7 +94,10 @@ namespace PongHub.Networking.Pooling
         /// </summary>
         public override void OnNetworkSpawn()
         {
-            InitializePool();
+            if (IsServer)
+            {
+                InitializePool();
+            }
         }
 
         /// <summary>
@@ -91,7 +105,10 @@ namespace PongHub.Networking.Pooling
         /// </summary>
         public override void OnNetworkDespawn()
         {
-            ClearPool();
+            if (IsServer)
+            {
+                ClearPool();
+            }
         }
 
         /// <summary>
@@ -219,7 +236,7 @@ namespace PongHub.Networking.Pooling
                 ReturnNetworkObject(go.GetComponent<NetworkObject>(), prefab);
             }
 
-            _ = NetworkManager.Singleton.PrefabHandler.AddHandler(prefab, new PooledPrefabInstanceHandler(prefab, this));
+            _ = m_networkManager.PrefabHandler.AddHandler(prefab, new PooledPrefabInstanceHandler(prefab, this));
         }
 
         /// <summary>
@@ -241,7 +258,7 @@ namespace PongHub.Networking.Pooling
         {
             foreach (var prefab in m_prefabs)
             {
-                _ = NetworkManager.Singleton.PrefabHandler.RemoveHandler(prefab);
+                _ = m_networkManager.PrefabHandler.RemoveHandler(prefab);
             }
 
             m_pooledObjects.Clear();

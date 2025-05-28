@@ -9,11 +9,13 @@ namespace PongHub.VR
 {
     public class VRInteractionManager : MonoBehaviour
     {
-        [Header("XR引用")]
-        [SerializeField] private XRBaseController m_leftController;
-        [SerializeField] private XRBaseController m_rightController;
-        [SerializeField] private XRDirectInteractor m_leftInteractor;
-        [SerializeField] private XRDirectInteractor m_rightInteractor;
+        [Header("控制器引用")]
+        [SerializeField] private XRController m_leftController;
+        [SerializeField] private XRController m_rightController;
+
+        [Header("交互器引用")]
+        [SerializeField] private XRBaseInteractor m_leftInteractor;
+        [SerializeField] private XRBaseInteractor m_rightInteractor;
         [SerializeField] private XRRayInteractor m_leftRayInteractor;
         [SerializeField] private XRRayInteractor m_rightRayInteractor;
 
@@ -22,9 +24,11 @@ namespace PongHub.VR
         [SerializeField] private InputActionReference m_rightGripAction;
         [SerializeField] private InputActionReference m_leftTriggerAction;
         [SerializeField] private InputActionReference m_rightTriggerAction;
+        [SerializeField] private InputActionReference m_leftActivateAction;
+        [SerializeField] private InputActionReference m_rightActivateAction;
 
         [Header("交互设置")]
-        [SerializeField] private float m_grabThreshold = 0.8f;
+        [SerializeField] private float m_grabThreshold = 0.1f;
         [SerializeField] private float m_throwForce = 10f;
         [SerializeField] private float m_throwAngle = 45f;
 
@@ -32,6 +36,12 @@ namespace PongHub.VR
         private bool m_isRightGrabbing;
         private GameObject m_leftGrabbedObject;
         private GameObject m_rightGrabbedObject;
+
+        private void Awake()
+        {
+            SetupControllers();
+            SetupInteractors();
+        }
 
         private void OnEnable()
         {
@@ -41,12 +51,6 @@ namespace PongHub.VR
         private void OnDisable()
         {
             DisableInputActions();
-        }
-
-        private void Start()
-        {
-            SetupControllers();
-            SetupInteractors();
         }
 
         private void EnableInputActions()
@@ -67,58 +71,37 @@ namespace PongHub.VR
 
         private void SetupControllers()
         {
-            // 设置控制器
             if (m_leftController != null)
             {
-                m_leftController.selectActionTrigger = XRBaseController.InputTriggerType.StateChange;
-                m_leftController.activateActionTrigger = XRBaseController.InputTriggerType.StateChange;
+                m_leftController.enableInputActions = true;
             }
 
             if (m_rightController != null)
             {
-                m_rightController.selectActionTrigger = XRBaseController.InputTriggerType.StateChange;
-                m_rightController.activateActionTrigger = XRBaseController.InputTriggerType.StateChange;
+                m_rightController.enableInputActions = true;
             }
         }
 
         private void SetupInteractors()
         {
-            // 设置直接交互器
             if (m_leftInteractor != null)
             {
-                m_leftInteractor.selectActionTrigger = XRBaseInteractor.InputTriggerType.StateChange;
-                m_leftInteractor.hoverEntered.AddListener(OnLeftHoverEntered);
-                m_leftInteractor.hoverExited.AddListener(OnLeftHoverExited);
-                m_leftInteractor.selectEntered.AddListener(OnLeftSelectEntered);
-                m_leftInteractor.selectExited.AddListener(OnLeftSelectExited);
+                m_leftInteractor.enabled = true;
             }
 
             if (m_rightInteractor != null)
             {
-                m_rightInteractor.selectActionTrigger = XRBaseInteractor.InputTriggerType.StateChange;
-                m_rightInteractor.hoverEntered.AddListener(OnRightHoverEntered);
-                m_rightInteractor.hoverExited.AddListener(OnRightHoverExited);
-                m_rightInteractor.selectEntered.AddListener(OnRightSelectEntered);
-                m_rightInteractor.selectExited.AddListener(OnRightSelectExited);
+                m_rightInteractor.enabled = true;
             }
 
-            // 设置射线交互器
             if (m_leftRayInteractor != null)
             {
-                m_leftRayInteractor.selectActionTrigger = XRBaseInteractor.InputTriggerType.StateChange;
-                m_leftRayInteractor.hoverEntered.AddListener(OnLeftRayHoverEntered);
-                m_leftRayInteractor.hoverExited.AddListener(OnLeftRayHoverExited);
-                m_leftRayInteractor.selectEntered.AddListener(OnLeftRaySelectEntered);
-                m_leftRayInteractor.selectExited.AddListener(OnLeftRaySelectExited);
+                m_leftRayInteractor.enabled = true;
             }
 
             if (m_rightRayInteractor != null)
             {
-                m_rightRayInteractor.selectActionTrigger = XRBaseInteractor.InputTriggerType.StateChange;
-                m_rightRayInteractor.hoverEntered.AddListener(OnRightRayHoverEntered);
-                m_rightRayInteractor.hoverExited.AddListener(OnRightRayHoverExited);
-                m_rightRayInteractor.selectEntered.AddListener(OnRightRaySelectEntered);
-                m_rightRayInteractor.selectExited.AddListener(OnRightRaySelectExited);
+                m_rightRayInteractor.enabled = true;
             }
         }
 
@@ -338,12 +321,41 @@ namespace PongHub.VR
         }
 
         // 发送触觉反馈
-        public void SendHapticImpulse(XRBaseController controller, float intensity, float duration)
+        public void SendHapticImpulse(bool isLeft, float amplitude, float duration)
         {
+            var controller = isLeft ? m_leftController : m_rightController;
             if (controller != null)
             {
-                controller.SendHapticImpulse(intensity, duration);
+                controller.SendHapticImpulse(amplitude, duration);
             }
         }
+
+        public bool IsControllerGrabbing(bool isLeft)
+        {
+            var controller = isLeft ? m_leftController : m_rightController;
+            var activateAction = isLeft ? m_leftActivateAction : m_rightActivateAction;
+            
+            if (controller != null && activateAction != null)
+            {
+                return activateAction.action.ReadValue<float>() > 0.5f;
+            }
+            return false;
+        }
+
+        public Vector3 CalculateThrowVelocity(Vector3 direction)
+        {
+            // 根据投掷角度和力度计算投掷速度
+            float angleRad = m_throwAngle * Mathf.Deg2Rad;
+            Vector3 throwDirection = Quaternion.Euler(-m_throwAngle, 0f, 0f) * direction;
+            return throwDirection.normalized * m_throwForce;
+        }
+
+        // 属性
+        public XRController LeftController => m_leftController;
+        public XRController RightController => m_rightController;
+        public XRBaseInteractor LeftInteractor => m_leftInteractor;
+        public XRBaseInteractor RightInteractor => m_rightInteractor;
+        public XRRayInteractor LeftRayInteractor => m_leftRayInteractor;
+        public XRRayInteractor RightRayInteractor => m_rightRayInteractor;
     }
 }

@@ -33,11 +33,16 @@ namespace PongHub.VR
         private Quaternion m_lastRotation;
         private float m_swingSpeed;
         private bool m_isSwinging;
+        [SerializeField] private XRGrabInteractable m_grabInteractable;
 
         private void Awake()
         {
             m_interactable = GetComponent<VRInteractable>();
             m_paddle = GetComponent<Paddle>();
+            if (m_grabInteractable == null)
+                m_grabInteractable = GetComponent<XRGrabInteractable>();
+
+            SetupInteractable();
         }
 
         private void OnEnable()
@@ -83,7 +88,7 @@ namespace PongHub.VR
             {
                 m_paddle.SetVelocity(Vector3.zero);
                 m_paddle.SetForehand(true);
-                m_paddle.SetState(PaddleState.Active);
+                m_paddle.SetState(PaddleState.Free);
             }
         }
 
@@ -213,6 +218,34 @@ namespace PongHub.VR
         public void SetSwingVibrationDuration(float duration)
         {
             m_swingVibrationDuration = duration;
+        }
+
+        private void SetupInteractable()
+        {
+            if (m_grabInteractable != null)
+            {
+                m_grabInteractable.selectEntered.AddListener((args) => OnGrab(args.interactorObject));
+                m_grabInteractable.selectExited.AddListener((args) => {
+                    if (!args.isCanceled)
+                        OnRelease(args.interactorObject);
+                });
+            }
+        }
+
+        private void OnGrab(IXRInteractor interactor)
+        {
+            if (m_paddle != null)
+            {
+                m_paddle.SetState(PaddleState.Grabbed);
+            }
+        }
+
+        private void OnRelease(IXRInteractor interactor)
+        {
+            if (m_paddle != null)
+            {
+                m_paddle.SetState(PaddleState.Free);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Threading.Tasks;
 using UnityEngine.UI;
 using TMPro;
 using PongHub.Core;
@@ -12,7 +13,7 @@ namespace PongHub.UI
         [SerializeField] private TMP_Dropdown m_gameModeDropdown;
         [SerializeField] private TMP_Dropdown m_difficultyDropdown;
 
-        [Header("按钮")]
+        [Header("UI按钮")]
         [SerializeField] private Button m_startGameButton;
         [SerializeField] private Button m_settingsButton;
         [SerializeField] private Button m_quitButton;
@@ -25,10 +26,47 @@ namespace PongHub.UI
         [SerializeField] private Toggle m_vibrationToggle;
         [SerializeField] private Button m_settingsBackButton;
 
+        private void Awake()
+        {
+            InitializeButtons();
+        }
+
+        public async Task InitializeAsync()
+        {
+            await Task.Yield();
+            InitializeButtons();
+        }
+
+        private void InitializeButtons()
+        {
+            if (m_startGameButton != null)
+            {
+                m_startGameButton.onClick.AddListener(OnStartGameClicked);
+            }
+
+            if (m_settingsButton != null)
+            {
+                m_settingsButton.onClick.AddListener(OnSettingsClicked);
+            }
+
+            if (m_quitButton != null)
+            {
+                m_quitButton.onClick.AddListener(OnQuitClicked);
+            }
+
+            if (m_settingsBackButton != null)
+            {
+                m_settingsBackButton.onClick.AddListener(() =>
+                {
+                    ShowSettingsPanel(false);
+                    SaveSettings();
+                });
+            }
+        }
+
         private void Start()
         {
             SetupDropdowns();
-            SetupButtons();
             LoadSettings();
         }
 
@@ -55,52 +93,6 @@ namespace PongHub.UI
                     "简单",
                     "中等",
                     "困难"
-                });
-            }
-        }
-
-        private void SetupButtons()
-        {
-            // 开始游戏按钮
-            if (m_startGameButton != null)
-            {
-                m_startGameButton.onClick.AddListener(() =>
-                {
-                    int gameMode = m_gameModeDropdown.value;
-                    int difficulty = m_difficultyDropdown.value;
-                    GameManager.Instance.StartGame(gameMode, difficulty);
-                });
-            }
-
-            // 设置按钮
-            if (m_settingsButton != null)
-            {
-                m_settingsButton.onClick.AddListener(() =>
-                {
-                    ShowSettingsPanel(true);
-                });
-            }
-
-            // 退出按钮
-            if (m_quitButton != null)
-            {
-                m_quitButton.onClick.AddListener(() =>
-                {
-                    #if UNITY_EDITOR
-                        UnityEditor.EditorApplication.isPlaying = false;
-                    #else
-                        Application.Quit();
-                    #endif
-                });
-            }
-
-            // 设置返回按钮
-            if (m_settingsBackButton != null)
-            {
-                m_settingsBackButton.onClick.AddListener(() =>
-                {
-                    ShowSettingsPanel(false);
-                    SaveSettings();
                 });
             }
         }
@@ -167,7 +159,27 @@ namespace PongHub.UI
 
         private void OnStartGameClicked()
         {
-            GameManager.Instance.StartGame(true); // true表示单打模式
+            if (GameCore.Instance != null)
+            {
+                GameCore.Instance.StartGame();
+            }
+        }
+
+        private void OnSettingsClicked()
+        {
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowSettings();
+            }
+        }
+
+        private void OnQuitClicked()
+        {
+            #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+            #else
+            Application.Quit();
+            #endif
         }
     }
 }

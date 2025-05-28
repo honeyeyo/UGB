@@ -1,30 +1,44 @@
 using UnityEngine;
+using System.Threading.Tasks;
 using PongHub.Core;
 
 namespace PongHub.Gameplay.Ball
 {
+    public enum BallState
+    {
+        None,
+        Idle,
+        Moving,
+        Hit,
+        OutOfBounds
+    }
+
     [RequireComponent(typeof(Rigidbody))]
     public class BallPhysics : MonoBehaviour
     {
         [Header("组件引用")]
         [SerializeField] private Rigidbody m_rigidbody;
-        [SerializeField] private SphereCollider m_collider;
+        [SerializeField] private Collider m_collider;
 
         [Header("配置")]
         [SerializeField] private BallData m_ballData;
 
         // 物理状态
-        private Vector3 m_lastVelocity;
-        private Vector3 m_lastAngularVelocity;
+        private Vector3 m_velocity;
+        private Vector3 m_angularVelocity;
         private HitType m_lastHitType;
         private float m_lastHitTime;
+        private float m_lastHitForce;
+
+        private BallState m_state;
+        public BallState State => m_state;
 
         private void Awake()
         {
             if (m_rigidbody == null)
                 m_rigidbody = GetComponent<Rigidbody>();
             if (m_collider == null)
-                m_collider = GetComponent<SphereCollider>();
+                m_collider = GetComponent<Collider>();
 
             SetupRigidbody();
             SetupCollider();
@@ -33,16 +47,14 @@ namespace PongHub.Gameplay.Ball
         private void SetupRigidbody()
         {
             m_rigidbody.mass = m_ballData.Mass;
-            m_rigidbody.drag = 0f;  // 使用自定义空气阻力
-            m_rigidbody.angularDrag = 0.05f;
-            m_rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
+            m_rigidbody.drag = m_ballData.Drag;
+            m_rigidbody.angularDrag = m_ballData.AngularDrag;
             m_rigidbody.interpolation = RigidbodyInterpolation.Interpolate;
-            m_rigidbody.useGravity = true;
+            m_rigidbody.collisionDetectionMode = CollisionDetectionMode.Continuous;
         }
 
         private void SetupCollider()
         {
-            m_collider.radius = m_ballData.Radius;
             m_collider.material = new PhysicMaterial("Ball")
             {
                 bounciness = m_ballData.Bounce,
@@ -53,135 +65,136 @@ namespace PongHub.Gameplay.Ball
 
         private void FixedUpdate()
         {
-            // 记录上一帧的状态
-            m_lastVelocity = m_rigidbody.velocity;
-            m_lastAngularVelocity = m_rigidbody.angularVelocity;
+            // 更新物理状态
+            m_velocity = m_rigidbody.velocity;
+            m_angularVelocity = m_rigidbody.angularVelocity;
 
             // 应用空气阻力
-            ApplyAirResistance();
-
-            // 限制最大速度
-            LimitMaxSpeed();
-
-            // 限制最小速度
-            LimitMinSpeed();
-
-            // 限制最大旋转
-            LimitMaxSpin();
+            m_rigidbody.AddForce(m_ballData.GetAirResistance(m_velocity));
 
             // 应用旋转衰减
-            ApplySpinDecay();
-        }
+            m_rigidbody.AddTorque(m_ballData.GetSpinDecay(m_angularVelocity));
 
-        private void ApplyAirResistance()
-        {
-            var airResistance = m_ballData.GetAirResistance(m_rigidbody.velocity);
-            m_rigidbody.AddForce(airResistance, ForceMode.Force);
-        }
-
-        private void LimitMaxSpeed()
-        {
+            // 限制最大速度
             if (m_rigidbody.velocity.magnitude > m_ballData.MaxSpeed)
             {
                 m_rigidbody.velocity = m_rigidbody.velocity.normalized * m_ballData.MaxSpeed;
             }
-        }
 
-        private void LimitMinSpeed()
-        {
-            if (m_rigidbody.velocity.magnitude < m_ballData.MinSpeed && m_rigidbody.velocity.magnitude > 0.1f)
+            // 限制最小速度
+            if (m_rigidbody.velocity.magnitude < m_ballData.MinSpeed)
             {
-                m_rigidbody.velocity = m_rigidbody.velocity.normalized * m_ballData.MinSpeed;
+                m_rigidbody.velocity = Vector3.zero;
             }
-        }
 
-        private void LimitMaxSpin()
-        {
+            // 限制最大旋转
             if (m_rigidbody.angularVelocity.magnitude > m_ballData.MaxSpin)
             {
                 m_rigidbody.angularVelocity = m_rigidbody.angularVelocity.normalized * m_ballData.MaxSpin;
             }
         }
 
-        private void ApplySpinDecay()
+        public void ApplyCollisionForce(Vector3 contactPoint, Vector3 contactNormal, float force, HitType hitType)
         {
-            m_rigidbody.angularVelocity = m_ballData.GetSpinDecay(m_rigidbody.angularVelocity);
-        }
-
-        // 应用碰撞力
-        public void ApplyCollisionForce(Vector3 contactPoint, Vector3 contactNormal, float force, HitType hitType = HitType.Table)
-        {
-            // 计算碰撞力
-            var impactForce = contactNormal * force * m_ballData.GetHitMultiplier(hitType);
-
-            // 应用力
-            m_rigidbody.AddForceAtPosition(impactForce, contactPoint, ForceMode.Impulse);
-
             // 记录碰撞信息
             m_lastHitType = hitType;
             m_lastHitTime = Time.time;
+            m_lastHitForce = force;
+
+            // 计算反弹方向
+            Vector3 reflectDir = Vector3.Reflect(m_rigidbody.velocity.normalized, contactNormal);
+
+            // 应用反弹力
+            m_rigidbody.velocity = reflectDir * force;
+
+            // 应用旋转
+            Vector3 spinAxis = Vector3.Cross(contactNormal, m_rigidbody.velocity);
+            m_rigidbody.angularVelocity = spinAxis * force * m_ballData.SpinInfluence;
 
             // 播放碰撞音效
-            PlayCollisionSound(hitType);
-        }
-
-        private void PlayCollisionSound(HitType hitType)
-        {
             if (AudioManager.Instance != null)
             {
                 switch (hitType)
                 {
                     case HitType.Paddle:
-                        AudioManager.Instance.PlayPaddleHit();
+                        AudioManager.Instance.PlayPaddleHit(contactPoint, m_ballData.PaddleHitMultiplier);
                         break;
                     case HitType.Table:
-                        AudioManager.Instance.PlayTableHit(m_ballData.TableHitMultiplier);
+                        AudioManager.Instance.PlayTableHit(contactPoint, m_ballData.TableHitMultiplier);
                         break;
                     case HitType.Net:
-                        AudioManager.Instance.PlayNetHit(m_ballData.NetHitMultiplier);
+                        AudioManager.Instance.PlayNetHit(contactPoint, m_ballData.NetHitMultiplier);
                         break;
                 }
             }
         }
 
-        // 获取上一帧速度
-        public Vector3 GetLastVelocity()
-        {
-            return m_lastVelocity;
-        }
-
-        // 获取上一帧角速度
-        public Vector3 GetLastAngularVelocity()
-        {
-            return m_lastAngularVelocity;
-        }
-
-        // 获取最后碰撞类型
-        public HitType GetLastHitType()
-        {
-            return m_lastHitType;
-        }
-
-        // 获取最后碰撞时间
-        public float GetLastHitTime()
-        {
-            return m_lastHitTime;
-        }
-
-        // 重置球的状态
         public void ResetBall()
         {
             m_rigidbody.velocity = Vector3.zero;
             m_rigidbody.angularVelocity = Vector3.zero;
-            m_lastVelocity = Vector3.zero;
-            m_lastAngularVelocity = Vector3.zero;
             m_lastHitType = HitType.Table;
             m_lastHitTime = 0f;
+            m_lastHitForce = 0f;
+        }
+
+        public void SetBallData(BallData data)
+        {
+            m_ballData = data;
+            SetupRigidbody();
+            SetupCollider();
+        }
+
+        public void SetVelocity(Vector3 velocity)
+        {
+            m_rigidbody.velocity = velocity;
+        }
+
+        public void SetAngularVelocity(Vector3 angularVelocity)
+        {
+            m_rigidbody.angularVelocity = angularVelocity;
         }
 
         // 属性
         public Vector3 Velocity => m_rigidbody.velocity;
         public Vector3 AngularVelocity => m_rigidbody.angularVelocity;
+        public HitType LastHitType => m_lastHitType;
+        public float LastHitTime => m_lastHitTime;
+        public float LastHitForce => m_lastHitForce;
         public BallData BallData => m_ballData;
+
+        public void SetState(BallState newState)
+        {
+            m_state = newState;
+            switch (newState)
+            {
+                case BallState.Idle:
+                    // 处理空闲状态
+                    break;
+                case BallState.Moving:
+                    // 处理移动状态
+                    break;
+                case BallState.Hit:
+                    // 处理击中状态
+                    break;
+                case BallState.OutOfBounds:
+                    // 处理出界状态
+                    break;
+            }
+        }
+
+        public void PlayVibration(float intensity)
+        {
+            if (VibrationManager.Instance != null)
+            {
+                VibrationManager.Instance.PlayVibration(intensity);
+            }
+        }
+
+        public async Task InitializeAsync()
+        {
+            await Task.Yield();
+            SetState(BallState.Idle);
+        }
     }
 }
