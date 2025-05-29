@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using PongHub.Gameplay;
 using PongHub.UI;
 
+#pragma warning disable CS0414
+
 namespace PongHub.Core
 {
     public enum GameState
@@ -116,4 +118,6 @@ namespace PongHub.Core
         public int RightPlayerScore => m_rightPlayerScore;
         public int MaxScore => m_maxScore;
     }
-} 
+}
+
+#pragma warning restore CS0414

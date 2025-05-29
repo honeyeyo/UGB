@@ -106,6 +106,9 @@ MonoBehaviour:
     PrewarmCount: 6
   - Prefab: {fileID: 6528092145951613390, guid: b6cce23aa73ed6f498f0d2b076c8201e, type: 3}
     PrewarmCount: 6
+  m_networkManager: {fileID: 0}
+  m_prefab: {fileID: 0}
+  m_poolSize: 10
 --- !u!1001 &735744144076041926
 PrefabInstance:
   m_ObjectHideFlags: 0

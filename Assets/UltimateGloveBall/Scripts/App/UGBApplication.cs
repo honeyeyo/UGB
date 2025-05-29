@@ -15,6 +15,7 @@ using PongHub.Networking;
 using PongHub.Gameplay.Table;
 using PongHub.Gameplay.Ball;
 using PongHub.Gameplay.Paddle;
+using Oculus.Platform.Models;
 
 namespace PongHub.App
 {
@@ -66,14 +67,7 @@ namespace PongHub.App
         /// </summary>
         public NetworkStateHandler NetworkStateHandler { get; private set; }
 
-        [Header("核心系统")]
-        [SerializeField] private GameCore m_gameCore;
-        [SerializeField] private AudioManager m_audioManager;
-        [SerializeField] private VibrationManager m_vibrationManager;
-        [SerializeField] private NetworkManager m_networkManager;
-
         [Header("UI系统")]
-        [SerializeField] private UIManager m_uiManager;
         [SerializeField] private ScoreboardPanel m_scoreboardPanel;
         [SerializeField] private MainMenuPanel m_mainMenuPanel;
         [SerializeField] private SettingsPanel m_settingsPanel;
@@ -103,24 +97,24 @@ namespace PongHub.App
             NetworkStateHandler?.Dispose();
 
             // 清理资源
-            if (m_audioManager != null)
+            if (AudioManager.Instance != null)
             {
-                m_audioManager.Cleanup();
+                AudioManager.Instance.Cleanup();
             }
 
-            if (m_vibrationManager != null)
+            if (VibrationManager.Instance != null)
             {
-                m_vibrationManager.Cleanup();
+                VibrationManager.Instance.Cleanup();
             }
 
-            if (m_networkManager != null)
+            if (PongHub.Networking.NetworkManager.Instance != null)
             {
-                m_networkManager.Shutdown();
+                PongHub.Networking.NetworkManager.Instance.Shutdown();
             }
 
-            if (m_gameCore != null)
+            if (GameCore.Instance != null)
             {
-                m_gameCore.Cleanup();
+                GameCore.Instance.Cleanup();
             }
         }
 
@@ -153,36 +147,36 @@ namespace PongHub.App
         private async Task InitializeCoreSystems()
         {
             // 初始化音频管理器
-            if (m_audioManager != null)
+            if (AudioManager.Instance != null)
             {
-                await m_audioManager.InitializeAsync();
+                await AudioManager.Instance.InitializeAsync();
             }
 
             // 初始化振动管理器
-            if (m_vibrationManager != null)
+            if (VibrationManager.Instance != null)
             {
-                await m_vibrationManager.InitializeAsync();
+                await VibrationManager.Instance.InitializeAsync();
             }
 
             // 初始化网络管理器
-            if (m_networkManager != null)
+            if (PongHub.Networking.NetworkManager.Instance != null)
             {
-                await m_networkManager.InitializeAsync();
+                await PongHub.Networking.NetworkManager.Instance.InitializeAsync();
             }
 
             // 初始化游戏核心
-            if (m_gameCore != null)
+            if (GameCore.Instance != null)
             {
-                await m_gameCore.InitializeAsync();
+                await GameCore.Instance.InitializeAsync();
             }
         }
 
         private async Task InitializeUISystems()
         {
-            // 初始化UI管理器
-            if (m_uiManager != null)
+            // 使用别名访问我们的 UIManager
+            if (PongHub.UI.UIManager.Instance != null)
             {
-                await m_uiManager.InitializeAsync();
+                await PongHub.UI.UIManager.Instance.InitializeAsync();
             }
 
             // 初始化记分牌面板
@@ -299,19 +293,19 @@ namespace PongHub.App
         {
             try
             {
-                var coreInitResult = await Core.Initialize();
-                if (!coreInitResult)
+                var coreInit = await Oculus.Platform.Core.AsyncInitialize().Gen();
+                if (coreInit.IsError)
                 {
-                    Debug.LogError("Failed to initialize Oculus Platform SDK");
+                    LogError("Failed to initialize Oculus Platform SDK", coreInit.GetError());
                     return;
                 }
 
                 Debug.Log("Oculus Platform SDK initialized successfully");
 
-                var isUserEntitled = await Entitlements.IsUserEntitledToApplication();
-                if (!isUserEntitled)
+                var isUserEntitled = await Entitlements.IsUserEntitledToApplication().Gen();
+                if (isUserEntitled.IsError)
                 {
-                    Debug.LogError("You are not entitled to use this app");
+                    LogError("You are not entitled to use this app", isUserEntitled.GetError());
                     return;
                 }
 
@@ -320,18 +314,19 @@ namespace PongHub.App
                 GroupPresence.SetJoinIntentReceivedNotificationCallback(OnJoinIntentReceived);
                 GroupPresence.SetInvitationsSentNotificationCallback(OnInvitationsSent);
 
-                var loggedInUser = await Users.GetLoggedInUser();
-                if (loggedInUser == null)
+                var getLoggedInuser = await Users.GetLoggedInUser().Gen();
+                if (getLoggedInuser.IsError)
                 {
-                    Debug.LogError("Cannot get user info");
+                    LogError("Cannot get user info", getLoggedInuser.GetError());
                     return;
                 }
 
-                var user = await Users.Get(loggedInUser.ID);
-                if (user != null)
-                {
-                    LocalPlayerState.Init(user.DisplayName, user.ID);
-                }
+                // Workaround.
+                // At the moment, Platform.Users.GetLoggedInUser() seems to only be returning the user ID.
+                // Display name is blank.
+                // Platform.Users.Get(ulong userID) returns the display name.
+                var getUser = await Users.Get(getLoggedInuser.Data.ID).Gen();
+                LocalPlayerState.Init(getUser.Data.DisplayName, getUser.Data.ID);
             }
             catch (System.Exception exception)
             {

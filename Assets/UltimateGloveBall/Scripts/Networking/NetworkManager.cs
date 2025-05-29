@@ -12,6 +12,28 @@ namespace PongHub.Networking
         [SerializeField] private Unity.Netcode.NetworkManager m_networkManager;
         [SerializeField] private NetworkObject[] m_networkPrefabs;
 
+        // 创建一个预制体处理器类
+        private class CustomPrefabHandler : INetworkPrefabInstanceHandler
+        {
+            private readonly NetworkObject m_prefab;
+
+            public CustomPrefabHandler(NetworkObject prefab)
+            {
+                m_prefab = prefab;
+            }
+
+            public NetworkObject Instantiate(ulong ownerClientId, Vector3 position, Quaternion rotation)
+            {
+                var instance = UnityEngine.Object.Instantiate(m_prefab, position, rotation);
+                return instance;
+            }
+
+            public void Destroy(NetworkObject networkObject)
+            {
+                UnityEngine.Object.Destroy(networkObject.gameObject);
+            }
+        }
+
         private void Awake()
         {
             if (s_instance == null)
@@ -42,15 +64,11 @@ namespace PongHub.Networking
             {
                 foreach (var prefab in m_networkPrefabs)
                 {
-                    m_networkManager.PrefabHandler.AddHandler(prefab.gameObject, new NetworkPrefabHandler.HandleNetworkPrefabSpawn(SpawnPrefabHandler));
+                    // 使用自定义的预制体处理器
+                    var handler = new CustomPrefabHandler(prefab);
+                    m_networkManager.PrefabHandler.AddHandler(prefab.gameObject, handler);
                 }
             }
-        }
-
-        private NetworkObject SpawnPrefabHandler(ulong ownerClientId, Vector3 position, Quaternion rotation)
-        {
-            var prefabInstance = Instantiate(m_networkPrefabs[0], position, rotation);
-            return prefabInstance;
         }
 
         public void StartHost()
@@ -102,4 +120,4 @@ namespace PongHub.Networking
 
         public NetworkPrefabHandler PrefabHandler => m_networkManager?.PrefabHandler;
     }
-} 
+}

@@ -11,13 +11,8 @@ namespace PongHub.Gameplay.Ball
         [SerializeField] private ParticleSystem m_spinParticles;
 
         [Header("视觉效果参数")]
-        [SerializeField] private float m_trailUpdateInterval = 0.02f;
         [SerializeField] private float m_particleEmissionRate = 10f;
         [SerializeField] private float m_minSpinThreshold = 10f;
-
-        private float m_lastTrailUpdateTime;
-        private Vector3 m_lastTrailPosition;
-        private Quaternion m_lastTrailRotation;
 
         private void Awake()
         {

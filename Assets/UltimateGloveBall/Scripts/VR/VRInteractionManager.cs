@@ -334,7 +334,7 @@ namespace PongHub.VR
         {
             var controller = isLeft ? m_leftController : m_rightController;
             var activateAction = isLeft ? m_leftActivateAction : m_rightActivateAction;
-            
+
             if (controller != null && activateAction != null)
             {
                 return activateAction.action.ReadValue<float>() > 0.5f;
@@ -357,5 +357,14 @@ namespace PongHub.VR
         public XRBaseInteractor RightInteractor => m_rightInteractor;
         public XRRayInteractor LeftRayInteractor => m_leftRayInteractor;
         public XRRayInteractor RightRayInteractor => m_rightRayInteractor;
+
+        public bool CheckGrabInput(bool isLeft)
+        {
+            float gripValue = isLeft ?
+                m_leftGripAction?.action.ReadValue<float>() ?? 0f :
+                m_rightGripAction?.action.ReadValue<float>() ?? 0f;
+
+            return gripValue > m_grabThreshold;
+        }
     }
 }

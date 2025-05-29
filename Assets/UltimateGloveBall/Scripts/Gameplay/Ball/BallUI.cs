@@ -18,7 +18,6 @@ namespace PongHub.Gameplay.Ball
         [Header("UI配置")]
         [SerializeField] private float m_uiUpdateInterval = 0.1f;
         [SerializeField] private float m_popupDuration = 2f;
-        [SerializeField] private float m_popupFadeSpeed = 1f;
         [SerializeField] private Vector3 m_popupOffset = new Vector3(0f, 1f, 0f);
 
         private BallPhysics m_ballPhysics;

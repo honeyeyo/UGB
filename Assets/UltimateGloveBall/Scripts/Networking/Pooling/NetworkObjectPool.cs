@@ -9,6 +9,8 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Assertions;
 
+#pragma warning disable CS0414
+
 namespace PongHub.Networking.Pooling
 {
     /// <summary>
@@ -266,4 +268,6 @@ namespace PongHub.Networking.Pooling
 
         #endregion
     }
+
+#pragma warning restore CS0414
 }
