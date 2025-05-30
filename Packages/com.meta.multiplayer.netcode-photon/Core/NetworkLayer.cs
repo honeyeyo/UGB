@@ -12,28 +12,33 @@ using UnityEngine;
 namespace Meta.Multiplayer.Core
 {
     /// <summary>
-    /// Handles network connection using the Unity Netcode API as well as the Photon connection.
-    /// It handles the connection, reconnection and disconnection of the user.
-    /// Register to the callbacks to handle different events through the connection flow. 
+    /// 网络层管理器
+    /// 使用Unity Netcode API和Photon连接处理网络连接
+    /// 处理用户的连接、重连和断开连接
+    /// 注册回调以处理连接流程中的不同事件
     /// </summary>
     [RequireComponent(typeof(PhotonRealtimeTransport))]
     public class NetworkLayer : MonoBehaviour, IConnectionCallbacks, IInRoomCallbacks
     {
+        /// <summary>
+        /// 客户端状态枚举
+        /// 定义网络层可能的各种连接状态
+        /// </summary>
         public enum ClientState
         {
-            Disconnected,
-            Disconnecting,
-            StartingLobby,
-            StartingHost,
-            StartingClient,
-            MigratingHost,
-            MigratingClient,
-            RestoringHost,
-            RestoringClient,
-            SwitchingPhotonRealtimeRoom,
-            SwitchingLobby,
-            Connected,
-            ConnectedToLobby,
+            Disconnected,                    // 已断开连接
+            Disconnecting,                   // 正在断开连接
+            StartingLobby,                   // 正在启动大厅
+            StartingHost,                    // 正在启动主机
+            StartingClient,                  // 正在启动客户端
+            MigratingHost,                   // 正在迁移主机
+            MigratingClient,                 // 正在迁移客户端
+            RestoringHost,                   // 正在恢复主机
+            RestoringClient,                 // 正在恢复客户端
+            SwitchingPhotonRealtimeRoom,     // 正在切换Photon房间
+            SwitchingLobby,                  // 正在切换大厅
+            Connected,                       // 已连接
+            ConnectedToLobby,                // 已连接到大厅
         }
 
         // We register this function so that we can call it internally when we receive the message
@@ -46,16 +51,25 @@ namespace Meta.Multiplayer.Core
         private int m_restoreClientRetries = 0;
 
         public Action<ulong> OnClientConnectedCallback;
+        /// <summary>客户端断开回调</summary>
         public Action<ulong> OnClientDisconnectedCallback;
+        /// <summary>主机切换回调</summary>
         public Func<ulong> OnMasterClientSwitchedCallback;
         public Action OnHostLeftAndStartingMigration;
         public Action StartHostCallback;
         public Action StartLobbyCallback;
         public Action StartClientCallback;
+        /// <summary>恢复主机回调</summary>
         public Action RestoreHostCallback;
+        /// <summary>恢复客户端回调</summary>
         public Action RestoreClientCallback;
+        /// <summary>恢复失败回调</summary>
         public Action<int> OnRestoreFailedCallback;
+
+        // 功能委托
+        /// <summary>获取客户端连接负载函数</summary>
         public Func<string> GetOnClientConnectingPayloadFunc;
+        /// <summary>检查是否可以作为主机迁移函数</summary>
         public Func<bool> CanMigrateAsHostFunc;
 
         public ClientState CurrentClientState { get; private set; } = ClientState.Disconnected;
@@ -95,6 +109,10 @@ namespace Meta.Multiplayer.Core
             _ = m_photonRealtime.Client.CurrentRoom.SetCustomProperties(properties);
         }
 
+        /// <summary>
+        /// 初始化网络层
+        /// 设置Photon传输组件和网络管理器回调
+        /// </summary>
         public void Init(string room, string region)
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
@@ -113,6 +131,10 @@ namespace Meta.Multiplayer.Core
             }
         }
 
+        /// <summary>
+        /// 进入大厅
+        /// 连接到Photon大厅以进行房间浏览和匹配
+        /// </summary>
         public void GoToLobby()
         {
             _ = StartCoroutine(StartLobby());
@@ -265,7 +287,7 @@ namespace Meta.Multiplayer.Core
             switch (CurrentClientState)
             {
                 case ClientState.StartingHost:
-                    // happened because of room name conflict, meaning this 
+                    // happened because of room name conflict, meaning this
                     // photon room already exist, so join as a client instead
                     Debug.LogWarning("HOSTING FAILED. ATTEMPTING TO JOIN AS CLIENT INSTEAD.");
                     CurrentClientState = ClientState.StartingClient;
@@ -435,6 +457,10 @@ namespace Meta.Multiplayer.Core
             return CanMigrateAsHostFunc == null || CanMigrateAsHostFunc();
         }
 
+        /// <summary>
+        /// 切换Photon实时房间
+        /// 加入指定的Photon房间，支持主机和客户端模式
+        /// </summary>
         public void SwitchPhotonRealtimeRoom(string room, bool isHosting, string region)
         {
             m_photonRealtime.RoomName = room;

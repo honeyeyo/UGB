@@ -5,15 +5,32 @@
 namespace PongHub.App
 {
     /// <summary>
-    /// Static class that hold easily usable strings for products and product categories
+    /// 产品类别静态类
+    /// 包含易于使用的产品和产品类别字符串常量
+    /// 用于应用内购买和商店系统的产品分类
     /// </summary>
     public static class ProductCategories
     {
-        // Categories
+        // 产品类别常量
+
+        /// <summary>
+        /// 图标类别
+        /// 用于用户头像图标相关的产品
+        /// </summary>
         public const string ICONS = "Icons";
+
+        /// <summary>
+        /// 消耗品类别
+        /// 用于一次性使用的产品，如道具、货币等
+        /// </summary>
         public const string CONSUMABLES = "Consumables";
 
-        // Product SKU for the cats
+        // 具体产品SKU常量
+
+        /// <summary>
+        /// 猫咪产品的SKU标识符
+        /// 用于购买和管理猫咪相关的消耗品
+        /// </summary>
         public const string CAT = "cat";
     }
 }
