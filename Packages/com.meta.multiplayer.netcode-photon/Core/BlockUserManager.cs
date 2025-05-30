@@ -75,8 +75,8 @@ namespace Meta.Multiplayer.Core
                 // 将被阻止的用户添加到集合中
                 foreach (var blockedUser in blockedUsers)
                 {
-                    m_blockedUsers.Add(blockedUser.ID);
-                    Debug.Log($"User {blockedUser.DisplayName} (ID: {blockedUser.ID}) is blocked");
+                    Debug.Log("Blocked User: " + blockedUser.Id);
+                    _ = m_blockedUsers.Add(blockedUser.Id);
                 }
 
                 // 检查是否有下一页

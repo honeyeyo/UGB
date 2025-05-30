@@ -107,7 +107,6 @@ namespace Meta.Multiplayer.Core
             OnSetComplete();
             yield break;
 #endif
-        }
 
             void OnSetComplete()
             {
