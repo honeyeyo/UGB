@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "com.alexeyperov.unity-dependencies-hunter": "https://github.com/AlexeyPerov/Unity-Dependencies-Hunter.git#upm",
+    "com.gamelovers.mcp-unity": "https://github.com/CoderGamester/mcp-unity.git",
     "com.marijnzwemmer.unity-toolbar-extender": "https://github.com/marijnz/unity-toolbar-extender.git",
     "com.meta.xr.sdk.audio": "72.0.0",
     "com.meta.xr.sdk.avatars": "33.0.0",
