@@ -61,7 +61,7 @@ namespace PongHub.Arena.Gameplay
 
         [SerializeField] private CountdownView m_countdownView;                   // 倒计时视图
 
-        [SerializeField] private ObstacleManager m_obstacleManager;               // 障碍物管理器
+        // [SerializeField] private ObstacleManager m_obstacleManager;               // 障碍物管理器
 
         [SerializeField] private GameObject m_postGameView;                       // 赛后视图
 
@@ -213,7 +213,7 @@ namespace PongHub.Arena.Gameplay
                     m_restartGameButtonContainer.SetActive(true);
                 }
 
-                m_obstacleManager.SetTeamColor(TeamAColor, TeamBColor);
+                // m_obstacleManager.SetTeamColor(TeamAColor, TeamBColor);
 
                 // 从主机迁移恢复时的状态处理
                 if (currentPhase == GamePhase.CountDown)

@@ -11,9 +11,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/UltimateGloveBall/Scenes/MainMenu.unity
     guid: 8e98422b126569849b10d0496d73a808
-  - enabled: 1
+  - enabled: 0
     path: Assets/UltimateGloveBall/Scenes/Arena.unity
     guid: df2172ca90500c5428fbce29dd2fba67
+  - enabled: 1
+    path: Assets/TirgamesAssets/SchoolGym/Gym.unity
+    guid: 7cc27baa40b203d45a8ea0b766130fd7
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 795ffafb602dfed43930c9717cafb655, type: 2}
     com.unity.input.settings: {fileID: 11400000, guid: 31617391d8a34d24981ec6aff26cd922, type: 2}
