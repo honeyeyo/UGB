@@ -33,6 +33,10 @@ namespace PongHub.Editor
             {
                 LoadArena();
             }
+            if (GUILayout.Button(new GUIContent("SchoolGym", "Load school gym scene.")))
+            {
+                LoadSchoolGym();
+            }
             GUILayout.Space(100);
         }
 
@@ -55,20 +59,28 @@ namespace PongHub.Editor
             OpenScene("Arena");
         }
 
+
+        [MenuItem("Scenes/SchoolGym")]
+        public static void LoadSchoolGym()
+        {
+            OpenScene("Gym", "Assets/TirgamesAssets/SchoolGym");
+        }
+
         [MenuItem("Scenes/Startup &1", true)]
         [MenuItem("Scenes/Menu &2", true)]
         [MenuItem("Scenes/Arena &3", true)]
+        [MenuItem("Scenes/SchoolGym &4", true)]
         public static bool LoadSceneValidation()
         {
             return !Application.isPlaying;
         }
 
-        private static void OpenScene(string name)
+        private static void OpenScene(string name, string path = "Assets/UltimateGloveBall/Scenes")
         {
             var saved = EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo();
             if (saved)
             {
-                _ = EditorSceneManager.OpenScene($"Assets/UltimateGloveBall/Scenes/{name}.unity");
+                _ = EditorSceneManager.OpenScene($"{path}/{name}.unity");
             }
         }
     }
