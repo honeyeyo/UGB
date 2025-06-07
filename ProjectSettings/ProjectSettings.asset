@@ -140,7 +140,7 @@ PlayerSettings:
   loadStoreDebugModeEnabled: 0
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
-  bundleVersion: 2.0.0
+  bundleVersion: 0.0.1
   preloadedAssets:
   - {fileID: 0}
   - {fileID: 0}
@@ -166,7 +166,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.samples.ultimategloveball
+    Android: com.MagnusLab.PongHub_demo
     Standalone: com.samples.ultimategloveball
   buildNumber:
     Standalone: 0
