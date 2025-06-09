@@ -21,6 +21,7 @@ namespace PongHub.UI
         [Header("控制设置")]
         [SerializeField] private Slider m_vibrationIntensitySlider;
         [SerializeField] private Toggle m_invertYToggle;
+        [SerializeField] private Button m_inputSettingsButton;
 
         private void Start()
         {
@@ -48,6 +49,11 @@ namespace PongHub.UI
             if (m_vibrationIntensitySlider != null)
             {
                 m_vibrationIntensitySlider.onValueChanged.AddListener(OnVibrationIntensityChanged);
+            }
+
+            if (m_inputSettingsButton != null)
+            {
+                m_inputSettingsButton.onClick.AddListener(OnInputSettingsClicked);
             }
         }
 
@@ -112,6 +118,14 @@ namespace PongHub.UI
             PlayerPrefs.SetFloat("VibrationIntensity", value);
         }
 
+        private void OnInputSettingsClicked()
+        {
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowInputSettings();
+            }
+        }
+
         public async Task InitializeAsync()
         {
             await Task.Yield();
@@ -119,4 +133,4 @@ namespace PongHub.UI
             LoadSettings();
         }
     }
-} 
+}

@@ -159,7 +159,11 @@ namespace PongHub.UI
 
         private void OnStartGameClicked()
         {
-            if (GameCore.Instance != null)
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.StartGame();
+            }
+            else if (GameCore.Instance != null)
             {
                 GameCore.Instance.StartGame();
             }
