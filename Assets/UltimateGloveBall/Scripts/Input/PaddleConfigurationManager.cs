@@ -52,6 +52,11 @@ public class PaddleConfigurationManager : MonoBehaviour
     private void Awake()
     {
         xrInputManager = FindObjectOfType<XRInputManager>();
+        if (xrInputManager == null)
+        {
+            Debug.LogError("PaddleConfigurationManager: 未找到XRInputManager组件！");
+        }
+
         LoadConfiguration();
         SetupUI();
     }
@@ -172,9 +177,10 @@ public class PaddleConfigurationManager : MonoBehaviour
     /// </summary>
     private void UpdatePreview()
     {
-        if (previewPaddle == null) return;
+        if (previewPaddle == null || xrInputManager == null) return;
 
         Transform handAnchor = xrInputManager.GetAnchor(isLeftHandConfig);
+        if (handAnchor == null) return;
 
         Vector3 position = new Vector3(
             positionXSlider ? positionXSlider.value : 0,
@@ -197,12 +203,14 @@ public class PaddleConfigurationManager : MonoBehaviour
     /// </summary>
     private void HandleConfigurationInput()
     {
+        if (xrInputManager == null) return;
+
         var leftActions = xrInputManager.GetActions(true);
         var rightActions = xrInputManager.GetActions(false);
 
-        // B键退出配置模式
-        bool leftB = leftActions.ButtonTwo.action.ReadValue<float>() > 0.5f;
-        bool rightB = rightActions.ButtonTwo.action.ReadValue<float>() > 0.5f;
+        // B键退出配置模式（使用按下检测避免重复触发）
+        bool leftB = leftActions.ButtonTwo.action.WasPressedThisFrame();
+        bool rightB = rightActions.ButtonTwo.action.WasPressedThisFrame();
 
         if (leftB || rightB)
         {

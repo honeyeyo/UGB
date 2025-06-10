@@ -1,8 +1,13 @@
 using UnityEngine;
 using UnityEngine.XR;
 using Meta.Utilities.Input;
+using System;
 using System.Collections;
 
+/// <summary>
+/// PongInputManager - 优化版本
+/// 解决性能问题，引入事件系统，改善代码架构
+/// </summary>
 public class PongInputManager : MonoBehaviour
 {
     [Header("移动设置")]
@@ -31,135 +36,271 @@ public class PongInputManager : MonoBehaviour
     [SerializeField] private Transform cameraRig;
     [SerializeField] private PaddleConfigurationManager paddleConfigManager;
 
-    // 私有变量
+    [Header("输入设置")]
+    [SerializeField] private float inputCheckInterval = 0.016f; // 60fps
+    [SerializeField] private float deadZone = 0.1f;
+
+    // 事件定义
+    public static event Action<bool> OnPaddleGrabbed;
+    public static event Action OnPaddleReleased;
+    public static event Action<bool> OnBallGenerated;
+    public static event Action OnTeleportPerformed;
+
+    // 缓存的Actions句柄（获取一次，持续有效）
+    private XRInputControlActions.Controller leftActions;
+    private XRInputControlActions.Controller rightActions;
+
+    // 输入状态缓存
+    private InputState currentInputState = new InputState();
+    private InputState previousInputState = new InputState();
+
+    // 状态管理
     private bool isPaddleHeld = false;
     private bool isLeftHandHoldingPaddle = false;
     private GameObject currentPaddle;
+
+    // 计时器
     private float metaKeyHoldTimer = 0f;
     private float gripHoldTimer = 0f;
-    private bool isGripHeld = false;
+    private float lastInputCheckTime = 0f;
+
+    // 输入状态结构体
+    [System.Serializable]
+    public struct InputState
+    {
+        public Vector2 leftStick;
+        public Vector2 rightStick;
+        public bool leftButtonA;
+        public bool leftButtonB;
+        public bool leftButtonMeta;
+        public bool rightButtonA;
+        public bool rightButtonB;
+        public bool rightButtonMeta;
+        public float leftGrip;
+        public float rightGrip;
+        public float leftTrigger;
+        public float rightTrigger;
+        public bool leftAB; // A+B同时按下
+        public bool rightAB;
+    }
+
+    private void Start()
+    {
+        // 获取输入句柄（一次获取，持续读取实时状态）
+        leftActions = xrInputManager.GetActions(true);
+        rightActions = xrInputManager.GetActions(false);
+
+        Debug.Log("PongInputManager 已初始化");
+    }
 
     private void Update()
     {
-        HandleMovementInput();
-        HandleTeleportInput();
-        HandlePaddleInput();
-        HandleBallGenerationInput();
-        HandleMetaKeyInput();
-        HandleConfigurationInput();
+        // 按固定间隔检查输入（减少不必要的检查）
+        if (Time.time - lastInputCheckTime >= inputCheckInterval)
+        {
+            UpdateInputState();
+            ProcessInputEvents();
+            lastInputCheckTime = Time.time;
+        }
+
+        // 连续输入处理（需要高频率更新的输入）
+        HandleContinuousInput();
+        UpdateTimers();
+    }
+
+
+
+    /// <summary>
+    /// 更新输入状态
+    /// </summary>
+    private void UpdateInputState()
+    {
+        // 保存上一帧状态
+        previousInputState = currentInputState;
+
+        // 更新当前状态（支持反复按键操作）
+        currentInputState.leftStick = leftActions.ButtonPrimaryThumbstick.action.ReadValue<Vector2>();
+        currentInputState.rightStick = rightActions.ButtonPrimaryThumbstick.action.ReadValue<Vector2>();
+
+        currentInputState.leftButtonA = leftActions.ButtonOne.action.ReadValue<float>() > 0.5f;
+        currentInputState.leftButtonB = leftActions.ButtonTwo.action.ReadValue<float>() > 0.5f;
+        currentInputState.leftButtonMeta = leftActions.ButtonThree.action.ReadValue<float>() > 0.5f;
+
+        currentInputState.rightButtonA = rightActions.ButtonOne.action.ReadValue<float>() > 0.5f;
+        currentInputState.rightButtonB = rightActions.ButtonTwo.action.ReadValue<float>() > 0.5f;
+        currentInputState.rightButtonMeta = rightActions.ButtonThree.action.ReadValue<float>() > 0.5f;
+
+        currentInputState.leftGrip = leftActions.AxisHandTrigger.action.ReadValue<float>();
+        currentInputState.rightGrip = rightActions.AxisHandTrigger.action.ReadValue<float>();
+
+        currentInputState.leftTrigger = leftActions.AxisIndexTrigger.action.ReadValue<float>();
+        currentInputState.rightTrigger = rightActions.AxisIndexTrigger.action.ReadValue<float>();
+
+        // 组合键检测
+        currentInputState.leftAB = currentInputState.leftButtonA && currentInputState.leftButtonB;
+        currentInputState.rightAB = currentInputState.rightButtonA && currentInputState.rightButtonB;
     }
 
     /// <summary>
-    /// 处理移动和视角输入
+    /// 处理输入事件（基于状态变化）
     /// </summary>
-    private void HandleMovementInput()
+    private void ProcessInputEvents()
     {
-        // 获取控制器动作
-        var leftActions = xrInputManager.GetActions(true);
-        var rightActions = xrInputManager.GetActions(false);
-
-        // 左手摇杆：前后左右移动
-        Vector2 leftStick = leftActions.ButtonPrimaryThumbstick.action.ReadValue<Vector2>();
-        if (leftStick.magnitude > 0.1f)
+        // A+B组合键事件（按下时触发）
+        if (currentInputState.leftAB && !previousInputState.leftAB)
         {
-            Vector3 moveDirection = cameraRig.forward * leftStick.y + cameraRig.right * leftStick.x;
-            moveDirection.y = 0; // 保持水平移动
-            playerRig.position += moveDirection * moveSpeed * Time.deltaTime;
+            OnLeftABPressed();
+        }
+        if (currentInputState.rightAB && !previousInputState.rightAB)
+        {
+            OnRightABPressed();
         }
 
-        // 右手摇杆：左右旋转视角
-        Vector2 rightStick = rightActions.ButtonPrimaryThumbstick.action.ReadValue<Vector2>();
-        if (Mathf.Abs(rightStick.x) > 0.1f)
-        {
-            playerRig.Rotate(0, rightStick.x * rotationSpeed * Time.deltaTime, 0);
-        }
-
-        // 右手摇杆前推：瞬移
-        if (rightStick.y > 0.8f)
+        // 摇杆前推瞬移检测
+        if (currentInputState.rightStick.y > 0.8f && previousInputState.rightStick.y <= 0.8f)
         {
             PerformTeleport();
         }
 
-        // 左手A、B键：上下移动
-        bool leftAButton = leftActions.ButtonOne.action.ReadValue<float>() > 0.5f;
-        bool leftBButton = leftActions.ButtonTwo.action.ReadValue<float>() > 0.5f;
+        // Trigger生成球检测
+        ProcessBallGenerationEvents();
+    }
 
-        if (leftAButton)
+    /// <summary>
+    /// 处理连续输入（需要高频率更新）
+    /// </summary>
+    private void HandleContinuousInput()
+    {
+        // 移动输入
+        ProcessMovementInput();
+
+        // Grip握持检测
+        ProcessGripInput();
+    }
+
+    /// <summary>
+    /// 更新计时器
+    /// </summary>
+    private void UpdateTimers()
+    {
+        // Meta键长按检测
+        if (currentInputState.leftButtonMeta || currentInputState.rightButtonMeta)
+        {
+            metaKeyHoldTimer += Time.deltaTime;
+            if (metaKeyHoldTimer >= metaKeyHoldTime)
+            {
+                TeleportToDefaultSpawn();
+                metaKeyHoldTimer = 0f;
+            }
+        }
+        else
+        {
+            metaKeyHoldTimer = 0f;
+        }
+    }
+
+    /// <summary>
+    /// 处理移动输入
+    /// </summary>
+    private void ProcessMovementInput()
+    {
+        // 左手摇杆移动
+        if (currentInputState.leftStick.magnitude > deadZone)
+        {
+            Vector3 moveDirection = cameraRig.forward * currentInputState.leftStick.y +
+                                  cameraRig.right * currentInputState.leftStick.x;
+            moveDirection.y = 0;
+            playerRig.position += moveDirection * moveSpeed * Time.deltaTime;
+        }
+
+        // 右手摇杆旋转
+        if (Mathf.Abs(currentInputState.rightStick.x) > deadZone)
+        {
+            playerRig.Rotate(0, currentInputState.rightStick.x * rotationSpeed * Time.deltaTime, 0);
+        }
+
+        // 左手A、B键上下移动
+        if (currentInputState.leftButtonA)
         {
             playerRig.position += Vector3.up * heightChangeSpeed * Time.deltaTime;
         }
-        if (leftBButton)
+        if (currentInputState.leftButtonB)
         {
             playerRig.position += Vector3.down * heightChangeSpeed * Time.deltaTime;
         }
     }
 
     /// <summary>
-    /// 处理瞬移到固定点位
+    /// 处理Grip输入
     /// </summary>
-    private void HandleTeleportInput()
+    private void ProcessGripInput()
     {
-        // 这里可以添加特定的瞬移逻辑，比如UI按钮触发
-        // 或者通过特定手势触发瞬移到球桌两侧
-    }
+        bool anyGripPressed = currentInputState.leftGrip > 0.8f || currentInputState.rightGrip > 0.8f;
 
-    /// <summary>
-    /// 执行瞬移
-    /// </summary>
-    private void PerformTeleport()
-    {
-        Vector3 teleportPosition = cameraRig.position + cameraRig.forward * teleportDistance;
-        teleportPosition.y = playerRig.position.y; // 保持当前高度
-        playerRig.position = teleportPosition;
-    }
-
-    /// <summary>
-    /// 处理球拍握持输入
-    /// </summary>
-    private void HandlePaddleInput()
-    {
-        var leftActions = xrInputManager.GetActions(true);
-        var rightActions = xrInputManager.GetActions(false);
-
-        // 检查左手Grip
-        float leftGrip = leftActions.AxisHandTrigger.action.ReadValue<float>();
-        bool leftGripPressed = leftGrip > 0.8f;
-
-        // 检查右手Grip
-        float rightGrip = rightActions.AxisHandTrigger.action.ReadValue<float>();
-        bool rightGripPressed = rightGrip > 0.8f;
-
-        // 处理握持逻辑
-        if ((leftGripPressed || rightGripPressed) && !isGripHeld)
-        {
-            isGripHeld = true;
-            gripHoldTimer = 0f;
-        }
-        else if (!(leftGripPressed || rightGripPressed) && isGripHeld)
-        {
-            isGripHeld = false;
-            gripHoldTimer = 0f;
-        }
-
-        if (isGripHeld)
+        if (anyGripPressed)
         {
             gripHoldTimer += Time.deltaTime;
-
             if (gripHoldTimer >= gripHoldTime)
             {
                 if (!isPaddleHeld)
                 {
-                    // 握持球拍
-                    GrabPaddle(leftGripPressed);
+                    GrabPaddle(currentInputState.leftGrip > 0.8f);
                 }
                 else
                 {
-                    // 释放球拍
                     ReleasePaddle();
                 }
                 gripHoldTimer = 0f;
-                isGripHeld = false;
             }
+        }
+        else
+        {
+            gripHoldTimer = 0f;
+        }
+    }
+
+    /// <summary>
+    /// 处理球生成事件
+    /// </summary>
+    private void ProcessBallGenerationEvents()
+    {
+        if (!isPaddleHeld) return;
+
+        bool leftTriggerPressed = currentInputState.leftTrigger > 0.8f && previousInputState.leftTrigger <= 0.8f;
+        bool rightTriggerPressed = currentInputState.rightTrigger > 0.8f && previousInputState.rightTrigger <= 0.8f;
+
+        // 非持拍手的Trigger生成球
+        if (isLeftHandHoldingPaddle && rightTriggerPressed)
+        {
+            GenerateBall(false);
+        }
+        else if (!isLeftHandHoldingPaddle && leftTriggerPressed)
+        {
+            GenerateBall(true);
+        }
+    }
+
+    /// <summary>
+    /// 左手A+B事件处理
+    /// </summary>
+    private void OnLeftABPressed()
+    {
+        if (!isPaddleHeld && paddleConfigManager != null)
+        {
+            paddleConfigManager.StartConfiguration(true);
+            Debug.Log("开始左手配置模式");
+        }
+    }
+
+    /// <summary>
+    /// 右手A+B事件处理
+    /// </summary>
+    private void OnRightABPressed()
+    {
+        if (!isPaddleHeld && paddleConfigManager != null)
+        {
+            paddleConfigManager.StartConfiguration(false);
+            Debug.Log("开始右手配置模式");
         }
     }
 
@@ -173,14 +314,10 @@ public class PongInputManager : MonoBehaviour
         isPaddleHeld = true;
         isLeftHandHoldingPaddle = useLeftHand;
 
-        // 实例化球拍
         currentPaddle = Instantiate(paddlePrefab);
-
-        // 附加到相应的手部锚点
         Transform handAnchor = xrInputManager.GetAnchor(useLeftHand);
         currentPaddle.transform.SetParent(handAnchor);
 
-        // 应用配置的位置和旋转
         if (paddleConfigManager != null)
         {
             paddleConfigManager.GetPaddleTransform(useLeftHand, out Vector3 configPos, out Vector3 configRot);
@@ -193,6 +330,8 @@ public class PongInputManager : MonoBehaviour
             currentPaddle.transform.localRotation = Quaternion.identity;
         }
 
+        // 触发事件
+        OnPaddleGrabbed?.Invoke(useLeftHand);
         Debug.Log($"球拍已握持到{(useLeftHand ? "左手" : "右手")}");
     }
 
@@ -211,34 +350,9 @@ public class PongInputManager : MonoBehaviour
             currentPaddle = null;
         }
 
+        // 触发事件
+        OnPaddleReleased?.Invoke();
         Debug.Log("球拍已释放");
-    }
-
-    /// <summary>
-    /// 处理球生成输入
-    /// </summary>
-    private void HandleBallGenerationInput()
-    {
-        var leftActions = xrInputManager.GetActions(true);
-        var rightActions = xrInputManager.GetActions(false);
-
-        // 非持拍手的Trigger键生成球
-        bool leftTrigger = leftActions.AxisIndexTrigger.action.ReadValue<float>() > 0.8f;
-        bool rightTrigger = rightActions.AxisIndexTrigger.action.ReadValue<float>() > 0.8f;
-
-        if (isPaddleHeld)
-        {
-            // 如果左手持拍，右手Trigger生成球
-            if (isLeftHandHoldingPaddle && rightTrigger)
-            {
-                GenerateBall(false);
-            }
-            // 如果右手持拍，左手Trigger生成球
-            else if (!isLeftHandHoldingPaddle && leftTrigger)
-            {
-                GenerateBall(true);
-            }
-        }
     }
 
     /// <summary>
@@ -248,46 +362,32 @@ public class PongInputManager : MonoBehaviour
     {
         Transform handAnchor = xrInputManager.GetAnchor(fromLeftHand);
 
-        // 在掌心位置生成球
         Vector3 spawnPosition = handAnchor.position + handAnchor.forward * 0.1f;
         GameObject ball = Instantiate(ballPrefab, spawnPosition, Quaternion.identity);
 
-        // 给球添加一个小的向前推力
         Rigidbody ballRb = ball.GetComponent<Rigidbody>();
         if (ballRb != null)
         {
             ballRb.AddForce(handAnchor.forward * 2f, ForceMode.Impulse);
         }
 
+        // 触发事件
+        OnBallGenerated?.Invoke(fromLeftHand);
         Debug.Log($"球已从{(fromLeftHand ? "左手" : "右手")}生成");
     }
 
     /// <summary>
-    /// 处理Meta键长按回到出生点
+    /// 执行瞬移
     /// </summary>
-    private void HandleMetaKeyInput()
+    private void PerformTeleport()
     {
-        var leftActions = xrInputManager.GetActions(true);
-        var rightActions = xrInputManager.GetActions(false);
+        Vector3 teleportPosition = cameraRig.position + cameraRig.forward * teleportDistance;
+        teleportPosition.y = playerRig.position.y;
+        playerRig.position = teleportPosition;
 
-        // 检查Meta键（通常是ButtonThree）
-        bool leftMeta = leftActions.ButtonThree.action.ReadValue<float>() > 0.5f;
-        bool rightMeta = rightActions.ButtonThree.action.ReadValue<float>() > 0.5f;
-
-        if (leftMeta || rightMeta)
-        {
-            metaKeyHoldTimer += Time.deltaTime;
-
-            if (metaKeyHoldTimer >= metaKeyHoldTime)
-            {
-                TeleportToDefaultSpawn();
-                metaKeyHoldTimer = 0f;
-            }
-        }
-        else
-        {
-            metaKeyHoldTimer = 0f;
-        }
+        // 触发事件
+        OnTeleportPerformed?.Invoke();
+        Debug.Log("执行瞬移");
     }
 
     /// <summary>
@@ -299,6 +399,7 @@ public class PongInputManager : MonoBehaviour
         {
             playerRig.position = defaultSpawnPoint.position;
             playerRig.rotation = defaultSpawnPoint.rotation;
+            OnTeleportPerformed?.Invoke();
             Debug.Log("已瞬移到默认出生点");
         }
     }
@@ -312,45 +413,8 @@ public class PongInputManager : MonoBehaviour
         {
             playerRig.position = teleportPoints[pointIndex].position;
             playerRig.rotation = teleportPoints[pointIndex].rotation;
+            OnTeleportPerformed?.Invoke();
             Debug.Log($"已瞬移到点位 {pointIndex}");
-        }
-    }
-
-    /// <summary>
-    /// 获取当前是否持有球拍
-    /// </summary>
-    public bool IsPaddleHeld => isPaddleHeld;
-
-    /// <summary>
-    /// 获取持拍手信息
-    /// </summary>
-    public bool IsLeftHandHoldingPaddle => isLeftHandHoldingPaddle;
-
-    /// <summary>
-    /// 处理配置模式输入（同时按住A+B键进入配置）
-    /// </summary>
-    private void HandleConfigurationInput()
-    {
-        if (paddleConfigManager == null) return;
-
-        var leftActions = xrInputManager.GetActions(true);
-        var rightActions = xrInputManager.GetActions(false);
-
-        // 左手同时按住A+B键进入左手配置
-        bool leftAB = leftActions.ButtonOne.action.ReadValue<float>() > 0.5f &&
-                      leftActions.ButtonTwo.action.ReadValue<float>() > 0.5f;
-
-        // 右手同时按住A+B键进入右手配置
-        bool rightAB = rightActions.ButtonOne.action.ReadValue<float>() > 0.5f &&
-                       rightActions.ButtonTwo.action.ReadValue<float>() > 0.5f;
-
-        if (leftAB && !isPaddleHeld)
-        {
-            paddleConfigManager.StartConfiguration(true);
-        }
-        else if (rightAB && !isPaddleHeld)
-        {
-            paddleConfigManager.StartConfiguration(false);
         }
     }
 
@@ -363,5 +427,19 @@ public class PongInputManager : MonoBehaviour
         {
             paddleConfigManager.StartConfiguration(forLeftHand);
         }
+    }
+
+    // 公共属性
+    public bool IsPaddleHeld => isPaddleHeld;
+    public bool IsLeftHandHoldingPaddle => isLeftHandHoldingPaddle;
+    public InputState CurrentInputState => currentInputState;
+
+    private void OnDestroy()
+    {
+        // 清理事件订阅（避免内存泄漏）
+        OnPaddleGrabbed = null;
+        OnPaddleReleased = null;
+        OnBallGenerated = null;
+        OnTeleportPerformed = null;
     }
 }
