@@ -11,91 +11,168 @@ using UnityEngine.Serialization;
 
 namespace Netcode.Transports.PhotonRealtime
 {
+    /// <summary>
+    /// Photon Realtime网络传输实现
+    /// 继承自Unity Netcode的NetworkTransport，提供基于Photon Cloud的网络传输层
+    /// 支持房间创建、连接、数据传输和事件处理，实现多人游戏的网络通信
+    /// </summary>
     [DefaultExecutionOrder(-1000)]
     public partial class PhotonRealtimeTransport : NetworkTransport, IOnEventCallback
     {
+        /// <summary>
+        /// 连接意图枚举
+        /// 定义不同的连接目的和行为模式
+        /// </summary>
         public enum ConnectionIntent
         {
+            /// <summary>无连接意图</summary>
             None,
+            /// <summary>连接到大厅</summary>
             Lobby,
+            /// <summary>作为主机或服务器</summary>
             HostOrServer,
+            /// <summary>作为客户端</summary>
             Client,
         }
-        
+
+        /// <summary>
+        /// 空的数组段缓存，避免重复分配
+        /// </summary>
         private static readonly ArraySegment<byte> s_EmptyArraySegment = new ArraySegment<byte>(Array.Empty<byte>());
 
+        /// <summary>
+        /// 玩家昵称
+        /// 在Photon房间中显示的玩家名称，为空时会生成随机名称
+        /// </summary>
         [Tooltip("The nickname of the player in the Photon Room. This value is only relevant for other Photon Realtime features. Leaving it empty generates a random name.")]
         [SerializeField]
         private string m_NickName;
 
         [Header("Server Settings")]
+        /// <summary>
+        /// 房间名称
+        /// 用于创建或加入的房间的唯一标识符
+        /// </summary>
         [Tooltip("Unique name of the room for this session.")]
         [SerializeField]
         private string m_RoomName;
 
+        /// <summary>
+        /// 房间最大玩家数量
+        /// 限制房间中允许的最大玩家数
+        /// </summary>
         [Tooltip("The maximum amount of players allowed in the room.")]
         [SerializeField]
         private byte m_MaxPlayers = 16;
 
         [FormerlySerializedAs("m_ChannelIdCodesStartRange")]
         [Header("Advanced Settings")]
+        /// <summary>
+        /// 网络传输事件代码起始范围
+        /// 为非批处理消息保留的Photon事件代码范围的第一个字节
+        /// 应设置为小于200的数字以免与Photon内部事件冲突
+        /// </summary>
         [Tooltip("The first byte of the range of photon event codes which this transport will reserve for unbatched messages. Should be set to a number lower then 200 to not interfere with photon internal events. Approximately 8 events will be reserved.")]
         [SerializeField]
         private byte m_NetworkDeliveryEventCodesStartRange = 0;
 
+        /// <summary>
+        /// 是否附加Photon支持日志记录器
+        /// 用于调试连接断开或其他问题
+        /// </summary>
         [Tooltip("Attaches the photon support logger to the transport. Useful for debugging disconnects or other issues.")]
         [SerializeField]
         private bool m_AttachSupportLogger = false;
 
+        /// <summary>
+        /// 批处理模式
+        /// 传输层应用于MLAPI事件的批处理方式
+        /// </summary>
         [Tooltip("The batching this transport should apply to MLAPI events. None only works for very simple scenes.")]
         [SerializeField]
         private BatchMode m_BatchMode = BatchMode.SendAllReliable;
 
+        /// <summary>
+        /// 发送队列批处理大小
+        /// 将MLAPI事件批处理为Photon事件的发送队列最大大小
+        /// </summary>
         [Tooltip("The maximum size of the send queue which batches MLAPI events into Photon events.")]
         [SerializeField]
         private int m_SendQueueBatchSize = 4096;
 
+        /// <summary>
+        /// 批处理传输事件代码
+        /// 用于发送批处理数据的Photon事件代码
+        /// </summary>
         [Tooltip("The Photon event code which will be used to send batched data.")]
         [SerializeField]
         [Range(129, 199)]
         private byte m_BatchedTransportEventCode = 129;
 
+        /// <summary>
+        /// 踢出事件代码
+        /// 用于发送踢出操作的Photon事件代码
+        /// </summary>
         [Tooltip("The Photon event code which will be used to send a kick.")]
         [SerializeField]
         [Range(129, 199)]
         private byte m_KickEventCode = 130;
-        
+
+        /// <summary>
+        /// 区域覆盖设置
+        /// 要连接的区域，为空时使用应用设置
+        /// </summary>
         [Tooltip("The Region to connect to, empty will take the App settings")]
         [SerializeField]
         private string m_RegionOverride = null;
-        
+
+        /// <summary>
+        /// 是否使用私人房间
+        /// 决定连接到私人房间还是公共房间
+        /// </summary>
         [Tooltip("If we want to connect to a private room or public")]
         [SerializeField]
         private bool m_UsePrivateRoom = false;
 
+        /// <summary>
+        /// Photon负载均衡客户端
+        /// 处理所有与Photon Cloud的网络通信
+        /// </summary>
         private LoadBalancingClient m_Client;
 
+        /// <summary>
+        /// 是否为主机或服务器
+        /// 标识当前实例的角色
+        /// </summary>
         private bool m_IsHostOrServer;
 
+        /// <summary>
+        /// 当前连接意图
+        /// 记录当前的连接目的
+        /// </summary>
         private ConnectionIntent connectionIntent = ConnectionIntent.None;
 
         /// <summary>
-        /// SendQueue dictionary is used to batch events instead of sending them immediately.
+        /// 发送队列字典
+        /// 用于批处理事件而不是立即发送
+        /// 键为发送目标，值为对应的发送队列
         /// </summary>
         private readonly Dictionary<SendTarget, SendQueue> m_SendQueue = new Dictionary<SendTarget, SendQueue>();
 
         /// <summary>
-        /// This exists to cache raise event options when calling <see cref="RaisePhotonEvent"./> Saves us from 2 allocations per send.
+        /// 缓存的提升事件选项
+        /// 在调用RaisePhotonEvent时使用，避免每次发送时分配内存
         /// </summary>
         private RaiseEventOptions m_CachedRaiseEventOptions = new RaiseEventOptions() { TargetActors = new int[1] };
 
         /// <summary>
-        /// Limits the number of datagrams sent in a single frame.
+        /// 单帧内发送数据包的最大数量限制
+        /// 用于控制网络流量，避免单帧发送过多数据
         /// </summary>
         private const int MAX_DGRAM_PER_FRAME = 4;
 
         /// <summary>
-        /// Gets or sets the room name to create or join.
+        /// 获取或设置要创建或加入的房间名称
         /// </summary>
         public string RoomName
         {
@@ -103,12 +180,18 @@ namespace Netcode.Transports.PhotonRealtime
             set => m_RoomName = value;
         }
 
+        /// <summary>
+        /// 获取或设置区域覆盖
+        /// </summary>
         public string RegionOverride
         {
             get => m_RegionOverride;
             set => m_RegionOverride = value;
         }
 
+        /// <summary>
+        /// 获取或设置是否使用私人房间
+        /// </summary>
         public bool UsePrivateRoom
         {
             get => m_UsePrivateRoom;
@@ -116,35 +199,43 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// The Photon loadbalancing client used by this transport for everything networking related.
+        /// 此传输用于所有网络相关操作的Photon负载均衡客户端
         /// </summary>
         public LoadBalancingClient Client => m_Client;
 
-        ///<inheritdoc/>
+        /// <summary>
+        /// 服务器客户端ID
+        /// 返回服务器的MLAPI客户端ID
+        /// </summary>
         public override ulong ServerClientId => GetMlapiClientId(0, true);
 
         // -------------- MonoBehaviour Handlers --------------------------------------------------------------------------
 
         /// <summary>
-        /// In Update before other scripts run we dispatch incoming commands.
+        /// Update方法在其他脚本运行之前调度传入的命令
+        /// 确保网络消息能够及时处理
         /// </summary>
         void Update()
         {
             if (m_Client != null)
             {
+                // 循环处理所有传入的命令直到队列为空
                 do { } while (m_Client.LoadBalancingPeer.DispatchIncomingCommands());
             }
         }
 
         /// <summary>
-        /// Send batched messages out in LateUpdate.
+        /// LateUpdate中发送批处理消息
+        /// 在帧的最后阶段发送所有排队的数据
         /// </summary>
         void LateUpdate()
         {
             if (m_Client != null)
             {
+                // 刷新所有发送队列
                 FlushAllSendQueues();
 
+                // 限制每帧发送的数据包数量
                 for (int i = 0; i < MAX_DGRAM_PER_FRAME; i++)
                 {
                     bool anythingLeftToSend = m_Client.LoadBalancingPeer.SendOutgoingCommands();
@@ -159,13 +250,13 @@ namespace Netcode.Transports.PhotonRealtime
         // -------------- Transport Utils -----------------------------------------------------------------------------
 
         /// <summary>
-        /// Create and Initialize the internal LoadBalancingClient used to relay data with Photon Cloud
+        /// 创建并初始化用于与Photon Cloud中继数据的内部LoadBalancingClient
         /// </summary>
         private void InitializeClient()
         {
             if (m_Client == null)
             {
-                // This is taken from a Photon Realtime sample to get a random user name if none is provided.
+                // 从Photon Realtime示例中获取随机用户名的逻辑
                 var nickName = string.IsNullOrEmpty(m_NickName) ? "usr" + SupportClass.ThreadSafeRandom.Next() % 99 : m_NickName;
 
                 m_Client = new LoadBalancingClient
@@ -173,14 +264,14 @@ namespace Netcode.Transports.PhotonRealtime
                     LocalPlayer = { NickName = nickName },
                 };
 
-                // Register callbacks
+                // 注册回调
                 m_Client.AddCallbackTarget(this);
 
-                // these two settings enable (almost) zero alloc sending and receiving of byte[] content
+                // 这两个设置启用字节数组内容的（几乎）零分配发送和接收
                 m_Client.LoadBalancingPeer.ReuseEventInstance = true;
                 m_Client.LoadBalancingPeer.UseByteArraySlicePoolForEvents = true;
 
-                // Attach Logger
+                // 附加日志记录器
                 if (m_AttachSupportLogger)
                 {
                     var logger = gameObject.GetComponent<SupportLogger>() ?? gameObject.AddComponent<SupportLogger>();
@@ -190,9 +281,9 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Creates and connects a peer synchronously to the region master server and returns a bool containing the result.
+        /// 同步创建并连接对等端到区域主服务器，返回包含结果的布尔值
         /// </summary>
-        /// <returns></returns>
+        /// <returns>连接是否成功</returns>
         private bool ConnectPeer()
         {
             InitializeClient();
@@ -213,9 +304,13 @@ namespace Netcode.Transports.PhotonRealtime
             }
         }
 
-        // -------------- Send/Receive --------------------------------------------------------------------------------
-
-        ///<inheritdoc/>
+        /// <summary>
+        /// 发送数据到指定客户端
+        /// 根据批处理模式决定是立即发送还是加入发送队列
+        /// </summary>
+        /// <param name="clientId">目标客户端ID</param>
+        /// <param name="data">要发送的数据</param>
+        /// <param name="networkDelivery">网络传输方式</param>
         public override void Send(ulong clientId, ArraySegment<byte> data, NetworkDelivery networkDelivery)
         {
             var isReliable = DeliveryModeToReliable(networkDelivery);
@@ -260,7 +355,8 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Flushes all send queues. (Raises photon events with data from their buffers and clears them)
+        /// 刷新所有发送队列
+        /// 将队列中的数据打包并发送到Photon网络
         /// </summary>
         private void FlushAllSendQueues()
         {
@@ -275,12 +371,13 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Send an event using the LoadBalancingClient to an specific client
+        /// 发送Photon事件
+        /// 封装了向Photon网络发送事件的底层操作
         /// </summary>
-        /// <param name="clientId">Target Client to send the event</param>
-        /// <param name="isReliable">Signal if this event must be sent in Reliable Mode</param>
-        /// <param name="data">Data to be send</param>
-        /// <param name="eventCode">Event Code ID</param>
+        /// <param name="clientId">目标客户端ID</param>
+        /// <param name="isReliable">是否可靠传输</param>
+        /// <param name="data">事件数据</param>
+        /// <param name="eventCode">事件代码</param>
         private void RaisePhotonEvent(ulong clientId, bool isReliable, ArraySegment<byte> data, byte eventCode)
         {
             if (m_Client == null || !m_Client.InRoom)
@@ -299,10 +396,17 @@ namespace Netcode.Transports.PhotonRealtime
 
         // -------------- Transport Handlers --------------------------------------------------------------------------
 
-        ///<inheritdoc/>
+        /// <summary>
+        /// 初始化传输层
+        /// NetworkTransport接口的实现，用于设置传输层
+        /// </summary>
+        /// <param name="networkManager">网络管理器实例</param>
         public override void Initialize(NetworkManager networkManager = null) { }
 
-        ///<inheritdoc/>
+        /// <summary>
+        /// 关闭传输层
+        /// 清理资源并断开所有连接
+        /// </summary>
         public override void Shutdown()
         {
             if (m_Client != null && m_Client.IsConnected)
@@ -315,6 +419,11 @@ namespace Netcode.Transports.PhotonRealtime
             }
         }
 
+        /// <summary>
+        /// 启动大厅模式
+        /// 连接到Photon大厅以浏览和加入房间
+        /// </summary>
+        /// <returns>启动是否成功</returns>
         public bool StartLobby()
         {
             connectionIntent = ConnectionIntent.Lobby;
@@ -322,7 +431,11 @@ namespace Netcode.Transports.PhotonRealtime
             return connected;
         }
 
-        ///<inheritdoc/>
+        /// <summary>
+        /// 启动客户端模式
+        /// 作为客户端连接到现有房间
+        /// </summary>
+        /// <returns>启动是否成功</returns>
         public override bool StartClient()
         {
             connectionIntent = ConnectionIntent.Client;
@@ -330,7 +443,11 @@ namespace Netcode.Transports.PhotonRealtime
             return connected;
         }
 
-        ///<inheritdoc/>
+        /// <summary>
+        /// 启动服务器模式
+        /// 作为主机创建房间并等待客户端连接
+        /// </summary>
+        /// <returns>启动是否成功</returns>
         public override bool StartServer()
         {
             m_IsHostOrServer = true;
@@ -344,8 +461,13 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Photon Realtime Transport is event based. Polling will always return nothing.
+        /// 轮询网络事件
+        /// 检查并返回待处理的网络事件
         /// </summary>
+        /// <param name="clientId">输出客户端ID</param>
+        /// <param name="payload">输出事件数据</param>
+        /// <param name="receiveTime">输出接收时间</param>
+        /// <returns>网络事件类型</returns>
         public override NetworkEvent PollEvent(out ulong clientId, out ArraySegment<byte> payload, out float receiveTime)
         {
             clientId = 0;
@@ -354,14 +476,23 @@ namespace Netcode.Transports.PhotonRealtime
             return NetworkEvent.Nothing;
         }
 
-        ///<inheritdoc/>
+        /// <summary>
+        /// 获取当前往返时间
+        /// 返回与指定客户端的网络延迟
+        /// </summary>
+        /// <param name="clientId">客户端ID</param>
+        /// <returns>往返时间（毫秒）</returns>
         public override ulong GetCurrentRtt(ulong clientId)
         {
             // This is only an approximate value based on the own client's rtt to the server and could cause issues, maybe use a similar approach as the Steamworks transport.
             return (ulong)(m_Client.LoadBalancingPeer.RoundTripTime * 2);
         }
 
-        ///<inheritdoc/>
+        /// <summary>
+        /// 断开远程客户端连接
+        /// 主机/服务器用于踢出指定客户端
+        /// </summary>
+        /// <param name="clientId">要断开的客户端ID</param>
         public override void DisconnectRemoteClient(ulong clientId)
         {
             if (this.m_Client != null && m_Client.InRoom && this.m_Client.LocalPlayer.IsMasterClient)
@@ -371,7 +502,10 @@ namespace Netcode.Transports.PhotonRealtime
             }
         }
 
-        ///<inheritdoc/>
+        /// <summary>
+        /// 断开本地客户端连接
+        /// 客户端主动断开与服务器的连接
+        /// </summary>
         public override void DisconnectLocalClient()
         {
             this.Shutdown();
@@ -380,9 +514,10 @@ namespace Netcode.Transports.PhotonRealtime
         // -------------- Event Handlers ------------------------------------------------------------------------------
 
         /// <summary>
-        /// LBC Event Handler
+        /// Photon事件回调接口实现
+        /// 处理从Photon网络接收到的事件
         /// </summary>
-        /// <param name="eventData">Event Data</param>
+        /// <param name="eventData">事件数据</param>
         public void OnEvent(EventData eventData)
         {
             if (eventData.Code >= 200) { return; } // EventCode is a photon event.
@@ -435,11 +570,12 @@ namespace Netcode.Transports.PhotonRealtime
         // -------------- Utility Methods -----------------------------------------------------------------------------
 
         /// <summary>
-        /// Invoke Transport Events.
+        /// 调用传输事件
+        /// 向网络管理器通知传输层事件
         /// </summary>
-        /// <param name="networkEvent">Network Event Type</param>
-        /// <param name="senderId">Peer Sender ID</param>
-        /// <param name="payload">Event Payload</param>
+        /// <param name="networkEvent">网络事件类型</param>
+        /// <param name="senderId">发送者ID</param>
+        /// <param name="payload">事件数据</param>
         private void InvokeTransportEvent(NetworkEvent networkEvent, ulong senderId = 0, ArraySegment<byte> payload = default)
         {
             switch (networkEvent)
@@ -461,11 +597,11 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Convert the <see cref="Unity.Netcode.NetworkDelivery"/> to a bool indicating whether the
-        /// <see cref="PhotonRealtimeTransport"/> should use the reliable or unreliable sendmode./>
+        /// 将传输模式转换为可靠性标志
+        /// 根据NetworkDelivery枚举确定传输是否可靠
         /// </summary>
-        /// <param name="deliveryMode">Delivery mode to convert</param>
-        /// <returns>A bool indicating whether this delivery is reliable.</returns>
+        /// <param name="deliveryMode">传输模式</param>
+        /// <returns>是否可靠传输</returns>
         private bool DeliveryModeToReliable(NetworkDelivery deliveryMode)
         {
             switch (deliveryMode)
@@ -478,11 +614,12 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Convert a Photon Client ID to MLAPI Client ID
+        /// 根据Photon ID获取MLAPI客户端ID
+        /// 在Photon ActorNumber和Unity Netcode客户端ID之间转换
         /// </summary>
-        /// <param name="photonId">Photon ID</param>
-        /// <param name="isServer">Flag if running on server</param>
-        /// <returns>MLAPI Client ID</returns>
+        /// <param name="photonId">Photon ActorNumber</param>
+        /// <param name="isServer">是否为服务器</param>
+        /// <returns>对应的MLAPI客户端ID</returns>
         private ulong GetMlapiClientId(int photonId, bool isServer)
         {
             if (isServer)
@@ -496,10 +633,11 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Convert MLAPI Client ID to Photon Client ID
+        /// 根据MLAPI客户端ID获取Photon Realtime ID
+        /// 在Unity Netcode客户端ID和Photon ActorNumber之间转换
         /// </summary>
-        /// <param name="clientId">MLAPI Client ID to convert</param>
-        /// <returns>Photon Client ID</returns>
+        /// <param name="clientId">MLAPI客户端ID</param>
+        /// <returns>对应的Photon ActorNumber</returns>
         private int GetPhotonRealtimeId(ulong clientId)
         {
             if (clientId == 0)
@@ -513,7 +651,8 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Reset all member properties to a blank state for later reuse.
+        /// 反初始化传输层
+        /// 清理客户端资源和回调
         /// </summary>
         private void DeInitialize()
         {
@@ -524,7 +663,8 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Force the Local Peer to Stop
+        /// 强制停止对等端
+        /// 立即断开网络连接
         /// </summary>
         private void ForceStopPeer()
         {
@@ -536,17 +676,26 @@ namespace Netcode.Transports.PhotonRealtime
         // -------------- Utility Types -------------------------------------------------------------------------------
 
         /// <summary>
-        /// Memory Stream controller to store several events into one single buffer
+        /// 发送队列类
+        /// 用于批处理网络消息以提高传输效率
+        /// 实现IDisposable接口以正确管理资源
         /// </summary>
         class SendQueue : IDisposable
         {
+            /// <summary>
+            /// 快速缓冲区写入器，用于序列化数据
+            /// </summary>
             FastBufferWriter m_Writer;
 
             /// <summary>
-            /// The size of the send queue.
+            /// 队列的最大大小
             /// </summary>
             public int Size { get; }
 
+            /// <summary>
+            /// 构造函数
+            /// </summary>
+            /// <param name="size">队列大小</param>
             public SendQueue(int size)
             {
                 Size = size;
@@ -554,10 +703,10 @@ namespace Netcode.Transports.PhotonRealtime
             }
 
             /// <summary>
-            /// Ads an event to the send queue.
+            /// 添加事件到队列
             /// </summary>
-            /// <param name="data">The data to send.</param>
-            /// <returns>True if the event was added successfully to the queue. False if there was no space in the queue.</returns>
+            /// <param name="data">事件数据</param>
+            /// <returns>是否成功添加</returns>
             internal bool AddEvent(ArraySegment<byte> data)
             {
                 if (m_Writer.TryBeginWrite(data.Count + 4) == false)
@@ -571,22 +720,36 @@ namespace Netcode.Transports.PhotonRealtime
                 return true;
             }
 
+            /// <summary>
+            /// 清空队列
+            /// </summary>
             internal void Clear()
             {
                 m_Writer.Truncate(0);
             }
 
+            /// <summary>
+            /// 检查队列是否为空
+            /// </summary>
+            /// <returns>队列是否为空</returns>
             internal bool IsEmpty()
             {
                 return m_Writer.Position == 0;
             }
 
+            /// <summary>
+            /// 获取队列中的数据
+            /// </summary>
+            /// <returns>序列化后的数据</returns>
             internal ArraySegment<byte> GetData()
             {
                 var array = m_Writer.ToArray();
                 return new ArraySegment<byte>(array);
             }
 
+            /// <summary>
+            /// 释放资源
+            /// </summary>
             public void Dispose()
             {
                 m_Writer.Dispose();
@@ -594,13 +757,21 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Cached information about reliability mode with a certain client
+        /// 发送目标结构体
+        /// 定义消息的发送目标和传输方式
         /// </summary>
         struct SendTarget
         {
+            /// <summary>客户端ID</summary>
             public ulong ClientId;
+            /// <summary>是否可靠传输</summary>
             public bool IsReliable;
 
+            /// <summary>
+            /// 构造函数
+            /// </summary>
+            /// <param name="clientId">客户端ID</param>
+            /// <param name="isReliable">是否可靠传输</param>
             public SendTarget(ulong clientId, bool isReliable)
             {
                 ClientId = clientId;
@@ -609,20 +780,22 @@ namespace Netcode.Transports.PhotonRealtime
         }
 
         /// <summary>
-        /// Batch Mode used by the MLAPI Events when sending to another clients
+        /// 批处理模式枚举
+        /// 定义传输层的批处理策略
         /// </summary>
         enum BatchMode : byte
         {
             /// <summary>
-            /// The transport performs no batching.
+            /// 传输层不执行批处理
             /// </summary>
             None = 0,
             /// <summary>
-            /// Batches all MLAPI events into reliable sequenced messages.
+            /// 将所有MLAPI事件批处理为可靠顺序消息
             /// </summary>
             SendAllReliable = 1,
             /// <summary>
-            /// Batches all reliable MLAPI events into a single photon event and all unreliable MLAPI events into an unreliable photon event.
+            /// 将所有可靠MLAPI事件批处理为单个photon事件，
+            /// 将所有不可靠MLAPI事件批处理为不可靠photon事件
             /// </summary>
             ReliableAndUnreliable = 2,
         }

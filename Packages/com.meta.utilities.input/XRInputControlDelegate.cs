@@ -15,40 +15,70 @@ using Touch = OVRInput.Touch;
 
 namespace Meta.Utilities.Input
 {
+    /// <summary>
+    /// XR输入控制委托
+    /// 继承自OvrAvatarInputControlDelegate，负责处理XR控制器的输入状态
+    /// 包括按钮按下、触摸检测、触发器和握持值的读取
+    /// </summary>
     public class XRInputControlDelegate : OvrAvatarInputControlDelegate
     {
+        /// <summary>
+        /// XR输入控制动作配置引用
+        /// 包含左右控制器的所有输入动作映射
+        /// </summary>
         private XRInputControlActions m_controlActions;
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="controlActions">输入控制动作配置</param>
         public XRInputControlDelegate(XRInputControlActions controlActions) => m_controlActions = controlActions;
 
+        /// <summary>
+        /// 获取输入控制状态
+        /// 读取当前帧的所有控制器输入数据并返回状态
+        /// </summary>
+        /// <param name="inputControlState">输出的输入控制状态</param>
+        /// <returns>是否成功获取状态</returns>
         public override bool GetInputControlState(out OvrAvatarInputControlState inputControlState)
         {
+            // 检查是否有控制器连接（使用OVR原生检测）
             if (OVRInput.GetConnectedControllers() != OVRInput.Controller.None)
             {
-                // Based of Avatar Samples SampleInputControlDelegate
+                // 基于Avatar示例的SampleInputControlDelegate实现
                 inputControlState = new OvrAvatarInputControlState
                 {
                     type = GetControllerType()
                 };
 
 #if USING_XR_SDK
+                // 使用OVR SDK更新控制器输入
                 UpdateControllerInput(ref inputControlState.leftControllerState, OVRInput.Controller.LTouch);
                 UpdateControllerInput(ref inputControlState.rightControllerState, OVRInput.Controller.RTouch);
 #endif
             }
 
+            // 初始化输入控制状态
             inputControlState = default;
+            // 使用自定义输入动作更新控制器状态
             UpdateControllerInput(ref inputControlState.leftControllerState, ref m_controlActions.LeftController);
             UpdateControllerInput(ref inputControlState.rightControllerState, ref m_controlActions.RightController);
             return true;
         }
 
+        /// <summary>
+        /// 使用自定义输入动作更新控制器输入状态
+        /// 从InputSystem读取按钮、触摸和轴向值
+        /// </summary>
+        /// <param name="controllerState">要更新的控制器状态</param>
+        /// <param name="controller">控制器动作配置</param>
         private void UpdateControllerInput(ref OvrAvatarControllerState controllerState, ref XRInputControlActions.Controller controller)
         {
+            // 重置按钮和触摸掩码
             controllerState.buttonMask = 0;
             controllerState.touchMask = 0;
 
-            // Button Press
+            // 按钮按下检测
             if (controller.ButtonOne.action.ReadValue<float>() > 0.5f)
             {
                 controllerState.buttonMask |= CAPI.ovrAvatar2Button.One;
@@ -62,7 +92,7 @@ namespace Meta.Utilities.Input
                 controllerState.buttonMask |= CAPI.ovrAvatar2Button.Three;
             }
 
-            // Button Touch
+            // 按钮触摸检测
             if (controller.TouchOne.action.ReadValue<float>() > 0.5f)
             {
                 controllerState.touchMask |= CAPI.ovrAvatar2Touch.One;
@@ -76,21 +106,28 @@ namespace Meta.Utilities.Input
                 controllerState.touchMask |= CAPI.ovrAvatar2Touch.Joystick;
             }
 
-            // Trigger
+            // 触发器（扳机）值读取
             controllerState.indexTrigger = controller.AxisIndexTrigger.action.ReadValue<float>();
 
-            // Grip
+            // 握持值读取
             controllerState.handTrigger = controller.AxisHandTrigger.action.ReadValue<float>();
         }
 
-        // Based of Avatar Samples SampleInputControlDelegate
+        // 基于Avatar示例的SampleInputControlDelegate实现
 #if USING_XR_SDK
+        /// <summary>
+        /// 使用OVR SDK更新控制器输入状态
+        /// 直接从OVRInput读取原生输入数据
+        /// </summary>
+        /// <param name="controllerState">要更新的控制器状态</param>
+        /// <param name="controller">OVR控制器类型</param>
         private void UpdateControllerInput(ref OvrAvatarControllerState controllerState, OVRInput.Controller controller)
         {
+            // 重置按钮和触摸掩码
             controllerState.buttonMask = 0;
             controllerState.touchMask = 0;
 
-            // Button Press
+            // 按钮按下检测
             if (OVRInput.Get(Button.One, controller))
             {
                 controllerState.buttonMask |= CAPI.ovrAvatar2Button.One;
@@ -108,7 +145,7 @@ namespace Meta.Utilities.Input
                 controllerState.buttonMask |= CAPI.ovrAvatar2Button.Joystick;
             }
 
-            // Button Touch
+            // 按钮触摸检测
             if (OVRInput.Get(Touch.One, controller))
             {
                 controllerState.touchMask |= CAPI.ovrAvatar2Touch.One;
@@ -126,7 +163,7 @@ namespace Meta.Utilities.Input
                 controllerState.touchMask |= CAPI.ovrAvatar2Touch.ThumbRest;
             }
 
-            // Trigger
+            // 触发器（扳机）处理
             controllerState.indexTrigger = OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, controller);
             if (OVRInput.Get(Touch.PrimaryIndexTrigger, controller))
             {
@@ -138,7 +175,7 @@ namespace Meta.Utilities.Input
                 controllerState.touchMask |= CAPI.ovrAvatar2Touch.Pointing;
             }
 
-            // Grip
+            // 握持值读取
             controllerState.handTrigger = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, controller);
 
             // Set ThumbUp if no other thumb-touch is set.

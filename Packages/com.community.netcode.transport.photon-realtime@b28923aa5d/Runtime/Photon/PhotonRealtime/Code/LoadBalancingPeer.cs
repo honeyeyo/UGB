@@ -2085,7 +2085,7 @@ namespace Photon.Realtime
 
         /// <summary>Authenticates users by their NSA ID.</summary>
         NintendoSwitch = 11,
-        
+
         /// <summary>Authenticates users by their PSN Account and token (on PS5).</summary>
         Playstation5 = 12,
 
