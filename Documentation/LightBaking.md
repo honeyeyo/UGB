@@ -1,19 +1,25 @@
-# Light Baking
-To deliver good performance in this project we used light baking into lightmaps, light probes and reflection probes.
-The use of a baked directional light gives us gains on the GPU side as there is no cost for generating shadows.
+# 光照烘焙
 
-The concept of the Arena is an outdoors arena with half of the field covered with a roof, this presented some challenges in terms of rendering and how the light would be generated. We tried using Mixed Lighting but the cost of shadows was too great because of the size of the arena and the quality was poor. We tried adding cascade 4 and we were able to get some better visual quality but in the end the rendering cost was too large. We encourage you to look into it yourself and test out different configurations.
+为了在此项目中实现良好的性能，我们使用光照烘焙技术将光照信息烘焙到光照贴图、光照探针和反射探针中。
 
-In order to bake the light and get good results we needed to change some of the elements in the scene. These settings are not useful at runtime so we created a script to setup the scene before we generate the lighting for the arena.
+使用烘焙方向光为我们在GPU方面带来了性能提升，因为生成阴影没有成本。
 
-## How to bake the Arena
-Load the Arena Scene [Assets/UltimateGloveBall/Scenes/Arena.unity](../Assets/UltimateGloveBall/Scenes/Arena.unity)
+竞技场的概念是一个户外竞技场，一半的场地被屋顶覆盖，这在渲染和光照生成方面带来了一些挑战。我们尝试使用混合光照，但由于竞技场的大小，阴影的成本太高，质量也很差。我们尝试添加级联4，能够获得更好的视觉质量，但最终渲染成本太大。我们鼓励您自己深入研究并测试不同的配置。
 
-In the scene hierarchy you will see a disabled game object called LightingSetup.
-![LightingSetup GameObject](./Media/editor/baking_gameobject_location.png)
+为了烘焙光照并获得良好的结果，我们需要更改场景中的一些元素。这些设置在运行时并不有用，因此我们创建了一个脚本来在为竞技场生成光照之前设置场景。
 
-After clicking on it we can use the context menu in the inspector to setup the scene.
-![LightingSetup Context Menu](./Media/editor/baking_lightingsetup.png)
+## 如何烘焙竞技场
 
-The last 2 options will set the scene. Selecting `Setup for Lighting` will enable some game objects that are necessary for the light baking. We enable some objects that are applying some Emissive light, enable backfaces that aren't seen at runtime but are needed to generate proper lightmaps, we set the crowd members to contribute to the GI so that they have some blob shadows baked underneath, and we set the trees to contribute to GI so that their shadows are baked in the lightmaps as well as the light probes.
-Once the scene is setup, you can generate the light from the Lighting menu. Once done you can either reload the Arena scene or select the `Revert after lighting` menu option.
+加载竞技场场景 [Assets/UltimateGloveBall/Scenes/Arena.unity](../Assets/UltimateGloveBall/Scenes/Arena.unity)
+
+在场景层次结构中，您将看到一个名为LightingSetup的禁用游戏对象。
+
+![LightingSetup游戏对象](./Media/editor/baking_gameobject_location.png)
+
+点击它后，我们可以在检查器中使用上下文菜单来设置场景。
+
+![LightingSetup上下文菜单](./Media/editor/baking_lightingsetup.png)
+
+最后2个选项将设置场景。选择 `Setup for Lighting` 将启用一些光照烘焙所必需的游戏对象。我们启用一些应用自发光的对象，启用在运行时不可见但生成正确光照贴图所需的背面，我们设置观众成员参与GI，以便在他们下方烘焙一些阴影斑点，我们还设置树木参与GI，以便将它们的阴影烘焙到光照贴图以及光照探针中。
+
+场景设置完成后，您可以从光照菜单生成光照。完成后，您可以重新加载竞技场场景或选择 `Revert after lighting` 菜单选项。

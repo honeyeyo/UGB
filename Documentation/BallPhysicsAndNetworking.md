@@ -1,88 +1,119 @@
-# Ball Physics And Networking
-## Implementation Overview
-The task we set out to accomplish was to enable physics prediction on all clients. This would fix issues such as floating balls and delayed shooting/throwing on clients that are not the host.
+# 球物理和网络
+## 实现概述
 
-The approach we chose was State Synchronization, and Glenn Fiedler’s implementation, over on his blog, heavily inspired our resulting code: https://www.gafferongames.com/post/state_synchronization/.
+我们要完成的任务是在所有客户端上启用物理预测。这将解决诸如球体悬浮和非主机客户端上射击/投掷延迟等问题。
 
-The main takeaway from this is that each client runs Unity Physics locally while playing “catchup” with the data coming from the server.
+我们选择的方法是状态同步，Glenn Fiedler在其博客上的实现极大地启发了我们的最终代码：[状态同步](https://www.gafferongames.com/post/state_synchronization/)。
 
-## Main Scripts Involved:
-- [BallNetworking.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/BallNetworking.cs)
-  - This networking script handles throwing, collisions, ownership, etc.
-- [BallStateSync.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/BallStateSync.cs)
-  - This script works in unison with the previous script. 
-  - Its job is to send packets with data (if server) and apply them (if client). 
-  - The script includes gradual position, rotation, and linear velocity correction to avoid pops and jerky movements.
-  - It also contains a jitter buffer to ensure packets are applied in the correct order and to discard any late packets.
-- [BallSpawner.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/BallSpawner.cs)
-  - This script handles ball spawning and despawning of dead balls.
-- [SpawnPoint.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/SpawnPoint.cs)
-  - This script checks if a ball has “claimed” it making other balls unable to spawn there.
+主要收获是每个客户端在本地运行Unity物理，同时与来自服务器的数据"追赶"。
 
-## State Syncing balls
-BallPacket
-These packets are sent from the server and applied to all clients. How they are applied depends on who threw the ball.
+## 涉及的主要脚本
 
-First, let us see what is included in a packet:
-- __(uint)Sequence__
-  - Frame number on the server-side when the server sends the packet. 
-- __State Update__
-  - __(bool) IsGrabbed__
-    - Let the client know if they need to be assigned to a glove.
-  - __(ulong) GrabbersNetworkObjectId__
-    - Tells the client which glove they need to be assigned to.
-  - __(Vector3) Position__
-    - The position of the ball on the server.
-  - __(Quaternion) Orientation__
-    - The rotation of the ball on the server.
-  - __(bool) SyncVelocity__
-    - Let the client know if velocity data is included in the packet.
-  - __(Vector3) LinearVelocity__
-    - The linear velocity of the ball on the server.
-  - __(Vector3) AngularVelocity__
-    - The angular velocity of the ball on the server.
+**[BallNetworking.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/BallNetworking.cs)**
+- 这个网络脚本处理投掷、碰撞、所有权等。
 
-### Why Do We Assign the Ball to the Glove?
-We started by just synchronizing the position while someone held the ball, but the update rate and smoothing on avatars did not match with that of the balls. Then we tried reparenting the gameobject to the glove, but that was also encountering some issues as the local position and rotation could be off.
-Instead of catering to these unknown factors, we decided to “simply” give the reference of the ball to the glove and the glove would drive the position of the ball while holding it.
-### Some takeaways:
-Using Netcode’s “Auto Parent Sync” was too slow and had to be controlled by the server. This caused issues for the player throwing the ball.
-Attaching the ball to the glove gameobject and trying to sync the local position in the glove gave some off results probably due to the timing on when the event was sent and where the ball was relative to the glove. The parenting and unparenting was also incurring an unnecessary cost when we already had the logic for the ball to follow the glove.
+**[BallStateSync.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/BallStateSync.cs)**
+- 这个脚本与前一个脚本配合工作。
+- 它的工作是发送包含数据的数据包（如果是服务器）并应用它们（如果是客户端）。
+- 该脚本包括渐进的位置、旋转和线性速度校正，以避免弹跳和抖动运动。
+- 它还包含一个抖动缓冲区，以确保数据包按正确顺序应用并丢弃任何延迟的数据包。
 
-## Applying Packets
-How we apply the packets to a client depends on four factors:
+**[BallSpawner.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/BallSpawner.cs)**
+- 这个脚本处理球的生成和死球的销毁。
 
-### Grabbed ball?
-When a ball is detected as being grabbed, we look for the glove it is supposed to parent; we then:
-- Set the ball to the glove
-- Disable Physics
-- Reset Local Transform
+**[SpawnPoint.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/SpawnPoint.cs)**
+- 这个脚本检查球是否已"占用"它，使其他球无法在那里生成。
 
-When it is released and no longer parented we:
-- Release the ball from the glove
-- Enable physics
-- Sync position/rotation/etc. 
-  
-### Owner of the ball?
-If you are the owner of the ball, you are holding it. We do not apply any extra grabbing rules as described above.
+## 球状态同步
 
-### Did I throw the ball?
-Everyone else but you will snap the ball to the new values and apply glove release of the ball rules.
+### BallPacket
 
-### Is the ball still?
-The server does not send velocity data when balls are still to reduce bandwidth. If balls are recognized as “still,” the clients will snap position, rotation, etc., to zero.
+这些数据包从服务器发送并应用到所有客户端。如何应用取决于谁投掷了球。
 
-# Grabbing balls
-In the current implementation, the ball grabbing is server authoritative and a client will wait on the server response to know if they grabbed a ball. This presents a small lag between the collision of the glove with the ball and the ball being in the glove.
-This is an implementation choice for this demo to reduce the issues where a player could think they grabbed the ball and then they lose it because the server decided that you didn't have the ball. This incurs player frustration and in a fast pace game where multiple players could go for the same ball it can become confusing.
+首先，让我们看看数据包中包含什么：
 
-We do believe that there could be some gameplay mechanic that could be implemented to alleviate the perceived issue, but would require some investigation and testing to achieve a great result. Suggestions are definitely welcome see our [CONTRIBUTING](../CONTRIBUTING.md) information.
-# Collisions
-The balls have different states and different types that incur some challenges in terms of collision detections.
+**`(uint)Sequence`**
+- 服务器发送数据包时服务器端的帧号。
 
-The balls that are spawned can't be hit by balls in play, so we needed to create a different physics layer for them and disable collision between the in play balls and the spawned balls.
+**状态更新**
 
-Then there is the special electric ball. This ball was able to go through obstacles and shields but also needed to disabled these elements. To do so we created a specific physic layer for the electric ball so that it would only collide with environment and players, and then we created triggers on obstacles and shields to detect that the ball touched them but without applying physics. When the ball would enter the trigger it would apply the function to disable either the shield or obstacle.
+**`(bool) IsGrabbed`**
+- 让客户端知道是否需要分配给手套。
 
-# Noticing desynchronization
-Since the balls are short lived after being thrown we have the advantage that the desyncronization of them is very small. We might encounter some visual disparity between what we think a ball hit and what happened on the server, but for the most part the colliders are large enough so we don't need an exact precision and the speed of the game makes it so that it reduce the perceived visual disparity.
+**`(ulong) GrabbersNetworkObjectId`**
+- 告诉客户端需要分配给哪个手套。
+
+**`(Vector3) Position`**
+- 服务器上球的位置。
+
+**`(Quaternion) Orientation`**
+- 服务器上球的旋转。
+
+**`(bool) SyncVelocity`**
+- 让客户端知道数据包中是否包含速度数据。
+
+**`(Vector3) LinearVelocity`**
+- 服务器上球的线性速度。
+
+**`(Vector3) AngularVelocity`**
+- 服务器上球的角速度。
+
+### 为什么要将球分配给手套？
+
+我们开始时只是在有人握住球时同步位置，但化身的更新率和平滑度与球的不匹配。然后我们尝试将游戏对象重新设为手套的父对象，但这也遇到了一些问题，因为本地位置和旋转可能有偏差。
+
+与其迎合这些未知因素，我们决定"简单地"将球的引用给手套，手套在握住时驱动球的位置。
+
+### 一些收获
+
+使用Netcode的"自动父对象同步"太慢，必须由服务器控制。这给投球的玩家造成了问题。
+
+将球附加到手套游戏对象并尝试同步手套中的本地位置给出了一些偏差的结果，可能是由于发送事件的时机和球相对于手套的位置。当我们已经有了球跟随手套的逻辑时，父子关系的建立和解除也会产生不必要的成本。
+
+## 应用数据包
+
+我们如何将数据包应用到客户端取决于四个因素：
+
+### 抓取的球？
+
+当检测到球被抓取时，我们寻找它应该父子关系的手套；然后我们：
+- 将球设置到手套
+- 禁用物理
+- 重置本地变换
+
+当它被释放且不再有父子关系时，我们：
+- 从手套释放球
+- 启用物理
+- 同步位置/旋转/等等
+
+### 球的所有者？
+
+如果你是球的所有者，你正在握住它。我们不应用如上所述的任何额外抓取规则。
+
+### 我投掷了球吗？
+
+除了你之外的每个人都会将球快照到新值并应用手套释放球的规则。
+
+### 球是静止的吗？
+
+当球静止时，服务器不发送速度数据以减少带宽。如果球被识别为"静止"，客户端将位置、旋转等快照到零。
+
+## 抓取球
+
+在当前实现中，球抓取是服务器权威的，客户端将等待服务器响应以知道它们是否抓取了球。这在手套与球碰撞和球在手套中之间存在小的延迟。
+
+这是这个演示的实现选择，以减少玩家可能认为他们抓到了球然后失去它的问题，因为服务器决定你没有球。这会招致玩家的挫败感，在多个玩家可能争夺同一个球的快节奏游戏中，这可能会变得令人困惑。
+
+我们确实相信可以实施一些游戏机制来缓解感知问题，但需要一些调查和测试才能获得良好的结果。非常欢迎建议，请参阅我们的[贡献指南](../CONTRIBUTING.md)信息。
+
+## 碰撞
+
+球有不同的状态和不同的类型，这在碰撞检测方面带来了一些挑战。
+
+生成的球不能被游戏中的球击中，所以我们需要为它们创建一个不同的物理层，并禁用游戏中的球和生成的球之间的碰撞。
+
+然后是特殊的电球。这个球能够穿过障碍物和护盾，但也需要禁用这些元素。为此，我们为电球创建了一个特定的物理层，使其只与环境和玩家碰撞，然后我们在障碍物和护盾上创建了触发器来检测球触碰到它们但不应用物理。当球进入触发器时，它会应用函数来禁用护盾或障碍物。
+
+## 注意去同步
+
+由于球在被投掷后是短寿命的，我们有优势，它们的去同步非常小。我们可能会遇到我们认为球击中的东西与服务器上发生的事情之间的一些视觉差异，但大多数情况下碰撞器足够大，所以我们不需要精确的精度，游戏的速度使它减少了感知的视觉差异。

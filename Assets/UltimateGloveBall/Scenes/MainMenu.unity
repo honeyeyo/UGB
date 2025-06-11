@@ -749,22 +749,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 745122931725648912, guid: bb2371f731448044581c24d9cc00c5e9, type: 3}
-      propertyPath: m_menuMusic
-      value: 
-      objectReference: {fileID: 434800218}
-    - target: {fileID: 745122931725648912, guid: bb2371f731448044581c24d9cc00c5e9, type: 3}
-      propertyPath: m_startPosition
-      value: 
-      objectReference: {fileID: 739077026}
-    - target: {fileID: 745122931725648912, guid: bb2371f731448044581c24d9cc00c5e9, type: 3}
-      propertyPath: m_menuMusicFader
-      value: 
-      objectReference: {fileID: 434800220}
-    - target: {fileID: 745122931725648912, guid: bb2371f731448044581c24d9cc00c5e9, type: 3}
-      propertyPath: m_avatarTransform
-      value: 
-      objectReference: {fileID: 3483955002853009157}
     - target: {fileID: 745122931725648913, guid: bb2371f731448044581c24d9cc00c5e9, type: 3}
       propertyPath: m_Name
       value: MainMenuController
@@ -879,11 +863,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4abbefa5d1263a4458a545b000af9208, type: 3}
---- !u!4 &3483955002853009157 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7830134145829094634, guid: 4abbefa5d1263a4458a545b000af9208, type: 3}
-  m_PrefabInstance: {fileID: 3483955002853009156}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

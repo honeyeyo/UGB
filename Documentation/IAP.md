@@ -1,18 +1,23 @@
-# In-app Purchases (IAP)
-To demonstrate how to integrate IAP in a project we implemented a simple store in Ultimate Gloveball.
+# 应用内购买 (IAP)
 
-In the store you can purchase an icon permanently (durable) or some pet cats that would need to be repurchased once used (consumable).
-![Store](./Media/mainmenu_store.png)
-![Store Purchase Flow](./Media/mainmenu_store_flow.png)
+为了展示如何在项目中集成IAP功能，我们在Ultimate Gloveball中实现了一个简单的商店。
 
-## Implementation
-We based our implementation on the [IAP developer resource](https://developer.oculus.com/documentation/unity/ps-iap/).
+在商店中，您可以永久购买图标（耐用品）或购买一些宠物猫，这些宠物猫使用后需要重新购买（消耗品）。
 
-First we have a game agnostic [IAPManager](../Assets/UltimateGloveBall/Scripts/App/IAPManager.cs) that wraps around the platform IAP logic to handle fetching the product and purchases information as well as consuming purchases for consumables. This is meant to supply reusable logic for any type of project that wants to implement IAP. We added support to categorize products so that we can easily get all product for a given category.
+![商店](./Media/mainmenu_store.png)
 
-Then we have the [StoreMenuController](../Assets/UltimateGloveBall/Scripts/MainMenu/StoreMenuController.cs) which implements the logic on how to buy products and consume consumable purchases. The icons are loaded using the product data fetch from the IAPManager.
+![商店购买流程](./Media/mainmenu_store_flow.png)
 
-The fetch logic to get the products and purchases information can be found in the [UBGApplication](../Assets/UltimateGloveBall/Scripts/App/UGBApplication.cs) initialization code. Where we fetch consumables and durable product with different categories associated to them.
+## 实现
 
-## Configuration
-See the [Add-ons section of the Configuration page](Configuration.md#add-ons) for details.
+我们的实现基于[IAP开发者资源](https://developer.oculus.com/documentation/unity/ps-iap/)。
+
+首先，我们有一个与游戏无关的 [IAPManager](../Assets/UltimateGloveBall/Scripts/App/IAPManager.cs)，它封装了平台IAP逻辑，用于处理获取产品和购买信息以及消耗消耗品的购买。这旨在为任何想要实现IAP的项目类型提供可重用的逻辑。我们添加了对产品分类的支持，以便我们可以轻松获取给定类别的所有产品。
+
+然后我们有 [StoreMenuController](../Assets/UltimateGloveBall/Scripts/MainMenu/StoreMenuController.cs)，它实现了如何购买产品和消耗消耗品购买的逻辑。图标使用从IAPManager获取的产品数据加载。
+
+获取产品和购买信息的逻辑可以在 [UGBApplication](../Assets/UltimateGloveBall/Scripts/App/UGBApplication.cs) 的初始化代码中找到。我们在其中获取与不同类别关联的消耗品和耐用品。
+
+## 配置
+
+详细信息请参见[配置页面的附加组件部分](Configuration.md#add-ons)。

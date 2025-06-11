@@ -260,7 +260,11 @@ public class PongInputManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 处理球生成事件
+    /// 处理球生成和释放事件
+    /// 改动点：
+    /// 1. 支持球的生成和释放两种操作
+    /// 2. 检查球的当前状态决定操作类型
+    /// 3. 集成发球权限检查
     /// </summary>
     private void ProcessBallGenerationEvents()
     {
@@ -269,15 +273,121 @@ public class PongInputManager : MonoBehaviour
         bool leftTriggerPressed = currentInputState.leftTrigger > 0.8f && previousInputState.leftTrigger <= 0.8f;
         bool rightTriggerPressed = currentInputState.rightTrigger > 0.8f && previousInputState.rightTrigger <= 0.8f;
 
-        // 非持拍手的Trigger生成球
+        // 非持拍手的Trigger操作
         if (isLeftHandHoldingPaddle && rightTriggerPressed)
         {
-            GenerateBall(false);
+            HandleBallOperation(false); // 右手（非持拍手）
         }
         else if (!isLeftHandHoldingPaddle && leftTriggerPressed)
         {
-            GenerateBall(true);
+            HandleBallOperation(true);  // 左手（非持拍手）
         }
+    }
+
+    /// <summary>
+    /// 处理球操作（生成或释放）
+    /// </summary>
+    /// <param name="fromLeftHand">是否来自左手</param>
+    private void HandleBallOperation(bool fromLeftHand)
+    {
+        // 查找当前附着的球
+        var attachedBall = FindAttachedBall();
+
+        if (attachedBall != null)
+        {
+            // 如果有球附着，则释放球
+            ReleaseBall(attachedBall, fromLeftHand);
+        }
+        else
+        {
+            // 如果没有球附着，则尝试生成新球
+            GenerateBall(fromLeftHand);
+        }
+    }
+
+    /// <summary>
+    /// 查找当前附着的球
+    /// </summary>
+    /// <returns>附着的球组件，如果没有则返回null</returns>
+    private PongHub.Arena.Balls.PongBallNetworking FindAttachedBall()
+    {
+        var allBalls = FindObjectsOfType<PongHub.Arena.Balls.PongBallNetworking>();
+        foreach (var ball in allBalls)
+        {
+            if (ball.IsAttached && ball.AttachedPlayerId == Unity.Netcode.NetworkManager.Singleton.LocalClientId)
+            {
+                return ball;
+            }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 释放球
+    /// </summary>
+    /// <param name="ball">要释放的球</param>
+    /// <param name="fromLeftHand">是否来自左手</param>
+    private void ReleaseBall(PongHub.Arena.Balls.PongBallNetworking ball, bool fromLeftHand)
+    {
+        // 获取手部锚点
+        Transform handAnchor = xrInputManager.GetAnchor(fromLeftHand);
+
+        // 计算释放速度（基于手部移动）
+        Vector3 releaseVelocity = CalculateReleaseVelocity(handAnchor, fromLeftHand);
+
+        // 计算旋转参数
+        Vector3 spinAxis = CalculateSpinAxis(handAnchor, releaseVelocity);
+        float spinRate = CalculateSpinRate(releaseVelocity);
+
+        // 释放球
+        ball.ReleaseBall(releaseVelocity, spinAxis, spinRate);
+
+        Debug.Log($"球已从{(fromLeftHand ? "左手" : "右手")}释放，速度: {releaseVelocity.magnitude:F2} m/s");
+    }
+
+    /// <summary>
+    /// 计算释放速度
+    /// </summary>
+    /// <param name="handAnchor">手部锚点</param>
+    /// <param name="fromLeftHand">是否来自左手</param>
+    /// <returns>释放速度</returns>
+    private Vector3 CalculateReleaseVelocity(Transform handAnchor, bool fromLeftHand)
+    {
+        // 基础发球速度
+        Vector3 baseVelocity = handAnchor.forward * 5f; // 5 m/s 基础速度
+
+        // 根据Trigger按压强度调整速度
+        float triggerStrength = fromLeftHand ? currentInputState.leftTrigger : currentInputState.rightTrigger;
+        float speedMultiplier = Mathf.Lerp(0.5f, 2f, triggerStrength); // 0.5x 到 2x 速度
+
+        // 添加一些向上的分量使球有弧线
+        Vector3 arcVelocity = Vector3.up * 1f;
+
+        return (baseVelocity * speedMultiplier) + arcVelocity;
+    }
+
+    /// <summary>
+    /// 计算旋转轴
+    /// </summary>
+    /// <param name="handAnchor">手部锚点</param>
+    /// <param name="velocity">球速度</param>
+    /// <returns>旋转轴</returns>
+    private Vector3 CalculateSpinAxis(Transform handAnchor, Vector3 velocity)
+    {
+        // 简单的旋转轴计算：垂直于速度方向
+        Vector3 spinAxis = Vector3.Cross(velocity.normalized, handAnchor.up).normalized;
+        return spinAxis;
+    }
+
+    /// <summary>
+    /// 计算旋转速率
+    /// </summary>
+    /// <param name="velocity">球速度</param>
+    /// <returns>旋转速率</returns>
+    private float CalculateSpinRate(Vector3 velocity)
+    {
+        // 根据球速度计算旋转强度
+        return velocity.magnitude * 2f; // 速度越快，旋转越强
     }
 
     /// <summary>
@@ -356,24 +466,51 @@ public class PongInputManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 生成球
+    /// 生成球 - 集成乒乓球网络系统
+    /// 改动点：
+    /// 1. 使用网络球生成系统而非直接实例化
+    /// 2. 检查发球权限
+    /// 3. 球附着到非持拍手而非直接发射
     /// </summary>
     private void GenerateBall(bool fromLeftHand)
     {
-        Transform handAnchor = xrInputManager.GetAnchor(fromLeftHand);
+        // 检查是否为非持拍手
+        bool isNonPaddleHand = (isLeftHandHoldingPaddle && !fromLeftHand) ||
+                              (!isLeftHandHoldingPaddle && fromLeftHand);
 
-        Vector3 spawnPosition = handAnchor.position + handAnchor.forward * 0.1f;
-        GameObject ball = Instantiate(ballPrefab, spawnPosition, Quaternion.identity);
-
-        Rigidbody ballRb = ball.GetComponent<Rigidbody>();
-        if (ballRb != null)
+        if (!isNonPaddleHand)
         {
-            ballRb.AddForce(handAnchor.forward * 2f, ForceMode.Impulse);
+            Debug.LogWarning("只能从非持拍手生成球");
+            return;
+        }
+
+        // 查找乒乓球网络组件并请求生成球
+        var pongBallNetworking = FindObjectOfType<PongHub.Arena.Balls.PongBallNetworking>();
+        if (pongBallNetworking != null)
+        {
+            // 使用网络系统生成球
+            pongBallNetworking.RequestGenerateBallServerRpc();
+            Debug.Log($"已请求从{(fromLeftHand ? "左手" : "右手")}(非持拍手)生成球");
+        }
+        else
+        {
+            // 回退到原始生成方式（用于兼容性）
+            Transform handAnchor = xrInputManager.GetAnchor(fromLeftHand);
+            Vector3 spawnPosition = handAnchor.position + handAnchor.forward * 0.05f; // 改为5cm偏移
+            GameObject ball = Instantiate(ballPrefab, spawnPosition, Quaternion.identity);
+
+            // 附着到手部而非直接发射
+            var ballAttachment = ball.GetComponent<PongHub.Arena.Balls.PongBallAttachment>();
+            if (ballAttachment != null)
+            {
+                ballAttachment.AttachToNonPaddleHand(handAnchor);
+            }
+
+            Debug.Log($"使用回退方式生成球到{(fromLeftHand ? "左手" : "右手")}");
         }
 
         // 触发事件
         OnBallGenerated?.Invoke(fromLeftHand);
-        Debug.Log($"球已从{(fromLeftHand ? "左手" : "右手")}生成");
     }
 
     /// <summary>

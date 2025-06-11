@@ -1,156 +1,135 @@
-# Project Configuration
-In order for this project to be functional in editor and on device there is some initial setup that needs to be done.
+# 项目配置
 
-## Application Configuration
-In order to run the project and use the platform services we need to create an application on the [Meta Quest Developer Center](https://developers.meta.com/horizon/).
+为了使该项目在编辑器和设备上正常运行，需要进行一些初始设置。
 
-To run on device you will need a Quest application, and to run in editor you will need a Rift application. The following sections will describe the configuration required for the application to run.
+## 应用程序配置
 
-### Data Use Checkup
-To use the features from the Platform we need to request which kind of data is required for the application. This can be found in the _Data Use Checkup_ section of the application.
+为了运行项目并使用平台服务，我们需要在[Meta Quest开发者中心](https://developers.meta.com/horizon/)上创建一个应用程序。
 
-![data use checkup](./Media/dashboard/datausecheckup.png "Data use Checkup")
+要在设备上运行，您需要一个Quest应用程序；要在编辑器中运行，您需要一个Rift应用程序。以下部分将描述应用程序运行所需的配置。
 
-And configure the required Data Usage:
-* **User Id**: Avatars, Destinations, Multiplayer, Oculus Username, Friends Invites, User Invite Others
-* **In-App Purchases**: IAP
-* **User Profile**: Avatars
-* **Avatars**: Avatars
-* **Deep Linking**: Destinations
-* **Friends**: Multiplayer
-* **Blocked Users**: Other - we use the Blocking API
-* **Invites**: Multiplayer, Friends Invite, User Invite Others
+### 数据使用检查
 
-### Add-ons
-This application integrates in-app purchases (IAP) to demonstrate how to integrate durable and consumable purchases. Here are the configurations expected for this application.
+要使用平台的功能，我们需要请求应用程序所需的数据类型。这可以在应用程序的_数据使用检查_部分找到。
 
-First we need to open the Add-ons from the Platform Services:
+![数据使用检查](./Media/dashboard/datausecheckup.png "数据使用检查")
 
-![Platform Services Add-ons](./Media/dashboard/dashboard_addons_platformservices.png "Platform Services Add-ons")
+并配置所需的数据使用：
 
-Then we need to setup the different Add-ons.
+- **用户ID**：化身、目标位置、多人游戏、Oculus用户名、好友邀请、用户邀请他人
+- **应用内购买**：IAP
+- **用户资料**：化身
+- **化身**：化身
+- **深度链接**：目标位置
+- **好友**：多人游戏
+- **被屏蔽用户**：其他 - 我们使用屏蔽API
+- **邀请**：多人游戏、好友邀请、用户邀请他人
 
-![Add-ons](./Media/dashboard/dashboard_addons.png "Add-ons")
+### 附加组件
 
-We created 3 durable SKUs, meaning we can only purchase them once, for the icons.
-And 1 consumable SKU, meaning we can purchase it multiple time, for the pet cat.
+该应用程序集成了应用内购买(IAP)来演示如何集成耐用品和消耗品购买。以下是该应用程序的预期配置。
 
-### Destinations
-This application uses Destination configuration to enable users to invite friends in the same arenas and launch the application together.
+首先，我们需要从平台服务中打开附加组件：
 
-First we need to open the Destinations from the Platform Services:
+![平台服务附加组件](./Media/dashboard/dashboard_addons_platformservices.png "平台服务附加组件")
 
-![Platform Services Destinations](./Media/dashboard/dashboard_destinations_platformservices.png "Platform Services Destinations")
+然后我们需要设置不同的附加组件。
 
-Then we need to setup the different destinations.
+![附加组件](./Media/dashboard/dashboard_addons.png "附加组件")
 
-![Destinations](./Media/dashboard/dashboard_destinations.png "Destinations")
+我们创建了3个耐用品SKU，意味着只能购买一次，用于图标。
+还有1个消耗品SKU，意味着可以多次购买，用于宠物猫。
 
-#### Main Menu
-First off we have the MainMenu destination, which is a destination unique to the user where no other player can join them. It is setup like this:
+### 目标位置
 
-![Destination Main Menu](./Media/dashboard/dashboard_destination_mainmenu.png "Destination Main Menu")
+该应用程序使用目标位置配置，使用户能够在相同竞技场中邀请朋友并一起启动应用程序。
 
-You will notice that the deeplink type is set to DISABLED, which prevents users from joining this destination together.
+首先，我们需要从平台服务中打开目标位置：
 
-#### Arenas
-Then we have different Arenas for each region:
+![平台服务目标位置](./Media/dashboard/dashboard_destinations_platformservices.png "平台服务目标位置")
 
-![Destination NA](./Media/dashboard/dashboard_destination_na.png "Destination NA")
+然后我们需要设置不同的目标位置。
 
-This is an example for the North American region. The deeplink type is set to ENABLE and we use the data of the deeplink to specify the Photon region to use. The format of the deeplink message is specific to our project. You can also note that the Group Launch capacity is set. As we have a maximum of 6 players in an Arena, the maximum is set to 6. (Note that the maximum value must be set to enable group launch.)
+![目标位置](./Media/dashboard/dashboard_destinations.png "目标位置")
 
-Here is a table for destinations settings:
-<div style="margin: auto; padding: 10pt;">
-<table>
-<tr>
-    <th>Destination</th>
-    <th>API Name</th>
-    <th>Deeplink Message</th>
-</tr>
-<tr>
-    <td><b>Main Menu</b></td>
-	<td>MainMenu</td>
-	<td><i>N/A</i></td>
-</tr>
-<tr>
-	<td><b>North America</b></td>
-	<td>Arena</td>
-	<td>{"Region":"usw"}</td>
-</tr>
-<tr>
-    <td><b>South America</b></td>
-	<td>ArenaSA</td>
-	<td>{"Region":"sa"}</td>
-</tr>
-<tr>
-	<td><b>Japan</b></td>
-	<td>ArenaJP</td>
-	<td>{"Region":"jp"}</td>
-</tr>
-<tr>
-    <td><b>Europe</b></td>
-	<td>ArenaEU</td>
-	<td>{"Region":"eu"}</td>
-</tr>
-<tr>
-	<td><b>Australia</b></td>
-	<td>ArenaAU</td>
-	<td>{"Region":"au"}</td>
-</tr>
-<tr>
-    <td><b>Asia</b></td>
-	<td>ArenaAsia</td>
-	<td>{"Region":"asia"}</td>
-</tr>
-</table>
-</div>
+#### 主菜单
 
-### Set the Application ID
-We then need to the set the application ID in our project in Unity.
+首先，我们有主菜单目标位置，这是用户独有的目标位置，其他玩家无法加入。设置如下：
 
-The identifier (__App ID__) can be found in the _API_ section.
+![目标位置主菜单](./Media/dashboard/dashboard_destination_mainmenu.png "目标位置主菜单")
 
-![Application API](./Media/dashboard/dashboard_api.png "Application API")
+您会注意到深度链接类型设置为DISABLED，这防止用户一起加入此目标位置。
 
-Then it needs to be placed in the [Assets/Resources/OculusPlatformSettings.asset](Assets/Resources/OculusPlatformSettings.asset)
+#### 竞技场
 
-![Oculus Platform Settings Menu](./Media/editor/oculusplatformsettings_menu.png "Oculus Platform Settings Menu")
+然后我们为每个区域设置了不同的竞技场：
 
-![Oculus Platform Settings](./Media/editor/oculusplatformsettings.png "Oculus Platform Settings")
+![目标位置北美](./Media/dashboard/dashboard_destination_na.png "目标位置北美")
 
-## Photon Configuration
+这是北美区域的示例。深度链接类型设置为ENABLE，我们使用深度链接的数据来指定要使用的Photon区域。深度链接消息的格式是我们项目特有的。您还可以注意到设置了群组启动容量。由于竞技场中最多有6名玩家，最大值设置为6。（注意必须设置最大值才能启用群组启动。）
 
-To get the sample working, you will need to configure Photon with your own account and applications. The Photon base plan is free.
-- Visit [photonengine.com](https://www.photonengine.com) and [create an account](https://doc.photonengine.com/en-us/realtime/current/getting-started/obtain-your-app-id)
-- From your Photon dashboard, click "Create A New App"
-  - We will create 2 apps, "Realtime" and "Voice"
-- First fill out the form making sure to set type to "Photon Realtime". Then click Create.
-- Second fill out the form making sure to set type to "Photon Voice". Then click Create.
+以下是目标位置设置表：
 
-Your new app will now show on your Photon dashboard. Click the App ID to reveal the full string and copy the value for each app.
+| 目标位置 | API名称 | 深度链接消息 |
+|---------|---------|-------------|
+| **主菜单** | MainMenu | _不适用_ |
+| **北美** | Arena | {"Region":"usw"} |
+| **南美** | ArenaSA | {"Region":"sa"} |
+| **日本** | ArenaJP | {"Region":"jp"} |
+| **欧洲** | ArenaEU | {"Region":"eu"} |
+| **澳大利亚** | ArenaAU | {"Region":"au"} |
+| **亚洲** | ArenaAsia | {"Region":"asia"} |
 
-Open your unity project and paste your Realtime App ID in [Assets/Photon/Resources/PhotonAppSettings](Assets/Photon/Resources/PhotonAppSettings.asset).
+### 设置应用程序ID
 
-![Photon App Settings Location](./Media/editor/photonappsettings_location.png "Photon App Settings Location")
+然后我们需要在Unity项目中设置应用程序ID。
 
-![Photon App Settings](./Media/editor/photonappsettings.png "Photon App Settings")
+标识符(应用程序ID)可以在_API_部分找到。
 
-Set the Voice App Id on the VoiceRecorder prefab:
+![应用程序API](./Media/dashboard/dashboard_api.png "应用程序API")
 
-![Photon Voice Recorder Location](./Media/editor/photonvoicerecorder_location.png "Photon Voice Recorder Location")
+然后需要将其放置在 [Assets/Resources/OculusPlatformSettings.asset](Assets/Resources/OculusPlatformSettings.asset) 中
 
-![Photon Voice Settings](./Media/editor/photonvoicesetting.png "Photon Voice Settings")
+![Oculus平台设置菜单](./Media/editor/oculusplatformsettings_menu.png "Oculus平台设置菜单")
 
-### Additional Setup for Realtime
-In the case of our project we wanted players to be able to play in different regions with reduced latency, therefore we used the different regions that Photon provided. But in order to make the project simpler we limited the number of regions we would use. To do so we need to whitelist which regions are used by the application.
+![Oculus平台设置](./Media/editor/oculusplatformsettings.png "Oculus平台设置")
 
-![Photon Whitelist](./Media/photon_whitelist.png "Photon Whitelist")
+## Photon配置
 
-The Photon Realtime transport should now work. You can check the dashboard in your Photon account to verify there is network traffic.
+要使示例正常工作，您需要使用自己的账户和应用程序配置Photon。Photon基础计划是免费的。
 
-## Upload to release channel
-To use the platform features, you will first need to upload an initial build to a release channel.
-For instructions you can go to the [developer center](https://developers.meta.com/horizon/resources/publish-release-channels-upload/). Then to be able to test with other users you will need to add them to the channel, more information in the [Add Users to Release Channel](https://developers.meta.com/horizon/resources/publish-release-channels-add-users/) topic.
+- 访问 [photonengine.com](https://www.photonengine.com) 并[创建账户](https://doc.photonengine.com/en-us/realtime/current/getting-started/obtain-your-app-id)
+- 从您的Photon仪表板，点击"创建新应用程序"
+  - 我们将创建2个应用程序，"Realtime"和"Voice"
+- 首先填写表单，确保将类型设置为"Photon Realtime"。然后点击创建。
+- 其次填写表单，确保将类型设置为"Photon Voice"。然后点击创建。
 
-Once the initial build is uploaded you will be able to use any development build with the same application Id, no need to upload every build to test local changes.
+您的新应用程序现在将显示在Photon仪表板上。点击应用程序ID以显示完整字符串并复制每个应用程序的值。
+
+打开Unity项目并将Realtime应用程序ID粘贴到 [Assets/Photon/Resources/PhotonAppSettings](Assets/Photon/Resources/PhotonAppSettings.asset) 中。
+
+![Photon应用程序设置位置](./Media/editor/photonappsettings_location.png "Photon应用程序设置位置")
+
+![Photon应用程序设置](./Media/editor/photonappsettings.png "Photon应用程序设置")
+
+在VoiceRecorder预制体上设置Voice应用程序ID：
+
+![Photon语音录制器位置](./Media/editor/photonvoicerecorder_location.png "Photon语音录制器位置")
+
+![Photon语音设置](./Media/editor/photonvoicesetting.png "Photon语音设置")
+
+### Realtime的额外设置
+
+在我们的项目中，我们希望玩家能够在不同区域中以较低延迟进行游戏，因此我们使用了Photon提供的不同区域。但为了使项目更简单，我们限制了将使用的区域数量。为此，我们需要将应用程序使用的区域列入白名单。
+
+![Photon白名单](./Media/photon_whitelist.png "Photon白名单")
+
+Photon Realtime传输现在应该可以工作。您可以检查Photon账户中的仪表板以验证是否有网络流量。
+
+## 上传到发布频道
+
+要使用平台功能，您首先需要将初始构建版本上传到发布频道。
+
+有关说明，您可以访问[开发者中心](https://developers.meta.com/horizon/resources/publish-release-channels-upload/)。然后为了能够与其他用户进行测试，您需要将他们添加到频道中，更多信息请参见[将用户添加到发布频道](https://developers.meta.com/horizon/resources/publish-release-channels-add-users/)主题。
+
+一旦上传了初始构建版本，您就能够使用具有相同应用程序ID的任何开发构建版本，无需上传每个构建版本来测试本地更改。

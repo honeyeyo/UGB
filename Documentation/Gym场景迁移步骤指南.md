@@ -33,7 +33,8 @@ cp "Assets/UltimateGloveBall/Scenes/Arena.unity" "Assets/UltimateGloveBall/Scene
 3. **切换到 Gym 场景** → 选择 `Game Systems` 父对象
 4. **粘贴** (Ctrl+V)
 5. **检查组件完整性**：
-   ```
+
+   ```text
    ✓ Transform
    ✓ NetworkObject (网络同步)
    ✓ GameManager Script (游戏逻辑)
@@ -61,7 +62,8 @@ cp "Assets/UltimateGloveBall/Scenes/Arena.unity" "Assets/UltimateGloveBall/Scene
 1. 从 Arena 复制 `MusicManager` GameObject
 2. 粘贴到 Gym 场景的 `Audio Systems` 下
 3. **验证组件**：
-   ```
+
+   ```text
    ✓ AudioSource (音频播放器)
    ✓ MusicManager Script (音乐控制脚本)
    ✓ FadeVolume Script (音量淡入淡出)
@@ -89,7 +91,7 @@ cp "Assets/UltimateGloveBall/Scenes/Arena.unity" "Assets/UltimateGloveBall/Scene
 
 **每个 UI 组件迁移后需要验证：**
 
-```
+```text
 ✓ Canvas 组件配置
 ✓ CanvasScaler 设置
 ✓ GraphicRaycaster 配置
@@ -150,7 +152,7 @@ m_musicAudioSource: [应该自动连接，检查确认]
 
 **按照优化方案重新组织现有的 Gym 场景内容：**
 
-```
+```text
 Gym Scene Root
 ├── 🎮 Game Systems (新迁移的)
 │   ├── GameManager
@@ -244,28 +246,28 @@ Gym Scene Root
 
 ### Missing Reference 错误
 
-```
+```text
 问题：迁移后出现 Missing Reference
 解决：在相应的组件中重新连接引用
 ```
 
 ### UI 交互不响应
 
-```
+```text
 问题：VR UI 无法交互
 解决：检查 PointableCanvasModule 是否正确配置
 ```
 
 ### 音频不播放
 
-```
+```text
 问题：音频组件无声音
 解决：检查 AudioMixerGroup 引用是否正确
 ```
 
 ### 网络同步问题
 
-```
+```text
 问题：多人游戏同步异常
 解决：检查 NetworkObject 组件配置
 ```
