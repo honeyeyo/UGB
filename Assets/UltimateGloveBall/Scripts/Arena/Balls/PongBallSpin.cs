@@ -13,11 +13,17 @@ namespace PongHub.Arena.Balls
     public class PongBallSpin : MonoBehaviour
     {
         #region Serialized Fields
-        [Header("旋转物理")]
-        [SerializeField] private float spinDecayRate = 0.98f;         // 旋转衰减率
-        [SerializeField] private float magnusForceMultiplier = 1.5f;  // 马格努斯力系数
-        [SerializeField] private float maxSpinRate = 100f;            // 最大旋转速率
-        [SerializeField] private float minSpinThreshold = 0.1f;       // 最小旋转阈值
+        [Header("旋转物理 - ITTF标准参数")]
+        [SerializeField] private float spinDecayRate = 0.85f;         // 旋转衰减率（15-20%/秒）
+        [SerializeField] private float magnusForceMultiplier = 2.1f;  // 马格努斯力系数（基于真实CAP球）
+        [SerializeField] private float maxSpinRate = 157f;            // 最大旋转速率（约1500 RPM）
+        [SerializeField] private float minSpinThreshold = 0.5f;       // 最小旋转阈值（提高精度）
+
+        [Header("物理常量 - 基于ITTF标准")]
+        [SerializeField] private float ballMass = 0.0027f;            // 球质量（2.7g）
+        [SerializeField] private float ballRadius = 0.02f;            // 球半径（20mm）
+        [SerializeField] private float airDensity = 1.225f;           // 空气密度
+        [SerializeField] private float magnusCoefficient = 0.42f;     // 马格努斯系数
 
         [Header("旋转可视化")]
         [SerializeField] private bool showSpinVisualization = true;   // 显示旋转可视化
@@ -104,6 +110,7 @@ namespace PongHub.Arena.Balls
         #region Magnus Force Physics
         /// <summary>
         /// 应用马格努斯力（旋转球的偏转力）
+        /// 使用真实物理公式：F_magnus = 0.5 * ρ * A * Cl * r * |v| * (ω × v)
         /// </summary>
         private void ApplyMagnusForce()
         {
@@ -112,9 +119,24 @@ namespace PongHub.Arena.Balls
             Vector3 velocity = ballRigidbody.velocity;
             if (velocity.magnitude < 0.1f) return;
 
-            // 计算马格努斯力：F = k * (ω × v) * |v|
-            Vector3 magnusDirection = Vector3.Cross(spinAxis * spinRate, velocity.normalized);
-            Vector3 magnusForce = magnusDirection * velocity.magnitude * magnusForceMultiplier;
+            // 计算球的截面积：A = π * r²
+            float crossSectionalArea = Mathf.PI * ballRadius * ballRadius;
+
+            // 计算马格努斯力：F = 0.5 * ρ * A * Cl * r * |v| * (ω × v)
+            Vector3 angularVelocityVector = spinAxis * spinRate;
+            Vector3 magnusDirection = Vector3.Cross(angularVelocityVector, velocity);
+
+            float magnusForceMagnitude = 0.5f * airDensity * crossSectionalArea *
+                                       magnusCoefficient * ballRadius * velocity.magnitude;
+
+            Vector3 magnusForce = magnusDirection.normalized * magnusForceMagnitude * magnusForceMultiplier;
+
+            // 限制马格努斯力的最大值（防止非现实的效果）
+            float maxMagnusForce = ballMass * 30f; // 最大3g的加速度
+            if (magnusForce.magnitude > maxMagnusForce)
+            {
+                magnusForce = magnusForce.normalized * maxMagnusForce;
+            }
 
             // 应用力
             ballRigidbody.AddForce(magnusForce, ForceMode.Force);
@@ -124,17 +146,22 @@ namespace PongHub.Arena.Balls
             {
                 Debug.DrawRay(transform.position, magnusForce.normalized * 0.5f, Color.red, 0.02f);
                 Debug.DrawRay(transform.position, spinAxis * 0.3f, Color.blue, 0.02f);
+                Debug.DrawRay(transform.position, velocity.normalized * 0.4f, Color.green, 0.02f);
             }
         }
 
         /// <summary>
-        /// 旋转衰减
+        /// 旋转衰减 - 使用指数衰减公式
+        /// 基于ITTF标准：空气中约15-20%/秒的衰减率
         /// </summary>
         private void DecaySpin()
         {
             if (spinRate > 0)
             {
-                spinRate *= spinDecayRate;
+                // 使用指数衰减公式：ω_next = ω * exp(-k * dt)
+                // 其中k为衰减常数，对应15-20%/秒的衰减率
+                float decayConstant = -Mathf.Log(spinDecayRate); // 将衰减率转换为衰减常数
+                spinRate *= Mathf.Exp(-decayConstant * Time.fixedDeltaTime);
 
                 // 当旋转速率低于阈值时停止旋转
                 if (spinRate < minSpinThreshold)
@@ -224,6 +251,10 @@ namespace PongHub.Arena.Balls
             Vector3 contactNormal = contact.normal;
             Vector3 relativeVelocity = ballRigidbody.velocity - paddleVelocity;
 
+            // 获取碰撞物体的材质信息
+            float frictionMultiplier = GetMaterialFrictionMultiplier(collision.collider);
+            float spinEfficiency = GetMaterialSpinEfficiency(collision.collider);
+
             // 计算切向速度（产生旋转的部分）
             Vector3 tangentialVelocity = relativeVelocity - Vector3.Dot(relativeVelocity, contactNormal) * contactNormal;
 
@@ -231,10 +262,81 @@ namespace PongHub.Arena.Balls
             {
                 // 计算旋转轴（垂直于切向速度和法向量）
                 Vector3 newSpinAxis = Vector3.Cross(tangentialVelocity.normalized, contactNormal).normalized;
-                float newSpinRate = tangentialVelocity.magnitude * 2f; // 旋转强度
 
-                AddSpin(newSpinAxis, newSpinRate);
+                // 基于材质调整旋转强度
+                float baseSpinRate = tangentialVelocity.magnitude * 2f;
+                float adjustedSpinRate = baseSpinRate * frictionMultiplier * spinEfficiency;
+
+                AddSpin(newSpinAxis, adjustedSpinRate);
+
+                Debug.Log($"材质碰撞旋转 - 基础:{baseSpinRate:F2}, 摩擦倍数:{frictionMultiplier:F2}, 效率:{spinEfficiency:F2}, 最终:{adjustedSpinRate:F2}");
             }
+        }
+
+        /// <summary>
+        /// 获取材质的摩擦倍数
+        /// </summary>
+        private float GetMaterialFrictionMultiplier(Collider collider)
+        {
+            string materialName = GetPhysicsMaterialName(collider);
+
+            return materialName switch
+            {
+                "PhyRubber" => 2.0f,      // 橡胶拍面：最强摩擦
+                "PhyBlade" => 1.0f,       // 木质刀片：标准摩擦
+                "PhyWood" => 0.6f,        // 球桌台面：中等摩擦
+                "PhyNet" => 1.5f,         // 球网：高摩擦但低转换
+                "PhyMetalSolid" => 0.3f,  // 金属支架：低摩擦
+                "PhyCAP" => 0.1f,         // 球与球碰撞：极低摩擦
+                _ => 1.0f                 // 默认标准摩擦
+            };
+        }
+
+        /// <summary>
+        /// 获取材质的旋转效率
+        /// </summary>
+        private float GetMaterialSpinEfficiency(Collider collider)
+        {
+            string materialName = GetPhysicsMaterialName(collider);
+
+            return materialName switch
+            {
+                "PhyRubber" => 1.0f,      // 橡胶拍面：100%转换效率
+                "PhyBlade" => 0.7f,       // 木质刀片：70%效率
+                "PhyWood" => 0.8f,        // 球桌台面：80%效率
+                "PhyNet" => 0.3f,         // 球网：30%效率（吸收大部分旋转）
+                "PhyMetalSolid" => 0.1f,  // 金属支架：10%效率
+                "PhyCAP" => 0.9f,         // 球与球：90%效率
+                _ => 0.8f                 // 默认80%效率
+            };
+        }
+
+        /// <summary>
+        /// 获取物理材质名称
+        /// </summary>
+        private string GetPhysicsMaterialName(Collider collider)
+        {
+            if (collider.material != null)
+            {
+                return collider.material.name.Replace(" (Instance)", "");
+            }
+
+            // 基于标签或组件名称的后备判断
+            if (collider.CompareTag("Paddle"))
+            {
+                // 进一步判断是拍面还是刀片（可以通过碰撞点或子对象判断）
+                return "PhyRubber"; // 默认假设是拍面
+            }
+            else if (collider.CompareTag("Table"))
+            {
+                return "PhyWood";
+            }
+            else if (collider.CompareTag("Ball"))
+            {
+                return "PhyCAP";
+            }
+
+            return "Unknown";
         }
         #endregion
 
@@ -427,6 +529,40 @@ namespace PongHub.Arena.Balls
         {
             SetSpin(data.axis, data.rate);
             isSpinning = data.isSpinning;
+        }
+
+        /// <summary>
+        /// 设置马格努斯力倍数（调试用）
+        /// </summary>
+        public void SetMagnusForceMultiplier(float multiplier)
+        {
+            magnusForceMultiplier = Mathf.Clamp(multiplier, 0f, 10f);
+            Debug.Log($"马格努斯力倍数设置为: {magnusForceMultiplier}");
+        }
+
+        /// <summary>
+        /// 设置旋转衰减率（调试用）
+        /// </summary>
+        public void SetSpinDecayRate(float decayRate)
+        {
+            spinDecayRate = Mathf.Clamp(decayRate, 0.1f, 1f);
+            Debug.Log($"旋转衰减率设置为: {spinDecayRate}");
+        }
+
+        /// <summary>
+        /// 获取当前马格努斯力倍数
+        /// </summary>
+        public float GetMagnusForceMultiplier()
+        {
+            return magnusForceMultiplier;
+        }
+
+        /// <summary>
+        /// 获取当前旋转衰减率
+        /// </summary>
+        public float GetSpinDecayRate()
+        {
+            return spinDecayRate;
         }
         #endregion
 

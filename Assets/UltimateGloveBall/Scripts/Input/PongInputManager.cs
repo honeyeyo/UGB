@@ -10,6 +10,9 @@ using System.Collections;
 /// </summary>
 public class PongInputManager : MonoBehaviour
 {
+    // 单例实例
+    public static PongInputManager Instance { get; private set; }
+
     [Header("移动设置")]
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float rotationSpeed = 90f;
@@ -84,6 +87,20 @@ public class PongInputManager : MonoBehaviour
         public bool rightAB;
     }
 
+    private void Awake()
+    {
+        // 单例模式实现
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     private void Start()
     {
         // 获取输入句柄（一次获取，持续读取实时状态）
@@ -107,8 +124,6 @@ public class PongInputManager : MonoBehaviour
         HandleContinuousInput();
         UpdateTimers();
     }
-
-
 
     /// <summary>
     /// 更新输入状态
@@ -570,6 +585,14 @@ public class PongInputManager : MonoBehaviour
     public bool IsPaddleHeld => isPaddleHeld;
     public bool IsLeftHandHoldingPaddle => isLeftHandHoldingPaddle;
     public InputState CurrentInputState => currentInputState;
+
+    /// <summary>
+    /// 获取当前输入状态（为DebugUI提供接口）
+    /// </summary>
+    public InputState GetCurrentInputState()
+    {
+        return currentInputState;
+    }
 
     private void OnDestroy()
     {

@@ -587,6 +587,40 @@ namespace PongHub.Arena.Balls
                 Debug.Log($"[PongBallStateSync] {message}");
             }
         }
+
+        /// <summary>
+        /// 设置同步频率（调试用）
+        /// </summary>
+        public void SetSyncRate(float rate)
+        {
+            syncRate = Mathf.Clamp(rate, 1f, 120f);
+            Debug.Log($"同步频率设置为: {syncRate}Hz");
+        }
+
+        /// <summary>
+        /// 设置预测运动开关（调试用）
+        /// </summary>
+        public void SetPredictiveMotionEnabled(bool enabled)
+        {
+            enablePrediction = enabled;
+            Debug.Log($"预测运动: {(enabled ? "开启" : "关闭")}");
+        }
+
+        /// <summary>
+        /// 获取当前同步频率
+        /// </summary>
+        public float GetSyncRate()
+        {
+            return syncRate;
+        }
+
+        /// <summary>
+        /// 获取预测运动状态
+        /// </summary>
+        public bool GetPredictiveMotionEnabled()
+        {
+            return enablePrediction;
+        }
         #endregion
 
         #region Gizmos

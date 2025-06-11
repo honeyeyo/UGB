@@ -6,9 +6,12 @@ PhysicMaterial:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PhyMetallSolid
-  dynamicFriction: 0.4
-  staticFriction: 0.4
-  bounciness: 0
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_Name: PhyCAP
+  serializedVersion: 2
+  dynamicFriction: 0.05
+  staticFriction: 0.05
+  bounciness: 0.91
   frictionCombine: 0
-  bounceCombine: 0
+  bounceCombine: 2

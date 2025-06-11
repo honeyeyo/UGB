@@ -8,10 +8,10 @@ PhysicMaterial:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
-  m_Name: PhyRubber
+  m_Name: PhyBlade
   serializedVersion: 2
-  dynamicFriction: 0.7
-  staticFriction: 0.75
-  bounciness: 0.85
-  frictionCombine: 2
-  bounceCombine: 2
+  dynamicFriction: 0.4
+  staticFriction: 0.45
+  bounciness: 0.6
+  frictionCombine: 0
+  bounceCombine: 0

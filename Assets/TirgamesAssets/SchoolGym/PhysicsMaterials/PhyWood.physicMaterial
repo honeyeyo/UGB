@@ -6,9 +6,12 @@ PhysicMaterial:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
   m_Name: PhyWood
-  dynamicFriction: 0.6
-  staticFriction: 0.6
-  bounciness: 0
+  serializedVersion: 2
+  dynamicFriction: 0.3
+  staticFriction: 0.35
+  bounciness: 0.85
   frictionCombine: 0
-  bounceCombine: 0
+  bounceCombine: 2
