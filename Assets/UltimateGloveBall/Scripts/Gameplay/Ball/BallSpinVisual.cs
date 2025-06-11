@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace PongHub.Gameplay.Ball
+namespace PongHub.Ball
 {
     [RequireComponent(typeof(BallPhysics))]
     public class BallSpinVisual : MonoBehaviour

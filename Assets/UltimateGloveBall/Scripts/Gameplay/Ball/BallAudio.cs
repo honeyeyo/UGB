@@ -1,7 +1,7 @@
 using UnityEngine;
 using PongHub.Core;
 
-namespace PongHub.Gameplay.Ball
+namespace PongHub.Ball
 {
     [RequireComponent(typeof(AudioSource))]
     public class BallAudio : MonoBehaviour

@@ -1,7 +1,7 @@
 using UnityEngine;
 using PongHub.Core;
 
-namespace PongHub.Gameplay.Ball
+namespace PongHub.Ball
 {
     public class BallParticles : MonoBehaviour
     {
