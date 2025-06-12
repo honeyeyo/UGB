@@ -39,7 +39,7 @@ namespace PongHub.Arena.Player
             {
                 // 设置本地玩家Avatar并尝试附加手套
                 LocalPlayerEntities.Instance.Avatar = this;
-                LocalPlayerEntities.Instance.TryAttachGloves();
+                // TODO : 乒乓球手柄attach实现
 
                 // 启用右手姿势
                 if (m_rightHandPose != null)

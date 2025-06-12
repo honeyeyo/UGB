@@ -18,10 +18,7 @@ namespace PongHub.Arena.Player
         // 玩家主要组件引用
         public PlayerControllerNetwork PlayerController; // 玩家网络控制器
         public PlayerAvatarEntity Avatar; // 玩家Avatar实体
-        public GloveArmatureNetworking LeftGloveArmature; // 左手套装甲网络组件
-        public GloveArmatureNetworking RightGloveArmature; // 右手套装甲网络组件
-        public Glove LeftGloveHand; // 左手套组件
-        public Glove RightGloveHand; // 右手套组件
+
 
         // 团队颜色组件列表
         public List<TeamColoringNetComponent> ColoringComponents = new();
@@ -39,43 +36,12 @@ namespace PongHub.Arena.Player
         public void TryAttachObjects()
         {
             // 检查所有必需组件是否存在且Avatar骨骼是否就绪
-            if (LeftGloveHand == null || RightGloveHand == null ||
-                LeftGloveArmature == null || RightGloveArmature == null ||
+            if (
                 Avatar == null || !Avatar.IsSkeletonReady)
             {
                 return;
             }
             ColoringComponents.Clear();
-
-            // 设置左手套
-            var leftWrist = Avatar.GetJointTransform(CAPI.ovrAvatar2JointType.LeftHandWrist);
-            LeftGloveHand.HandAnchor = leftWrist;
-            var leftTracker = leftWrist.gameObject.AddComponent<GloveTracker>();
-            leftTracker.Glove = LeftGloveHand;
-            leftTracker.Armature = LeftGloveArmature;
-            leftTracker.UpdateTracking();
-            LeftGloveArmature.ElectricTetherForHandPoint.SetParent(LeftGloveHand.transform, false);
-
-            // 设置右手套
-            var rightWrist = Avatar.GetJointTransform(CAPI.ovrAvatar2JointType.RightHandWrist);
-            RightGloveHand.HandAnchor = rightWrist;
-            var rightTracker = rightWrist.gameObject.AddComponent<GloveTracker>();
-            rightTracker.Glove = RightGloveHand;
-            rightTracker.Armature = RightGloveArmature;
-            rightTracker.UpdateTracking();
-            RightGloveArmature.ElectricTetherForHandPoint.SetParent(RightGloveHand.transform, false);
-
-            // 更新玩家控制器的组件引用
-            PlayerController.ArmatureLeft = LeftGloveArmature;
-            PlayerController.ArmatureRight = RightGloveArmature;
-            PlayerController.GloveLeft = LeftGloveHand.GloveNetworkComponent;
-            PlayerController.GloveRight = RightGloveHand.GloveNetworkComponent;
-
-            // 收集所有团队颜色组件
-            ColoringComponents.Add(LeftGloveHand.GetComponent<TeamColoringNetComponent>());
-            ColoringComponents.Add(LeftGloveArmature.GetComponent<TeamColoringNetComponent>());
-            ColoringComponents.Add(RightGloveHand.GetComponent<TeamColoringNetComponent>());
-            ColoringComponents.Add(RightGloveArmature.GetComponent<TeamColoringNetComponent>());
         }
     }
 }

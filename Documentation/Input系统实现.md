@@ -167,7 +167,7 @@ private void HandlePaddleGrabbed(bool isLeftHand)
 ## 📁 文件结构
 
 ```
-Assets/UltimateGloveBall/Scripts/Input/
+Assets/PongHub/Scripts/Input/
 ├── PongInputManager.cs                  # 核心输入管理器（优化版）
 ├── PaddleConfigurationManager.cs        # 球拍配置管理器（已优化）
 ├── CustomPointableCanvasModule.cs       # UI交互模块
@@ -347,8 +347,3 @@ PongInputManager.OnCustomEvent += HandleCustomEvent;
 | **v1.2** | 事件驱动架构 | 减少组件耦合      |
 | **v1.3** | 性能优化版本 | 句柄缓存+分帧处理 |
 | **v1.4** | 配置管理优化 | 安全检查+按下检测 |
-
-## 📄 许可信息
-
-基于 Meta Utilities Input 包构建，遵循 MIT 许可协议。
-详见：[Unity-UltimateGloveBall LICENSE](https://github.com/oculus-samples/Unity-UltimateGloveBall/tree/main/Assets/UltimateGloveBall/LICENSE)

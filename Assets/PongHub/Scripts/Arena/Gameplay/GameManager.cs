@@ -544,8 +544,7 @@ namespace PongHub.Arena.Gameplay
                 PlayerInputController.Instance.MovementEnabled = false;
             }
             PlayerMovement.Instance.TeleportTo(position, rotation);
-            LocalPlayerEntities.Instance.LeftGloveHand.ResetGlove();
-            LocalPlayerEntities.Instance.RightGloveHand.ResetGlove();
+
         }
     }
 }

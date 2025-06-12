@@ -1,24 +1,24 @@
 # 代码结构
 
-该项目分为两个主要结构。首先是 [Meta Multiplayer for Netcode and Photon](../Packages/com.meta.multiplayer.netcode-photon) 包，这是核心可重用代码，可以轻松用于启动使用类似多人游戏配置的新项目。然后是 [PongHub](../Assets/PongHub)，它使用Meta Multiplayer基础并实现特定的游戏逻辑。
+该项目分为两个主要结构。首先是 [Meta Multiplayer for Netcode and Photon](../Packages/com.meta.multiplayer.netcode-photon) 包，这是核心可重用代码，可以轻松用于启动使用类似多人游戏配置的新项目。然后是 [PongHub](../Assets/PongHub)，它使用 Meta Multiplayer 基础并实现特定的游戏逻辑。
 
 我们还有一个通用实用功能包，帮助我们加快项目实现速度，这些实用工具可以在 [Packages/com.meta.utilities](../Packages/com.meta.utilities) 中找到。
 
-我们还需要扩展Photon Realtime for Netcode的功能，为此我们在 [Packages/com.community.netcode.transport.photon-realtime](../Packages/com.community.netcode.transport.photon-realtime@b28923aa5d) 中制作了包的副本。
+我们还需要扩展 Photon Realtime for Netcode 的功能，为此我们在 [Packages/com.community.netcode.transport.photon-realtime](../Packages/com.community.netcode.transport.photon-realtime@b28923aa5d) 中制作了包的副本。
 
 ## Meta Multiplayer for Netcode and Photon
 
-与项目无关的逻辑，可以在任何项目中重用。它实现了网络多人项目所需的不同元素。它还包含我们平台社交API的一些关键功能实现。
+与项目无关的逻辑，可以在任何项目中重用。它实现了网络多人项目所需的不同元素。它还包含我们平台社交 API 的一些关键功能实现。
 
-**[BlockUserManager.cs](../Packages/com.meta.multiplayer.netcode-photon/Core/BlockUserManager.cs)** 实现了屏蔽流程API。
+**[BlockUserManager.cs](../Packages/com.meta.multiplayer.netcode-photon/Core/BlockUserManager.cs)** 实现了屏蔽流程 API。
 
-**[GroupPresenceState.cs](../Packages/com.meta.multiplayer.netcode-photon/Core/GroupPresenceState.cs)** 实现了群组状态API的使用，这是玩家轻松一起游戏的基础。
+**[GroupPresenceState.cs](../Packages/com.meta.multiplayer.netcode-photon/Core/GroupPresenceState.cs)** 实现了群组状态 API 的使用，这是玩家轻松一起游戏的基础。
 
 **[NetworkLayer.cs](../Packages/com.meta.multiplayer.netcode-photon/Core/NetworkLayer.cs)** 实现了客户端/主机连接流程和断开连接处理以及主机迁移的网络状态。
 
 网络化身的实现是在项目中集成个性的关键，也是化身如何轻松集成到项目中的好例子（[Avatars](../Packages/com.meta.multiplayer.netcode-photon/Avatar)）。
 
-## Ultimate Glove Ball
+## PongHub
 
 这是游戏特定内容的实现。我将重点介绍一些关键组件，但强烈建议您深入研究代码。
 
@@ -30,11 +30,11 @@
 
 ### 主菜单
 
-我们要讨论的下一个元素是 [MainMenu目录](../Assets/PongHub/Scripts/MainMenu)。它包含在主菜单场景中使用的控制器和视图。它的设置方式可以让我们轻松扩展菜单数量和它们之间的导航。[MainMenuController.cs](../Assets/PongHub/Scripts/MainMenu/MainMenuController.cs) 是场景的核心逻辑，处理所有状态和转换以及与核心服务的通信。
+我们要讨论的下一个元素是 [MainMenu 目录](../Assets/PongHub/Scripts/MainMenu)。它包含在主菜单场景中使用的控制器和视图。它的设置方式可以让我们轻松扩展菜单数量和它们之间的导航。[MainMenuController.cs](../Assets/PongHub/Scripts/MainMenu/MainMenuController.cs) 是场景的核心逻辑，处理所有状态和转换以及与核心服务的通信。
 
 ### 竞技场
 
-最后，最大的部分是 [Arena目录](../Assets/PongHub/Scripts/Arena)。这包含了我们进入竞技场时的所有游戏逻辑。
+最后，最大的部分是 [Arena 目录](../Assets/PongHub/Scripts/Arena)。这包含了我们进入竞技场时的所有游戏逻辑。
 
 #### 服务
 
@@ -54,14 +54,14 @@
 
 #### 球
 
-最后，主要的网络元素是 [球](../Assets/PongHub/Scripts/Arena/Balls)。球分为3个主要组件：球网络、球状态同步器和特定的球行为。
+最后，主要的网络元素是 [球](../Assets/PongHub/Scripts/Arena/Balls)。球分为 3 个主要组件：球网络、球状态同步器和特定的球行为。
 
-球网络处理球的不同网络状态，如所有权、生成或死亡状态，以及游戏逻辑，如碰撞和服务器与客户端RPC的抛球。
+球网络处理球的不同网络状态，如所有权、生成或死亡状态，以及游戏逻辑，如碰撞和服务器与客户端 RPC 的抛球。
 
 球状态同步器处理球的位置和运动，您可以在[球物理和网络](./BallPhysicsAndNetworking.md)文档中阅读更多详细信息。
 
 ## Photon Realtime Transport for Netcode
 
-我们修改了这个包，以便在导航photon房间时有更多的灵活性。我们添加了对连接到大厅的支持，并在尝试连接时有不同的意图。
+我们修改了这个包，以便在导航 photon 房间时有更多的灵活性。我们添加了对连接到大厅的支持，并在尝试连接时有不同的意图。
 
 我们添加的另一个功能是集成在连接时使用房间属性的可能性，这样我们就可以加入特定类型的房间。我们以一种易于在项目之间重用的方式实现它，通过分配回调和数据处理程序将特定实现的权力交给游戏。

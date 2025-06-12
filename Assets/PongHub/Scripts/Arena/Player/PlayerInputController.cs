@@ -181,55 +181,6 @@ namespace PongHub.Arena.Player
             m_moveAction = context.phase is InputActionPhase.Disabled ? null : context.action;
         }
 
-        /// <summary>
-        /// 处理左手投掷
-        /// </summary>
-        public void OnThrowLeft(CallbackContext context)
-        {
-            if (!InputEnabled) return;
-
-            var glove = LocalPlayerEntities.Instance.LeftGloveHand;
-            var gloveArmature = LocalPlayerEntities.Instance.LeftGloveArmature;
-            if (context.phase is InputActionPhase.Performed)
-                OnThrow(glove, gloveArmature);
-            else if (context.phase is InputActionPhase.Canceled)
-                OnRelease(glove, gloveArmature);
-        }
-
-        /// <summary>
-        /// 处理右手投掷
-        /// </summary>
-        public void OnThrowRight(CallbackContext context)
-        {
-            if (!InputEnabled) return;
-
-            var glove = LocalPlayerEntities.Instance.RightGloveHand;
-            var gloveArmature = LocalPlayerEntities.Instance.RightGloveArmature;
-            if (context.phase is InputActionPhase.Performed)
-                OnThrow(glove, gloveArmature);
-            else if (context.phase is InputActionPhase.Canceled)
-                OnRelease(glove, gloveArmature);
-        }
-
-        /// <summary>
-        /// 处理左手护盾
-        /// </summary>
-        public void OnShieldLeft(CallbackContext context)
-        {
-            if (!InputEnabled) return;
-
-            OnShield(Glove.GloveSide.Left, context.phase is InputActionPhase.Performed);
-        }
-
-        /// <summary>
-        /// 处理右手护盾
-        /// </summary>
-        public void OnShieldRight(CallbackContext context)
-        {
-            if (!InputEnabled) return;
-
-            OnShield(Glove.GloveSide.Right, context.phase is InputActionPhase.Performed);
-        }
 
         /// <summary>
         /// 处理玩家输入,包括移动和相关特效
@@ -268,50 +219,5 @@ namespace PongHub.Arena.Player
             }
         }
 
-        /// <summary>
-        /// 处理护盾状态
-        /// </summary>
-        /// <param name="side">手套侧边</param>
-        /// <param name="state">护盾状态</param>
-        private static void OnShield(Glove.GloveSide side, bool state)
-        {
-            var playerController = LocalPlayerEntities.Instance.LocalPlayerController;
-            if (state)
-                playerController.TriggerShield(side);
-            else
-                playerController.StopShieldServerRPC(side);
-        }
-
-        /// <summary>
-        /// 处理释放动作
-        /// </summary>
-        /// <param name="glove">手套组件</param>
-        /// <param name="gloveArmature">手套骨骼组件</param>
-        private static void OnRelease(Glove glove, GloveArmatureNetworking gloveArmature)
-        {
-            if (glove && gloveArmature)
-            {
-                glove.TriggerAction(true, gloveArmature.SpringCompression);
-                gloveArmature.Activated = false;
-            }
-        }
-
-        /// <summary>
-        /// 处理投掷动作
-        /// </summary>
-        /// <param name="glove">手套组件</param>
-        /// <param name="gloveArmature">手套骨骼组件</param>
-        private static void OnThrow(Glove glove, GloveArmatureNetworking gloveArmature)
-        {
-            if (glove)
-            {
-                glove.TriggerAction(false);
-            }
-
-            if (gloveArmature)
-            {
-                gloveArmature.Activated = true;
-            }
-        }
     }
 }

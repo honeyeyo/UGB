@@ -124,9 +124,6 @@ namespace PongHub.Arena.Player.Respawning
                     PlayerInputController.Instance.InputEnabled = false;
 
                     _ = StartCoroutine(DespawnPlayer());
-                    var entities = LocalPlayerEntities.Instance;
-                    entities.LeftGloveHand.DropBall();
-                    entities.RightGloveHand.DropBall();
                 }
 
                 if (wasKnockedOut && !isKnockedOut) // No longer knocked out
@@ -212,11 +209,6 @@ namespace PongHub.Arena.Player.Respawning
                 yield return null;
             }
 
-            var entities = LocalPlayerEntities.Instance.GetPlayerObjects(OwnerClientId);
-            entities.LeftGloveArmature.gameObject.SetActive(false);
-            entities.RightGloveArmature.gameObject.SetActive(false);
-            entities.LeftGloveHand.gameObject.SetActive(false);
-            entities.RightGloveHand.gameObject.SetActive(false);
             m_playerNameVisual.SetVisibility(false);
             avatar.Hide();
             yield return null;
@@ -247,11 +239,6 @@ namespace PongHub.Arena.Player.Respawning
             material.SetKeyword("ENABLE_CUSTOM_EFFECT", false);
             avatar.ApplyMaterial();
 
-            var entities = LocalPlayerEntities.Instance.GetPlayerObjects(OwnerClientId);
-            entities.LeftGloveArmature.gameObject.SetActive(true);
-            entities.RightGloveArmature.gameObject.SetActive(true);
-            entities.LeftGloveHand.gameObject.SetActive(true);
-            entities.RightGloveHand.gameObject.SetActive(true);
             m_playerNameVisual.SetVisibility(true);
 
             if (IsOwner)

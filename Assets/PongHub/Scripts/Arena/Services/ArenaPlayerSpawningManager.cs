@@ -24,15 +24,6 @@ namespace PongHub.Arena.Services
         /// </summary>
         [SerializeField] private NetworkObject m_playerPrefab;
 
-        /// <summary>
-        /// 手套骨骼预制体
-        /// </summary>
-        [SerializeField] private NetworkObject m_gloveArmaturePrefab;
-
-        /// <summary>
-        /// 手套手部预制体
-        /// </summary>
-        [SerializeField] private NetworkObject m_gloveHandPrefab;
 
         /// <summary>
         /// 观众预制体
@@ -162,36 +153,6 @@ namespace PongHub.Arena.Services
             var player = Instantiate(m_playerPrefab, position, rotation);
             player.SpawnAsPlayerObject(clientId);
             player.GetComponent<NetworkedTeam>().MyTeam = team;
-
-            // 生成左手手套
-            var leftArmatureNet = Instantiate(m_gloveArmaturePrefab, Vector3.down, Quaternion.identity);
-            var leftArmature = leftArmatureNet.GetComponent<GloveArmatureNetworking>();
-            leftArmature.Side = Glove.GloveSide.Left;
-            leftArmatureNet.GetComponent<TeamColoringNetComponent>().TeamColor = color;
-            var leftHandNet = Instantiate(m_gloveHandPrefab, Vector3.down, Quaternion.identity);
-            var leftHand = leftHandNet.GetComponent<GloveNetworking>();
-            leftHand.Side = Glove.GloveSide.Left;
-            leftHandNet.GetComponent<TeamColoringNetComponent>().TeamColor = color;
-
-            // 生成右手手套
-            var rightArmatureNet = Instantiate(m_gloveArmaturePrefab, Vector3.down, Quaternion.identity);
-            var rightArmature = rightArmatureNet.GetComponent<GloveArmatureNetworking>();
-            rightArmature.Side = Glove.GloveSide.Right;
-            rightArmatureNet.GetComponent<TeamColoringNetComponent>().TeamColor = color;
-            var rightHandNet = Instantiate(m_gloveHandPrefab, Vector3.down, Quaternion.identity);
-            var rightHand = rightHandNet.GetComponent<GloveNetworking>();
-            rightHand.Side = Glove.GloveSide.Right;
-            rightHandNet.GetComponent<TeamColoringNetComponent>().TeamColor = color;
-            rightArmatureNet.SpawnWithOwnership(clientId);
-            rightHandNet.SpawnWithOwnership(clientId);
-            leftArmatureNet.SpawnWithOwnership(clientId);
-            leftHandNet.SpawnWithOwnership(clientId);
-
-            // 设置玩家控制器的手套引用
-            player.GetComponent<PlayerControllerNetwork>().ArmatureLeft = leftArmature;
-            player.GetComponent<PlayerControllerNetwork>().ArmatureRight = rightArmature;
-            player.GetComponent<PlayerControllerNetwork>().GloveLeft = leftHand;
-            player.GetComponent<PlayerControllerNetwork>().GloveRight = rightHand;
 
             playerData.SelectedTeam = team;
             m_gameManager.UpdatePlayerTeam(clientId, spawnTeam);
