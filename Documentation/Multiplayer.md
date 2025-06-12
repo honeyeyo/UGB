@@ -32,23 +32,23 @@
 
 通过点击观战或加入，将启动作为客户端加入房间的流程。
 
-[FriendsMenuController](../Assets/UltimateGloveBall/Scripts/MainMenu/FriendsMenuController.cs) 将触发适当的导航流程。
+[FriendsMenuController](../Assets/PongHub/Scripts/MainMenu/FriendsMenuController.cs) 将触发适当的导航流程。
 
 ## 导航流程
 
-负责导航流程的核心元素是 [NavigationController](../Assets/UltimateGloveBall/Scripts/App/NavigationController.cs)。
+负责导航流程的核心元素是 [NavigationController](../Assets/PongHub/Scripts/App/NavigationController.cs)。
 
-这里有不同的API来导航应用程序。简而言之，它将通过 [NetworkLayer](../Packages/com.meta.multiplayer.netcode-photon/Core/NetworkLayer.cs) 启动连接流程，并通过 [PlayerPresenceHandler](../Assets/UltimateGloveBall/Scripts/App/PlayerPresenceHandler.cs) 设置新的群组状态。
+这里有不同的API来导航应用程序。简而言之，它将通过 [NetworkLayer](../Packages/com.meta.multiplayer.netcode-photon/Core/NetworkLayer.cs) 启动连接流程，并通过 [PlayerPresenceHandler](../Assets/PongHub/Scripts/App/PlayerPresenceHandler.cs) 设置新的群组状态。
 
 设置群组状态将使其他用户知道玩家在哪里，是否可以加入他们以及在哪里加入。
 
-一旦建立连接，[NetworkStateHandler](../Assets/UltimateGloveBall/Scripts/App/NetworkStateHandler.cs) 处理网络状态的变化。这是玩家连接或断开连接时进行设置的地方。
+一旦建立连接，[NetworkStateHandler](../Assets/PongHub/Scripts/App/NetworkStateHandler.cs) 处理网络状态的变化。这是玩家连接或断开连接时进行设置的地方。
 
 在连接时，我们还使用 [SceneLoader](../Packages/com.meta.multiplayer.netcode-photon/Core/SceneLoader.cs) 导航到正确的场景。场景加载器处理场景的状态以及如何在netcode网络状态下处理场景导航。当通过netcode连接时，我们使用netcode场景管理器在用户之间同步场景。
 
 ## 群组启动和邀请
 
-当用户启动群组启动到竞技场或用户相互邀请到现有竞技场时，我们在 [UGBApplication](../Assets/UltimateGloveBall/Scripts/App/UGBApplication.cs) 中处理这些情况。这是我们检查意图信息并基于该信息触发适当导航流程的地方。
+当用户启动群组启动到竞技场或用户相互邀请到现有竞技场时，我们在 [UGBApplication](../Assets/PongHub/Scripts/App/UGBApplication.cs) 中处理这些情况。这是我们检查意图信息并基于该信息触发适当导航流程的地方。
 
 对于这个项目，所需的核心信息是目标API和lobbySessionId。lobbySessionId用作要加入的房间名称，目标API将指示要加入的区域。一旦我们处理了该信息，我们调用导航控制器，它将带我们到正确的竞技场并设置我们的群组状态。
 
@@ -66,15 +66,15 @@
 
 在初始化时，我们获取当前用户已屏蔽的所有用户列表，这样我们就可以跟踪这些用户，以便在遇到他们时能够处理。这个类还实现了触发屏蔽和取消屏蔽流程，并将跟踪所有被屏蔽用户的状态。
 
-当用户在游戏中且玩家生成时，我们检查该玩家是否被该用户屏蔽，如果是，我们将其静音。我们实现了 [UserMutingManager](../Assets/UltimateGloveBall/Scripts/App/UserMutingManager.cs) 来跟踪我们在游戏中静音的用户。这样我们可以在会话期间静音他们，但不在平台级别屏蔽他们。
+当用户在游戏中且玩家生成时，我们检查该玩家是否被该用户屏蔽，如果是，我们将其静音。我们实现了 [UserMutingManager](../Assets/PongHub/Scripts/App/UserMutingManager.cs) 来跟踪我们在游戏中静音的用户。这样我们可以在会话期间静音他们，但不在平台级别屏蔽他们。
 
-当玩家的 [PlayerStateNetwork](../Assets/UltimateGloveBall/Scripts/Arena/Player/PlayerStateNetwork.cs) 使用该playerID更新或静音状态发生变化时，它会更新该玩家的扬声器以静音他们。我们还在玩家菜单 [PlayerInfoItem](../Assets/UltimateGloveBall/Scripts/Arena/Player/Menu/PlayerInfoItem.cs) 中处理屏蔽流程。
+当玩家的 [PlayerStateNetwork](../Assets/PongHub/Scripts/Arena/Player/PlayerStateNetwork.cs) 使用该playerID更新或静音状态发生变化时，它会更新该玩家的扬声器以静音他们。我们还在玩家菜单 [PlayerInfoItem](../Assets/PongHub/Scripts/Arena/Player/Menu/PlayerInfoItem.cs) 中处理屏蔽流程。
 
 ![游戏内菜单玩家](./Media/ingamemenu_players.jpg)
 
 ## 邀请流程
 
-在游戏中和游戏前阶段，有一个按钮可以邀请玩家加入竞技场并游戏。这个按钮将从 [GameManager](../Assets/UltimateGloveBall/Scripts/Arena/Gameplay/GameManager.cs) 触发邀请流程。
+在游戏中和游戏前阶段，有一个按钮可以邀请玩家加入竞技场并游戏。这个按钮将从 [GameManager](../Assets/PongHub/Scripts/Arena/Gameplay/GameManager.cs) 触发邀请流程。
 
 ![游戏内邀请](./Media/ingameinvite.jpg)
 
@@ -82,7 +82,7 @@
 
 ## 花名册
 
-在游戏中，玩家会遇到其他玩家，陌生人、朋友的朋友等。如果玩家与其他人玩得很开心，快速与他们成为朋友是很好的。这就是花名册面板发挥作用的地方。从游戏内菜单的玩家部分，我们处理花名册面板。有关实现详细信息，请参见 [PlayersMenu](../Assets/UltimateGloveBall/Scripts/Arena/Player/Menu/PlayersMenu.cs)。
+在游戏中，玩家会遇到其他玩家，陌生人、朋友的朋友等。如果玩家与其他人玩得很开心，快速与他们成为朋友是很好的。这就是花名册面板发挥作用的地方。从游戏内菜单的玩家部分，我们处理花名册面板。有关实现详细信息，请参见 [PlayersMenu](../Assets/PongHub/Scripts/Arena/Player/Menu/PlayersMenu.cs)。
 
 ## 竞技场审批
 
@@ -90,9 +90,9 @@
 
 这通过2种不同的方式完成。
 
-首先，我们使用Photon房间属性来设置房间是否对玩家和观众可用。如果房间对其中一个满了，我们将该标志设置为满。这样寻找快速匹配或观看随机匹配的玩家不会被发送到满员的竞技场房间。实现可以在 [PhotonConnectionHandler](../Assets/UltimateGloveBall/Scripts/App/PhotonConnectionHandler.cs) 中看到，我们在加入或创建房间时设置要查找的属性，以及 [ArenaApprovalController](../Assets/UltimateGloveBall/Scripts/Arena/Services/ArenaApprovalController.cs)，我们在其中更新房间的属性。
+首先，我们使用Photon房间属性来设置房间是否对玩家和观众可用。如果房间对其中一个满了，我们将该标志设置为满。这样寻找快速匹配或观看随机匹配的玩家不会被发送到满员的竞技场房间。实现可以在 [PhotonConnectionHandler](../Assets/PongHub/Scripts/App/PhotonConnectionHandler.cs) 中看到，我们在加入或创建房间时设置要查找的属性，以及 [ArenaApprovalController](../Assets/PongHub/Scripts/Arena/Services/ArenaApprovalController.cs)，我们在其中更新房间的属性。
 
-这带我们到第二个检查，[ArenaApprovalController](../Assets/UltimateGloveBall/Scripts/Arena/Services/ArenaApprovalController.cs)。这个类实现了netcode的审批检查。它仅在主机上运行，并跟踪每种类型加入的用户数量。如果尝试连接的用户超过允许的数量，它将断开该玩家的连接并发送原因。这主要是为了处理玩家A试图加入他们的朋友玩家B但竞技场已满的情况。
+这带我们到第二个检查，[ArenaApprovalController](../Assets/PongHub/Scripts/Arena/Services/ArenaApprovalController.cs)。这个类实现了netcode的审批检查。它仅在主机上运行，并跟踪每种类型加入的用户数量。如果尝试连接的用户超过允许的数量，它将断开该玩家的连接并发送原因。这主要是为了处理玩家A试图加入他们的朋友玩家B但竞技场已满的情况。
 
 ## 群组状态
 

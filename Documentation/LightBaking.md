@@ -10,7 +10,7 @@
 
 ## 如何烘焙竞技场
 
-加载竞技场场景 [Assets/UltimateGloveBall/Scenes/Arena.unity](../Assets/UltimateGloveBall/Scenes/Arena.unity)
+加载竞技场场景 [Assets/PongHub/Scenes/Arena.unity](../Assets/PongHub/Scenes/Arena.unity)
 
 在场景层次结构中，您将看到一个名为LightingSetup的禁用游戏对象。
 

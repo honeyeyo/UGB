@@ -266,7 +266,7 @@ vrButton.onClick.AddListener(() => {
 ## 📁 文件结构
 
 ```
-Assets/UltimateGloveBall/Scripts/UI/
+Assets/PongHub/Scripts/UI/
 ├── UIManager.cs                      # 统一UI管理器
 ├── MainMenuPanel.cs                  # 主菜单面板
 ├── SettingsPanel.cs                  # 设置面板

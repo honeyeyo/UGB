@@ -1,4 +1,4 @@
-# Contributing to Unity-UltimateGloveBall
+# Contributing to Unity-PongHub
 We want to make contributing to this project as easy and transparent as possible.
 
 ## Pull Requests

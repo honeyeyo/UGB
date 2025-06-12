@@ -9,19 +9,19 @@
 
 ## 涉及的主要脚本
 
-**[BallNetworking.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/BallNetworking.cs)**
+**[BallNetworking.cs](../Assets/PongHub/Scripts/Arena/Balls/BallNetworking.cs)**
 - 这个网络脚本处理投掷、碰撞、所有权等。
 
-**[BallStateSync.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/BallStateSync.cs)**
+**[BallStateSync.cs](../Assets/PongHub/Scripts/Arena/Balls/BallStateSync.cs)**
 - 这个脚本与前一个脚本配合工作。
 - 它的工作是发送包含数据的数据包（如果是服务器）并应用它们（如果是客户端）。
 - 该脚本包括渐进的位置、旋转和线性速度校正，以避免弹跳和抖动运动。
 - 它还包含一个抖动缓冲区，以确保数据包按正确顺序应用并丢弃任何延迟的数据包。
 
-**[BallSpawner.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/BallSpawner.cs)**
+**[BallSpawner.cs](../Assets/PongHub/Scripts/Arena/Balls/BallSpawner.cs)**
 - 这个脚本处理球的生成和死球的销毁。
 
-**[SpawnPoint.cs](../Assets/UltimateGloveBall/Scripts/Arena/Balls/SpawnPoint.cs)**
+**[SpawnPoint.cs](../Assets/PongHub/Scripts/Arena/Balls/SpawnPoint.cs)**
 - 这个脚本检查球是否已"占用"它，使其他球无法在那里生成。
 
 ## 球状态同步

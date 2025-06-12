@@ -6,13 +6,13 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/UltimateGloveBall/Scenes/Startup.unity
+    path: Assets/PongHub/Scenes/Startup.unity
     guid: 40899a168d9ca6241831ca6f5b5f1210
   - enabled: 1
-    path: Assets/UltimateGloveBall/Scenes/MainMenu.unity
+    path: Assets/PongHub/Scenes/MainMenu.unity
     guid: 8e98422b126569849b10d0496d73a808
   - enabled: 0
-    path: Assets/UltimateGloveBall/Scenes/Arena.unity
+    path: Assets/PongHub/Scenes/Arena.unity
     guid: df2172ca90500c5428fbce29dd2fba67
   - enabled: 1
     path: Assets/TirgamesAssets/SchoolGym/Gym.unity

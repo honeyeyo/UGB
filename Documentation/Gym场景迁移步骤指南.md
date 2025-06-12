@@ -10,7 +10,7 @@
 cp "Assets/TirgamesAssets/SchoolGym/Gym.unity" "Assets/TirgamesAssets/SchoolGym/Gym_Backup.unity"
 
 # 备份 Arena 场景
-cp "Assets/UltimateGloveBall/Scenes/Arena.unity" "Assets/UltimateGloveBall/Scenes/Arena_Backup.unity"
+cp "Assets/PongHub/Scenes/Arena.unity" "Assets/PongHub/Scenes/Arena_Backup.unity"
 ```
 
 ### 1.2 在 Unity 中的准备

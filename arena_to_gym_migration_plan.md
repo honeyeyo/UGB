@@ -72,7 +72,7 @@
 ```bash
 # 1. 备份原始场景
 cp Assets/TirgamesAssets/SchoolGym/Gym.unity Assets/TirgamesAssets/SchoolGym/Gym_Backup.unity
-cp Assets/UltimateGloveBall/Scenes/Arena.unity Assets/UltimateGloveBall/Scenes/Arena_Backup.unity
+cp Assets/PongHub/Scenes/Arena.unity Assets/PongHub/Scenes/Arena_Backup.unity
 
 # 2. 在 Gym 场景中工作
 ```
