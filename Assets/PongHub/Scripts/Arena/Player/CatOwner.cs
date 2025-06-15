@@ -26,10 +26,7 @@ namespace PongHub.Arena.Player
                 m_respawnController.OnRespawnCompleteEvent += OnOwnerRespawn;
             }
 
-            if (m_playerControllerNetwork)
-            {
-                m_playerControllerNetwork.OnInvulnerabilityStateUpdatedEvent += OnInvulnerableStateChanged;
-            }
+            // 移除了无敌状态相关代码
         }
 
         private void OnDestroy()
@@ -40,10 +37,7 @@ namespace PongHub.Arena.Player
                 m_respawnController.OnRespawnCompleteEvent -= OnOwnerRespawn;
             }
 
-            if (m_playerControllerNetwork)
-            {
-                m_playerControllerNetwork.OnInvulnerabilityStateUpdatedEvent -= OnInvulnerableStateChanged;
-            }
+            // 移除了无敌状态相关代码
         }
 
         public void SpawnCat()
@@ -66,10 +60,7 @@ namespace PongHub.Arena.Player
                 OnOwnerKnockedOut();
             }
 
-            if (m_playerControllerNetwork.IsInvulnerable.Value)
-            {
-                OnInvulnerableStateChanged(true);
-            }
+            // 移除了无敌状态相关代码
         }
 
         public void DeSpawnCat()
@@ -90,9 +81,6 @@ namespace PongHub.Arena.Player
             m_cat?.FollowOwner();
         }
 
-        private void OnInvulnerableStateChanged(bool invulnerable)
-        {
-            m_cat?.ChangeInvulnerabilityState(invulnerable);
-        }
+        // 移除了无敌状态相关方法
     }
 }

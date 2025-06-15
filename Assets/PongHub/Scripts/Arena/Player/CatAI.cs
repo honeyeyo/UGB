@@ -1,7 +1,7 @@
 // Copyright (c) MagnusLab Inc. and affiliates.
 
 using Meta.Utilities;
-using PongHub.Arena.Balls;
+using PongHub.Gameplay.Ball;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -17,7 +17,6 @@ namespace PongHub.Arena.Player
         private const float IDLE_TIME = 6f;
         private const float JUMP_FORCE = 3f;
         private static readonly int s_state = Animator.StringToHash("State");
-        private static readonly int s_ghostProperty = Shader.PropertyToID("ENABLE_GHOST_EFFECT");
 
         [SerializeField, AutoSet] private NavMeshAgent m_navMeshAgent;
         [SerializeField, AutoSetFromChildren] private Animator m_animator;
@@ -48,7 +47,6 @@ namespace PongHub.Arena.Player
 
         private bool m_followOwner = true;
 
-        private bool m_isInvulnerable;
         private MaterialPropertyBlock m_materialPropertyBlock;
 
         public void SetOwner(CatOwner owner)
@@ -69,20 +67,7 @@ namespace PongHub.Arena.Player
             PlayIdleSound();
         }
 
-        public void ChangeInvulnerabilityState(bool invulnerable)
-        {
-            if (m_isInvulnerable == invulnerable)
-            {
-                return;
-            }
-            m_isInvulnerable = invulnerable;
-            m_collider.enabled = !invulnerable;
-
-            m_materialPropertyBlock ??= new MaterialPropertyBlock();
-            m_renderer.GetPropertyBlock(m_materialPropertyBlock);
-            m_materialPropertyBlock.SetFloat(s_ghostProperty, invulnerable ? 1 : 0);
-            m_renderer.SetPropertyBlock(m_materialPropertyBlock);
-        }
+        // 移除了无敌状态相关方法
 
         private void Update()
         {

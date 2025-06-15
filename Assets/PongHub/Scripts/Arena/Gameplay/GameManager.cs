@@ -4,7 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using PongHub.App;
-using PongHub.Arena.Balls;
+using PongHub.Gameplay.Ball;
 using PongHub.Arena.Environment;
 using PongHub.Arena.Player;
 using PongHub.Arena.Services;
@@ -342,7 +342,7 @@ namespace PongHub.Arena.Gameplay
         {
             m_currentGamePhase.Value = GamePhase.InGame;
             m_gameEndTime.Value = NetworkManager.Singleton.ServerTime.Time + GAME_DURATION_SEC;
-            m_ballSpawner.SpawnInitialBalls();
+            // 在乒乓球游戏中，球由玩家手动生成，而不是自动生成
         }
 
         /// <summary>
@@ -350,7 +350,7 @@ namespace PongHub.Arena.Gameplay
         /// </summary>
         private void GoToPostGame()
         {
-            m_ballSpawner.DeSpawnAllBalls();
+            m_ballSpawner.DespawnAllBalls();
             m_currentGamePhase.Value = GamePhase.PostGame;
             m_restartGameButtonContainer.SetActive(true);
             ((ArenaPlayerSpawningManager)SpawningManagerBase.Instance).ResetPostGameSpawnPoints();
@@ -530,7 +530,8 @@ namespace PongHub.Arena.Gameplay
         {
             m_currentGamePhase.Value = GamePhase.InGame;
             m_gameEndTime.Value = NetworkManager.Singleton.ServerTime.Time + timeRemaining;
-            m_ballSpawner.SpawnInitialBalls();
+            // 在乒乓球游戏中，球通常由玩家手动生成，而不是自动生成
+            // 如果需要自动生成球，可以使用 m_ballSpawner.SpawnBallAtPosition()
         }
 
         /// <summary>

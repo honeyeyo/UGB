@@ -3,7 +3,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     /// <summary>
     /// 乒乓球附着系统 - 处理球与非持拍手的附着逻辑
@@ -79,7 +79,7 @@ namespace PongHub.Ball
         {
             if (handTransform == null)
             {
-                Debug.LogError("PongBallAttachment: 尝试附着到空的手部变换");
+                Debug.LogError("BallAttachment: 尝试附着到空的手部变换");
                 return;
             }
 
@@ -178,7 +178,7 @@ namespace PongHub.Ball
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"PongBallAttachment: 更新附着位置时出错: {e.Message}");
+                Debug.LogError($"BallAttachment: 更新附着位置时出错: {e.Message}");
                 // 恢复到最后有效位置
                 transform.position = lastValidPosition;
             }

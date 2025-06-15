@@ -65,7 +65,7 @@ namespace PongHub.Arena.Player
             }
 
             var material = m_avatar.Material;
-            material.SetKeyword("ENABLE_GHOST_EFFECT", IsInvulnerable.Value);
+            // 移除了无敌状态相关代码
             m_avatar.ApplyMaterial();
 
 

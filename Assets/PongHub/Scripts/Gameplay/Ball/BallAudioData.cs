@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     [CreateAssetMenu(fileName = "BallAudioData", menuName = "PongHub/Ball Audio Data")]
     public class BallAudioData : ScriptableObject

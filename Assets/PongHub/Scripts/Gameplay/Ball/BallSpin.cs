@@ -2,7 +2,7 @@
 
 using UnityEngine;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     /// <summary>
     /// 乒乓球旋转系统 - 实现真实的乒乓球旋转物理效果

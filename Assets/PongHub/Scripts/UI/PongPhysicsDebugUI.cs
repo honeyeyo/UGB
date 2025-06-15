@@ -3,7 +3,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using PongHub.Arena.Balls;
+using PongHub.Gameplay.Ball;
 using PongHub.Arena.Gameplay;
 using PongHub.Arena.Player;
 using PongHub.Arena.Services;
@@ -26,8 +26,8 @@ namespace PongHub.UI
         [SerializeField] private float uiHeight = 0.2f;             // UI高度偏移
 
         [Header("VR交互设置")]
-        [SerializeField] private bool enableHandTracking = true;    // 启用手部追踪
-        [SerializeField] private float handProximityThreshold = 0.3f; // 手部接近阈值
+        // [SerializeField] private bool enableHandTracking = true;    // 启用手部追踪
+        // [SerializeField] private float handProximityThreshold = 0.3f; // 手部接近阈值
         [SerializeField] private LayerMask uiLayerMask = -1;        // UI交互层级
 
         [Header("球物理调试")]
@@ -81,9 +81,9 @@ namespace PongHub.UI
         [SerializeField] private TextMeshProUGUI instructionText;   // 操作说明文本
 
         // 引用组件
-        private PongBallNetworking currentBall;
-        private PongBallSpin ballSpin;
-        private PongBallStateSync ballStateSync;
+        private BallNetworking currentBall;
+        private BallSpin ballSpin;
+        private BallStateSync ballStateSync;
         private ServePermissionManager serveManager;
         private PongInputManager inputManager;
         private PhysicsMaterialConfig materialConfig;
@@ -260,8 +260,8 @@ namespace PongHub.UI
             if (playerEntity != null)
             {
                 playerTransform = playerEntity.transform;
-                leftHand = playerEntity.LeftGloveHand?.transform;
-                rightHand = playerEntity.RightGloveHand?.transform;
+                leftHand = playerEntity.LeftPaddle?.transform;
+                rightHand = playerEntity.RightPaddle?.transform;
             }
 
             // 记录原始位置
@@ -273,7 +273,7 @@ namespace PongHub.UI
 
         private void RefreshBallReference()
         {
-            var spawner = PongBallSpawner.Instance;
+            var spawner = BallSpawner.Instance;
             if (spawner != null)
             {
                 var activeBalls = spawner.GetActiveBalls();
@@ -281,7 +281,7 @@ namespace PongHub.UI
                 {
                     currentBall = activeBalls[0];
                     ballSpin = currentBall.BallSpin;
-                    ballStateSync = currentBall.GetComponent<PongBallStateSync>();
+                    ballStateSync = currentBall.GetComponent<BallStateSync>();
                 }
             }
         }
@@ -471,7 +471,7 @@ namespace PongHub.UI
 
             if (ballAttachmentText != null)
             {
-                var attachment = currentBall.GetComponent<PongBallAttachment>();
+                var attachment = currentBall.GetComponent<BallAttachment>();
                 if (attachment != null)
                 {
                     ballAttachmentText.text = attachment.IsAttached ?
@@ -595,7 +595,7 @@ namespace PongHub.UI
 
         private void OnSpawnBall()
         {
-            var spawner = PongBallSpawner.Instance;
+            var spawner = BallSpawner.Instance;
             if (spawner != null)
             {
                 spawner.SpawnBallForPlayerServerRpc();

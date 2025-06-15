@@ -8,7 +8,7 @@ using PongHub.Arena.Services;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     /// <summary>
     /// 乒乓球网络管理脚本
@@ -262,12 +262,12 @@ namespace PongHub.Ball
                 if (inputManager.IsLeftHandHoldingPaddle)
                 {
                     // 左手持拍，返回右手
-                    return LocalPlayerEntities.Instance.RightGloveHand?.transform;
+                    return LocalPlayerEntities.Instance.RightPaddle?.transform;
                 }
                 else
                 {
                     // 右手持拍或无持拍，返回左手
-                    return LocalPlayerEntities.Instance.LeftGloveHand?.transform;
+                    return LocalPlayerEntities.Instance.LeftPaddle?.transform;
                 }
             }
             else
@@ -277,7 +277,7 @@ namespace PongHub.Ball
                 if (playerObjects == null) return null;
 
                 // 简化处理：默认返回左手（实际实现中需要获取该玩家的持拍状态）
-                return playerObjects.LeftGloveHand?.transform;
+                return playerObjects.LeftPaddle?.transform;
             }
         }
 

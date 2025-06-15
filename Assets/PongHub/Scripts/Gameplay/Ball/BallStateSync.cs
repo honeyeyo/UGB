@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     /// <summary>
     /// 乒乓球状态同步脚本 - 处理球状态的网络同步
@@ -59,9 +59,9 @@ namespace PongHub.Ball
 
         // 组件引用
         private Rigidbody ballRigidbody;
-        private PongBallNetworking ballNetworking;
-        private PongBallSpin ballSpin;
-        private PongBallAttachment ballAttachment;
+        private BallNetworking ballNetworking;
+        private BallSpin ballSpin;
+        private BallAttachment ballAttachment;
 
         // 同步状态
         private Vector3 lastSentPosition;
@@ -81,9 +81,9 @@ namespace PongHub.Ball
         {
             // 获取组件引用
             ballRigidbody = GetComponent<Rigidbody>();
-            ballNetworking = GetComponent<PongBallNetworking>();
-            ballSpin = GetComponent<PongBallSpin>();
-            ballAttachment = GetComponent<PongBallAttachment>();
+            ballNetworking = GetComponent<BallNetworking>();
+            ballSpin = GetComponent<BallSpin>();
+            ballAttachment = GetComponent<BallAttachment>();
         }
 
         private void Start()
@@ -582,7 +582,7 @@ namespace PongHub.Ball
         {
             if (enableDebugLog)
             {
-                Debug.Log($"[PongBallStateSync] {message}");
+                Debug.Log($"[BallStateSync] {message}");
             }
         }
 

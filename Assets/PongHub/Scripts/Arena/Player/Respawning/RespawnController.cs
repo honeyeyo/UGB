@@ -112,7 +112,7 @@ namespace PongHub.Arena.Player.Respawning
                     return;
                 }
 
-                m_playerController.ClearInvulnerability();
+                // 移除了无敌状态相关代码
                 if (!wasKnockedOut && isKnockedOut) // Just got knocked out
                 {
                     m_hud.DisplayText(true);
@@ -248,7 +248,7 @@ namespace PongHub.Arena.Player.Respawning
                 PlayerInputController.Instance.InputEnabled = true;
             }
 
-            // invulnerable for 1 sec
+            // 等待1秒后完全恢复
             yield return new WaitForSeconds(1f);
             m_collider.enabled = true;
             m_respawnEffect.SetActive(false);

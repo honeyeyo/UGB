@@ -1,7 +1,7 @@
 using UnityEngine;
 using PongHub.Core;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     [RequireComponent(typeof(BallPhysics))]
     [RequireComponent(typeof(BallSpinVisual))]

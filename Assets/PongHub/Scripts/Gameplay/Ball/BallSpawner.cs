@@ -7,7 +7,7 @@ using UnityEngine;
 using PongHub.Arena.Gameplay;
 using PongHub.Networking.Pooling;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     /// <summary>
     /// 乒乓球生成器 - 管理乒乓球的生成、销毁和回收
@@ -36,7 +36,7 @@ namespace PongHub.Ball
         [Header("对象池")]
         [SerializeField] private NetworkObjectPool ballPool;               // 球对象池
         [SerializeField] private int poolInitialSize = 5;                  // 对象池初始大小
-        [SerializeField] private int poolMaxSize = 10;                     // 对象池最大大小（预留用于扩展）
+        // [SerializeField] private int poolMaxSize = 10;                     // 对象池最大大小（预留用于扩展）
 
         [Header("调试设置")]
         [SerializeField] private bool enableDebugLog = true;               // 启用调试日志
@@ -44,15 +44,15 @@ namespace PongHub.Ball
         #endregion
 
         #region Private Fields
-        private readonly List<PongBallNetworking> activeBalls = new();     // 活跃球列表
-        private readonly Dictionary<ulong, PongBallNetworking> playerBalls = new(); // 玩家球映射
+        private readonly List<BallNetworking> activeBalls = new();     // 活跃球列表
+        private readonly Dictionary<ulong, BallNetworking> playerBalls = new(); // 玩家球映射
         private WaitForSeconds respawnWait;                                 // 重生等待
         private int nextSpawnPointIndex = 0;                               // 下一个生成点索引
         #endregion
 
         #region Events
-        public static event System.Action<PongBallNetworking> OnBallSpawned;  // 球生成事件
-        public static event System.Action<PongBallNetworking> OnBallDespawned; // 球销毁事件
+        public static event System.Action<BallNetworking> OnBallSpawned;  // 球生成事件
+        public static event System.Action<BallNetworking> OnBallDespawned; // 球销毁事件
         public static event System.Action<int> OnActiveBallCountChanged;       // 活跃球数量变化
         #endregion
 
@@ -114,19 +114,19 @@ namespace PongHub.Ball
             // 验证必需组件
             if (pongBallPrefab == null)
             {
-                Debug.LogError("PongBallSpawner: 未设置乒乓球预制件");
+                Debug.LogError("BallSpawner: 未设置乒乓球预制件");
                 return;
             }
 
             if (ballPool == null)
             {
-                Debug.LogWarning("PongBallSpawner: 未设置对象池，将使用直接实例化");
+                Debug.LogWarning("BallSpawner: 未设置对象池，将使用直接实例化");
             }
 
             // 验证生成点
             if (ballSpawnPoints == null || ballSpawnPoints.Length == 0)
             {
-                Debug.LogWarning("PongBallSpawner: 未设置生成点，将使用默认位置");
+                Debug.LogWarning("BallSpawner: 未设置生成点，将使用默认位置");
             }
 
             LogDebug("乒乓球生成器初始化完成");
@@ -200,7 +200,7 @@ namespace PongHub.Ball
         /// <param name="position">生成位置</param>
         /// <param name="rotation">生成旋转</param>
         /// <returns>生成的球</returns>
-        public PongBallNetworking SpawnBallAtPosition(Vector3 position, Quaternion rotation)
+        public BallNetworking SpawnBallAtPosition(Vector3 position, Quaternion rotation)
         {
             if (!IsServer) return null;
 
@@ -214,7 +214,7 @@ namespace PongHub.Ball
         /// <param name="position">生成位置（可选）</param>
         /// <param name="rotation">生成旋转（可选）</param>
         /// <returns>生成的球</returns>
-        private PongBallNetworking SpawnBallInternal(ulong playerId, Vector3? position = null, Quaternion? rotation = null)
+        private BallNetworking SpawnBallInternal(ulong playerId, Vector3? position = null, Quaternion? rotation = null)
         {
             // 确定生成位置和旋转
             Vector3 spawnPos = position ?? GetNextSpawnPosition();
@@ -235,7 +235,7 @@ namespace PongHub.Ball
 
             if (ballNetworkObject == null)
             {
-                Debug.LogError("PongBallSpawner: 无法获取球网络对象");
+                Debug.LogError("BallSpawner: 无法获取球网络对象");
                 return null;
             }
 
@@ -246,10 +246,10 @@ namespace PongHub.Ball
             }
 
             // 获取球组件
-            var ballComponent = ballNetworkObject.GetComponent<PongBallNetworking>();
+            var ballComponent = ballNetworkObject.GetComponent<BallNetworking>();
             if (ballComponent == null)
             {
-                Debug.LogError("PongBallSpawner: 球预制件缺少 PongBallNetworking 组件");
+                Debug.LogError("BallSpawner: 球预制件缺少 BallNetworking 组件");
                 return null;
             }
 
@@ -264,7 +264,7 @@ namespace PongHub.Ball
         /// </summary>
         /// <param name="ball">球组件</param>
         /// <param name="playerId">关联的玩家ID</param>
-        private void RegisterBall(PongBallNetworking ball, ulong playerId)
+        private void RegisterBall(BallNetworking ball, ulong playerId)
         {
             // 添加到活跃球列表
             activeBalls.Add(ball);
@@ -292,7 +292,7 @@ namespace PongHub.Ball
         /// </summary>
         /// <param name="ball">要销毁的球</param>
         /// <param name="immediately">是否立即销毁</param>
-        public void DespawnBall(PongBallNetworking ball, bool immediately = false)
+        public void DespawnBall(BallNetworking ball, bool immediately = false)
         {
             if (!IsServer || ball == null) return;
 
@@ -311,7 +311,7 @@ namespace PongHub.Ball
         /// </summary>
         /// <param name="ball">要销毁的球</param>
         /// <returns>协程</returns>
-        private IEnumerator DespawnBallCoroutine(PongBallNetworking ball)
+        private IEnumerator DespawnBallCoroutine(BallNetworking ball)
         {
             yield return respawnWait;
 
@@ -325,7 +325,7 @@ namespace PongHub.Ball
         /// 立即销毁球
         /// </summary>
         /// <param name="ball">要销毁的球</param>
-        private void DespawnBallNow(PongBallNetworking ball)
+        private void DespawnBallNow(BallNetworking ball)
         {
             if (ball == null) return;
 
@@ -351,7 +351,7 @@ namespace PongHub.Ball
         {
             if (!IsServer) return;
 
-            var ballsToRemove = new List<PongBallNetworking>(activeBalls);
+            var ballsToRemove = new List<BallNetworking>(activeBalls);
             foreach (var ball in ballsToRemove)
             {
                 DespawnBallNow(ball);
@@ -364,7 +364,7 @@ namespace PongHub.Ball
         /// 从管理系统注销球
         /// </summary>
         /// <param name="ball">球组件</param>
-        private void UnregisterBall(PongBallNetworking ball)
+        private void UnregisterBall(BallNetworking ball)
         {
             // 取消订阅事件
             ball.BallDied -= OnBallDied;
@@ -401,7 +401,7 @@ namespace PongHub.Ball
         /// </summary>
         /// <param name="ball">死亡的球</param>
         /// <param name="immediately">是否立即处理</param>
-        private void OnBallDied(PongBallNetworking ball, bool immediately)
+        private void OnBallDied(BallNetworking ball, bool immediately)
         {
             LogDebug($"球已死亡，立即处理: {immediately}");
             DespawnBall(ball, immediately);
@@ -563,7 +563,7 @@ namespace PongHub.Ball
         /// </summary>
         /// <param name="playerId">玩家ID</param>
         /// <returns>玩家的球，如果没有则返回null</returns>
-        public PongBallNetworking GetPlayerBall(ulong playerId)
+        public BallNetworking GetPlayerBall(ulong playerId)
         {
             playerBalls.TryGetValue(playerId, out var ball);
             return ball;
@@ -573,9 +573,9 @@ namespace PongHub.Ball
         /// 获取所有活跃球
         /// </summary>
         /// <returns>活跃球列表副本</returns>
-        public List<PongBallNetworking> GetActiveBalls()
+        public List<BallNetworking> GetActiveBalls()
         {
-            return new List<PongBallNetworking>(activeBalls);
+            return new List<BallNetworking>(activeBalls);
         }
 
         /// <summary>
@@ -615,7 +615,7 @@ namespace PongHub.Ball
         {
             if (enableDebugLog)
             {
-                Debug.Log($"[PongBallSpawner] {message}");
+                Debug.Log($"[BallSpawner] {message}");
             }
         }
 

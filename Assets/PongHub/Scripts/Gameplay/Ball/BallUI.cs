@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using PongHub.Core;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     public class BallUI : MonoBehaviour
     {

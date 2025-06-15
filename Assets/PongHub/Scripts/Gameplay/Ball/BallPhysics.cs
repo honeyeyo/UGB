@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Threading.Tasks;
 using PongHub.Core;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     public enum BallState
     {

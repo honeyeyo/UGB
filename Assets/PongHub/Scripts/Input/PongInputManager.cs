@@ -4,6 +4,8 @@ using Meta.Utilities.Input;
 using System;
 using System.Collections;
 
+using PongHub.Gameplay.Ball;
+
 /// <summary>
 /// PongInputManager - 优化版本
 /// 解决性能问题，引入事件系统，改善代码架构
@@ -324,9 +326,9 @@ public class PongInputManager : MonoBehaviour
     /// 查找当前附着的球
     /// </summary>
     /// <returns>附着的球组件，如果没有则返回null</returns>
-    private PongHub.Arena.Balls.PongBallNetworking FindAttachedBall()
+    private BallNetworking FindAttachedBall()
     {
-        var allBalls = FindObjectsOfType<PongHub.Arena.Balls.PongBallNetworking>();
+        var allBalls = FindObjectsOfType<BallNetworking>();
         foreach (var ball in allBalls)
         {
             if (ball.IsAttached && ball.AttachedPlayerId == Unity.Netcode.NetworkManager.Singleton.LocalClientId)
@@ -342,7 +344,7 @@ public class PongInputManager : MonoBehaviour
     /// </summary>
     /// <param name="ball">要释放的球</param>
     /// <param name="fromLeftHand">是否来自左手</param>
-    private void ReleaseBall(PongHub.Arena.Balls.PongBallNetworking ball, bool fromLeftHand)
+    private void ReleaseBall(BallNetworking ball, bool fromLeftHand)
     {
         // 获取手部锚点
         Transform handAnchor = xrInputManager.GetAnchor(fromLeftHand);
@@ -500,7 +502,7 @@ public class PongInputManager : MonoBehaviour
         }
 
         // 查找乒乓球网络组件并请求生成球
-        var pongBallNetworking = FindObjectOfType<PongHub.Arena.Balls.PongBallNetworking>();
+        var pongBallNetworking = FindObjectOfType<BallNetworking>();
         if (pongBallNetworking != null)
         {
             // 使用网络系统生成球
@@ -515,7 +517,7 @@ public class PongInputManager : MonoBehaviour
             GameObject ball = Instantiate(ballPrefab, spawnPosition, Quaternion.identity);
 
             // 附着到手部而非直接发射
-            var ballAttachment = ball.GetComponent<PongHub.Arena.Balls.PongBallAttachment>();
+            var ballAttachment = ball.GetComponent<BallAttachment>();
             if (ballAttachment != null)
             {
                 ballAttachment.AttachToNonPaddleHand(handAnchor);

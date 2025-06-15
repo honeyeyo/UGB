@@ -4,7 +4,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     /// <summary>
     /// 物理材质配置管理器

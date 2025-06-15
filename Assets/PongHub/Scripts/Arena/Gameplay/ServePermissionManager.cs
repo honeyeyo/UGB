@@ -24,14 +24,14 @@ namespace PongHub.Arena.Gameplay
 
         #region Serialized Fields
         [Header("比赛设置")]
-        [SerializeField] private int servesPerPlayer = 2;          // 每人连续发球数（预留功能）
+        // [SerializeField] private int servesPerPlayer = 2;          // 每人连续发球数（预留功能）
         [SerializeField] private int serveRotationScore = 2;       // 每几分轮换发球权
         [SerializeField] private int maxScore = 11;                // 最高分数
         [SerializeField] private bool enableDeuce = true;          // 是否启用平分规则
 
         [Header("调试设置")]
         [SerializeField] private bool enableDebugLog = true;       // 启用调试日志
-        [SerializeField] private bool showPermissionUI = true;     // 显示权限UI（预留功能）
+        // [SerializeField] private bool showPermissionUI = true;     // 显示权限UI（预留功能）
         #endregion
 
         #region Network Variables

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace PongHub.Ball
+namespace PongHub.Gameplay.Ball
 {
     [CreateAssetMenu(fileName = "BallData", menuName = "PongHub/Ball/BallData")]
     public class BallData : ScriptableObject

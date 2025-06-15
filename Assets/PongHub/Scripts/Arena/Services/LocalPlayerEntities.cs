@@ -7,13 +7,14 @@ using Oculus.Interaction.Input;
 using PongHub.App;
 using PongHub.Arena.Gameplay;
 using PongHub.Arena.Player;
+using PongHub.Gameplay.Paddle;
 using Unity.Netcode;
 
 namespace PongHub.Arena.Services
 {
     /// <summary>
     /// 跟踪玩家实体。
-    /// 在根级别,我们有本地玩家实体(玩家控制器、手套、手套骨架、头像),
+    /// 在根级别,我们有本地玩家实体(玩家控制器、球拍、头像),
     /// 然后我们跟踪每个其他玩家的游戏对象以便于引用。
     /// 它实现了一个自定义逻辑来设置本地玩家实体,当所有实体都加载完成时。
     /// 这是必要的,因为不同的实体是可以按任意顺序加载的不同网络对象,
@@ -26,6 +27,10 @@ namespace PongHub.Arena.Services
 
         // 玩家头像实体
         public PlayerAvatarEntity Avatar;
+
+        // 左右球拍引用
+        public Paddle LeftPaddle;
+        public Paddle RightPaddle;
 
         // 本地玩家的游戏对象集合
         private readonly PlayerGameObjects m_localPlayerGameObjects = new();
@@ -83,77 +88,50 @@ namespace PongHub.Arena.Services
             return playerData;
         }
 
-        // /// <summary>
-        // /// 尝试附加手套到玩家身上
-        // /// 只有当所有必要组件都加载完成时才会执行
-        // /// </summary>
-        // public void TryAttachGloves()
-        // {
-        //     // 检查所有必要组件是否都已加载
-        //     if (LeftGloveHand == null || RightGloveHand == null ||
-        //         LeftGloveArmature == null || RightGloveArmature == null ||
-        //         Avatar == null || !Avatar.IsSkeletonReady)
-        //     {
-        //         return;
-        //     }
+        /// <summary>
+        /// 尝试附加球拍到玩家身上
+        /// 只有当所有必要组件都加载完成时才会执行
+        /// </summary>
+        public void TryAttachPaddles()
+        {
+            // 检查所有必要组件是否都已加载
+            if (LeftPaddle == null || RightPaddle == null ||
+                Avatar == null || !Avatar.IsSkeletonReady)
+            {
+                return;
+            }
 
-        //     // 确保本地玩家ID在列表中
-        //     if (!PlayerIds.Contains(NetworkManager.Singleton.LocalClientId))
-        //     {
-        //         PlayerIds.Add(NetworkManager.Singleton.LocalClientId);
-        //     }
+            // 确保本地玩家ID在列表中
+            if (!PlayerIds.Contains(NetworkManager.Singleton.LocalClientId))
+            {
+                PlayerIds.Add(NetworkManager.Singleton.LocalClientId);
+            }
 
-        //     // 设置本地玩家的所有游戏对象
-        //     m_localPlayerGameObjects.Avatar = Avatar;
-        //     m_localPlayerGameObjects.PlayerController = LocalPlayerController;
-        //     m_localPlayerGameObjects.LeftGloveArmature = LeftGloveArmature;
-        //     m_localPlayerGameObjects.LeftGloveHand = LeftGloveHand;
-        //     m_localPlayerGameObjects.RightGloveArmature = RightGloveArmature;
-        //     m_localPlayerGameObjects.RightGloveHand = RightGloveHand;
-        //     m_localPlayerGameObjects.TryAttachObjects();
+            // 设置本地玩家的所有游戏对象
+            m_localPlayerGameObjects.Avatar = Avatar;
+            m_localPlayerGameObjects.PlayerController = LocalPlayerController;
+            m_localPlayerGameObjects.LeftPaddle = LeftPaddle;
+            m_localPlayerGameObjects.RightPaddle = RightPaddle;
+            m_localPlayerGameObjects.TryAttachObjects();
 
-        //     // 注册手套移动启用状态回调
-        //     LeftGloveHand.IsMovementEnabled += IsMovementEnabled;
-        //     RightGloveHand.IsMovementEnabled += IsMovementEnabled;
+            // 根据玩家队伍设置移动限制范围
+            var team = Avatar.GetComponent<NetworkedTeam>().MyTeam;
+            if (team == NetworkedTeam.Team.TeamA)
+            {
+                PlayerMovement.Instance.SetLimits(-4.5f, 4.5f, -9, -1f);
+            }
+            else if (team == NetworkedTeam.Team.TeamB)
+            {
+                PlayerMovement.Instance.SetLimits(-4.5f, 4.5f, 1f, 9);
+            }
+            else
+            {
+                PlayerMovement.Instance.SetLimits(-4.5f, 4.5f, -9, 9);
+            }
 
-        //     // 查找并设置射线交互器,用于UI交互
-        //     var interactors = FindObjectsOfType<RayInteractor>();
-        //     foreach (var interactor in interactors)
-        //     {
-        //         if (interactor.GetComponent<ControllerRef>().Handedness == Handedness.Left)
-        //         {
-        //             LeftGloveHand.SetRayInteractor(interactor);
-        //         }
-        //         else
-        //         {
-        //             RightGloveHand.SetRayInteractor(interactor);
-        //         }
-        //     }
-
-        //     // 设置玩家控制器的手套和骨架引用
-        //     LocalPlayerController.ArmatureLeft = LeftGloveArmature;
-        //     LocalPlayerController.ArmatureRight = RightGloveArmature;
-        //     LocalPlayerController.GloveRight = RightGloveHand.GloveNetworkComponent;
-        //     LocalPlayerController.GloveLeft = LeftGloveHand.GloveNetworkComponent;
-
-        //     // 根据玩家队伍设置移动限制范围
-        //     var team = Avatar.GetComponent<NetworkedTeam>().MyTeam;
-        //     if (team == NetworkedTeam.Team.TeamA)
-        //     {
-        //         PlayerMovement.Instance.SetLimits(-4.5f, 4.5f, -9, -1f);
-        //     }
-        //     else if (team == NetworkedTeam.Team.TeamB)
-        //     {
-        //         PlayerMovement.Instance.SetLimits(-4.5f, 4.5f, 1f, 9);
-        //     }
-        //     else
-        //     {
-        //         PlayerMovement.Instance.SetLimits(-4.5f, 4.5f, -9, 9);
-        //     }
-
-        //     // 本地玩家加载完成,淡入画面
-        //     OVRScreenFade.instance.FadeIn();
-        // }
+            // 本地玩家加载完成,淡入画面
+            OVRScreenFade.instance.FadeIn();
+        }
 
         /// <summary>
         /// 检查玩家移动是否启用
