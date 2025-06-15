@@ -2098,12 +2098,6 @@ MonoBehaviour:
   m_avatar: {fileID: 4607294478261916853}
   m_networkedTeam: {fileID: 240283869617272425}
   m_respawnController: {fileID: 6606995026302884376}
-  ArmatureRight: {fileID: 0}
-  ArmatureLeft: {fileID: 0}
-  GloveRight: {fileID: 0}
-  GloveLeft: {fileID: 0}
-  IsInvulnerable:
-    m_InternalValue: 0
 --- !u!114 &4905773132181324928
 MonoBehaviour:
   m_ObjectHideFlags: 0
