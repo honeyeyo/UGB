@@ -121,25 +121,138 @@ namespace PongHub.App
         /// </summary>
         private async void Start()
         {
-            await InitializeAsync();
+            Debug.Log("=== PHApplication.Start() 开始 ===");
+
+            try
+            {
+                // 第一步：启动原始的Oculus初始化协程
+                Debug.Log("启动原始Init()协程 - Oculus平台初始化...");
+                StartCoroutine(InitOculusAndNetwork());
+
+                // 第二步：并行执行游戏系统初始化
+                Debug.Log("开始游戏系统初始化...");
+                await InitializeAsync();
+
+                Debug.Log("=== PHApplication.Start() 完成 ===");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"PHApplication.Start() 发生异常: {ex.Message}");
+                Debug.LogException(ex);
+            }
         }
 
+        /// <summary>
+        /// 重命名并保持原始的Oculus初始化流程
+        /// </summary>
+        private IEnumerator InitOculusAndNetwork()
+        {
+            Debug.Log("=== InitOculusAndNetwork() 协程开始 ===");
+
+            try
+            {
+                Debug.Log("步骤1: 初始化Oculus模块...");
+                _ = InitializeOculusModules();
+
+                Debug.Log("步骤2: 初始化PlayerPresenceHandler...");
+                PlayerPresenceHandler = new PlayerPresenceHandler();
+                yield return PlayerPresenceHandler.Init();
+                Debug.Log("PlayerPresenceHandler初始化完成");
+
+#if !UNITY_EDITOR && !UNITY_STANDALONE_WIN
+                Debug.Log("步骤3: 头显模式, 等待获取用户名...");
+                yield return new WaitUntil(() => !string.IsNullOrWhiteSpace(LocalPlayerState.Username));
+                Debug.Log($"获取到用户名: {LocalPlayerState.Username}");
+#else
+                Debug.Log("步骤3: Editor模式，设置启动类型为Normal");
+                m_launchType = LaunchType.Normal;
+#endif
+
+                Debug.Log("步骤4: 初始化BlockUserManager...");
+                _ = BlockUserManager.Instance.Initialize();
+
+                Debug.Log("步骤5: 创建NavigationController...");
+                NavigationController = new NavigationController(this, NetworkLayer, LocalPlayerState, PlayerPresenceHandler);
+
+                Debug.Log("步骤6: 创建NetworkStateHandler...");
+                NetworkStateHandler = new NetworkStateHandler(this, NetworkLayer, NavigationController, Voip,
+                    LocalPlayerState, PlayerPresenceHandler, InstantiateSession);
+
+                Debug.Log("步骤7: 获取IAP产品信息...");
+                IAPManager.Instance.FetchProducts(UserIconManager.Instance.AllSkus, ProductCategories.ICONS);
+                IAPManager.Instance.FetchProducts(new[] { ProductCategories.CAT }, ProductCategories.CONSUMABLES);
+                IAPManager.Instance.FetchPurchases();
+
+                Debug.Log($"步骤8: 处理启动类型 - {m_launchType}");
+                if (m_launchType == LaunchType.Normal)
+                {
+                    if (LocalPlayerState.HasCustomAppId)
+                    {
+                        Debug.Log($"生成群组存在状态 - Arena: {LocalPlayerState.ApplicationID}");
+                        StartCoroutine(PlayerPresenceHandler.GenerateNewGroupPresence(
+                            "Arena",
+                            $"{LocalPlayerState.ApplicationID}"));
+                    }
+                    else
+                    {
+                        Debug.Log("生成群组存在状态 - MainMenu");
+                        StartCoroutine(PlayerPresenceHandler.GenerateNewGroupPresence("MainMenu"));
+                    }
+                }
+
+                Debug.Log("步骤9: 等待群组存在状态...");
+                yield return new WaitUntil(() => PlayerPresenceHandler.GroupPresenceState is { Destination: { } });
+                Debug.Log($"群组存在状态就绪: {PlayerPresenceHandler.GroupPresenceState.Destination}");
+
+                Debug.Log("步骤10: 初始化网络层...");
+                NetworkLayer.Init(
+                    PlayerPresenceHandler.GroupPresenceState.LobbySessionID,
+                    PlayerPresenceHandler.GetRegionFromDestination(PlayerPresenceHandler.GroupPresenceState.Destination));
+
+                Debug.Log("=== InitOculusAndNetwork() 协程完成 ===");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"InitOculusAndNetwork() 协程发生异常: {ex.Message}");
+                Debug.LogException(ex);
+            }
+        }
+
+        /// <summary>
+        /// 保持原有的 InitializeAsync() 方法不变，但添加更多日志
+        /// </summary>
         private async Task InitializeAsync()
         {
+            Debug.Log("=== InitializeAsync() 开始 ===");
+
             if (m_isInitialized)
+            {
+                Debug.Log("已经初始化过，跳过");
                 return;
+            }
 
-            // 初始化核心系统
-            await InitializeCoreSystems();
+            try
+            {
+                // 等待一下确保Oculus初始化开始
+                await Task.Delay(100);
 
-            // 初始化UI系统
-            await InitializeUISystems();
+                Debug.Log("开始初始化核心系统...");
+                await InitializeCoreSystems();
 
-            // 初始化游戏系统
-            await InitializeGameSystems();
+                Debug.Log("开始初始化UI系统...");
+                await InitializeUISystems();
 
-            m_isInitialized = true;
-            Debug.Log("PHApplication初始化完成");
+                Debug.Log("开始初始化游戏系统...");
+                await InitializeGameSystems();
+
+                m_isInitialized = true;
+                Debug.Log("=== InitializeAsync() 完成 ===");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"InitializeAsync() 发生异常: {ex.Message}");
+                Debug.LogException(ex);
+            }
         }
 
         private async Task InitializeCoreSystems()
@@ -229,105 +342,68 @@ namespace PongHub.App
         }
 
         /// <summary>
-        /// 初始化协程
-        /// 初始化Oculus模块、玩家存在处理器、导航控制器和网络状态处理器
-        /// 获取产品信息和购买记录
-        /// 设置群组存在状态并初始化网络层
-        /// </summary>
-        private IEnumerator Init()
-        {
-            _ = InitializeOculusModules();
-
-            // 初始化玩家存在处理器
-            PlayerPresenceHandler = new PlayerPresenceHandler();
-            yield return PlayerPresenceHandler.Init();
-#if !UNITY_EDITOR && !UNITY_STANDALONE_WIN
-            yield return new WaitUntil(() => !string.IsNullOrWhiteSpace(LocalPlayerState.Username));
-#else
-            m_launchType = LaunchType.Normal;
-#endif
-            _ = BlockUserManager.Instance.Initialize();
-            NavigationController =
-                new NavigationController(this, NetworkLayer, LocalPlayerState, PlayerPresenceHandler);
-            NetworkStateHandler = new NetworkStateHandler(this, NetworkLayer, NavigationController, Voip,
-                LocalPlayerState, PlayerPresenceHandler, InstantiateSession);
-
-            // 获取当前登录用户的产品和购买记录
-            // 获取所有图标产品
-            IAPManager.Instance.FetchProducts(UserIconManager.Instance.AllSkus, ProductCategories.ICONS);
-            // 获取猫消耗品
-            IAPManager.Instance.FetchProducts(new[] { ProductCategories.CAT }, ProductCategories.CONSUMABLES);
-            IAPManager.Instance.FetchPurchases();
-
-            if (m_launchType == LaunchType.Normal)
-            {
-                if (LocalPlayerState.HasCustomAppId)
-                {
-                    StartCoroutine(PlayerPresenceHandler.GenerateNewGroupPresence(
-                        "Arena",
-                        $"{LocalPlayerState.ApplicationID}"));
-                }
-                else
-                {
-                    StartCoroutine(
-                        PlayerPresenceHandler.GenerateNewGroupPresence(
-                            "MainMenu")
-                    );
-                }
-            }
-
-            yield return new WaitUntil(() => PlayerPresenceHandler.GroupPresenceState is { Destination: { } });
-
-            NetworkLayer.Init(
-                PlayerPresenceHandler.GroupPresenceState.LobbySessionID,
-                PlayerPresenceHandler.GetRegionFromDestination(PlayerPresenceHandler.GroupPresenceState.Destination));
-        }
-
-        /// <summary>
-        /// 初始化Oculus模块
-        /// 初始化Oculus平台SDK,检查用户权限,设置回调函数,获取用户信息
+        /// 改进 InitializeOculusModules，添加更详细的错误处理
         /// </summary>
         private async Task InitializeOculusModules()
         {
+            Debug.Log("=== InitializeOculusModules() 开始 ===");
+
             try
             {
+                Debug.Log("正在初始化Oculus Platform SDK...");
                 var coreInit = await Oculus.Platform.Core.AsyncInitialize().Gen();
                 if (coreInit.IsError)
                 {
-                    LogError("Failed to initialize Oculus Platform SDK", coreInit.GetError());
+                    LogError("Oculus Platform SDK初始化失败", coreInit.GetError());
+                    Debug.LogError("这可能导致应用卡在开屏！");
                     return;
                 }
+                Debug.Log("✓ Oculus Platform SDK初始化成功");
 
-                Debug.Log("Oculus Platform SDK initialized successfully");
-
+                Debug.Log("正在检查用户权限...");
                 var isUserEntitled = await Entitlements.IsUserEntitledToApplication().Gen();
                 if (isUserEntitled.IsError)
                 {
-                    LogError("You are not entitled to use this app", isUserEntitled.GetError());
+                    LogError("用户权限验证失败", isUserEntitled.GetError());
+                    Debug.LogError("这可能导致应用无法继续！");
                     return;
                 }
+                Debug.Log("✓ 用户权限验证通过");
 
                 m_launchType = ApplicationLifecycle.GetLaunchDetails().LaunchType;
+                Debug.Log($"✓ 启动类型: {m_launchType}");
 
+                Debug.Log("正在设置群组存在回调...");
                 GroupPresence.SetJoinIntentReceivedNotificationCallback(OnJoinIntentReceived);
                 GroupPresence.SetInvitationsSentNotificationCallback(OnInvitationsSent);
+                Debug.Log("✓ 群组存在回调设置完成");
 
+                Debug.Log("正在获取登录用户信息...");
                 var getLoggedInuser = await Users.GetLoggedInUser().Gen();
                 if (getLoggedInuser.IsError)
                 {
-                    LogError("Cannot get user info", getLoggedInuser.GetError());
+                    LogError("无法获取用户信息", getLoggedInuser.GetError());
+                    return;
+                }
+                Debug.Log($"✓ 用户ID: {getLoggedInuser.Data.ID}");
+
+                Debug.Log("正在获取用户详细信息...");
+                var getUser = await Users.Get(getLoggedInuser.Data.ID).Gen();
+                if (getUser.IsError)
+                {
+                    LogError("无法获取用户详细信息", getUser.GetError());
                     return;
                 }
 
-                // Workaround.
-                // At the moment, Platform.Users.GetLoggedInUser() seems to only be returning the user ID.
-                // Display name is blank.
-                // Platform.Users.Get(ulong userID) returns the display name.
-                var getUser = await Users.Get(getLoggedInuser.Data.ID).Gen();
+                Debug.Log($"✓ 用户显示名称: {getUser.Data.DisplayName}");
                 LocalPlayerState.Init(getUser.Data.DisplayName, getUser.Data.ID);
+
+                Debug.Log("=== InitializeOculusModules() 完成 ===");
             }
             catch (System.Exception exception)
             {
+                Debug.LogError($"InitializeOculusModules() 发生严重异常: {exception.Message}");
+                Debug.LogError("这很可能是导致应用卡在开屏的原因！");
                 Debug.LogException(exception);
             }
         }
