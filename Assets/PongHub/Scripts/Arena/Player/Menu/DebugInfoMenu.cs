@@ -19,7 +19,7 @@ namespace PongHub.Arena.Player.Menu
 
         private void OnEnable()
         {
-            m_regionText.text = NetworkRegionMapping.GetRegionShortName(UGBApplication.Instance.NetworkLayer.GetRegion());
+            m_regionText.text = NetworkRegionMapping.GetRegionShortName(PHApplication.Instance.NetworkLayer.GetRegion());
         }
 
         public override void OnUpdate()

@@ -101,7 +101,7 @@ namespace PongHub.Arena.Gameplay
         {
             m_currentGamePhase.OnValueChanged += OnPhaseChanged;
             m_gameStartTime.OnValueChanged += OnStartTimeChanged;
-            UGBApplication.Instance.NetworkLayer.OnHostLeftAndStartingMigration += OnHostMigrationStarted;
+            PHApplication.Instance.NetworkLayer.OnHostLeftAndStartingMigration += OnHostMigrationStarted;
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace PongHub.Arena.Gameplay
         {
             m_currentGamePhase.OnValueChanged -= OnPhaseChanged;
             m_gameStartTime.OnValueChanged -= OnStartTimeChanged;
-            UGBApplication.Instance.NetworkLayer.OnHostLeftAndStartingMigration -= OnHostMigrationStarted;
+            PHApplication.Instance.NetworkLayer.OnHostLeftAndStartingMigration -= OnHostMigrationStarted;
         }
 
         /// <summary>

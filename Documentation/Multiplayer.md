@@ -48,7 +48,7 @@
 
 ## 群组启动和邀请
 
-当用户启动群组启动到竞技场或用户相互邀请到现有竞技场时，我们在 [UGBApplication](../Assets/PongHub/Scripts/App/UGBApplication.cs) 中处理这些情况。这是我们检查意图信息并基于该信息触发适当导航流程的地方。
+当用户启动群组启动到竞技场或用户相互邀请到现有竞技场时，我们在 [PHApplication](../Assets/PongHub/Scripts/App/PHApplication.cs) 中处理这些情况。这是我们检查意图信息并基于该信息触发适当导航流程的地方。
 
 对于这个项目，所需的核心信息是目标API和lobbySessionId。lobbySessionId用作要加入的房间名称，目标API将指示要加入的区域。一旦我们处理了该信息，我们调用导航控制器，它将带我们到正确的竞技场并设置我们的群组状态。
 

@@ -74,7 +74,7 @@ namespace PongHub.MainMenu
             List<TMP_Dropdown.OptionData> options = new();
 
             // 获取网络层和当前区域信息
-            var networkLayer = UGBApplication.Instance.NetworkLayer;
+            var networkLayer = PHApplication.Instance.NetworkLayer;
             var currentRegion = networkLayer.GetRegion();
             var selected = -1;
             var index = 0;
@@ -146,7 +146,7 @@ namespace PongHub.MainMenu
             {
                 return;
             }
-            var networkLayer = UGBApplication.Instance.NetworkLayer;
+            var networkLayer = PHApplication.Instance.NetworkLayer;
             networkLayer.SetRegion(networkLayer.EnabledRegions[region].Code);
         }
     }

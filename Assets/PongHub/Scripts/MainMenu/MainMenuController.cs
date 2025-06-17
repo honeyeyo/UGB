@@ -89,7 +89,7 @@ namespace PongHub.MainMenu
         {
             Debug.Log("QUICK MATCH");
             DisableButtons();
-            UGBApplication.Instance.NavigationController.NavigateToMatch(false);
+            PHApplication.Instance.NavigationController.NavigateToMatch(false);
             m_menuMusicFader.FadeOut();
         }
 
@@ -100,7 +100,7 @@ namespace PongHub.MainMenu
         {
             Debug.Log("HOST MATCH");
             DisableButtons();
-            UGBApplication.Instance.NavigationController.NavigateToMatch(true);
+            PHApplication.Instance.NavigationController.NavigateToMatch(true);
             m_menuMusicFader.FadeOut();
         }
 
@@ -111,7 +111,7 @@ namespace PongHub.MainMenu
         {
             Debug.Log("WATCH MATCH");
             DisableButtons();
-            UGBApplication.Instance.NavigationController.WatchRandomMatch();
+            PHApplication.Instance.NavigationController.WatchRandomMatch();
             m_menuMusicFader.FadeOut();
         }
 

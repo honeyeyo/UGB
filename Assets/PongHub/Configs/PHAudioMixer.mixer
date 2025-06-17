@@ -6,7 +6,7 @@ AudioMixerEffectController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: 
+  m_Name:
   m_EffectID: 7ac57961afdb26c4c92483f89a5326dd
   m_EffectName: Attenuation
   m_MixLevel: 1370e2d40623b6748a29f21a8b65ef85
@@ -41,7 +41,7 @@ AudioMixerController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: UGBAudioMixer
+  m_Name: PHAudioMixer
   m_OutputGroup: {fileID: 0}
   m_MasterGroup: {fileID: 24300002}
   m_Snapshots:
@@ -94,7 +94,7 @@ AudioMixerEffectController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: 
+  m_Name:
   m_EffectID: 5d182365f27fae747bc285903909f7ed
   m_EffectName: Attenuation
   m_MixLevel: f651a280cc909094d9a9abefca0ca627
@@ -146,7 +146,7 @@ AudioMixerEffectController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: 
+  m_Name:
   m_EffectID: 79e78d127fec5b04885ee3ee2df5b579
   m_EffectName: Attenuation
   m_MixLevel: 218f6e37769178949819e37d66f0c224
@@ -179,7 +179,7 @@ AudioMixerEffectController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: 
+  m_Name:
   m_EffectID: 4da2d764d97331446b2d90cdec0ae3db
   m_EffectName: Attenuation
   m_MixLevel: 8186c6bf50646994089209cb422d124f
@@ -193,7 +193,7 @@ AudioMixerEffectController:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: 
+  m_Name:
   m_EffectID: 7b0d5ceaddb2a1544abe87d9905dd3a5
   m_EffectName: Attenuation
   m_MixLevel: 9c851a6db8ce4b54cb3f547146fdf787

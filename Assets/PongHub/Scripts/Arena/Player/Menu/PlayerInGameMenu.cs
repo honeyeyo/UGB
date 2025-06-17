@@ -170,7 +170,7 @@ namespace PongHub.Arena.Player.Menu
         /// </summary>
         public void OnQuitButtonClicked()
         {
-            UGBApplication.Instance.NavigationController.GoToMainMenu();
+            PHApplication.Instance.NavigationController.GoToMainMenu();
             _ = StartCoroutine(Disable());
         }
 

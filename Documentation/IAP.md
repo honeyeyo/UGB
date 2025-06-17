@@ -14,7 +14,7 @@
 
 然后我们有 [StoreMenuController](../Assets/PongHub/Scripts/MainMenu/StoreMenuController.cs)，它实现了如何购买产品和消耗消耗品购买的逻辑。图标使用从 IAPManager 获取的产品数据加载。
 
-获取产品和购买信息的逻辑可以在 [UGBApplication](../Assets/PongHub/Scripts/App/UGBApplication.cs) 的初始化代码中找到。我们在其中获取与不同类别关联的消耗品和耐用品。
+获取产品和购买信息的逻辑可以在 [PHApplication](../Assets/PongHub/Scripts/App/PHApplication.cs) 的初始化代码中找到。我们在其中获取与不同类别关联的消耗品和耐用品。
 
 ## 配置
 

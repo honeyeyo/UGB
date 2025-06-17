@@ -53,7 +53,7 @@ namespace PongHub.MainMenu
         public void OnJoinMatchClicked(string destinationAPI, string sessionId)
         {
             m_mainMenuController.DisableButtons();  // 禁用主菜单按钮
-            UGBApplication.Instance.NavigationController.JoinMatch(destinationAPI, sessionId);  // 加入游戏
+            PHApplication.Instance.NavigationController.JoinMatch(destinationAPI, sessionId);  // 加入游戏
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace PongHub.MainMenu
         public void OnWatchMatchClicked(string destinationAPI, string sessionId)
         {
             m_mainMenuController.DisableButtons();  // 禁用主菜单按钮
-            UGBApplication.Instance.NavigationController.WatchMatch(destinationAPI, sessionId);  // 观战游戏
+            PHApplication.Instance.NavigationController.WatchMatch(destinationAPI, sessionId);  // 观战游戏
         }
 
         /// <summary>

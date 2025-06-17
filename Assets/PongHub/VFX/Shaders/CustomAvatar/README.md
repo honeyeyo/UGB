@@ -10,9 +10,9 @@
 
 ## 核心文件说明
 
-### Avatar-Meta-UGB.shader
+### Avatar-Meta-PH.shader
 
-[Avatar-Meta-UGB.shader](./Avatar-Meta-UGB.shader) 是来自包的 `Style-2-Avatar-Meta` 的副本。我们需要这个副本是因为相对路径到 `app_specific` 实现和额外的着色器属性。
+[Avatar-Meta-PH.shader](./Avatar-Meta-PH.shader) 是来自包的 `Style-2-Avatar-Meta` 的副本。我们需要这个副本是因为相对路径到 `app_specific` 实现和额外的着色器属性。
 
 该着色器包含以下关键目录结构：
 - [app_specific](./app_specific) 目录
@@ -95,7 +95,7 @@
 title: Avatar特效系统文件结构
 ---
 graph TD
-    A[Avatar-Meta-UGB.shader] --> B[app_specific/]
+    A[Avatar-Meta-PH.shader] --> B[app_specific/]
     B --> C[app_declarations.hlsl]
     B --> D[app_functions.hlsl]
     B --> E[app_variants.hlsl]

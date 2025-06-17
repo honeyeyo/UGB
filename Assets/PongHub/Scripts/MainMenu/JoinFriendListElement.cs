@@ -51,7 +51,7 @@ namespace PongHub.MainMenu
             m_destinationText.text = user.PresenceStatus == UserPresenceStatus.Online
                 ? string.IsNullOrWhiteSpace(user.PresenceDestinationApiName)
                     ? user.Presence  // 如果没有目标API名称，显示一般状态
-                    : UGBApplication.Instance.PlayerPresenceHandler.GetDestinationDisplayName(
+                    : PHApplication.Instance.PlayerPresenceHandler.GetDestinationDisplayName(
                         user.PresenceDestinationApiName)  // 显示具体游戏场景名称
                 : "Offline";  // 离线状态
         }

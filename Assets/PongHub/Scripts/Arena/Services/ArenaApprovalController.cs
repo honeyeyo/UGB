@@ -162,7 +162,7 @@ namespace PongHub.Arena.Services
                         {
                             {PhotonConnectionHandler.PLAYER_SLOT_OPEN, 0}
                         };
-                        UGBApplication.Instance.NetworkLayer.SetRoomProperty(props);
+                        PHApplication.Instance.NetworkLayer.SetRoomProperty(props);
                         m_playersSetFull = true;
                     }
                 }
@@ -176,7 +176,7 @@ namespace PongHub.Arena.Services
                         {
                             {PhotonConnectionHandler.SPECTATOR_SLOT_OPEN, 0}
                         };
-                        UGBApplication.Instance.NetworkLayer.SetRoomProperty(props);
+                        PHApplication.Instance.NetworkLayer.SetRoomProperty(props);
                         m_spectatorsSetFull = true;
                     }
                 }
@@ -240,14 +240,14 @@ namespace PongHub.Arena.Services
             if (m_playersSetFull && m_playersClientIds.Count < MAX_PLAYER_COUNT)
             {
                 var props = new ExitGames.Client.Photon.Hashtable() { { PhotonConnectionHandler.PLAYER_SLOT_OPEN, 1 } };
-                UGBApplication.Instance.NetworkLayer.SetRoomProperty(props);
+                PHApplication.Instance.NetworkLayer.SetRoomProperty(props);
                 m_playersSetFull = false;
             }
 
             if (m_spectatorsSetFull && m_spectatorClientIds.Count < MAX_SPECTATOR_COUNT)
             {
                 var props = new ExitGames.Client.Photon.Hashtable() { { PhotonConnectionHandler.SPECTATOR_SLOT_OPEN, 1 } };
-                UGBApplication.Instance.NetworkLayer.SetRoomProperty(props);
+                PHApplication.Instance.NetworkLayer.SetRoomProperty(props);
                 m_spectatorsSetFull = false;
             }
 

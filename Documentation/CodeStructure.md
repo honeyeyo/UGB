@@ -24,7 +24,7 @@
 
 ### 应用程序
 
-应用程序通过 [UGBApplication](../Assets/PongHub/Scripts/App/UGBApplication.cs) 脚本启动。这是为应用程序的生命周期实例化主要系统的地方。它实现了通过应用程序导航的核心、网络逻辑的处理、用户群组状态的设置以及决定最初加载用户的位置。
+应用程序通过 [PHApplication](../Assets/PongHub/Scripts/App/PHApplication.cs) 脚本启动。这是为应用程序的生命周期实例化主要系统的地方。它实现了通过应用程序导航的核心、网络逻辑的处理、用户群组状态的设置以及决定最初加载用户的位置。
 
 在 [PongHub/Scripts/App](../Assets/PongHub/Scripts/App) 中，您将找到应用程序核心元素的实现。
 

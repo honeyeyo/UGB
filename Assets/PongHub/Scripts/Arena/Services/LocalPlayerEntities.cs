@@ -46,7 +46,7 @@ namespace PongHub.Arena.Services
         private void Start()
         {
             DontDestroyOnLoad(this);
-            var networkLayer = UGBApplication.Instance.NetworkLayer;
+            var networkLayer = PHApplication.Instance.NetworkLayer;
             networkLayer.OnClientDisconnectedCallback += OnClientDisconnected;
             networkLayer.StartHostCallback += OnHostStarted;
             networkLayer.RestoreHostCallback += OnHostStarted;
@@ -57,7 +57,7 @@ namespace PongHub.Arena.Services
         /// </summary>
         private void OnDestroy()
         {
-            var networkLayer = UGBApplication.Instance.NetworkLayer;
+            var networkLayer = PHApplication.Instance.NetworkLayer;
             networkLayer.OnClientDisconnectedCallback -= OnClientDisconnected;
             networkLayer.StartHostCallback -= OnHostStarted;
             networkLayer.RestoreHostCallback -= OnHostStarted;

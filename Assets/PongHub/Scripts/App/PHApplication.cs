@@ -23,7 +23,7 @@ namespace PongHub.App
     /// 这个单例类还暴露了可在整个应用程序中使用的控制器和处理器
     /// 初始化Oculus平台,在登录时获取玩家状态并处理加入意图
     /// </summary>
-    public class UGBApplication : Singleton<UGBApplication>
+    public class PHApplication : Singleton<PHApplication>
     {
         /// <summary>
         /// 网络层组件
@@ -139,7 +139,7 @@ namespace PongHub.App
             await InitializeGameSystems();
 
             m_isInitialized = true;
-            Debug.Log("UGBApplication初始化完成");
+            Debug.Log("PHApplication初始化完成");
         }
 
         private async Task InitializeCoreSystems()

@@ -19,12 +19,12 @@ namespace PongHub.Arena.Services
         {
             Debug.Assert(Instance == null, "Should have only one instance of SpawningManager");
             Instance = this;
-            UGBApplication.Instance.NetworkLayer.OnClientDisconnectedCallback += OnClientDisconnected;
+            PHApplication.Instance.NetworkLayer.OnClientDisconnectedCallback += OnClientDisconnected;
         }
 
         public override void OnDestroy()
         {
-            UGBApplication.Instance.NetworkLayer.OnClientDisconnectedCallback -= OnClientDisconnected;
+            PHApplication.Instance.NetworkLayer.OnClientDisconnectedCallback -= OnClientDisconnected;
             if (Instance == this)
             {
                 Instance = null;
