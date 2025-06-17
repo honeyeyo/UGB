@@ -126,7 +126,7 @@ namespace PongHub.App
             try
             {
                 // 第一步：启动原始的Oculus初始化协程
-                Debug.Log("启动原始Init()协程 - Oculus平台初始化...");
+                Debug.Log("启动原始InitOculusAndNetwork()协程 - Oculus平台初始化...");
                 StartCoroutine(InitOculusAndNetwork());
 
                 // 第二步：并行执行游戏系统初始化
@@ -149,25 +149,89 @@ namespace PongHub.App
         {
             Debug.Log("=== InitOculusAndNetwork() 协程开始 ===");
 
-            try
+            // 步骤1: 初始化Oculus模块
+            Debug.Log("步骤1: 初始化Oculus模块...");
+            _ = InitializeOculusModules();
+
+            // 步骤2: 初始化PlayerPresenceHandler
+            Debug.Log("步骤2: 初始化PlayerPresenceHandler...");
+            PlayerPresenceHandler = new PlayerPresenceHandler();
+
+            // 将yield语句移出try-catch块
+            var presenceInitCoroutine = PlayerPresenceHandler.Init();
+            if (presenceInitCoroutine != null)
             {
-                Debug.Log("步骤1: 初始化Oculus模块...");
-                _ = InitializeOculusModules();
-
-                Debug.Log("步骤2: 初始化PlayerPresenceHandler...");
-                PlayerPresenceHandler = new PlayerPresenceHandler();
-                yield return PlayerPresenceHandler.Init();
+                yield return presenceInitCoroutine;
                 Debug.Log("PlayerPresenceHandler初始化完成");
+            }
+            else
+            {
+                Debug.LogError("PlayerPresenceHandler.Init() 返回null");
+                yield break;
+            }
 
+            // 步骤3: 等待用户名
 #if !UNITY_EDITOR && !UNITY_STANDALONE_WIN
-                Debug.Log("步骤3: 头显模式, 等待获取用户名...");
-                yield return new WaitUntil(() => !string.IsNullOrWhiteSpace(LocalPlayerState.Username));
-                Debug.Log($"获取到用户名: {LocalPlayerState.Username}");
+            Debug.Log("步骤3: 等待获取用户名...");
+
+            // 将yield语句移出try-catch块
+            var waitForUsername = new WaitUntil(() => !string.IsNullOrWhiteSpace(LocalPlayerState.Username));
+            yield return waitForUsername;
+
+            if (string.IsNullOrWhiteSpace(LocalPlayerState.Username))
+            {
+                Debug.LogError("无法获取用户名");
+                yield break;
+            }
+            Debug.Log($"获取到用户名: {LocalPlayerState.Username}");
 #else
-                Debug.Log("步骤3: Editor模式，设置启动类型为Normal");
-                m_launchType = LaunchType.Normal;
+            Debug.Log("Editor模式，设置启动类型为Normal");
+            m_launchType = LaunchType.Normal;
 #endif
 
+            // 步骤4-7: 不需要yield的初始化
+            if (!InitializeManagers())
+            {
+                Debug.LogError("管理器初始化失败");
+                yield break;
+            }
+
+            // 步骤8: 处理启动类型
+            if (!HandleLaunchType())
+            {
+                Debug.LogError("启动类型处理失败");
+                yield break;
+            }
+
+            // 步骤9: 等待群组存在状态
+            Debug.Log("步骤9: 等待群组存在状态...");
+            var waitForGroupPresence = new WaitUntil(() => PlayerPresenceHandler.GroupPresenceState is { Destination: { } });
+            yield return waitForGroupPresence;
+
+            if (PlayerPresenceHandler.GroupPresenceState?.Destination == null)
+            {
+                Debug.LogError("群组存在状态获取失败");
+                yield break;
+            }
+            Debug.Log($"群组存在状态就绪: {PlayerPresenceHandler.GroupPresenceState.Destination}");
+
+            // 步骤10: 初始化网络层
+            if (!InitializeNetworkLayer())
+            {
+                Debug.LogError("网络层初始化失败");
+                yield break;
+            }
+
+            Debug.Log("=== InitOculusAndNetwork() 协程完成 ===");
+        }
+
+        /// <summary>
+        /// 初始化管理器（不需要yield的部分）
+        /// </summary>
+        private bool InitializeManagers()
+        {
+            try
+            {
                 Debug.Log("步骤4: 初始化BlockUserManager...");
                 _ = BlockUserManager.Instance.Initialize();
 
@@ -183,6 +247,23 @@ namespace PongHub.App
                 IAPManager.Instance.FetchProducts(new[] { ProductCategories.CAT }, ProductCategories.CONSUMABLES);
                 IAPManager.Instance.FetchPurchases();
 
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"InitializeManagers() 发生异常: {ex.Message}");
+                Debug.LogException(ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 处理启动类型
+        /// </summary>
+        private bool HandleLaunchType()
+        {
+            try
+            {
                 Debug.Log($"步骤8: 处理启动类型 - {m_launchType}");
                 if (m_launchType == LaunchType.Normal)
                 {
@@ -199,22 +280,34 @@ namespace PongHub.App
                         StartCoroutine(PlayerPresenceHandler.GenerateNewGroupPresence("MainMenu"));
                     }
                 }
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"HandleLaunchType() 发生异常: {ex.Message}");
+                Debug.LogException(ex);
+                return false;
+            }
+        }
 
-                Debug.Log("步骤9: 等待群组存在状态...");
-                yield return new WaitUntil(() => PlayerPresenceHandler.GroupPresenceState is { Destination: { } });
-                Debug.Log($"群组存在状态就绪: {PlayerPresenceHandler.GroupPresenceState.Destination}");
-
+        /// <summary>
+        /// 初始化网络层
+        /// </summary>
+        private bool InitializeNetworkLayer()
+        {
+            try
+            {
                 Debug.Log("步骤10: 初始化网络层...");
                 NetworkLayer.Init(
                     PlayerPresenceHandler.GroupPresenceState.LobbySessionID,
                     PlayerPresenceHandler.GetRegionFromDestination(PlayerPresenceHandler.GroupPresenceState.Destination));
-
-                Debug.Log("=== InitOculusAndNetwork() 协程完成 ===");
+                return true;
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"InitOculusAndNetwork() 协程发生异常: {ex.Message}");
+                Debug.LogError($"InitializeNetworkLayer() 发生异常: {ex.Message}");
                 Debug.LogException(ex);
+                return false;
             }
         }
 
@@ -257,28 +350,65 @@ namespace PongHub.App
 
         private async Task InitializeCoreSystems()
         {
-            // 初始化音频管理器
-            if (AudioManager.Instance != null)
-            {
-                await AudioManager.Instance.InitializeAsync();
-            }
+            Debug.Log("=== InitializeCoreSystems() 开始 ===");
 
-            // 初始化振动管理器
-            if (VibrationManager.Instance != null)
+            try
             {
-                await VibrationManager.Instance.InitializeAsync();
-            }
+                // 初始化音频管理器
+                if (AudioManager.Instance != null)
+                {
+                    Debug.Log("初始化 AudioManager...");
+                    await AudioManager.Instance.InitializeAsync();
+                    Debug.Log("AudioManager 初始化完成");
+                }
+                else
+                {
+                    Debug.LogWarning("AudioManager.Instance 为 null");
+                }
 
-            // 初始化网络管理器
-            if (PongHub.Networking.NetworkManager.Instance != null)
-            {
-                await PongHub.Networking.NetworkManager.Instance.InitializeAsync();
-            }
+                // 初始化振动管理器
+                if (VibrationManager.Instance != null)
+                {
+                    Debug.Log("初始化 VibrationManager...");
+                    await VibrationManager.Instance.InitializeAsync();
+                    Debug.Log("VibrationManager 初始化完成");
+                }
+                else
+                {
+                    Debug.LogWarning("VibrationManager.Instance 为 null");
+                }
 
-            // 初始化游戏核心
-            if (GameCore.Instance != null)
+                // 初始化网络管理器
+                if (PongHub.Networking.NetworkManager.Instance != null)
+                {
+                    Debug.Log("初始化 NetworkManager...");
+                    await PongHub.Networking.NetworkManager.Instance.InitializeAsync();
+                    Debug.Log("NetworkManager 初始化完成");
+                }
+                else
+                {
+                    Debug.LogWarning("NetworkManager.Instance 为 null");
+                }
+
+                // 初始化游戏核心
+                if (GameCore.Instance != null)
+                {
+                    Debug.Log("初始化 GameCore...");
+                    await GameCore.Instance.InitializeAsync();
+                    Debug.Log("GameCore 初始化完成");
+                }
+                else
+                {
+                    Debug.LogWarning("GameCore.Instance 为 null");
+                }
+
+                Debug.Log("=== InitializeCoreSystems() 完成 ===");
+            }
+            catch (System.Exception ex)
             {
-                await GameCore.Instance.InitializeAsync();
+                Debug.LogError($"InitializeCoreSystems() 发生异常: {ex.Message}");
+                Debug.LogException(ex);
+                throw;
             }
         }
 
