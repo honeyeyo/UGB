@@ -1,17 +1,17 @@
 ﻿/************************************************************************************
 
-Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.  
+Copyright (c) Facebook Technologies, LLC and its affiliates. All rights reserved.
 
-See SampleFramework license.txt for license terms.  Unless required by applicable law 
-or agreed to in writing, the sample code is provided “AS IS” WITHOUT WARRANTIES OR 
-CONDITIONS OF ANY KIND, either express or implied.  See the license for specific 
+See SampleFramework license.txt for license terms.  Unless required by applicable law
+or agreed to in writing, the sample code is provided “AS IS” WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied.  See the license for specific
 language governing permissions and limitations under the license.
 
 ************************************************************************************/
 
 // Copied from Oculus Sample/Procedural Gradient Skybox
 // added Instancing and Stereo support
-Shader "Ultimate Glove Ball/Procedural Gradient Skybox"
+Shader "PongHub/Procedural Gradient Skybox"
 {
   Properties
   {
@@ -25,7 +25,7 @@ Shader "Ultimate Glove Ball/Procedural Gradient Skybox"
   SubShader
   {
     Tags{"RenderType" ="Background" "Queue" = "Background" "PreviewType"="Skybox"}
-    ZWrite Off Cull Off 
+    ZWrite Off Cull Off
     Fog { Mode Off }
     LOD 100
 
@@ -34,7 +34,7 @@ Shader "Ultimate Glove Ball/Procedural Gradient Skybox"
       CGPROGRAM
       #pragma vertex vert
       #pragma fragment frag
-    
+
       #include "UnityCG.cginc"
 
       struct vertIn
@@ -50,7 +50,7 @@ Shader "Ultimate Glove Ball/Procedural Gradient Skybox"
         float3 uv: TEXCOORD0;
         UNITY_VERTEX_OUTPUT_STEREO
       };
-      
+
       vertOut vert (vertIn v)
       {
         vertOut o;
@@ -67,7 +67,7 @@ Shader "Ultimate Glove Ball/Procedural Gradient Skybox"
       fixed4 _HorizonColor;
       fixed4 _BottomColor;
       half _AmplFactor;
-      
+
       fixed4 frag (vertOut i) : SV_Target
       {
         float interpUv = normalize (i.uv).y;

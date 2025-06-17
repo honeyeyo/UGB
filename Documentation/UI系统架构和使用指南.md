@@ -1,8 +1,8 @@
-# Ultimate Glove Ball - UI 系统架构和使用指南
+# PongHub - UI 系统架构和使用指南
 
 ## 📖 概述
 
-Ultimate Glove Ball 的 UI 系统采用模块化设计，支持 VR 和传统输入方式，提供完整的游戏界面解决方案。系统基于 Unity UGUI 构建，集成 Meta Interaction 框架，确保在 VR 环境下的优良交互体验。
+PongHub 的 UI 系统采用模块化设计，支持 VR 和传统输入方式，提供完整的游戏界面解决方案。系统基于 Unity UGUI 构建，集成 Meta Interaction 框架，确保在 VR 环境下的优良交互体验。
 
 ## 🏗️ 系统架构
 

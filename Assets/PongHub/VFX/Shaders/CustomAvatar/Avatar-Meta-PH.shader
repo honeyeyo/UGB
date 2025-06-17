@@ -2,7 +2,7 @@
 // This file is a copy from the Avatar-Meta.shader found in the Meta Avatars SDK. So that we can apply the necessary
 // modifications for the additional effects.
 // Shader "Avatar/Style2Meta"
-Shader "Avatar/Ultimate Glove Ball"
+Shader "Avatar/PongHub"
 // MOD END Ultimate-GloveBall
 {
     Properties
@@ -122,11 +122,11 @@ Shader "Avatar/Ultimate Glove Ball"
         //u_MipCount("IBL Diffuse Texture Mip Count", Int) = 10
         //u_SpecularEnvSampler ("IBL Specular Cubemap Texture", Cube) = "white" {}
         //u_brdfLUT ("BRDF LUT Texture", 2D) = "Assets/Oculus/Avatar2/Example/Scenes/BRDF_LUT" {}
-        
+
         // MOD START Ultimate-GloveBall: Add property header
 		[Header (Ultimate GloveBall)]
 		// MOD End Ultimate-GloveBall
-		
+
 		// MOD START Ultimate-GloveBall: Dissolve Effect
 		[Header (Dissolve Effect)]
 		[Toggle(ENABLE_CUSTOM_EFFECT)]ENABLE_CUSTOM_EFFECT("Enable custom effect", Float) = 0

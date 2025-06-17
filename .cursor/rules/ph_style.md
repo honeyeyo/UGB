@@ -1,4 +1,4 @@
-# UGB代码风格规则
+# PongHub代码风格规则
 
 ## 1. 网络同步实现
 - 使用 `com.meta.multiplayer.netcode-photon` 包进行网络同步
@@ -51,10 +51,10 @@
 - 使用 `[SerializeField]` 而不是 `GetComponent` 获取组件
 
 ## 9. 第三方包使用
-- 优先使用 UGB 示例中使用的包
+- 优先使用 Meta 示例中使用的包
 - 避免引入新的第三方包
-- 使用 UGB 示例中的工具类和辅助方法
-- 保持与 UGB 示例相同的版本号
+- 使用 PongHub 项目中的工具类和辅助方法
+- 保持与项目依赖相同的版本号
 
 ## 10. 代码示例
 ```csharp

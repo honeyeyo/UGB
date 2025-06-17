@@ -1,33 +1,19 @@
-# 📚 历史文档保留
+![PongHub Banner](./Documentation/Media/banner.png "PongHub")
 
-> **说明**: 此文件为原始 Ultimate Glove Ball 示例项目的 README 文档，作为历史记录保留。
->
-> **当前项目**: PongHub - 基于 Ultimate Glove Ball 开发的 VR 乒乓球游戏
->
-> **最新文档**: 请参考 [PongHub_README.md](./PongHub_README.md) 获取当前项目的最新信息
->
-> **保留日期**: 2025年6月17日
+# PongHub
 
----
+PongHub is a VR ping-pong game built by MagnusLab which you can quickly build an ESport game that gets people together in VR using the Oculus Social Platform API.
+Based off Meta's [Ultimate Glove Ball](https://github.com/oculus-samples/Unity-UltimateGloveBall) project, we have adapted the functionalities for ping-pong gameplay context. We also demonstrate how VR games can have asymmetric experiences. In this project we have players and spectators.
 
-![Ultimate Glove Ball Banner](./Documentation/Media/banner.png "Ultimate Glove Ball")
-
-# Ultimate Glove Ball
-
-Ultimate Glove Ball was built by the VR Developer Tools team to demonstrate how you can quickly build an ESport game that gets people together in VR using the Oculus Social Platform API.
-Based off our [SharedSpaces](https://github.com/oculus-samples/Unity-SharedSpaces) project we expand functionalities in an ESport game context. We also demonstrate how VR games can have asymmetric experiences. In this project we have players and spectators.
-
-This codebase is available both as a reference and as a template for multiplayer VR games.
+This codebase is available both as a reference and as a template for multiplayer VR ping-pong games.
 
 See the [CONTRIBUTING](./CONTRIBUTING.md) file for how to help out.
 
 This project was built using the Unity engine with [Photon Realtime](https://github.com/Unity-Technologies/multiplayer-community-contributions/tree/main/Transports/com.community.netcode.transport.photon-realtime) as the transport layer and [Unity Netcode for GameObjects](https://github.com/Unity-Technologies/com.unity.netcode.gameobjects).
 
-You can test the game out on [Meta Horizon Store - Ultimate Glove Ball](https://www.meta.com/en-gb/experiences/ultimate-glove-ball/5704438046269164/).
-
 ## Project Description
 
-This project is an application for the Meta Quest devices that demonstrate a fast pace sport game that can be played with friends or strangers. It shows how to integrate connection between users joining random games or specific rooms, invite friends and group launch a party in the same arena, or join as a spectator to a game already in progress. We also integrated Meta Avatars for players to represent their VR persona and voice chat for easy communication.
+This project is an application for the Meta Quest devices that demonstrate a fast pace ping-pong sport game that can be played with friends or strangers. It shows how to integrate connection between users joining random games or specific rooms, invite friends and group launch a party in the same arena, or join as a spectator to a game already in progress. We also integrated Meta Avatars for players to represent their VR persona and voice chat for easy communication.
 
 The project also includes the [Meta Utilities](./Packages/com.meta.utilities/README.md) and [Meta Input Utilities](./Packages/com.meta.utilities.input/README.md) packages, which contain many useful tools and methods.
 
@@ -35,7 +21,7 @@ The project also includes the [Meta Utilities](./Packages/com.meta.utilities/REA
 
 1. [Configure the project](./Documentation/Configuration.md) with Meta Quest and Photon
 2. Make sure you're using _Unity 2022.3.52f1_ or newer.
-3. Load the [Assets/UltimateGloveBall/Scenes/Startup](./Assets/UltimateGloveBall/Scenes/Startup.unity) scene.
+3. Load the [Assets/PongHub/Scenes/Startup](./Assets/PongHub/Scenes/Startup.unity) scene.
 4. There are two ways of testing in the editor:
    <details>
      <summary><b>Quest Link</b></summary>
@@ -83,7 +69,7 @@ git lfs install
 Then, clone this repo using the "Code" button above, or this command:
 
 ```sh
-git clone https://github.com/oculus-samples/Unity-UltimateGloveBall.git
+git clone [YOUR_REPO_URL_HERE]
 ```
 
 # Documentation
