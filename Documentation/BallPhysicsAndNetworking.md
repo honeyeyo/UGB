@@ -1,4 +1,5 @@
 # 球物理和网络
+
 ## 实现概述
 
 我们要完成的任务是在所有客户端上启用物理预测。这将解决诸如球体悬浮和非主机客户端上射击/投掷延迟等问题。
@@ -10,18 +11,22 @@
 ## 涉及的主要脚本
 
 **[BallNetworking.cs](../Assets/PongHub/Scripts/Arena/Balls/BallNetworking.cs)**
+
 - 这个网络脚本处理投掷、碰撞、所有权等。
 
 **[BallStateSync.cs](../Assets/PongHub/Scripts/Arena/Balls/BallStateSync.cs)**
+
 - 这个脚本与前一个脚本配合工作。
 - 它的工作是发送包含数据的数据包（如果是服务器）并应用它们（如果是客户端）。
 - 该脚本包括渐进的位置、旋转和线性速度校正，以避免弹跳和抖动运动。
 - 它还包含一个抖动缓冲区，以确保数据包按正确顺序应用并丢弃任何延迟的数据包。
 
 **[BallSpawner.cs](../Assets/PongHub/Scripts/Arena/Balls/BallSpawner.cs)**
+
 - 这个脚本处理球的生成和死球的销毁。
 
 **[SpawnPoint.cs](../Assets/PongHub/Scripts/Arena/Balls/SpawnPoint.cs)**
+
 - 这个脚本检查球是否已"占用"它，使其他球无法在那里生成。
 
 ## 球状态同步
@@ -33,29 +38,37 @@
 首先，让我们看看数据包中包含什么：
 
 **`(uint)Sequence`**
+
 - 服务器发送数据包时服务器端的帧号。
 
-**状态更新**
+### 状态更新
 
 **`(bool) IsGrabbed`**
+
 - 让客户端知道是否需要分配给手套。
 
 **`(ulong) GrabbersNetworkObjectId`**
+
 - 告诉客户端需要分配给哪个手套。
 
 **`(Vector3) Position`**
+
 - 服务器上球的位置。
 
 **`(Quaternion) Orientation`**
+
 - 服务器上球的旋转。
 
 **`(bool) SyncVelocity`**
+
 - 让客户端知道数据包中是否包含速度数据。
 
 **`(Vector3) LinearVelocity`**
+
 - 服务器上球的线性速度。
 
 **`(Vector3) AngularVelocity`**
+
 - 服务器上球的角速度。
 
 ### 为什么要将球分配给手套？
@@ -77,11 +90,13 @@
 ### 抓取的球？
 
 当检测到球被抓取时，我们寻找它应该父子关系的手套；然后我们：
+
 - 将球设置到手套
 - 禁用物理
 - 重置本地变换
 
 当它被释放且不再有父子关系时，我们：
+
 - 从手套释放球
 - 启用物理
 - 同步位置/旋转/等等

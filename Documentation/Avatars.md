@@ -4,9 +4,12 @@
 
 能够重用平台化身在平台上创造了连续性，用户可以在不同应用程序之间相互识别。
 
-您可以在packages目录中找到Meta Avatar SDK([Packages/Avatar2](../Packages/Avatar2))。它是从[开发者网站](https://developer.oculus.com/downloads/package/meta-avatars-sdk)下载的。
+您可以在packages目录中找到Meta Avatar SDK([Packages/Avatar2](../Packages/Avatar2))。
+它是从[开发者网站](https://developer.oculus.com/downloads/package/meta-avatars-sdk)下载的。
 
-对于集成，我们遵循了[开发者网站上强调的信息](https://developer.oculus.com/documentation/unity/meta-avatars-overview/)。[AvatarEntity.cs](../Packages/com.meta.multiplayer.netcode-photon/Avatar/AvatarEntity.cs) 实现是您将看到我们如何为身体、唇同步、面部和眼部追踪设置化身的地方。此设置还与 [PlayerAvatarEntity Prefab](../Assets/PongHub/Prefabs/Arena/Player/PlayerAvatarEntity.prefab) 相关联，该预制体包含我们在游戏中如何使用化身的所有行为和设置。
+对于集成，我们遵循了[开发者网站上强调的信息](https://developer.oculus.com/documentation/unity/meta-avatars-overview/)。
+[AvatarEntity.cs](../Packages/com.meta.multiplayer.netcode-photon/Avatar/AvatarEntity.cs) 实现是您将看到我们如何为身体、唇同步、面部和眼部追踪设置化身的地方。
+此设置还与 [PlayerAvatarEntity Prefab](../Assets/PongHub/Prefabs/Arena/Player/PlayerAvatarEntity.prefab) 相关联，该预制体包含我们在游戏中如何使用化身的所有行为和设置。
 
 为了保持化身与用户位置同步，我们追踪Camera Rig根节点。
 
@@ -16,9 +19,11 @@
 
 由于我们正在构建多人游戏，因此需要为化身实现网络解决方案。
 
-这在 [AvatarNetworking.cs](../Packages/com.meta.multiplayer.netcode-photon/Avatar/AvatarNetworking.cs) 中完成。在此实现中，我们使用化身实体上的 `RecordStreamData` 函数来获取要通过网络传输的数据。然后我们通过RPC发送它，然后被每个其他客户端接收。
+这在 [AvatarNetworking.cs](../Packages/com.meta.multiplayer.netcode-photon/Avatar/AvatarNetworking.cs) 中完成。在此实现中，
+我们使用化身实体上的 `RecordStreamData` 函数来获取要通过网络传输的数据。然后我们通过RPC发送它，然后被每个其他客户端接收。
 
-在接收端，我们使用 `ApplyStreamData` 函数应用数据，该函数将正确应用化身的状态。此外，我们实现了发送不同详细级别(LOD)的频率，以便我们可以减少带宽，同时仍保持化身运动的良好保真度。
+在接收端，我们使用 `ApplyStreamData` 函数应用数据，该函数将正确应用化身的状态。
+此外，我们实现了发送不同详细级别(LOD)的频率，以便我们可以减少带宽，同时仍保持化身运动的良好保真度。
 
 ## 自定义着色器
 

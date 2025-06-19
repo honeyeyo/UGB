@@ -61,6 +61,7 @@ MCP Unity 通过将 Unity 的 `Library/PackedCache` 文件夹添加到工作区�
 2. 下载 LTS 版本的 Windows 安装程序（.msi）
 3. 运行安装程序并按照安装向导操作
 4. 在 PowerShell 中运行以下命令验证安装：
+
    ```powershell
    node --version
    ```
@@ -71,10 +72,13 @@ MCP Unity 通过将 Unity 的 `Library/PackedCache` 文件夹添加到工作区�
 2. 下载 LTS 版本的 macOS 安装程序（.pkg）
 3. 运行安装程序并按照安装向导操作
 4. 或者，如果安装了 Homebrew，可以运行：
+
    ```bash
    brew install node@18
    ```
+
 5. 在终端中运行以下命令验证安装：
+
    ```bash
    node --version
    ```

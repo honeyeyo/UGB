@@ -255,6 +255,7 @@ if (currentState.leftAB && !previousState.leftAB)
    ```
 
 2. **配置数据结构**
+
    ```csharp
    [System.Serializable]
    public class PaddleConfiguration
@@ -305,6 +306,7 @@ public InputState CurrentInputState { get; }         // 当前输入状态
    ```
 
 3. **在 PongInputManager 中使用**
+
    ```csharp
    bool newActionPressed = leftActions.NewAction.action.ReadValue<float>() > 0.5f;
    ```

@@ -10,11 +10,17 @@
 
 我们的实现基于[IAP 开发者资源](https://developer.oculus.com/documentation/unity/ps-iap/)。
 
-首先，我们有一个与游戏无关的 [IAPManager](../Assets/PongHub/Scripts/App/IAPManager.cs)，它封装了平台 IAP 逻辑，用于处理获取产品和购买信息以及消耗消耗品的购买。这旨在为任何想要实现 IAP 的项目类型提供可重用的逻辑。我们添加了对产品分类的支持，以便我们可以轻松获取给定类别的所有产品。
+首先，我们有一个与游戏无关的 [IAPManager](../Assets/PongHub/Scripts/App/IAPManager.cs)，
+它封装了平台 IAP 逻辑，用于处理获取产品和购买信息以及消耗消耗品的购买。
+这旨在为任何想要实现 IAP 的项目类型提供可重用的逻辑。
+我们添加了对产品分类的支持，以便我们可以轻松获取给定类别的所有产品。
 
-然后我们有 [StoreMenuController](../Assets/PongHub/Scripts/MainMenu/StoreMenuController.cs)，它实现了如何购买产品和消耗消耗品购买的逻辑。图标使用从 IAPManager 获取的产品数据加载。
+然后我们有 [StoreMenuController](../Assets/PongHub/Scripts/MainMenu/StoreMenuController.cs)，
+它实现了如何购买产品和消耗消耗品购买的逻辑。
+图标使用从 IAPManager 获取的产品数据加载。
 
-获取产品和购买信息的逻辑可以在 [PHApplication](../Assets/PongHub/Scripts/App/PHApplication.cs) 的初始化代码中找到。我们在其中获取与不同类别关联的消耗品和耐用品。
+获取产品和购买信息的逻辑可以在 [PHApplication](../Assets/PongHub/Scripts/App/PHApplication.cs) 的初始化代码中找到。
+我们在其中获取与不同类别关联的消耗品和耐用品。
 
 ## 配置
 
