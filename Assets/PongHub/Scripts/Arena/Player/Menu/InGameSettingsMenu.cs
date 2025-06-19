@@ -3,6 +3,7 @@
 using TMPro;
 using PongHub.App;
 using PongHub.Arena.Spectator;
+using PongHub.Core.Audio;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,13 +51,13 @@ namespace PongHub.Arena.Player.Menu
             m_spawnCatButton.gameObject.SetActive(!LocalPlayerState.Instance.IsSpectator &&
                 !LocalPlayerState.Instance.SpawnCatInNextGame && GameSettings.Instance.OwnedCatsCount > 0);
 
-            var audioController = AudioController.Instance;
-            m_musicVolumeSlider.value = audioController.MusicVolume;
-            m_musicVolumeValueText.text = audioController.MusicVolumePct.ToString("N0") + "%";
-            m_sfxVolumeSlider.value = audioController.SfxVolume;
-            m_sfxVolumeValueText.text = audioController.SfxVolumePct.ToString("N0") + "%";
-            m_crowdVolumeSlider.value = audioController.CrowdVolume;
-            m_crowdVolumeValueText.text = audioController.CrowdVolumePct.ToString("N0") + "%";
+            var audioInterface = UIAudioInterface.Instance;
+            m_musicVolumeSlider.value = audioInterface.MusicVolume;
+            m_musicVolumeValueText.text = audioInterface.MusicVolumePct.ToString("N0") + "%";
+            m_sfxVolumeSlider.value = audioInterface.SfxVolume;
+            m_sfxVolumeValueText.text = audioInterface.SfxVolumePct.ToString("N0") + "%";
+            m_crowdVolumeSlider.value = audioInterface.CrowdVolume;
+            m_crowdVolumeValueText.text = audioInterface.CrowdVolumePct.ToString("N0") + "%";
             var settings = GameSettings.Instance;
             m_snapBlackoutToggle.isOn = settings.UseBlackoutOnSnap;
             m_freeLocomotionToggle.isOn = !settings.IsFreeLocomotionDisabled;
@@ -84,23 +85,26 @@ namespace PongHub.Arena.Player.Menu
 
         private void OnMusicSliderChanged(float val)
         {
-            var audioController = AudioController.Instance;
-            audioController.SetMusicVolume(val);
-            m_musicVolumeValueText.text = audioController.MusicVolumePct.ToString("N0") + "%";
+            var audioInterface = UIAudioInterface.Instance;
+            audioInterface.SetMusicVolume(val);
+            m_musicVolumeValueText.text = audioInterface.MusicVolumePct.ToString("N0") + "%";
+            audioInterface.PlaySliderChanged();
         }
 
         private void OnSfxSliderChanged(float val)
         {
-            var audioController = AudioController.Instance;
-            audioController.SetSfxVolume(val);
-            m_sfxVolumeValueText.text = audioController.SfxVolumePct.ToString("N0") + "%";
+            var audioInterface = UIAudioInterface.Instance;
+            audioInterface.SetSfxVolume(val);
+            m_sfxVolumeValueText.text = audioInterface.SfxVolumePct.ToString("N0") + "%";
+            audioInterface.PlaySliderChanged();
         }
 
         private void OnCrowdSliderChanged(float val)
         {
-            var audioController = AudioController.Instance;
-            audioController.SetCrowdVolume(val);
-            m_crowdVolumeValueText.text = audioController.CrowdVolumePct.ToString("N0") + "%";
+            var audioInterface = UIAudioInterface.Instance;
+            audioInterface.SetCrowdVolume(val);
+            m_crowdVolumeValueText.text = audioInterface.CrowdVolumePct.ToString("N0") + "%";
+            audioInterface.PlaySliderChanged();
         }
 
         private void OnSnapBlackoutChanged(bool val)

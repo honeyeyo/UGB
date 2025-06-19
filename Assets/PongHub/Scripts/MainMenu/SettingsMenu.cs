@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using TMPro;
 using PongHub.App;
+using PongHub.Core.Audio;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -42,9 +43,9 @@ namespace PongHub.MainMenu
         private void Awake()
         {
             // 初始化音频设置
-            var audioController = AudioController.Instance;
-            m_musicVolumeSlider.value = audioController.MusicVolume;
-            m_musicVolumeValueText.text = audioController.MusicVolumePct.ToString("N0") + "%";
+            var audioInterface = UIAudioInterface.Instance;
+            m_musicVolumeSlider.value = audioInterface.MusicVolume;
+            m_musicVolumeValueText.text = audioInterface.MusicVolumePct.ToString("N0") + "%";
 
             // 初始化游戏设置
             var settings = GameSettings.Instance;
@@ -104,9 +105,12 @@ namespace PongHub.MainMenu
         /// <param name="val">新的音量值</param>
         private void OnMusicSliderChanged(float val)
         {
-            var audioController = AudioController.Instance;
-            audioController.SetMusicVolume(val);
-            m_musicVolumeValueText.text = audioController.MusicVolumePct.ToString("N0") + "%";
+            var audioInterface = UIAudioInterface.Instance;
+            audioInterface.SetMusicVolume(val);
+            m_musicVolumeValueText.text = audioInterface.MusicVolumePct.ToString("N0") + "%";
+
+            // 播放滑块变化音效
+            audioInterface.PlaySliderChanged();
         }
 
         /// <summary>
