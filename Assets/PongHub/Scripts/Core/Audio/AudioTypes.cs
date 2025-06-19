@@ -96,6 +96,11 @@ namespace PongHub.Core.Audio
         public bool IsValid => Source != null && Source.gameObject != null;
         public bool IsPlaying => IsValid && Source.isPlaying;
 
+        /// <summary>
+        /// 获取当前音量
+        /// </summary>
+        public float Volume => IsValid ? Source.volume : 0f;
+
         internal AudioHandle(AudioSource source, AudioCategory category)
         {
             Source = source;

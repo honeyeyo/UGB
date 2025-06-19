@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using PongHub.Core;
+using PongHub.Core.Audio;
 
 namespace PongHub.Gameplay.Table
 {

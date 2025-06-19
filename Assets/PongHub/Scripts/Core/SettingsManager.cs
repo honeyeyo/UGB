@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
 
+using PongHub.Core.Audio;
+
 namespace PongHub.Core
 {
     public class SettingsManager : MonoBehaviour

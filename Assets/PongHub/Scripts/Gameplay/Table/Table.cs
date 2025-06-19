@@ -2,6 +2,7 @@ using UnityEngine;
 using PongHub.Gameplay.Ball;
 using PongHub.Core;
 using System.Threading.Tasks;
+using PongHub.Core.Audio;
 
 namespace PongHub.Gameplay.Table
 {

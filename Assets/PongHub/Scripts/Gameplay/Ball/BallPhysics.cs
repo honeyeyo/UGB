@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Threading.Tasks;
 using PongHub.Core;
+using PongHub.Core.Audio;
 
 namespace PongHub.Gameplay.Ball
 {

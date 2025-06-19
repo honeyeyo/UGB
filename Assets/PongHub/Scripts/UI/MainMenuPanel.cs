@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using UnityEngine.UI;
 using TMPro;
 using PongHub.Core;
+using PongHub.Core.Audio;
 using PongHub.Gameplay;
 
 namespace PongHub.UI

@@ -10,6 +10,22 @@ namespace PongHub.Core.Audio
     /// </summary>
     public class AudioManager : MonoBehaviour
     {
+        private static AudioManager s_instance;
+        public static AudioManager Instance => s_instance;
+
+        private void Awake()
+        {
+            if (s_instance == null)
+            {
+                s_instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+
         [Header("乒乓球音效")]
         [SerializeField] private AudioClip[] m_ballHitPaddleSounds;
         [SerializeField] private AudioClip[] m_ballHitTableSounds;
@@ -39,7 +55,7 @@ namespace PongHub.Core.Audio
 
         [Header("音频设置")]
         [SerializeField] private float m_ballSoundVariation = 0.2f;
-        [SerializeField] private float m_maxBallSoundDistance = 50f;
+        // [SerializeField] private float m_maxBallSoundDistance = 50f; // 暂时没用到,先注释了
         [SerializeField] private bool m_enableDynamicVolume = true;
         [SerializeField] private bool m_enableCrowdReactions = true;
 
@@ -61,6 +77,119 @@ namespace PongHub.Core.Audio
         /// 音频服务引用
         /// </summary>
         private AudioService AudioService => AudioService.Instance;
+
+        #region 音量控制方法
+
+        /// <summary>
+        /// 设置主音量
+        /// </summary>
+        public void SetMasterVolume(float volume)
+        {
+            if (AudioService != null)
+            {
+                AudioService.SetCategoryVolume(AudioCategory.Master, volume);
+            }
+        }
+
+        /// <summary>
+        /// 设置音乐音量
+        /// </summary>
+        public void SetMusicVolume(float volume)
+        {
+            if (AudioService != null)
+            {
+                AudioService.SetCategoryVolume(AudioCategory.Music, volume);
+            }
+        }
+
+        /// <summary>
+        /// 设置音效音量
+        /// </summary>
+        public void SetSFXVolume(float volume)
+        {
+            if (AudioService != null)
+            {
+                AudioService.SetCategoryVolume(AudioCategory.SFX, volume);
+            }
+        }
+
+        /// <summary>
+        /// 设置音效音量（兼容旧的方法名）
+        /// </summary>
+        public void SetSoundVolume(float volume)
+        {
+            SetSFXVolume(volume);
+        }
+
+        /// <summary>
+        /// 初始化异步（兼容旧接口）
+        /// </summary>
+        public async System.Threading.Tasks.Task InitializeAsync()
+        {
+            // 等待AudioService初始化
+            while (AudioService == null || !AudioService.IsInitialized)
+            {
+                await System.Threading.Tasks.Task.Delay(100);
+            }
+        }
+
+        /// <summary>
+        /// 清理资源（兼容旧接口）
+        /// </summary>
+        public void Cleanup()
+        {
+            // 停止所有循环音频
+            StopAllLoopingAudio();
+        }
+
+        #endregion
+
+        #region 游戏专用音效方法
+
+        /// <summary>
+        /// 播放球拍击球音效
+        /// </summary>
+        public void PlayPaddleHit(Vector3 position, float volume = 1f)
+        {
+            PlayBallHitPaddle(position, volume);
+        }
+
+        /// <summary>
+        /// 播放桌子击球音效
+        /// </summary>
+        public void PlayTableHit(Vector3 position, float volume = 1f)
+        {
+            PlayBallHitTable(position, volume);
+        }
+
+        /// <summary>
+        /// 播放网击球音效
+        /// </summary>
+        public void PlayNetHit(Vector3 position, float volume = 1f)
+        {
+            PlayBallHitNet(position, volume);
+        }
+
+        /// <summary>
+        /// 播放边缘击球音效
+        /// </summary>
+        public void PlayEdgeHit(Vector3 position, float volume = 1f)
+        {
+            // 使用桌子击球音效的变体
+            PlayBallHitTable(position, volume * 0.8f);
+        }
+
+        /// <summary>
+        /// 播放得分音效
+        /// </summary>
+        public void PlayScore()
+        {
+            PlayPointScored(true);
+        }
+
+        #endregion
+
+
 
         /// <summary>
         /// 当前观众反应状态
