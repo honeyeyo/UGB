@@ -124,6 +124,13 @@ namespace PongHub.Core.Audio
         /// </summary>
         private void HandleApplicationStateChange()
         {
+            // 检查AudioService是否已初始化
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: AudioService not ready, skipping state change handling");
+                return;
+            }
+
             bool shouldPause = m_isApplicationPaused || !m_applicationHasFocus;
 
             if (shouldPause)
@@ -141,6 +148,13 @@ namespace PongHub.Core.Audio
         /// </summary>
         private void OnApplicationLostFocus()
         {
+            // 再次检查AudioService是否可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: AudioService not available for focus lost handling");
+                return;
+            }
+
             DebugLog("AudioController: Application lost focus, adjusting audio...");
 
             if (m_lowerVolumeOnPause)
@@ -161,6 +175,13 @@ namespace PongHub.Core.Audio
         /// </summary>
         private void OnApplicationGainedFocus()
         {
+            // 检查AudioService是否可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: AudioService not available for focus gained handling");
+                return;
+            }
+
             DebugLog("AudioController: Application gained focus, restoring audio...");
 
             if (m_lowerVolumeOnPause)
@@ -178,13 +199,27 @@ namespace PongHub.Core.Audio
         /// </summary>
         private void SaveCurrentVolumes()
         {
+            // 确保AudioService可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: Cannot save volumes - AudioService not available");
+                return;
+            }
+
             m_volumesBeforePause.Clear();
 
             foreach (AudioCategory category in System.Enum.GetValues(typeof(AudioCategory)))
             {
                 if (category != AudioCategory.Master)
                 {
-                    m_volumesBeforePause[category] = AudioService.GetCategoryVolume(category);
+                    try
+                    {
+                        m_volumesBeforePause[category] = AudioService.GetCategoryVolume(category);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        DebugLog($"AudioController: Error getting volume for category {category}: {ex.Message}");
+                    }
                 }
             }
         }
@@ -194,10 +229,24 @@ namespace PongHub.Core.Audio
         /// </summary>
         private void LowerAllVolumes()
         {
+            // 确保AudioService可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: Cannot lower volumes - AudioService not available");
+                return;
+            }
+
             foreach (var kvp in m_volumesBeforePause)
             {
-                float newVolume = kvp.Value * m_pausedVolumeFactor;
-                AudioService.SetCategoryVolume(kvp.Key, newVolume);
+                try
+                {
+                    float newVolume = kvp.Value * m_pausedVolumeFactor;
+                    AudioService.SetCategoryVolume(kvp.Key, newVolume);
+                }
+                catch (System.Exception ex)
+                {
+                    DebugLog($"AudioController: Error lowering volume for category {kvp.Key}: {ex.Message}");
+                }
             }
         }
 
@@ -206,9 +255,23 @@ namespace PongHub.Core.Audio
         /// </summary>
         private void RestoreAllVolumes()
         {
+            // 确保AudioService可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: Cannot restore volumes - AudioService not available");
+                return;
+            }
+
             foreach (var kvp in m_volumesBeforePause)
             {
-                AudioService.SetCategoryVolume(kvp.Key, kvp.Value);
+                try
+                {
+                    AudioService.SetCategoryVolume(kvp.Key, kvp.Value);
+                }
+                catch (System.Exception ex)
+                {
+                    DebugLog($"AudioController: Error restoring volume for category {kvp.Key}: {ex.Message}");
+                }
             }
 
             m_volumesBeforePause.Clear();
@@ -219,11 +282,25 @@ namespace PongHub.Core.Audio
         /// </summary>
         private void PauseAllAudio()
         {
+            // 确保AudioService可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: Cannot pause audio - AudioService not available");
+                return;
+            }
+
             foreach (AudioCategory category in System.Enum.GetValues(typeof(AudioCategory)))
             {
                 if (category != AudioCategory.Master)
                 {
-                    AudioService.PauseAllInCategory(category);
+                    try
+                    {
+                        AudioService.PauseAllInCategory(category);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        DebugLog($"AudioController: Error pausing category {category}: {ex.Message}");
+                    }
                 }
             }
         }
@@ -233,11 +310,25 @@ namespace PongHub.Core.Audio
         /// </summary>
         private void ResumeAllAudio()
         {
+            // 确保AudioService可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: Cannot resume audio - AudioService not available");
+                return;
+            }
+
             foreach (AudioCategory category in System.Enum.GetValues(typeof(AudioCategory)))
             {
                 if (category != AudioCategory.Master)
                 {
-                    AudioService.ResumeAllInCategory(category);
+                    try
+                    {
+                        AudioService.ResumeAllInCategory(category);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        DebugLog($"AudioController: Error resuming category {category}: {ex.Message}");
+                    }
                 }
             }
         }
@@ -251,9 +342,24 @@ namespace PongHub.Core.Audio
         /// </summary>
         public AudioHandle PlayQuickSound(string soundName, float volume = 1f)
         {
+            // 检查AudioService是否可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: Cannot play quick sound - AudioService not available");
+                return null;
+            }
+
             if (m_quickSounds.TryGetValue(soundName.ToLower(), out AudioClip clip))
             {
-                return AudioService.PlayOneShot(clip, AudioCategory.UI, volume);
+                try
+                {
+                    return AudioService.PlayOneShot(clip, AudioCategory.UI, volume);
+                }
+                catch (System.Exception ex)
+                {
+                    DebugLog($"AudioController: Error playing quick sound '{soundName}': {ex.Message}");
+                    return null;
+                }
             }
 
             DebugLog($"AudioController: Quick sound '{soundName}' not found!");
@@ -336,15 +442,35 @@ namespace PongHub.Core.Audio
 
             while (m_audioSequence.Count > 0)
             {
+                // 检查AudioService是否可用
+                if (AudioService == null || !AudioService.IsInitialized)
+                {
+                    DebugLog("AudioController: AudioService not available, stopping audio sequence");
+                    break;
+                }
+
                 var item = m_audioSequence.Dequeue();
 
                 if (item.Clip != null)
                 {
-                    var handle = AudioService.PlayOneShot(item.Clip, item.Category, item.Volume);
+                    // 先尝试播放音频，然后在try-catch外部处理等待
+                    AudioHandle handle = null;
+                    bool playSuccess = false;
 
-                    if (handle != null)
+                    try
                     {
-                        // 等待音频播放完成或指定的延迟时间
+                        handle = AudioService.PlayOneShot(item.Clip, item.Category, item.Volume);
+                        playSuccess = handle != null;
+                    }
+                    catch (System.Exception ex)
+                    {
+                        DebugLog($"AudioController: Error playing sequence item: {ex.Message}");
+                        playSuccess = false;
+                    }
+
+                    // 在try-catch外部处理等待
+                    if (playSuccess)
+                    {
                         float waitTime = item.WaitTime > 0 ? item.WaitTime : item.Clip.length;
                         yield return new WaitForSeconds(waitTime);
                     }
@@ -377,12 +503,27 @@ namespace PongHub.Core.Audio
         /// </summary>
         public AudioHandle PlayWithCustomFade(AudioClip clip, AnimationCurve fadeCurve, float duration, AudioCategory category = AudioCategory.SFX)
         {
-            var handle = AudioService.PlayOneShot(clip, category, 0f);
-            if (handle != null)
+            // 检查AudioService是否可用
+            if (AudioService == null || !AudioService.IsInitialized)
             {
-                StartCoroutine(CustomFadeCoroutine(handle, fadeCurve, duration));
+                DebugLog("AudioController: Cannot play with custom fade - AudioService not available");
+                return null;
             }
-            return handle;
+
+            try
+            {
+                var handle = AudioService.PlayOneShot(clip, category, 0f);
+                if (handle != null)
+                {
+                    StartCoroutine(CustomFadeCoroutine(handle, fadeCurve, duration));
+                }
+                return handle;
+            }
+            catch (System.Exception ex)
+            {
+                DebugLog($"AudioController: Error playing with custom fade: {ex.Message}");
+                return null;
+            }
         }
 
         /// <summary>
@@ -411,10 +552,26 @@ namespace PongHub.Core.Audio
         /// </summary>
         public AudioHandle PlayRandomSound(AudioClip[] clips, AudioCategory category = AudioCategory.SFX, float volume = 1f)
         {
+            // 检查AudioService是否可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: Cannot play random sound - AudioService not available");
+                return null;
+            }
+
             if (clips == null || clips.Length == 0) return null;
 
             var randomClip = clips[Random.Range(0, clips.Length)];
-            return AudioService.PlayOneShot(randomClip, category, volume);
+
+            try
+            {
+                return AudioService.PlayOneShot(randomClip, category, volume);
+            }
+            catch (System.Exception ex)
+            {
+                DebugLog($"AudioController: Error playing random sound: {ex.Message}");
+                return null;
+            }
         }
 
         /// <summary>
@@ -422,12 +579,27 @@ namespace PongHub.Core.Audio
         /// </summary>
         public AudioHandle PlayTimedSound(AudioClip clip, float duration, AudioCategory category = AudioCategory.SFX, float volume = 1f)
         {
-            var handle = AudioService.PlayLooped(clip, category, volume);
-            if (handle != null)
+            // 检查AudioService是否可用
+            if (AudioService == null || !AudioService.IsInitialized)
             {
-                StartCoroutine(StopAfterDelay(handle, duration));
+                DebugLog("AudioController: Cannot play timed sound - AudioService not available");
+                return null;
             }
-            return handle;
+
+            try
+            {
+                var handle = AudioService.PlayLooped(clip, category, volume);
+                if (handle != null)
+                {
+                    StartCoroutine(StopAfterDelay(handle, duration));
+                }
+                return handle;
+            }
+            catch (System.Exception ex)
+            {
+                DebugLog($"AudioController: Error playing timed sound: {ex.Message}");
+                return null;
+            }
         }
 
         /// <summary>
@@ -451,6 +623,13 @@ namespace PongHub.Core.Audio
         /// </summary>
         public void SmoothSetCategoryVolume(AudioCategory category, float targetVolume, float duration = 1f)
         {
+            // 检查AudioService是否可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: Cannot smooth set category volume - AudioService not available");
+                return;
+            }
+
             StartCoroutine(SmoothVolumeCoroutine(category, targetVolume, duration));
         }
 
@@ -459,20 +638,60 @@ namespace PongHub.Core.Audio
         /// </summary>
         private IEnumerator SmoothVolumeCoroutine(AudioCategory category, float targetVolume, float duration)
         {
+            // 再次检查AudioService（协程可能在延迟后执行）
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: AudioService not available during smooth volume change");
+                yield break;
+            }
+
             float startVolume = AudioService.GetCategoryVolume(category);
             float elapsed = 0f;
 
             while (elapsed < duration)
             {
+                // 在循环中检查AudioService状态
+                if (AudioService == null || !AudioService.IsInitialized)
+                {
+                    DebugLog("AudioController: AudioService became unavailable during smooth volume change");
+                    yield break;
+                }
+
                 float t = elapsed / duration;
                 float currentVolume = Mathf.Lerp(startVolume, targetVolume, t);
-                AudioService.SetCategoryVolume(category, currentVolume);
+
+                // 尝试设置音量，如果失败则退出
+                bool setSuccess = false;
+                try
+                {
+                    AudioService.SetCategoryVolume(category, currentVolume);
+                    setSuccess = true;
+                }
+                catch (System.Exception ex)
+                {
+                    DebugLog($"AudioController: Error during smooth volume change: {ex.Message}");
+                    setSuccess = false;
+                }
+
+                // 如果设置失败，在try-catch外部退出
+                if (!setSuccess)
+                {
+                    yield break;
+                }
 
                 elapsed += Time.deltaTime;
                 yield return null;
             }
 
-            AudioService.SetCategoryVolume(category, targetVolume);
+            // 最终设置目标音量
+            try
+            {
+                AudioService.SetCategoryVolume(category, targetVolume);
+            }
+            catch (System.Exception ex)
+            {
+                DebugLog($"AudioController: Error setting final volume: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -480,6 +699,13 @@ namespace PongHub.Core.Audio
         /// </summary>
         public void DuckCategory(AudioCategory category, float duckVolume, float duration)
         {
+            // 检查AudioService是否可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: Cannot duck category - AudioService not available");
+                return;
+            }
+
             StartCoroutine(DuckCategoryCoroutine(category, duckVolume, duration));
         }
 
@@ -488,10 +714,25 @@ namespace PongHub.Core.Audio
         /// </summary>
         private IEnumerator DuckCategoryCoroutine(AudioCategory category, float duckVolume, float duration)
         {
-            float originalVolume = AudioService.GetCategoryVolume(category);
+            // 检查AudioService是否可用
+            if (AudioService == null || !AudioService.IsInitialized)
+            {
+                DebugLog("AudioController: AudioService not available for ducking");
+                yield break;
+            }
 
-            // 快速降低音量
-            AudioService.SetCategoryVolume(category, duckVolume);
+            float originalVolume;
+            try
+            {
+                originalVolume = AudioService.GetCategoryVolume(category);
+                // 快速降低音量
+                AudioService.SetCategoryVolume(category, duckVolume);
+            }
+            catch (System.Exception ex)
+            {
+                DebugLog($"AudioController: Error starting duck: {ex.Message}");
+                yield break;
+            }
 
             // 等待指定时间
             yield return new WaitForSeconds(duration);

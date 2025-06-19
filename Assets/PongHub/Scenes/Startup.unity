@@ -131,7 +131,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 110588320}
-  - component: {fileID: 110588319}
+  - component: {fileID: 110588321}
   m_Layer: 0
   m_Name: AudioController
   m_TagString: Untagged
@@ -139,20 +139,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &110588319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 110588318}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bab903d9a5d8429bbd5014a118f5a571, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_audioMixer: {fileID: 24100000, guid: 5185a9f4e7084d7459518f03e2985d36, type: 2}
-  m_sfxGroup: {fileID: 473987337285126261, guid: 5185a9f4e7084d7459518f03e2985d36, type: 2}
 --- !u!4 &110588320
 Transform:
   m_ObjectHideFlags: 0
@@ -168,6 +154,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &110588321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 110588318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50459eeaeedb74c49a2fd080b919bf31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_enableDebugLogging: 1
+  m_pauseAudioOnFocusLoss: 1
+  m_lowerVolumeOnPause: 1
+  m_pausedVolumeFactor: 0.3
+  m_buttonClickSound: {fileID: 0}
+  m_buttonHoverSound: {fileID: 0}
+  m_errorSound: {fileID: 0}
+  m_successSound: {fileID: 0}
+  m_notificationSound: {fileID: 0}
 --- !u!1 &810891861
 GameObject:
   m_ObjectHideFlags: 0
@@ -658,55 +665,7 @@ PrefabInstance:
   m_Modification:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1041838416842510569, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_Name
-      value: AvatarSdkManagerMeta
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_RootOrder
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1041838416842510571, guid: 16235933523f9cf45a7b7c2712088a6a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
+    m_Modifications: []
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

@@ -11,6 +11,7 @@
     "com.meta.xr.sdk.interaction.ovr": "72.0.0",
     "com.meta.xr.sdk.platform": "72.0.0",
     "com.unity.2d.sprite": "1.0.0",
+    "com.unity.adaptiveperformance": "5.1.4",
     "com.unity.ai.navigation": "1.1.6",
     "com.unity.ide.rider": "3.0.36",
     "com.unity.ide.vscode": "1.2.5",

@@ -24,8 +24,47 @@ namespace PongHub.App
 
         public IEnumerator Init()
         {
+            // 检查是否在开发环境
+            if (DevelopmentConfig.EnableOculusPlatformDevelopmentMode)
+            {
+                DevelopmentConfig.LogDevelopmentMode("PlayerPresenceHandler: 开发模式 - 模拟destinations数据");
+                InitializeDevelopmentDestinations();
+                m_destinationReceived = true;
+                yield break;
+            }
+
+            // 正常模式：从Oculus Platform获取destinations
             _ = RichPresence.GetDestinations().OnComplete(OnGetDestinations);
             yield return new WaitUntil(() => m_destinationReceived);
+        }
+
+        /// <summary>
+        /// 开发模式下初始化模拟的destinations数据
+        /// </summary>
+        private void InitializeDevelopmentDestinations()
+        {
+            // 模拟一些基本的destinations
+            m_destinationsAPIToDisplayName["MainMenu"] = "主菜单";
+            m_destinationsAPIToDisplayName["Arena"] = "竞技场";
+            m_destinationsAPIToDisplayName["Arena_USW"] = "竞技场 (美西)";
+            m_destinationsAPIToDisplayName["Arena_USE"] = "竞技场 (美东)";
+            m_destinationsAPIToDisplayName["Arena_EU"] = "竞技场 (欧洲)";
+            m_destinationsAPIToDisplayName["Arena_ASIA"] = "竞技场 (亚洲)";
+
+            // 模拟区域映射
+            m_destinationsAPIToRegion["Arena"] = "usw";
+            m_destinationsAPIToRegion["Arena_USW"] = "usw";
+            m_destinationsAPIToRegion["Arena_USE"] = "use";
+            m_destinationsAPIToRegion["Arena_EU"] = "eu";
+            m_destinationsAPIToRegion["Arena_ASIA"] = "asia";
+
+            // 模拟区域到destination的映射
+            m_regionToDestinationAPI["usw"] = "Arena_USW";
+            m_regionToDestinationAPI["use"] = "Arena_USE";
+            m_regionToDestinationAPI["eu"] = "Arena_EU";
+            m_regionToDestinationAPI["asia"] = "Arena_ASIA";
+
+            DevelopmentConfig.LogDevelopmentMode("PlayerPresenceHandler: 开发模式destinations数据已初始化");
         }
 
         public IEnumerator GenerateNewGroupPresence(string dest, string roomName = null)

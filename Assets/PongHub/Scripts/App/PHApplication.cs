@@ -473,7 +473,7 @@ namespace PongHub.App
         }
 
         /// <summary>
-        /// 改进 InitializeOculusModules，添加更详细的错误处理
+        /// 改进 InitializeOculusModules，添加开发模式支持和更详细的错误处理
         /// </summary>
         private async Task InitializeOculusModules()
         {
@@ -481,11 +481,24 @@ namespace PongHub.App
 
             try
             {
+                // 检查是否在开发环境中运行
+                DevelopmentConfig.LogDevelopmentMode($"开发环境检测: {(DevelopmentConfig.IsDevelopmentBuild ? "是" : "否")}");
+
                 Debug.Log("正在初始化Oculus Platform SDK...");
                 var coreInit = await Oculus.Platform.Core.AsyncInitialize().Gen();
                 if (coreInit.IsError)
                 {
-                    LogError("Oculus Platform SDK初始化失败", coreInit.GetError());
+                    var error = coreInit.GetError();
+                    LogError("Oculus Platform SDK初始化失败", error);
+
+                    // 在开发环境中，某些错误可以忽略
+                    if (DevelopmentConfig.ShouldIgnoreOculusError(error.Code))
+                    {
+                        DevelopmentConfig.LogDevelopmentWarning("忽略Platform SDK初始化错误，继续运行...");
+                        InitializeDevelopmentMode();
+                        return;
+                    }
+
                     Debug.LogError("这可能导致应用卡在开屏！");
                     return;
                 }
@@ -495,48 +508,104 @@ namespace PongHub.App
                 var isUserEntitled = await Entitlements.IsUserEntitledToApplication().Gen();
                 if (isUserEntitled.IsError)
                 {
-                    LogError("用户权限验证失败", isUserEntitled.GetError());
+                    var error = isUserEntitled.GetError();
+                    LogError("用户权限验证失败", error);
+
+                    // 在开发环境中，权限验证失败可以跳过
+                    if (DevelopmentConfig.SkipOculusEntitlementCheck)
+                    {
+                        DevelopmentConfig.LogDevelopmentWarning("跳过权限验证，使用模拟用户数据...");
+                        InitializeDevelopmentMode();
+                        return;
+                    }
+
                     Debug.LogError("这可能导致应用无法继续！");
                     return;
                 }
                 Debug.Log("✓ 用户权限验证通过");
 
-                m_launchType = ApplicationLifecycle.GetLaunchDetails().LaunchType;
-                Debug.Log($"✓ 启动类型: {m_launchType}");
-
-                Debug.Log("正在设置群组存在回调...");
-                GroupPresence.SetJoinIntentReceivedNotificationCallback(OnJoinIntentReceived);
-                GroupPresence.SetInvitationsSentNotificationCallback(OnInvitationsSent);
-                Debug.Log("✓ 群组存在回调设置完成");
-
-                Debug.Log("正在获取登录用户信息...");
-                var getLoggedInuser = await Users.GetLoggedInUser().Gen();
-                if (getLoggedInuser.IsError)
-                {
-                    LogError("无法获取用户信息", getLoggedInuser.GetError());
-                    return;
-                }
-                Debug.Log($"✓ 用户ID: {getLoggedInuser.Data.ID}");
-
-                Debug.Log("正在获取用户详细信息...");
-                var getUser = await Users.Get(getLoggedInuser.Data.ID).Gen();
-                if (getUser.IsError)
-                {
-                    LogError("无法获取用户详细信息", getUser.GetError());
-                    return;
-                }
-
-                Debug.Log($"✓ 用户显示名称: {getUser.Data.DisplayName}");
-                LocalPlayerState.Init(getUser.Data.DisplayName, getUser.Data.ID);
-
-                Debug.Log("=== InitializeOculusModules() 完成 ===");
+                // 正常初始化流程
+                await InitializeOculusNormalMode();
             }
             catch (System.Exception exception)
             {
                 Debug.LogError($"InitializeOculusModules() 发生严重异常: {exception.Message}");
-                Debug.LogError("这很可能是导致应用卡在开屏的原因！");
+                DevelopmentConfig.LogDevelopmentMode("尝试在开发模式下初始化...");
                 Debug.LogException(exception);
+
+                // 异常情况下尝试开发模式
+                if (DevelopmentConfig.IsDevelopmentBuild)
+                {
+                    InitializeDevelopmentMode();
+                }
             }
+        }
+
+        /// <summary>
+        /// 开发模式初始化
+        /// </summary>
+        private void InitializeDevelopmentMode()
+        {
+            DevelopmentConfig.LogDevelopmentMode("=== 开发模式初始化 ===");
+
+            try
+            {
+                // 模拟启动类型
+                m_launchType = LaunchType.Normal;
+                DevelopmentConfig.LogDevelopmentMode($"✓ 模拟启动类型: {m_launchType}");
+
+                // 在开发模式下，我们跳过大部分Oculus特定的回调
+                DevelopmentConfig.LogDevelopmentMode("跳过群组存在回调设置");
+
+                // 使用DevelopmentConfig中的模拟用户数据
+                DevelopmentConfig.LogDevelopmentMode($"✓ 开发模式用户ID: {DevelopmentConfig.DevelopmentUserId}");
+                DevelopmentConfig.LogDevelopmentMode($"✓ 开发模式用户名: {DevelopmentConfig.DevelopmentUserName}");
+
+                LocalPlayerState.Init(DevelopmentConfig.DevelopmentUserName, DevelopmentConfig.DevelopmentUserId);
+
+                DevelopmentConfig.LogDevelopmentMode("=== 开发模式初始化完成 ===");
+            }
+            catch (System.Exception ex)
+            {
+                DevelopmentConfig.LogDevelopmentError($"开发模式初始化失败: {ex.Message}");
+                Debug.LogException(ex);
+            }
+        }
+
+        /// <summary>
+        /// 正常模式初始化
+        /// </summary>
+        private async Task InitializeOculusNormalMode()
+        {
+            m_launchType = ApplicationLifecycle.GetLaunchDetails().LaunchType;
+            Debug.Log($"✓ 启动类型: {m_launchType}");
+
+            Debug.Log("正在设置群组存在回调...");
+            GroupPresence.SetJoinIntentReceivedNotificationCallback(OnJoinIntentReceived);
+            GroupPresence.SetInvitationsSentNotificationCallback(OnInvitationsSent);
+            Debug.Log("✓ 群组存在回调设置完成");
+
+            Debug.Log("正在获取登录用户信息...");
+            var getLoggedInuser = await Users.GetLoggedInUser().Gen();
+            if (getLoggedInuser.IsError)
+            {
+                LogError("无法获取用户信息", getLoggedInuser.GetError());
+                return;
+            }
+            Debug.Log($"✓ 用户ID: {getLoggedInuser.Data.ID}");
+
+            Debug.Log("正在获取用户详细信息...");
+            var getUser = await Users.Get(getLoggedInuser.Data.ID).Gen();
+            if (getUser.IsError)
+            {
+                LogError("无法获取用户详细信息", getUser.GetError());
+                return;
+            }
+
+            Debug.Log($"✓ 用户显示名称: {getUser.Data.DisplayName}");
+            LocalPlayerState.Init(getUser.Data.DisplayName, getUser.Data.ID);
+
+            Debug.Log("=== InitializeOculusModules() 完成 ===");
         }
 
         /// <summary>

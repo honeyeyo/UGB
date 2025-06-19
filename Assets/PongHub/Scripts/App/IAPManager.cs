@@ -92,6 +92,14 @@ namespace PongHub.App
         /// <param name="category">商品类别(可选)</param>
         public void FetchProducts(string[] skus, string category = null)
         {
+            // 检查是否在开发模式
+            if (DevelopmentConfig.EnableOculusPlatformDevelopmentMode)
+            {
+                DevelopmentConfig.LogDevelopmentMode("IAPManager: 开发模式 - 模拟商品数据");
+                SimulateProductsForDevelopment(skus, category);
+                return;
+            }
+
             _ = IAP.GetProductsBySKU(skus).OnComplete(message =>
             {
                 GetProductsBySKUCallback(message, category);
@@ -103,6 +111,14 @@ namespace PongHub.App
         /// </summary>
         public void FetchPurchases()
         {
+            // 检查是否在开发模式
+            if (DevelopmentConfig.EnableOculusPlatformDevelopmentMode)
+            {
+                DevelopmentConfig.LogDevelopmentMode("IAPManager: 开发模式 - 模拟购买记录");
+                SimulatePurchasesForDevelopment();
+                return;
+            }
+
             _ = IAP.GetViewerPurchases().OnComplete(GetViewerPurchasesCallback);
         }
 
@@ -125,6 +141,11 @@ namespace PongHub.App
         {
             if (m_products.TryGetValue(sku, out var product))
             {
+                // 在开发模式下，product可能为null，但仍然表示商品存在
+                if (DevelopmentConfig.EnableOculusPlatformDevelopmentMode && product == null)
+                {
+                    DevelopmentConfig.LogDevelopmentMode($"开发模式：获取模拟商品 {sku}");
+                }
                 return product;
             }
 
@@ -258,6 +279,73 @@ namespace PongHub.App
                 Debug.Log($"[IAPManager] Purchased: sku:{p.Sku} granttime:{p.GrantTime} id:{p.ID}");
                 m_purchases[p.Sku] = p;
             }
+        }
+
+        /// <summary>
+        /// 开发模式下模拟商品数据
+        /// </summary>
+        private void SimulateProductsForDevelopment(string[] skus, string category)
+        {
+            foreach (var sku in skus)
+            {
+                // 创建模拟商品数据
+                var mockProduct = CreateMockProduct(sku);
+                m_products[sku] = mockProduct;
+                m_availableSkus.Add(sku);
+
+                if (!string.IsNullOrWhiteSpace(category))
+                {
+                    if (!m_productsByCategory.TryGetValue(category, out var categorySkus))
+                    {
+                        categorySkus = new List<string>();
+                        m_productsByCategory[category] = categorySkus;
+                    }
+                    categorySkus.Add(sku);
+                }
+
+                DevelopmentConfig.LogDevelopmentMode($"IAPManager: 模拟商品 - SKU:{sku} 名称:{mockProduct.Name} 价格:{mockProduct.FormattedPrice}");
+            }
+        }
+
+        /// <summary>
+        /// 开发模式下模拟购买记录
+        /// </summary>
+        private void SimulatePurchasesForDevelopment()
+        {
+            // 在开发模式下，模拟一些已购买的商品
+            var mockPurchasedSkus = new[] { "paddle_upgrade", "ball_skin_golden" };
+
+            foreach (var sku in mockPurchasedSkus)
+            {
+                if (m_products.ContainsKey(sku))
+                {
+                    var mockPurchase = CreateMockPurchase(sku);
+                    m_purchases[sku] = mockPurchase;
+                    DevelopmentConfig.LogDevelopmentMode($"IAPManager: 模拟购买记录 - SKU:{sku}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 创建模拟商品对象
+        /// </summary>
+        private Product CreateMockProduct(string sku)
+        {
+            // 在开发模式下，我们不实际创建Product对象，而是模拟其行为
+            // Product是Oculus Platform的只读模型，无法直接实例化
+            DevelopmentConfig.LogDevelopmentMode($"模拟商品创建 - SKU: {sku}");
+            return null; // 返回null，但在字典中标记为已存在
+        }
+
+        /// <summary>
+        /// 创建模拟购买记录对象
+        /// </summary>
+        private Purchase CreateMockPurchase(string sku)
+        {
+            // 在开发模式下，我们不实际创建Purchase对象，而是模拟其行为
+            // Purchase是Oculus Platform的只读模型，无法直接实例化
+            DevelopmentConfig.LogDevelopmentMode($"模拟购买记录创建 - SKU: {sku}");
+            return null; // 返回null，但在字典中标记为已存在
         }
     }
 }
