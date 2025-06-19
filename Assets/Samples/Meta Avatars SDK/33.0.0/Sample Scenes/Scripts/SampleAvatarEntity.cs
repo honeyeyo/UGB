@@ -459,8 +459,8 @@ public class SampleAvatarEntity : OvrAvatarEntity
 
                     // Reload the avatar
                     ApplyConfig(GetAvatarConfig(), true);
-                    yield break;
-                    break;
+                    yield break; // 协程在此终止
+                    // break; // 永远不会执行到这里！
 
                 case OvrAvatarManager.HasAvatarRequestResultCode.HasNoAvatar:
                     OvrAvatarLog.LogDebug("User has no avatar.  Continue polling in background.", logScope, this);

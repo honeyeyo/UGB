@@ -154,7 +154,7 @@ namespace PongHub.Gameplay.Ball
                 }
             };
 
-            bool needsUpdate = false;
+            bool needsUpdate = false; // only used in UNITY_EDITOR, ignore warning CS0162
             foreach (var kvp in defaultMaterials)
             {
                 if (!materialLookup.ContainsKey(kvp.Key))

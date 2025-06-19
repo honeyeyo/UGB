@@ -81,8 +81,10 @@ namespace Oculus.Avatar2.Experimental
         [SerializeField]
         private bool _enableTrackedUpperBodyRotation = true;
 
+#if UNITY_EDITOR
         [SerializeField]
         private bool _enableDebugRigVisual = false;
+#endif
 
         [Tooltip("When enabled, this allows the upper body of an avatar to rotate independently of the lower body. When the difference " +
             "in angle between the upper body and lower body grows larger than the max upper body angle deviation, the lower body will " +

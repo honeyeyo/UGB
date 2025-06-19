@@ -38,10 +38,12 @@ namespace PongHub.Arena.Player
         /// </summary>
         [SerializeField] private Transform m_head;
 
+#if UNITY_EDITOR // fixed warning CS0414: The field 'PlayerMovement.m_inEditorHeadHeight' is assigned but its value is never used
         /// <summary>
         /// 编辑器模式下的默认头部高度
         /// </summary>
         [SerializeField] private float m_inEditorHeadHeight = 1.7f;
+#endif
 
         /// <summary>
         /// 是否正在移动中

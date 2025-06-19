@@ -25,7 +25,9 @@ Texture2D FresnelNoise;
 SamplerState samplerFresnelNoise;
 
 #define PLATFORM_SAMPLE_TEXTURE2D(textureName, samplerName, coord2) textureName.Sample(samplerName, coord2)
+#ifndef TEXTURE2D_PARAM
 #define TEXTURE2D_PARAM(textureName, samplerName)   Texture2D textureName, SamplerState samplerName
+#endif
 #define TEXTURE2D_ARGS(textureName, samplerName)                textureName, samplerName
 #define UnityBuildTexture2DStructNoScale(n) UnityBuildTexture2DStructInternal(TEXTURE2D_ARGS(n, sampler##n), n##_TexelSize, float4(1, 1, 0, 0))
 
@@ -68,7 +70,7 @@ struct UnityTexture2D
     // these functions allows users to convert code using Texture2D to UnityTexture2D by simply changing the type of the variable
     // the existing texture macros will call these functions, which will forward the call to the texture appropriately
     float4 Sample(UnitySamplerState s, float2 uv) { return PLATFORM_SAMPLE_TEXTURE2D(tex, s.samplerstate, uv); }
-    
+
     float2 GetTransformedUV(float2 uv) { return uv * scaleTranslate.xy + scaleTranslate.zw; }
 
     #ifndef SHADER_API_GLES
@@ -137,14 +139,14 @@ float4 ApplyGhostEffect(float4 color, float3 worldNormal, float3 worldPos, float
     float outAlphaGhost, outAlphaClip;
     float3 outColGhost;
     GhostBallEffect(worldNormal,worldPos,screenPos, uv, outColGhost, outAlphaGhost, outAlphaClip);
-    color.rgb *= outColGhost; 
+    color.rgb *= outColGhost;
     color.a = min(color.a, outAlphaGhost);
     // We already do alphaClip on < 0.5 in AvatarUnityLighting.cginc
     // so we put alpha at 0 if we want it to be clipped
     //clip(c.a - outAlphaClip);
     if (color.a - outAlphaClip < 0)
     {
-        color.a = 0; 
+        color.a = 0;
     }
     return color;
 }

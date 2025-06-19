@@ -131,12 +131,12 @@ namespace Photon.Voice.Unity
         private bool autoStart = true;
 
         #if UNITY_IOS || UNITY_EDITOR
-        [SerializeField] 
+        [SerializeField]
         private IOS.AudioSessionParameters audioSessionParameters = IOS.AudioSessionParametersPresets.Game;
         #pragma warning disable 649
         [SerializeField]
         private bool useCustomAudioSessionParameters;
-        [SerializeField] 
+        [SerializeField]
         private int audioSessionPresetIndex;
         #pragma warning restore 649
         #endif
@@ -157,7 +157,7 @@ namespace Photon.Voice.Unity
 
         [SerializeField]
         private bool stopRecordingWhenPaused;
-        
+
         [SerializeField]
         private bool useOnAudioFilterRead;
 
@@ -326,8 +326,8 @@ namespace Photon.Voice.Unity
         /// <summary>If true, stream data sent in reliable mode.</summary>
         public bool ReliableMode
         {
-            get 
-            { 
+            get
+            {
                 return this.reliableMode;
             }
             set
@@ -983,7 +983,7 @@ namespace Photon.Voice.Unity
             get { return this.stopRecordingWhenPaused; }
             set { this.stopRecordingWhenPaused = value; }
         }
-        
+
         /// <summary> If true, recording will make use of Unity's OnAudioFitlerRead callback from a muted local AudioSource. </summary>
         /// <remarks> If enabled, 3D sounds and voice positioning can be lost. </remarks>
         public bool UseOnAudioFilterRead
@@ -1060,7 +1060,7 @@ namespace Photon.Voice.Unity
                         {
                             this.StopRecordingInternal();
                         }
-                    } 
+                    }
                     else
                     {
                         this.CheckAndAutoStart();
@@ -1109,7 +1109,7 @@ namespace Photon.Voice.Unity
                             return this.GetDeviceById(id);
                         }
                         #endif
-                        break;
+                        break; // warning CS0162: Unreachable code detected , 但是删除后编译会报错, 所以不改了.(可以使用#pragma warning disable 0162)
                     }
                 }
                 return DeviceInfo.Default;
@@ -1322,7 +1322,7 @@ namespace Photon.Voice.Unity
                     opt |= (int)options[i];
                 }
             }
-            if (this.audioSessionParameters.Category != category || 
+            if (this.audioSessionParameters.Category != category ||
                 this.audioSessionParameters.Mode != mode ||
                 this.audioSessionParameters.CategoryOptionsToInt() != opt)
             {
@@ -1412,7 +1412,7 @@ namespace Photon.Voice.Unity
             }
             return false;
         }
-        
+
         public static bool CompareUnityMicNames(string mic1, string mic2)
         {
             if (IsDefaultUnityMic(mic1) && IsDefaultUnityMic(mic2))
@@ -1514,7 +1514,7 @@ namespace Photon.Voice.Unity
                                     this.inputSource = new MicWrapper(micDev, samplingRateInt, this.Logger);
                                 }
                             }
-                            if (this.inputSource != null) 
+                            if (this.inputSource != null)
                             {
                                 if (this.inputSource.Error != null)
                                 {
@@ -1594,7 +1594,7 @@ namespace Photon.Voice.Unity
                                 this.Logger.LogError("Photon microphone type is not supported for the current platform {0}.", CurrentPlatform);
                             }
                             #endif
-                            if (this.inputSource != null) 
+                            if (this.inputSource != null)
                             {
                                 if (this.inputSource.Error != null)
                                 {
@@ -2020,7 +2020,7 @@ namespace Photon.Voice.Unity
             return this.IsValidPhotonMic(this.photonMicrophoneDeviceIdString);
             #endif
         }
-        
+
         private bool CheckIfMicrophoneIdIsValid(IDeviceEnumerator audioInEnumerator, int id)
         {
             if (id == -1) // default
@@ -2297,7 +2297,7 @@ namespace Photon.Voice.Unity
 
         internal void CheckAndAutoStart()
         {
-            if (this.IsInitialized && this.autoStart && 
+            if (this.IsInitialized && this.autoStart &&
                 !this.isRecording && !this.recordingStoppedExplicitly &&
                 (!this.recordOnlyWhenJoined || this.voiceConnection.Client == null || this.voiceConnection.Client.InRoom) &&
                 (!this.recordOnlyWhenEnabled || this.isActiveAndEnabled))
@@ -2408,7 +2408,7 @@ namespace Photon.Voice.Unity
             None,
             Short
         }
-        
+
         [Obsolete("Use Photon.Voice.Unity.PhotonVoiceCreatedParams")]
         public class PhotonVoiceCreatedParams : Unity.PhotonVoiceCreatedParams
         {
