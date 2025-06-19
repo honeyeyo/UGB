@@ -4,6 +4,7 @@ using Meta.Utilities;
 using PongHub.Arena.Services;
 using PongHub.Core.Audio;
 using UnityEngine;
+using System.Collections;
 
 namespace PongHub.Arena.Gameplay
 {
@@ -193,28 +194,61 @@ namespace PongHub.Arena.Gameplay
         {
             if (m_currentMusicHandle != null && m_currentMusicHandle.IsValid)
             {
-                // 使用AudioController进行平滑淡出
-                if (AudioController.Instance != null)
-                {
-                    AudioController.Instance.StartFadeOut(m_currentMusicHandle, m_fadeTime, AudioFadeType.EaseOut);
-                }
-                else
-                {
-                    m_currentMusicHandle.Stop();
-                }
-
+                // 使用协程实现音量淡出后停止
+                StartCoroutine(FadeOutAndStop(m_currentMusicHandle, m_fadeTime));
                 m_currentMusicHandle = null;
             }
         }
 
         /// <summary>
+        /// 协程：淡出音量后停止播放
+        /// </summary>
+        private IEnumerator FadeOutAndStop(AudioHandle handle, float fadeTime)
+        {
+            if (handle == null || !handle.IsValid) yield break;
+
+            float startVolume = handle.Volume;
+            float elapsedTime = 0f;
+
+            while (elapsedTime < fadeTime && handle.IsValid)
+            {
+                elapsedTime += Time.deltaTime;
+                float newVolume = Mathf.Lerp(startVolume, 0f, elapsedTime / fadeTime);
+                handle.SetVolume(newVolume);
+                yield return null;
+            }
+
+            if (handle.IsValid)
+            {
+                handle.Stop();
+            }
+        }
+
+                /// <summary>
         /// 降低音乐音量（用于倒计时等场景）
         /// </summary>
         private void DuckMusic()
         {
-            if (AudioController.Instance != null)
+            if (m_currentMusicHandle != null && m_currentMusicHandle.IsValid)
             {
-                AudioController.Instance.DuckCategory(AudioCategory.Music, 0.3f, 3.0f);
+                // 直接降低当前播放音乐的音量
+                m_currentMusicHandle.SetVolume(m_musicVolume * 0.3f);
+
+                // 3秒后恢复原音量
+                StartCoroutine(RestoreMusicVolumeAfterDelay(3.0f));
+            }
+        }
+
+        /// <summary>
+        /// 延迟恢复音乐音量
+        /// </summary>
+        private IEnumerator RestoreMusicVolumeAfterDelay(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
+            if (m_currentMusicHandle != null && m_currentMusicHandle.IsValid)
+            {
+                m_currentMusicHandle.SetVolume(m_musicVolume);
             }
         }
 
