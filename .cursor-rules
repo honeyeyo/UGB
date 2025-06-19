@@ -1,0 +1,23 @@
+# Cursor Rules
+
+## Markdown Documentation
+
+When creating or modifying Markdown documentation files:
+
+1. **Always validate with Markdownlint**: All Markdown files must pass Markdownlint validation using the project's .markdownlint.json configuration
+2. **Consistent heading style**: Use ATX-style headings (# ## ###) with consistent spacing
+3. **Proper heading hierarchy**: Headings should increment by one level at a time (no skipping from # to ###)
+4. **Blank lines around headings**: All headings must be surrounded by blank lines
+5. **Blank lines around lists**: All lists must be surrounded by blank lines
+6. **Blank lines around code blocks**: Fenced code blocks must be surrounded by blank lines
+7. **Language identifiers for code blocks**: All fenced code blocks must specify a language (```csharp, ```json, etc.)
+8. **Single trailing newline**: Files must end with exactly one newline character
+9. **No trailing spaces**: Remove all trailing whitespace
+10. **Consistent list markers**: Use consistent bullet points (-) and numbering (1.)
+
+Before submitting any Markdown documentation:
+- Run `markdownlint <filename>` to check for issues
+- Run `markdownlint <filename> --fix` to auto-fix common issues
+- Manually review and fix any remaining validation errors
+
+These rules ensure consistent, readable, and maintainable documentation across the project.

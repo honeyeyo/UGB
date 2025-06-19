@@ -2,6 +2,7 @@
 
 using Meta.Utilities;
 using PongHub.Arena.Services;
+using PongHub.Core.Audio;
 using UnityEngine;
 
 namespace PongHub.Arena.Gameplay
@@ -10,20 +11,14 @@ namespace PongHub.Arena.Gameplay
     /// 游戏音乐管理器
     /// 根据当前游戏阶段播放相应的背景音乐
     /// 实现了IGamePhaseListener接口以响应游戏阶段变化
+    /// 重构为使用新的AudioService系统
     /// </summary>
-    [RequireComponent(typeof(AudioSource))]
     public class GameMusicManager : MonoBehaviour, IGamePhaseListener
     {
         /// <summary>
         /// 游戏管理器引用
         /// </summary>
         [SerializeField] private GameManager m_gameManager;
-
-        /// <summary>
-        /// 音乐播放器组件
-        /// 使用AutoSet特性自动获取组件引用
-        /// </summary>
-        [SerializeField, AutoSet] private AudioSource m_musicAudioSource;
 
         /// <summary>
         /// 赛前阶段背景音乐
@@ -41,6 +36,26 @@ namespace PongHub.Arena.Gameplay
         [SerializeField] private AudioClip m_postGameClip;
 
         /// <summary>
+        /// 音乐淡入淡出时间
+        /// </summary>
+        [SerializeField] private float m_fadeTime = 2.0f;
+
+        /// <summary>
+        /// 音乐音量
+        /// </summary>
+        [SerializeField] private float m_musicVolume = 0.7f;
+
+        /// <summary>
+        /// 当前播放的音乐句柄
+        /// </summary>
+        private AudioHandle m_currentMusicHandle;
+
+        /// <summary>
+        /// 音频服务引用
+        /// </summary>
+        private AudioService AudioService => AudioService.Instance;
+
+        /// <summary>
         /// 初始化时注册为游戏阶段监听器
         /// </summary>
         private void Awake()
@@ -54,6 +69,9 @@ namespace PongHub.Arena.Gameplay
         private void OnDestroy()
         {
             m_gameManager.UnregisterPhaseListener(this);
+
+            // 停止当前播放的音乐
+            StopMusic();
         }
 
         /// <summary>
@@ -69,7 +87,8 @@ namespace PongHub.Arena.Gameplay
                     PlayPreGameMusic();
                     break;
                 case GameManager.GamePhase.CountDown:
-                    // 倒计时阶段不播放音乐
+                    // 倒计时阶段降低音乐音量
+                    DuckMusic();
                     break;
                 case GameManager.GamePhase.InGame:
                     PlayInGameMusic();
@@ -109,8 +128,20 @@ namespace PongHub.Arena.Gameplay
         /// </summary>
         private void PlayPreGameMusic()
         {
-            m_musicAudioSource.clip = m_preGameClip;
-            m_musicAudioSource.Play();
+            if (m_preGameClip == null) return;
+
+            StopMusic();
+            m_currentMusicHandle = AudioService.PlayWithFade(
+                m_preGameClip,
+                m_fadeTime,
+                m_fadeTime,
+                AudioCategory.Music
+            );
+
+            if (m_currentMusicHandle != null)
+            {
+                m_currentMusicHandle.SetVolume(m_musicVolume);
+            }
         }
 
         /// <summary>
@@ -118,8 +149,20 @@ namespace PongHub.Arena.Gameplay
         /// </summary>
         private void PlayInGameMusic()
         {
-            m_musicAudioSource.clip = m_inGameClip;
-            m_musicAudioSource.Play();
+            if (m_inGameClip == null) return;
+
+            StopMusic();
+            m_currentMusicHandle = AudioService.PlayWithFade(
+                m_inGameClip,
+                m_fadeTime,
+                m_fadeTime,
+                AudioCategory.Music
+            );
+
+            if (m_currentMusicHandle != null)
+            {
+                m_currentMusicHandle.SetVolume(m_musicVolume);
+            }
         }
 
         /// <summary>
@@ -127,8 +170,20 @@ namespace PongHub.Arena.Gameplay
         /// </summary>
         private void PlayPostGameMusic()
         {
-            m_musicAudioSource.clip = m_postGameClip;
-            m_musicAudioSource.Play();
+            if (m_postGameClip == null) return;
+
+            StopMusic();
+            m_currentMusicHandle = AudioService.PlayWithFade(
+                m_postGameClip,
+                m_fadeTime,
+                m_fadeTime,
+                AudioCategory.Music
+            );
+
+            if (m_currentMusicHandle != null)
+            {
+                m_currentMusicHandle.SetVolume(m_musicVolume);
+            }
         }
 
         /// <summary>
@@ -136,7 +191,61 @@ namespace PongHub.Arena.Gameplay
         /// </summary>
         private void StopMusic()
         {
-            m_musicAudioSource.Stop();
+            if (m_currentMusicHandle != null && m_currentMusicHandle.IsValid)
+            {
+                // 使用AudioController进行平滑淡出
+                if (AudioController.Instance != null)
+                {
+                    AudioController.Instance.StartFadeOut(m_currentMusicHandle, m_fadeTime, AudioFadeType.EaseOut);
+                }
+                else
+                {
+                    m_currentMusicHandle.Stop();
+                }
+
+                m_currentMusicHandle = null;
+            }
+        }
+
+        /// <summary>
+        /// 降低音乐音量（用于倒计时等场景）
+        /// </summary>
+        private void DuckMusic()
+        {
+            if (AudioController.Instance != null)
+            {
+                AudioController.Instance.DuckCategory(AudioCategory.Music, 0.3f, 3.0f);
+            }
+        }
+
+        /// <summary>
+        /// 设置音乐音量
+        /// </summary>
+        /// <param name="volume">音量值 (0-1)</param>
+        public void SetMusicVolume(float volume)
+        {
+            m_musicVolume = Mathf.Clamp01(volume);
+
+            if (m_currentMusicHandle != null && m_currentMusicHandle.IsValid)
+            {
+                m_currentMusicHandle.SetVolume(m_musicVolume);
+            }
+        }
+
+        /// <summary>
+        /// 获取当前音乐音量
+        /// </summary>
+        public float GetMusicVolume()
+        {
+            return m_musicVolume;
+        }
+
+        /// <summary>
+        /// 检查是否正在播放音乐
+        /// </summary>
+        public bool IsPlayingMusic()
+        {
+            return m_currentMusicHandle != null && m_currentMusicHandle.IsValid && m_currentMusicHandle.IsPlaying;
         }
     }
 }

@@ -7,12 +7,14 @@
 ## 当前问题分析
 
 ### 现有架构问题
+
 1. **职责重复**: AudioController和AudioManager功能重叠
 2. **数据不一致**: 同时使用GameSettings和PlayerPrefs存储设置
 3. **架构混乱**: 多个单例，初始化顺序不确定
 4. **维护困难**: 音频逻辑分散在多个文件中
 
 ### 影响范围
+
 - UI设置面板音量控制不统一
 - 游戏内音效播放逻辑分散
 - 音频混音器参数管理混乱
@@ -23,18 +25,22 @@
 ### 设计原则
 
 #### 1. 单一职责原则
+
 每个组件只负责一个明确的功能领域：
+
 - **配置层**: 仅负责数据存储和配置管理
 - **服务层**: 提供统一的音频API接口
 - **控制层**: 管理AudioMixer和硬件交互
 - **表现层**: 具体的音效播放和3D空间音频
 
 #### 2. 依赖注入与解耦
+
 - 使用事件系统进行组件间通信
 - 避免硬编码的组件引用
 - 支持运行时动态配置
 
 #### 3. 现代化音频管道
+
 ```
 [配置数据] → [音频服务] → [混音控制] → [空间音效] → [输出设备]
     ↓             ↓            ↓            ↓
@@ -44,6 +50,7 @@ GameSettings → AudioService → AudioMixer → AudioSource → Unity音频引�
 ### 核心组件架构
 
 #### 1. AudioConfiguration (配置层)
+
 ```csharp
 // 音频配置数据容器，负责设置的持久化
 public class AudioConfiguration : ScriptableObject
@@ -70,6 +77,7 @@ public class AudioConfiguration : ScriptableObject
 ```
 
 #### 2. AudioService (服务层)
+
 ```csharp
 // 统一的音频服务接口，提供所有音频操作的入口点
 public class AudioService : MonoBehaviour
@@ -91,6 +99,7 @@ public class AudioService : MonoBehaviour
 ```
 
 #### 3. AudioMixerController (控制层)
+
 ```csharp
 // AudioMixer参数的专门控制器
 public class AudioMixerController : MonoBehaviour
@@ -107,6 +116,7 @@ public class AudioMixerController : MonoBehaviour
 ```
 
 #### 4. AudioSourcePool (性能优化层)
+
 ```csharp
 // AudioSource对象池，提高性能
 public class AudioSourcePool : MonoBehaviour
@@ -118,6 +128,7 @@ public class AudioSourcePool : MonoBehaviour
 ```
 
 #### 5. SpatialAudioManager (空间音频层)
+
 ```csharp
 // 3D空间音效的专门管理器
 public class SpatialAudioManager : MonoBehaviour
@@ -135,6 +146,7 @@ public class SpatialAudioManager : MonoBehaviour
 ### 数据流设计
 
 #### 配置数据流
+
 ```
 用户操作 → UI滑块 → AudioService.SetVolume() →
 AudioMixerController.SetMixerVolume() → GameSettings保存 →
@@ -142,6 +154,7 @@ AudioMixerController.SetMixerVolume() → GameSettings保存 →
 ```
 
 #### 音效播放流
+
 ```
 游戏事件 → AudioService.PlayOneShot() →
 AudioSourcePool.GetPooledSource() →
@@ -152,6 +165,7 @@ Unity AudioSource播放
 ### 事件系统设计
 
 #### AudioEvent 体系
+
 ```csharp
 public abstract class AudioEvent
 {
@@ -176,6 +190,7 @@ public class VolumeChangeEvent : AudioEvent
 ### 配置管理策略
 
 #### GameSettings 统一管理
+
 ```csharp
 public class GameSettings
 {
@@ -199,20 +214,24 @@ public class GameSettings
 ### 乒乓球游戏音效分类
 
 #### 1. 游戏音效 (Gameplay SFX)
+
 - **球类音效**: 球拍击球、球桌碰撞、球网碰撞、球落地
 - **环境音效**: 观众欢呼、球馆环境音、脚步声
 - **物理音效**: 球的旋转音、球拍挥动音
 
 #### 2. 界面音效 (UI SFX)
+
 - **菜单音效**: 按钮点击、页面切换、确认/取消
 - **反馈音效**: 得分提示、游戏开始/结束、错误提示
 
 #### 3. 背景音乐 (Background Music)
+
 - **主菜单音乐**: 轻松的环境音乐
 - **游戏内音乐**: 紧张的比赛音乐
 - **胜利音乐**: 庆祝和成就音效
 
 #### 4. 语音音效 (Voice)
+
 - **解说员**: 比赛解说、得分播报
 - **玩家语音**: VR环境中的玩家交流
 - **系统提示**: 游戏状态语音提示
@@ -220,11 +239,13 @@ public class GameSettings
 ### VR 特定音频需求
 
 #### 1. 空间音频精度
+
 - **精确定位**: 球的3D位置音效必须准确对应物理位置
 - **距离衰减**: 根据玩家与声源的距离动态调整音量
 - **方向感知**: 利用双耳音效增强沉浸感
 
 #### 2. 性能优化
+
 - **音源池化**: VR环境中频繁的音效播放需要对象池优化
 - **LOD系统**: 根据距离和重要性进行音效细节等级管理
 - **内存管理**: 避免在VR运行时加载大量音频资源
@@ -232,24 +253,28 @@ public class GameSettings
 ## 实施计划
 
 ### 第一阶段: 基础架构 (Week 1-2)
+
 1. ✅ 创建AudioConfiguration ScriptableObject
 2. ✅ 实现统一的AudioService
 3. ✅ 重构GameSettings音频相关部分
 4. ✅ 建立AudioEvent事件系统
 
 ### 第二阶段: 核心功能 (Week 3-4)
+
 1. ✅ 实现AudioMixerController
 2. ✅ 创建AudioSourcePool对象池
 3. ✅ 集成SpatialAudioManager
 4. ✅ 迁移现有音效播放逻辑
 
 ### 第三阶段: 优化和完善 (Week 5-6)
+
 1. ✅ 性能优化和内存管理
 2. ✅ VR特定音频功能完善
 3. ✅ UI集成和用户体验优化
 4. ✅ 全面测试和调试
 
 ### 第四阶段: 文档和维护 (Week 7)
+
 1. ✅ 完善开发者文档
 2. ✅ 创建音频资源管理指南
 3. ✅ 建立音频质量检查流程
@@ -264,4 +289,4 @@ public class GameSettings
 - **易维护**: 明确的职责分离和事件驱动架构
 - **专业性**: 符合现代游戏音频系统标准
 
-这个架构不仅解决了当前的技术债务，还为未来的功能扩展和性能优化奠定了坚实基础。
+这个架构不仅解决了当前的技术债务，还为未来的功能扩展和性能优化奠定了坚实基础
