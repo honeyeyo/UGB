@@ -48,6 +48,16 @@ namespace PongHub.Core.Audio
     }
 
     /// <summary>
+    /// 音频质量级别
+    /// </summary>
+    public enum AudioQualityLevel
+    {
+        Low = 0,
+        Medium = 1,
+        High = 2
+    }
+
+    /// <summary>
     /// 浮点数范围结构
     /// </summary>
     [Serializable]

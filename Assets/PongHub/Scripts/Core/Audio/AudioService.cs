@@ -62,9 +62,8 @@ namespace PongHub.Core.Audio
         /// </summary>
         public SpatialAudioManager SpatialAudioManager => m_spatialAudioManager;
 
-        protected override void Awake()
+        protected override void InternalAwake()
         {
-            base.Awake();
             InitializeAudioSystem();
         }
 
