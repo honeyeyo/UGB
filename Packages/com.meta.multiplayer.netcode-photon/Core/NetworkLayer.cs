@@ -49,15 +49,19 @@ namespace Meta.Multiplayer.Core
         [SerializeField] private int m_retryToRestoreClientCount = 1;
 
         private int m_restoreClientRetries = 0;
-
+        /// <summary>客户端连接回调</summary>
         public Action<ulong> OnClientConnectedCallback;
         /// <summary>客户端断开回调</summary>
         public Action<ulong> OnClientDisconnectedCallback;
         /// <summary>主机切换回调</summary>
         public Func<ulong> OnMasterClientSwitchedCallback;
+        /// <summary>主机离开并开始迁移回调</summary>
         public Action OnHostLeftAndStartingMigration;
+        /// <summary>开始主机回调</summary>
         public Action StartHostCallback;
+        /// <summary>开始大厅回调</summary>
         public Action StartLobbyCallback;
+        /// <summary>开始客户端回调</summary>
         public Action StartClientCallback;
         /// <summary>恢复主机回调</summary>
         public Action RestoreHostCallback;
@@ -71,16 +75,21 @@ namespace Meta.Multiplayer.Core
         public Func<string> GetOnClientConnectingPayloadFunc;
         /// <summary>检查是否可以作为主机迁移函数</summary>
         public Func<bool> CanMigrateAsHostFunc;
-
+        /// <summary>当前客户端状态</summary>
         public ClientState CurrentClientState { get; private set; } = ClientState.Disconnected;
 
+        /// <summary>当前房间</summary>
         public string CurrentRoom => m_photonRealtime?.RoomName ?? m_photonRealtime?.Client?.CurrentRoom?.Name;
-
+        /// <summary>已启用区域</summary>
         public List<Region> EnabledRegions { get; private set; }
 
+        /// <summary>是否在断开连接时调用失败回调</summary>
         private bool m_callFailureOnDisconnect = false;
+        /// <summary>失败代码</summary>
+        /// <summary>失败代码</summary>
         private int m_failureCode = 0;
 
+        /// <summary>启用时调用</summary>
         private void OnEnable()
         {
             DontDestroyOnLoad(this);
@@ -89,11 +98,13 @@ namespace Meta.Multiplayer.Core
             s_onDisconnectReasonReceivedStatic = OnDisconnectReasonReceived;
         }
 
+        /// <summary>获取区域</summary>
         public string GetRegion()
         {
             return m_photonRealtime.Client?.CloudRegion;
         }
 
+        /// <summary>设置区域</summary>
         public void SetRegion(string region)
         {
             m_photonRealtime.RegionOverride = region;
@@ -104,6 +115,7 @@ namespace Meta.Multiplayer.Core
             }
         }
 
+        /// <summary>设置房间属性</summary>
         public void SetRoomProperty(ExitGames.Client.Photon.Hashtable properties)
         {
             _ = m_photonRealtime.Client.CurrentRoom.SetCustomProperties(properties);
@@ -117,7 +129,7 @@ namespace Meta.Multiplayer.Core
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
             m_photonRealtime.RoomName = room;
-            if (string.IsNullOrEmpty(room))
+            if (string.IsNullOrEmpty(room)) // 如果房间为空，则进入大厅
             {
                 _ = StartCoroutine(StartLobby());
             }
@@ -125,6 +137,7 @@ namespace Meta.Multiplayer.Core
             {
                 // On init if we fail to load client we want to host a private game
                 // this failure will mostly come from in Editor when AutoJoining a specific room as teh first player.
+                // 如果房间不为空，则进入房间
                 m_photonRealtime.UsePrivateRoom = true;
                 m_photonRealtime.RegionOverride = region;
                 _ = StartCoroutine(StartClient());
@@ -156,6 +169,10 @@ namespace Meta.Multiplayer.Core
             Debug.LogWarning("You are in the Lobby.");
         }
 
+        /// <summary>
+        /// 开始主机
+        /// 启动主机并等待连接到房间
+        /// </summary>
         private IEnumerator StartHost()
         {
             CurrentClientState = ClientState.StartingHost;
@@ -176,6 +193,10 @@ namespace Meta.Multiplayer.Core
             yield break;
         }
 
+        /// <summary>
+        /// 开始客户端
+        /// 启动客户端并等待连接到房间
+        /// </summary>
         private IEnumerator StartClient()
         {
             CurrentClientState = ClientState.StartingClient;
@@ -212,6 +233,10 @@ namespace Meta.Multiplayer.Core
             return new WaitUntil(() => NetworkManager.Singleton.LocalClient != null && NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject() != null);
         }
 
+        /// <summary>
+        /// 恢复主机
+        /// 恢复主机并等待连接到房间
+        /// </summary>
         private IEnumerator RestoreHost()
         {
             Debug.LogWarning("Restore Host.");
@@ -230,6 +255,10 @@ namespace Meta.Multiplayer.Core
             Debug.LogWarning("You are the host.");
         }
 
+        /// <summary>
+        /// 恢复客户端
+        /// 恢复客户端并等待连接到房间
+        /// </summary>
         private IEnumerator RestoreClient()
         {
             Debug.LogWarning("Restore Client.");
@@ -255,12 +284,20 @@ namespace Meta.Multiplayer.Core
             Debug.LogWarning("You are a client.");
         }
 
+        /// <summary>
+        /// 恢复客户端失败
+        /// 恢复客户端失败并调用失败回调
+        /// </summary>
         private IEnumerator RestoreClientFailed()
         {
             yield return null;
             OnRestoreFailedCallback?.Invoke(m_failureCode);
         }
 
+        /// <summary>
+        /// 断开连接
+        /// 处理断开连接事件
+        /// </summary>
         public void OnDisconnected(DisconnectCause cause)
         {
             Debug.LogWarning($"OnDisconnected: {cause}");
@@ -409,6 +446,10 @@ namespace Meta.Multiplayer.Core
             }
         }
 
+        /// <summary>
+        /// 客户端连接
+        /// 处理客户端连接事件
+        /// </summary>
         private void OnClientConnected(ulong clientId)
         {
             m_photonRealtime.Client.LoadBalancingPeer.SendInCreationOrder = false;
@@ -423,11 +464,19 @@ namespace Meta.Multiplayer.Core
             _ = StartCoroutine(Routine());
         }
 
+        /// <summary>
+        /// 客户端断开连接
+        /// 处理客户端断开连接事件
+        /// </summary>
         private void OnClientDisconnected(ulong clientId)
         {
             OnClientDisconnectedCallback.Invoke(clientId);
         }
 
+        /// <summary>
+        /// 离开
+        /// 离开当前房间
+        /// </summary>
         public void Leave()
         {
             if (CurrentClientState == ClientState.Connected)
@@ -441,6 +490,10 @@ namespace Meta.Multiplayer.Core
             }
         }
 
+        /// <summary>
+        /// 主机切换
+        /// 处理主机切换事件
+        /// </summary>
         public void OnMasterClientSwitched(Player newMasterClient)
         {
             Debug.LogWarning("HOST LEFT, MIGRATING...");
@@ -451,6 +504,10 @@ namespace Meta.Multiplayer.Core
             OnHostLeftAndStartingMigration?.Invoke();
         }
 
+        /// <summary>
+        /// 是否可以作为主机迁移
+        /// 检查是否可以作为主机迁移
+        /// </summary>
         private bool CanMigrateAsHost()
         {
             // If no function provided we can migrate as an Host
@@ -487,12 +544,20 @@ namespace Meta.Multiplayer.Core
             }
         }
 
+        /// <summary>
+        /// 断开连接原因接收
+        /// 处理断开连接原因接收事件
+        /// </summary>
         private void OnDisconnectReasonReceived(int failureCode)
         {
             m_failureCode = failureCode;
             m_callFailureOnDisconnect = true;
         }
 
+        /// <summary>
+        /// 接收服务器到客户端设置断开连接原因的自定义消息
+        /// 处理服务器到客户端设置断开连接原因的自定义消息
+        /// </summary>
         public static void ReceiveServerToClientSetDisconnectReason_CustomMessage(ulong clientID, FastBufferReader reader)
         {
             reader.ReadValueSafe(out int status);
