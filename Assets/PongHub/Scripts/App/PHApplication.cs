@@ -244,7 +244,23 @@ namespace PongHub.App
                     LocalPlayerState, PlayerPresenceHandler, InstantiateSession);
 
                 Debug.Log("步骤7: 获取IAP产品信息...");
-                IAPManager.Instance.FetchProducts(UserIconManager.Instance.AllSkus, ProductCategories.ICONS);
+
+                // 检查 UserIconManager 是否已初始化
+                if (UserIconManager.Instance != null && UserIconManager.Instance.AllSkus != null)
+                {
+                    IAPManager.Instance.FetchProducts(UserIconManager.Instance.AllSkus, ProductCategories.ICONS);
+                }
+                else
+                {
+                    Debug.LogWarning("UserIconManager.Instance 或 AllSkus 为 null，跳过图标产品获取");
+                    // 在开发模式下使用默认SKU
+                    if (DevelopmentConfig.IsDevelopmentBuild)
+                    {
+                        var defaultIconSkus = new[] { "icon_1", "icon_2", "icon_3" };
+                        IAPManager.Instance.FetchProducts(defaultIconSkus, ProductCategories.ICONS);
+                    }
+                }
+
                 IAPManager.Instance.FetchProducts(new[] { ProductCategories.CAT }, ProductCategories.CONSUMABLES);
                 IAPManager.Instance.FetchPurchases();
 
@@ -557,11 +573,28 @@ namespace PongHub.App
                 // 在开发模式下，我们跳过大部分Oculus特定的回调
                 DevelopmentConfig.LogDevelopmentMode("跳过群组存在回调设置");
 
-                // 使用DevelopmentConfig中的模拟用户数据
-                DevelopmentConfig.LogDevelopmentMode($"✓ 开发模式用户ID: {DevelopmentConfig.DevelopmentUserId}");
-                DevelopmentConfig.LogDevelopmentMode($"✓ 开发模式用户名: {DevelopmentConfig.DevelopmentUserName}");
+                // 确保LocalPlayerState实例存在
+                if (LocalPlayerState == null)
+                {
+                    DevelopmentConfig.LogDevelopmentWarning("LocalPlayerState.Instance 为 null，尝试查找场景中的实例");
+                    var localPlayerState = FindObjectOfType<LocalPlayerState>();
+                    if (localPlayerState == null)
+                    {
+                        DevelopmentConfig.LogDevelopmentError("场景中未找到LocalPlayerState组件");
+                        return;
+                    }
+                }
 
-                LocalPlayerState.Init(DevelopmentConfig.DevelopmentUserName, DevelopmentConfig.DevelopmentUserId);
+                // 使用DevelopmentConfig中的模拟用户数据初始化
+                var devUsername = DevelopmentConfig.DevelopmentUserName;
+                var devUserId = DevelopmentConfig.DevelopmentUserId;
+
+                DevelopmentConfig.LogDevelopmentMode($"✓ 开发模式用户ID: {devUserId}");
+                DevelopmentConfig.LogDevelopmentMode($"✓ 开发模式用户名: {devUsername}");
+
+                // 初始化LocalPlayerState
+                LocalPlayerState.Init(devUsername, devUserId);
+                DevelopmentConfig.LogDevelopmentMode("✓ LocalPlayerState 初始化完成");
 
                 DevelopmentConfig.LogDevelopmentMode("=== 开发模式初始化完成 ===");
             }

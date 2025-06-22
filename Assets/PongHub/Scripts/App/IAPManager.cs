@@ -288,7 +288,7 @@ namespace PongHub.App
         {
             foreach (var sku in skus)
             {
-                // 创建模拟商品数据
+                // 创建模拟商品数据 - 在开发模式下为null，但标记为存在
                 var mockProduct = CreateMockProduct(sku);
                 m_products[sku] = mockProduct;
                 m_availableSkus.Add(sku);
@@ -303,7 +303,8 @@ namespace PongHub.App
                     categorySkus.Add(sku);
                 }
 
-                DevelopmentConfig.LogDevelopmentMode($"IAPManager: 模拟商品 - SKU:{sku} 名称:{mockProduct.Name} 价格:{mockProduct.FormattedPrice}");
+                // 修复：避免访问null对象的属性
+                DevelopmentConfig.LogDevelopmentMode($"IAPManager: 模拟商品 - SKU:{sku} 名称:Mock_{sku} 价格:$0.00");
             }
         }
 

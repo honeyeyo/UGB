@@ -13,6 +13,12 @@ GameObject:
   - component: {fileID: 2353314}
   - component: {fileID: 13591020}
   - component: {fileID: 5421032}
+  - component: {fileID: 1013302547699333151}
+  - component: {fileID: 1256993094772462090}
+  - component: {fileID: 8086672505041627593}
+  - component: {fileID: 2897144753846181050}
+  - component: {fileID: 8158830696313015199}
+  - component: {fileID: 1396133053901610244}
   m_Layer: 0
   m_Name: PingPongBall01
   m_TagString: Untagged
@@ -27,12 +33,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 145934}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3300826
 MeshFilter:
@@ -53,10 +60,12 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 4294967295
   m_RendererPriority: 0
   m_Materials:
@@ -81,6 +90,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!135 &13591020
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -89,9 +99,17 @@ SphereCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 145934}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Radius: 0.015
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &5421032
@@ -101,12 +119,162 @@ Rigidbody:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 145934}
-  serializedVersion: 2
+  serializedVersion: 4
   m_Mass: 1
   m_Drag: 0
   m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &1013302547699333151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 122308313
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+--- !u!114 &1256993094772462090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c026fe4b605f1649a973f1b02a1a2aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_rigidbody: {fileID: 5421032}
+  m_stateSync: {fileID: 8086672505041627593}
+  m_ballAttachment: {fileID: 0}
+  m_ballSpin: {fileID: 2897144753846181050}
+  m_ballPhysics:
+    mass: 0.0027
+    diameter: 0.04
+    bounceCoefficient: 0.9
+    airDrag: 0.1
+    angularDrag: 0.05
+    spinDecayRate: 0.98
+    magnusForceMultiplier: 1.5
+    ballPhysicMaterial: {fileID: 0}
+  m_audioSource: {fileID: 0}
+  m_onServedAudioClip: {fileID: 0}
+  m_ballBounceClip: {fileID: 0}
+  m_ballHitClip: {fileID: 0}
+  m_ballRenderer: {fileID: 0}
+  m_defaultMaterial: {fileID: 0}
+  m_deadMaterial: {fileID: 0}
+--- !u!114 &8086672505041627593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3015bd60fbaca74b88635da6f990595, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncRate: 20
+  positionThreshold: 0.01
+  rotationThreshold: 1
+  velocityThreshold: 0.1
+  positionLerpRate: 10
+  rotationLerpRate: 10
+  velocityLerpRate: 5
+  enablePrediction: 1
+  maxPredictionTime: 0.1
+  predictionConfidence: 0.8
+  maxBufferSize: 32
+  maxPacketAge: 1
+  enableJitterBuffer: 1
+  enableDebugLog: 0
+  showSyncGizmos: 0
+--- !u!114 &2897144753846181050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d26fc8bec8f59944998f6b6389acfd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spinDecayRate: 0.85
+  magnusForceMultiplier: 2.1
+  maxSpinRate: 157
+  minSpinThreshold: 0.5
+  ballMass: 0.0027
+  ballRadius: 0.02
+  airDensity: 1.225
+  magnusCoefficient: 0.42
+  showSpinVisualization: 1
+  spinTrailEffect: {fileID: 0}
+  spinAxisIndicator: {fileID: 0}
+  spinVisualizationMaterial: {fileID: 0}
+  audioSource: {fileID: 0}
+  spinSoundClip: {fileID: 0}
+  spinSoundVolumeMultiplier: 0.5
+--- !u!114 &8158830696313015199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02ad79f7132346e42a738367ecd1973d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_rigidbody: {fileID: 0}
+  m_collider: {fileID: 0}
+  m_ballData: {fileID: 0}
+--- !u!114 &1396133053901610244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acfc5befee2a44f40abbf563d936ebaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ballPhysics: {fileID: 0}
+  m_trailRenderer: {fileID: 0}
+  m_spinParticles: {fileID: 0}
+  m_particleEmissionRate: 10
+  m_minSpinThreshold: 10
