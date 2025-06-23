@@ -10,14 +10,51 @@ When creating or modifying Markdown documentation files:
 4. **Blank lines around headings**: All headings must be surrounded by blank lines
 5. **Blank lines around lists**: All lists must be surrounded by blank lines
 6. **Blank lines around code blocks**: Fenced code blocks must be surrounded by blank lines
-7. **Language identifiers for code blocks**: All fenced code blocks must specify a language (```csharp, ```json, etc.)
+7. **Language identifiers for code blocks**: All fenced code blocks must specify a language (`csharp, `json, etc.)
 8. **Single trailing newline**: Files must end with exactly one newline character
 9. **No trailing spaces**: Remove all trailing whitespace
 10. **Consistent list markers**: Use consistent bullet points (-) and numbering (1.)
 
 Before submitting any Markdown documentation:
+
 - Run `markdownlint <filename>` to check for issues
 - Run `markdownlint <filename> --fix` to auto-fix common issues
 - Manually review and fix any remaining validation errors
 
 These rules ensure consistent, readable, and maintainable documentation across the project.
+
+## Unity 编译检查和自动修复
+
+当修改 Unity 脚本文件后，必须按照以下流程进行编译检查和错误修复：
+
+### 编译检查流程
+
+1. **切换到 Unity Editor**: 保存所有修改的脚本文件，切换到 Unity Editor 窗口，等待 Unity 自动编译完成
+2. **检查 Console 输出**: 打开 Unity Console 窗口 (Window > General > Console)，查看编译错误(红色)和警告(黄色)信息
+3. **分析编译结果**: 无错误继续开发，有警告评估修复，有错误必须立即修复
+
+### 自动修复策略
+
+**编译错误(必须修复)**:
+
+- 缺少 using 语句: 添加必要的命名空间引用
+- 类型不匹配: 检查变量类型和赋值
+- 方法签名错误: 验证方法参数和返回类型
+- 访问修饰符错误: 调整 public/private/protected
+- 语法错误: 修正语法问题
+
+**编译警告(建议修复)**:
+
+- 未使用的变量: 移除或使用变量
+- 过时的 API: 更新到新的 API
+- 可能的 null 引用: 添加 null 检查
+- 不可达代码: 移除死代码
+
+### 实施要求
+
+- ✅ 修改脚本后必须检查编译状态
+- ✅ 所有编译错误必须修复
+- ✅ 严重警告建议修复
+- ✅ 记录修复过程和结果
+
+这个规则确保代码质量和项目稳定性，必须严格执行！

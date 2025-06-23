@@ -2164,6 +2164,10 @@ MonoBehaviour:
   m_ballSpawner: {fileID: 0}
   m_countdownView: {fileID: 0}
   m_postGameView: {fileID: 467140650}
+  m_postGameController: {fileID: 0}
+  m_statisticsTracker: {fileID: 0}
+  m_pointsPerSet: 11
+  m_setsToWin: 3
   m_courtAudioSource: {fileID: 1620469293}
   m_lowCountdownBeep: {fileID: 8300000, guid: 5408594b1249c5b45b4a2da7dfb40320, type: 3}
   m_highCountdownBeep: {fileID: 8300000, guid: bb39e2d004301b34f9bdd8e14bb32289, type: 3}
@@ -2403,6 +2407,10 @@ PrefabInstance:
     - target: {fileID: 13591020, guid: f78749db511f9ff4eaca80356416fbaa, type: 3}
       propertyPath: m_IsTrigger
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1013302547699333151, guid: f78749db511f9ff4eaca80356416fbaa, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 876452522
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -11218,9 +11226,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1233998242}
   - component: {fileID: 1233998246}
-  - component: {fileID: 1233998245}
-  - component: {fileID: 1233998244}
-  - component: {fileID: 1233998243}
+  - component: {fileID: 1233998250}
+  - component: {fileID: 1233998249}
+  - component: {fileID: 1233998248}
+  - component: {fileID: 1233998247}
   m_Layer: 0
   m_Name: ArenaLifeCycle
   m_TagString: Untagged
@@ -11243,61 +11252,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 542375489}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1233998243
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1233998241}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae1fa4f5afd347268fa3981c8184180a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_playerPrefab: {fileID: 7304784352324586597, guid: ae8adc48da668a243b09e965993d2c6d, type: 3}
-  m_spectatorPrefab: {fileID: -4268198638092931903, guid: faf18a0a765c8bd4982f73dca48b9189, type: 3}
-  m_gameManager: {fileID: 0}
-  m_teamASpawnPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  m_teamBSpawnPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  m_spectatorASpawnPoints: {fileID: 0}
-  m_spectatorBSpawnPoints: {fileID: 0}
-  m_winnerSpawnPoints: {fileID: 0}
-  m_loserSpawnPoints: {fileID: 0}
---- !u!114 &1233998244
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1233998241}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96db108c655d4c34a0f0b0520fcbd053, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1233998245
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1233998241}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 842c174c79ab4e78b8dae97dcf94dfc3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1233998246
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11319,6 +11273,69 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &1233998247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233998241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c79fa4b1e66258a44a4f23aa6258d6cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teamA_Position1: {fileID: 0}
+  teamA_Position2: {fileID: 0}
+  teamB_Position1: {fileID: 0}
+  teamB_Position2: {fileID: 0}
+  spectatorA_Positions: []
+  spectatorB_Positions: []
+  playerSafeRadius: 1.5
+  tableSafeDistance: 1.5
+  pongTable: {fileID: 0}
+--- !u!114 &1233998248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233998241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 762bbff360fe1eb47ab8a2f0503edd6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_spawnConfig: {fileID: 0}
+  m_teleportEffectPrefab: {fileID: 0}
+  m_teleportSound: {fileID: 0}
+  m_teleportDuration: 1
+  m_enableDebugVisualization: 1
+  m_logSpawnEvents: 1
+--- !u!114 &1233998249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233998241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31192b7cc98a8244fa14f12dea537da3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1233998250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1233998241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a4669f707cf21f41a6b502806253c48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1256238614
 GameObject:
   m_ObjectHideFlags: 0
@@ -13837,10 +13854,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gameManager: {fileID: 0}
-  m_musicAudioSource: {fileID: 1822718137}
   m_preGameClip: {fileID: 8300000, guid: a890c7538de5a40e783ffad71511edd3, type: 3}
   m_inGameClip: {fileID: 8300000, guid: 909fe76d50a6f4a3a9ec89673f579b76, type: 3}
   m_postGameClip: {fileID: 8300000, guid: d55966a6df3ac45ba8420a432a7db038, type: 3}
+  m_fadeTime: 2
+  m_musicVolume: 0.7
 --- !u!1 &1843393526
 GameObject:
   m_ObjectHideFlags: 0

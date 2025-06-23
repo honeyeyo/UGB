@@ -10,5 +10,22 @@
       "path": "Library/PackageCache"
     }
   ],
-  "settings": {}
+  "settings": {
+    "files.exclude": {
+      "**/*.meta": true,
+      "**/Library/": true,
+      "**/Temp/": true,
+      "**/Logs/": true,
+      "**/.vs/": true,
+      "**/.vscode/": true,
+      "**/obj/": true,
+      "**/bin/": true
+    },
+    "files.watcherExclude": {
+      "**/Library/**": true,
+      "**/Temp/**": true,
+      "**/Logs/**": true,
+      "**/*.meta": true
+    }
+  }
 }

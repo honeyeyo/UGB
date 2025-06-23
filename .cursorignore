@@ -1,2 +1,5 @@
 # Project notes and templates
 xnotes/
+
+# Unity meta files - 隐藏Unity的.meta文件
+*.meta
