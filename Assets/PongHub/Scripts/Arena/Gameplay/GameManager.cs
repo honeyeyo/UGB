@@ -8,6 +8,7 @@ using PongHub.Gameplay.Ball;
 using PongHub.Arena.Environment;
 using PongHub.Arena.Player;
 using PongHub.Arena.Services;
+using PongHub.Arena.PostGame;
 using Unity.Netcode;
 using UnityEngine;
 #if !(UNITY_EDITOR || UNITY_STANDALONE_WIN)
@@ -63,6 +64,12 @@ namespace PongHub.Arena.Gameplay
 
         [SerializeField] private GameObject m_postGameView;                       // 赛后视图
 
+        [Header("PostGame 改进组件")]
+        [SerializeField] private PostGameController m_postGameController;        // PostGame控制器
+        [SerializeField] private GameStatisticsTracker m_statisticsTracker;      // 统计数据跟踪器
+        [SerializeField] private int m_pointsPerSet = 11;                        // 每局分数
+        [SerializeField] private int m_setsToWin = 3;                            // 获胜需要的局数
+
         [SerializeField] private AudioSource m_courtAudioSource;                  // 场地音效源
         [SerializeField] private AudioClip m_lowCountdownBeep;                   // 低音倒计时音效
         [SerializeField] private AudioClip m_highCountdownBeep;                  // 高音倒计时音效
@@ -102,6 +109,20 @@ namespace PongHub.Arena.Gameplay
             m_currentGamePhase.OnValueChanged += OnPhaseChanged;
             m_gameStartTime.OnValueChanged += OnStartTimeChanged;
             PHApplication.Instance.NetworkLayer.OnHostLeftAndStartingMigration += OnHostMigrationStarted;
+
+            // 注册PostGame事件监听
+            if (m_postGameController != null)
+            {
+                PostGameController.OnNextSetRequested += OnNextSetRequested;
+                PostGameController.OnSpectatorModeRequested += OnSpectatorModeRequested;
+                PostGameController.OnExitRequested += OnExitRequested;
+            }
+
+            // 监听分数变化事件，用于检测局结束
+            if (m_gameState?.Score != null)
+            {
+                m_gameState.Score.OnScoreUpdated += OnScoreUpdated;
+            }
         }
 
         /// <summary>
@@ -135,6 +156,20 @@ namespace PongHub.Arena.Gameplay
             m_currentGamePhase.OnValueChanged -= OnPhaseChanged;
             m_gameStartTime.OnValueChanged -= OnStartTimeChanged;
             PHApplication.Instance.NetworkLayer.OnHostLeftAndStartingMigration -= OnHostMigrationStarted;
+
+            // 取消PostGame事件监听
+            if (m_postGameController != null)
+            {
+                PostGameController.OnNextSetRequested -= OnNextSetRequested;
+                PostGameController.OnSpectatorModeRequested -= OnSpectatorModeRequested;
+                PostGameController.OnExitRequested -= OnExitRequested;
+            }
+
+            // 取消分数变化监听
+            if (m_gameState?.Score != null)
+            {
+                m_gameState.Score.OnScoreUpdated -= OnScoreUpdated;
+            }
         }
 
         /// <summary>
@@ -355,6 +390,206 @@ namespace PongHub.Arena.Gameplay
             m_restartGameButtonContainer.SetActive(true);
             ((ArenaPlayerSpawningManager)SpawningManagerBase.Instance).ResetPostGameSpawnPoints();
             RespawnAllPlayers();
+        }
+
+        /// <summary>
+        /// 分数更新事件处理 - 检测局结束
+        /// </summary>
+        private void OnScoreUpdated(int teamAScore, int teamBScore)
+        {
+            if (m_currentGamePhase.Value != GamePhase.InGame)
+                return;
+
+            if (CheckSetComplete(teamAScore, teamBScore, out NetworkedTeam.Team winner))
+            {
+                OnSetCompleted(winner);
+            }
+        }
+
+        /// <summary>
+        /// 检查单局是否完成
+        /// </summary>
+        private bool CheckSetComplete(int teamAScore, int teamBScore, out NetworkedTeam.Team winner)
+        {
+            winner = NetworkedTeam.Team.NoTeam;
+
+            // 检查是否有队伍达到获胜分数且领先至少2分
+            if (teamAScore >= m_pointsPerSet && teamAScore >= teamBScore + 2)
+            {
+                winner = NetworkedTeam.Team.TeamA;
+                return true;
+            }
+            else if (teamBScore >= m_pointsPerSet && teamBScore >= teamAScore + 2)
+            {
+                winner = NetworkedTeam.Team.TeamB;
+                return true;
+            }
+
+            // 处理平分情况：两队都到达获胜分数但没有2分差距时，需要领先2分才能获胜
+            if (teamAScore >= m_pointsPerSet && teamBScore >= m_pointsPerSet)
+            {
+                if (teamAScore >= teamBScore + 2)
+                {
+                    winner = NetworkedTeam.Team.TeamA;
+                    return true;
+                }
+                else if (teamBScore >= teamAScore + 2)
+                {
+                    winner = NetworkedTeam.Team.TeamB;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 单局完成处理
+        /// </summary>
+        private void OnSetCompleted(NetworkedTeam.Team winner)
+        {
+            if (!IsServer) return;
+
+            Debug.Log($"[GameManager] 单局完成，获胜方: {winner}");
+
+            // 暂停球的移动
+            m_ballSpawner.DespawnAllBalls();
+
+            // 更新统计数据
+            if (m_statisticsTracker != null)
+            {
+                m_statisticsTracker.OnSetCompleted(winner);
+            }
+
+            // 获取当前统计数据
+            var currentStats = m_statisticsTracker?.GetCurrentStatistics() ?? new GameStatistics();
+
+            // 检查是否完成整场比赛
+            bool isMatchComplete = CheckMatchComplete(currentStats);
+
+            // 显示PostGame界面
+            ShowPostGameUI(currentStats, isMatchComplete);
+        }
+
+        /// <summary>
+        /// 检查整场比赛是否完成
+        /// </summary>
+        private bool CheckMatchComplete(GameStatistics stats)
+        {
+            return stats.PlayerASetsWon >= m_setsToWin || stats.PlayerBSetsWon >= m_setsToWin;
+        }
+
+        /// <summary>
+        /// 显示PostGame界面
+        /// </summary>
+        private void ShowPostGameUI(GameStatistics stats, bool isMatchComplete)
+        {
+            if (m_postGameController != null)
+            {
+                m_postGameController.ShowPostGameUI(stats, isMatchComplete);
+            }
+            else
+            {
+                // 回退到原来的PostGame逻辑
+                m_currentGamePhase.Value = GamePhase.PostGame;
+            }
+        }
+
+        /// <summary>
+        /// 下一局请求处理
+        /// </summary>
+        private void OnNextSetRequested()
+        {
+            Debug.Log("[GameManager] 处理下一局请求");
+
+            if (!IsServer) return;
+
+            // 获取当前统计数据
+            var currentStats = m_statisticsTracker?.GetCurrentStatistics() ?? new GameStatistics();
+
+            if (currentStats.IsMatchComplete)
+            {
+                // 如果比赛完成，重新开始整场比赛
+                StartNewMatch();
+            }
+            else
+            {
+                // 开始下一局
+                StartNextSet();
+            }
+        }
+
+        /// <summary>
+        /// 开始新的比赛
+        /// </summary>
+        private void StartNewMatch()
+        {
+            Debug.Log("[GameManager] 开始新比赛");
+
+            // 重置统计数据
+            if (m_statisticsTracker != null)
+            {
+                m_statisticsTracker.ResetMatchStatistics();
+            }
+
+            // 重置比分
+            m_gameState.Score.Reset();
+
+            // 隐藏PostGame界面
+            if (m_postGameController != null)
+            {
+                m_postGameController.HidePostGameUI();
+            }
+
+            // 开始新游戏
+            StartGame();
+        }
+
+        /// <summary>
+        /// 开始下一局
+        /// </summary>
+        private void StartNextSet()
+        {
+            Debug.Log("[GameManager] 开始下一局");
+
+            // 重置本局统计数据
+            if (m_statisticsTracker != null)
+            {
+                m_statisticsTracker.ResetSetStatistics();
+            }
+
+            // 重置比分
+            m_gameState.Score.Reset();
+
+            // 隐藏PostGame界面
+            if (m_postGameController != null)
+            {
+                m_postGameController.HidePostGameUI();
+            }
+
+            // 重新生成玩家并开始倒计时
+            CheckPlayersSides();
+            LockPlayersTeams();
+            StartCountdown();
+            RespawnAllPlayers();
+        }
+
+        /// <summary>
+        /// 观众模式请求处理
+        /// </summary>
+        private void OnSpectatorModeRequested()
+        {
+            Debug.Log("[GameManager] 处理观众模式请求");
+            // 这个功能主要在PostGameController中处理，这里只是记录日志
+        }
+
+        /// <summary>
+        /// 退出请求处理
+        /// </summary>
+        private void OnExitRequested()
+        {
+            Debug.Log("[GameManager] 处理退出请求");
+            // 这个功能主要在PostGameController中处理，这里只是记录日志
         }
 
         /// <summary>
