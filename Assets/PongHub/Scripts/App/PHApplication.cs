@@ -14,6 +14,7 @@ using PongHub.Networking;
 using PongHub.Gameplay.Table;
 using PongHub.Gameplay.Ball;
 using PongHub.Gameplay.Paddle;
+using PongHub.Utils;
 using Oculus.Platform.Models;
 
 namespace PongHub.App
@@ -65,6 +66,11 @@ namespace PongHub.App
         /// 网络状态处理器
         /// </summary>
         public NetworkStateHandler NetworkStateHandler { get; private set; }
+
+        [Header("运行时状态 (只读)")]
+        [SerializeField, ReadOnly] private bool m_navigationControllerInitialized;
+        [SerializeField, ReadOnly] private bool m_playerPresenceHandlerInitialized;
+        [SerializeField, ReadOnly] private bool m_networkStateHandlerInitialized;
 
         [Header("UI系统")]
         [SerializeField] private ScoreboardPanel m_scoreboardPanel;
@@ -163,6 +169,7 @@ namespace PongHub.App
             if (presenceInitCoroutine != null)
             {
                 yield return presenceInitCoroutine;
+                m_playerPresenceHandlerInitialized = PlayerPresenceHandler != null;
                 Debug.Log("PlayerPresenceHandler初始化完成");
             }
             else
@@ -238,10 +245,12 @@ namespace PongHub.App
 
                 Debug.Log("步骤5: 创建NavigationController...");
                 NavigationController = new NavigationController(this, NetworkLayer, LocalPlayerState, PlayerPresenceHandler);
+                m_navigationControllerInitialized = NavigationController != null;
 
                 Debug.Log("步骤6: 创建NetworkStateHandler...");
                 NetworkStateHandler = new NetworkStateHandler(this, NetworkLayer, NavigationController, Voip,
                     LocalPlayerState, PlayerPresenceHandler, InstantiateSession);
+                m_networkStateHandlerInitialized = NetworkStateHandler != null;
 
                 Debug.Log("步骤7: 获取IAP产品信息...");
 

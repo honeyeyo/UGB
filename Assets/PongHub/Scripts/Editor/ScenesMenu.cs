@@ -27,10 +27,6 @@ namespace PongHub.Editor
             {
                 LoadMenu();
             }
-            if (GUILayout.Button(new GUIContent("Arena", "Load startup scene.")))
-            {
-                LoadArena();
-            }
             if (GUILayout.Button(new GUIContent("SchoolGym", "Load school gym scene.")))
             {
                 LoadSchoolGym();
@@ -51,13 +47,6 @@ namespace PongHub.Editor
             OpenScene("MainMenu");
         }
 
-        [MenuItem("Scenes/Arena")]
-        public static void LoadArena()
-        {
-            OpenScene("Arena");
-        }
-
-
         [MenuItem("Scenes/SchoolGym")]
         public static void LoadSchoolGym()
         {
@@ -66,8 +55,7 @@ namespace PongHub.Editor
 
         [MenuItem("Scenes/Startup &1", true)]
         [MenuItem("Scenes/Menu &2", true)]
-        [MenuItem("Scenes/Arena &3", true)]
-        [MenuItem("Scenes/SchoolGym &4", true)]
+        [MenuItem("Scenes/SchoolGym &3", true)]
         public static bool LoadSceneValidation()
         {
             return !Application.isPlaying;

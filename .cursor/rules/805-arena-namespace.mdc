@@ -1,0 +1,55 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Arena命名空间规则
+
+<version>1.0.0</version>
+
+## Context
+- Arena命名空间代表游戏房间(Room)概念，非特定场景
+- 多场景共享除静态环境外的所有游戏逻辑
+- 当前有Gym场景，未来可能添加更多游戏房间场景
+
+## Requirements
+- 使用`PongHub.Arena.*`命名空间存放游戏房间通用逻辑
+- 场景特定资源放在`Assets/TirgamesAssets/SceneName/`
+- 保持Arena命名空间引用和using语句
+- 新游戏房间功能优先考虑通用性和复用性
+- 使用事件驱动和接口抽象实现模块解耦
+
+## Examples
+<example>
+// 正确：游戏房间通用逻辑
+namespace PongHub.Arena.Gameplay
+{
+    public class GameManager : MonoBehaviour
+    {
+        // 通用游戏管理逻辑
+    }
+}
+</example>
+
+<example type="invalid">
+// 错误：场景特定逻辑放在Arena命名空间
+namespace PongHub.Arena.Gym
+{
+    public class GymSpecificLogic : MonoBehaviour
+    {
+        // 这应该是场景特定配置，不应在Arena命名空间
+    }
+}
+</example>
+
+<example>
+// 正确：保持现有Arena命名空间引用
+using PongHub.Arena.Gameplay;
+using PongHub.Arena.Player;
+using PongHub.Arena.Services;
+</example>
+
+<example type="invalid">
+// 错误：重命名或移除Arena命名空间
+using PongHub.Room.Gameplay; // 不要改变现有架构
+</example>

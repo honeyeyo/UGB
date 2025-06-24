@@ -104,7 +104,7 @@ graph TD
 
 ### **步骤 3：移除原有组件**
 
-```
+```text
 右键点击以下组件 → Remove Component：
 - ArenaPlayerSpawningManager
 - ArenaSessionManager
@@ -115,25 +115,25 @@ graph TD
 
 #### **4.1 添加 PongSpawnConfiguration**
 
-```
+```text
 Add Component → Scripts → Arena → Services → PongSpawnConfiguration
 ```
 
 #### **4.2 添加 PongSessionManager**
 
-```
+```text
 Add Component → Scripts → Arena → Services → PongSessionManager
 ```
 
 #### **4.3 添加 PongPlayerSpawningManager**
 
-```
+```text
 Add Component → Scripts → Arena → Services → PongPlayerSpawningManager
 ```
 
 #### **4.4 添加 PongServerHandler**
 
-```
+```text
 Add Component → Scripts → Arena → Services → PongServerHandler
 ```
 
@@ -141,7 +141,7 @@ Add Component → Scripts → Arena → Services → PongServerHandler
 
 最终 Inspector 面板中的组件顺序应该是：
 
-```
+```text
 ✅ Transform
 ✅ NetworkObject
 ✅ PongSpawnConfiguration
@@ -223,7 +223,7 @@ B侧观众席: 拖入观众席Transform容器
 
 ### **球桌周围布局**
 
-```
+```text
      观众席B        观众席B
     [B2位置]       [B1位置]
         ↑             ↑
@@ -269,28 +269,28 @@ B侧观众席: 拖入观众席Transform容器
 
 ### **问题 1：组件初始化顺序错误**
 
-```
+```text
 错误信息：NullReferenceException in PongPlayerSpawningManager.Awake()
 解决方案：检查PongSpawnConfiguration是否在PongPlayerSpawningManager之前挂载
 ```
 
 ### **问题 2：Singleton 未初始化**
 
-```
+```text
 错误信息：PongSessionManager.Instance is null
 解决方案：确保PongSessionManager在其他依赖组件之前挂载
 ```
 
 ### **问题 3：网络事件未注册**
 
-```
+```text
 症状：玩家连接但没有触发生成
 解决方案：检查PongServerHandler是否正确挂载并初始化
 ```
 
 ### **问题 4：生成点配置丢失**
 
-```
+```text
 症状：玩家生成在原点(0,0,0)
 解决方案：重新配置PongSpawnConfiguration中的生成点引用
 ```
