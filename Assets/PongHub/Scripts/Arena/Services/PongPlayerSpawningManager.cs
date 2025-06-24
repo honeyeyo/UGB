@@ -3,6 +3,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using PongHub.Arena.Gameplay;
+using PongHub.Arena.Spectator;
 
 namespace PongHub.Arena.Services
 {
@@ -11,7 +12,7 @@ namespace PongHub.Arena.Services
     /// 专门为VR乒乓球游戏优化的生成系统
     /// 管理球桌周围的精确定位和VR空间安全
     /// </summary>
-    public class PongPlayerSpawningManager : NetworkBehaviour
+    public class PongPlayerSpawningManager : SpawningManagerBase
     {
         #region Serialized Fields
         [Header("生成配置")]
@@ -32,8 +33,11 @@ namespace PongHub.Arena.Services
         #endregion
 
         #region Unity Lifecycle
-        private void Awake()
+        protected override void Awake()
         {
+            // 调用基类的Awake
+            base.Awake();
+
             // 获取或添加音频源组件
             m_audioSource = GetComponent<AudioSource>();
             if (m_audioSource == null)
@@ -200,22 +204,18 @@ namespace PongHub.Arena.Services
         /// </summary>
         private void ReleasePlayerSpawnPoint(PongPlayerData playerData)
         {
-            var spawnPoint = GetSpawnPointByIndex(playerData.SpawnPointIndex);
-            if (spawnPoint != null)
+            if (playerData.SpawnPointIndex >= 0)
             {
-                m_spawnConfig.ReleaseSpawnPoint(spawnPoint);
-
-                if (m_logSpawnEvents)
+                var spawnPoint = GetSpawnPointByIndex(playerData.SpawnPointIndex);
+                if (spawnPoint != null)
                 {
-                    Debug.Log($"[PongPlayerSpawningManager] 释放玩家 {playerData.PlayerId} 的生成点");
+                    m_spawnConfig.ReleaseSpawnPoint(spawnPoint);
                 }
             }
         }
-        #endregion
 
-        #region Client RPCs
         /// <summary>
-        /// 传送玩家到指定位置
+        /// 传送玩家的客户端RPC
         /// </summary>
         [ClientRpc]
         private void TeleportPlayerClientRpc(Vector3 position, Quaternion rotation, ClientRpcParams clientRpcParams = default)
@@ -224,30 +224,30 @@ namespace PongHub.Arena.Services
         }
 
         /// <summary>
-        /// 执行传送效果
+        /// 执行传送特效
         /// </summary>
         private System.Collections.IEnumerator PerformTeleportEffect(Vector3 targetPosition, Quaternion targetRotation)
         {
+            // 开始淡出效果
+            yield return StartCoroutine(FadeOut());
+
+            // 传送本地玩家
+            TeleportLocalPlayer(targetPosition, targetRotation);
+
+            // 播放传送特效
+            if (m_teleportEffectPrefab != null)
+            {
+                var effect = Instantiate(m_teleportEffectPrefab, targetPosition, targetRotation);
+                Destroy(effect, 2.0f);
+            }
+
             // 播放传送音效
             if (m_teleportSound != null && m_audioSource != null)
             {
                 m_audioSource.PlayOneShot(m_teleportSound);
             }
 
-            // 生成传送特效
-            if (m_teleportEffectPrefab != null)
-            {
-                var effect = Instantiate(m_teleportEffectPrefab, targetPosition, targetRotation);
-                Destroy(effect, m_teleportDuration * 2f);
-            }
-
-            // 淡出效果（如果有VR渐变组件）
-            yield return StartCoroutine(FadeOut());
-
-            // 移动玩家
-            TeleportLocalPlayer(targetPosition, targetRotation);
-
-            // 淡入效果
+            // 开始淡入效果
             yield return StartCoroutine(FadeIn());
         }
 
@@ -256,22 +256,20 @@ namespace PongHub.Arena.Services
         /// </summary>
         private void TeleportLocalPlayer(Vector3 position, Quaternion rotation)
         {
-            // 查找玩家的角色控制器或VR装备
             var playerController = FindLocalPlayerController();
             if (playerController != null)
             {
-                // 方法1: 如果有CharacterController
-                var characterController = playerController.GetComponent<CharacterController>();
-                if (characterController != null)
+                // 对于VR，需要考虑到TrackingSpace
+                var trackingSpace = playerController.transform.Find("TrackingSpace");
+                if (trackingSpace != null)
                 {
-                    characterController.enabled = false;
-                    playerController.transform.position = position;
-                    playerController.transform.rotation = rotation;
-                    characterController.enabled = true;
+                    // VR模式：调整TrackingSpace
+                    trackingSpace.position = position;
+                    trackingSpace.rotation = rotation;
                 }
                 else
                 {
-                    // 方法2: 直接设置Transform
+                    // 非VR模式：直接设置玩家位置
                     playerController.transform.position = position;
                     playerController.transform.rotation = rotation;
                 }
@@ -375,6 +373,124 @@ namespace PongHub.Arena.Services
                 }
             }
         }
+
+        /// <summary>
+        /// 切换观众席位 - 为SpectatorNetwork提供的接口
+        /// </summary>
+        public Transform SwitchSpectatorSide(ulong clientId, SpectatorNetwork spectatorNetwork)
+        {
+            var sessionManager = PongSessionManager.Instance;
+            var spawnConfig = m_spawnConfig;
+
+            if (sessionManager == null || spawnConfig == null)
+            {
+                Debug.LogWarning("[PongPlayerSpawningManager] 未找到会话管理器或生成配置");
+                return null;
+            }
+
+            var playerData = sessionManager.GetPlayerData(clientId);
+            if (!playerData.HasValue || !playerData.Value.IsSpectator)
+            {
+                Debug.LogWarning($"[PongPlayerSpawningManager] 客户端 {clientId} 不是观众或数据无效");
+                return null;
+            }
+
+            // 释放当前观众席位
+            var currentSpawnPoint = GetCurrentSpectatorSpawnPoint(playerData.Value);
+            if (currentSpawnPoint != null)
+            {
+                spawnConfig.ReleaseSpawnPoint(currentSpawnPoint);
+            }
+
+            // 切换到对面队伍的观众席
+            var newTeam = playerData.Value.SelectedTeam == NetworkedTeam.Team.TeamA
+                ? NetworkedTeam.Team.TeamB
+                : NetworkedTeam.Team.TeamA;
+
+            // 获取新的观众席位
+            var newSpawnPoint = spawnConfig.GetSpectatorSpawnPoint(newTeam);
+            if (newSpawnPoint != null && spawnConfig.OccupySpawnPoint(newSpawnPoint))
+            {
+                // 更新玩家数据
+                var updatedData = playerData.Value;
+                updatedData.SelectedTeam = newTeam;
+                updatedData.SpawnPointIndex = GetSpawnPointIndex(newSpawnPoint);
+                sessionManager.SetPlayerData(clientId, updatedData);
+
+                // 更新观众颜色 - 使用正确的TeamColorProfiles接口
+                var teamColor = GetTeamColorForSide(newTeam);
+                spectatorNetwork.TeamSideColor = teamColor;
+
+                if (m_logSpawnEvents)
+                {
+                    Debug.Log($"[PongPlayerSpawningManager] 观众 {clientId} 从 {playerData.Value.SelectedTeam} 切换到 {newTeam}");
+                }
+                return newSpawnPoint;
+            }
+            else
+            {
+                Debug.LogWarning($"[PongPlayerSpawningManager] 无法为观众 {clientId} 找到 {newTeam} 队的空闲观众席");
+
+                // 重新占用原位置
+                if (currentSpawnPoint != null)
+                {
+                    spawnConfig.OccupySpawnPoint(currentSpawnPoint);
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 根据队伍获取对应的颜色
+        /// </summary>
+        private TeamColor GetTeamColorForSide(NetworkedTeam.Team team)
+        {
+            // 获取当前的队伍颜色配置
+            TeamColorProfiles.Instance.GetRandomProfile(out var teamColorA, out var teamColorB);
+
+            // 根据队伍返回对应的颜色
+            return team == NetworkedTeam.Team.TeamA ? teamColorA : teamColorB;
+        }
+
+        /// <summary>
+        /// 重置游戏中的生成点 - 为GameManager提供的接口
+        /// </summary>
+        public void ResetInGameSpawnPoints()
+        {
+            if (m_spawnConfig != null)
+            {
+                m_spawnConfig.ResetAllSpawnPoints();
+
+                if (m_logSpawnEvents)
+                {
+                    Debug.Log("[PongPlayerSpawningManager] 已重置游戏中的生成点");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[PongPlayerSpawningManager] 未找到生成配置组件");
+            }
+        }
+
+        /// <summary>
+        /// 重置赛后的生成点 - 为GameManager提供的接口
+        /// </summary>
+        public void ResetPostGameSpawnPoints()
+        {
+            if (m_spawnConfig != null)
+            {
+                m_spawnConfig.ResetAllSpawnPoints();
+
+                if (m_logSpawnEvents)
+                {
+                    Debug.Log("[PongPlayerSpawningManager] 已重置赛后的生成点");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[PongPlayerSpawningManager] 未找到生成配置组件");
+            }
+        }
         #endregion
 
         #region Visual Effects
@@ -403,8 +519,29 @@ namespace PongHub.Arena.Services
         /// </summary>
         private int GetSpawnPointIndex(Transform spawnPoint)
         {
-            // 简单实现：使用Transform的GetSiblingIndex
-            return spawnPoint.GetSiblingIndex();
+            if (m_spawnConfig == null) return -1;
+
+            // 在A队观众席中查找
+            for (int i = 0; i < m_spawnConfig.spectatorA_Positions.Length; i++)
+            {
+                if (m_spawnConfig.spectatorA_Positions[i] == spawnPoint)
+                    return i;
+            }
+
+            // 在B队观众席中查找
+            for (int i = 0; i < m_spawnConfig.spectatorB_Positions.Length; i++)
+            {
+                if (m_spawnConfig.spectatorB_Positions[i] == spawnPoint)
+                    return i;
+            }
+
+            // 在玩家生成点中查找
+            if (spawnPoint == m_spawnConfig.teamA_Position1) return 1000;
+            if (spawnPoint == m_spawnConfig.teamA_Position2) return 1001;
+            if (spawnPoint == m_spawnConfig.teamB_Position1) return 1002;
+            if (spawnPoint == m_spawnConfig.teamB_Position2) return 1003;
+
+            return -1;
         }
 
         /// <summary>
@@ -412,9 +549,47 @@ namespace PongHub.Arena.Services
         /// </summary>
         private Transform GetSpawnPointByIndex(int index)
         {
-            // 这里需要根据实际的生成点管理逻辑实现
-            // 简单实现：遍历所有生成点找到匹配的索引
-            return null; // 暂时返回null，需要具体实现
+            if (m_spawnConfig == null) return null;
+
+            // 玩家生成点
+            switch (index)
+            {
+                case 1000: return m_spawnConfig.teamA_Position1;
+                case 1001: return m_spawnConfig.teamA_Position2;
+                case 1002: return m_spawnConfig.teamB_Position1;
+                case 1003: return m_spawnConfig.teamB_Position2;
+            }
+
+            // A队观众席
+            if (index >= 0 && index < m_spawnConfig.spectatorA_Positions.Length)
+                return m_spawnConfig.spectatorA_Positions[index];
+
+            // B队观众席（偏移处理）
+            int bOffset = m_spawnConfig.spectatorA_Positions.Length;
+            if (index >= bOffset && index < bOffset + m_spawnConfig.spectatorB_Positions.Length)
+                return m_spawnConfig.spectatorB_Positions[index - bOffset];
+
+            return null;
+        }
+
+        /// <summary>
+        /// 获取当前观众的生成点
+        /// </summary>
+        private Transform GetCurrentSpectatorSpawnPoint(PongPlayerData playerData)
+        {
+            if (m_spawnConfig == null) return null;
+
+            // 根据当前队伍和生成点索引找到对应的Transform
+            var spectatorPositions = playerData.SelectedTeam == NetworkedTeam.Team.TeamA
+                ? m_spawnConfig.spectatorA_Positions
+                : m_spawnConfig.spectatorB_Positions;
+
+            if (playerData.SpawnPointIndex >= 0 && playerData.SpawnPointIndex < spectatorPositions.Length)
+            {
+                return spectatorPositions[playerData.SpawnPointIndex];
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -454,6 +629,72 @@ namespace PongHub.Arena.Services
 #if UNITY_EDITOR
             UnityEditor.Handles.Label(spawnPoint.position + Vector3.up * 0.5f, label);
 #endif
+        }
+        #endregion
+
+        #region Override Abstract Methods
+        // 实现抽象基类的方法
+        public override NetworkObject SpawnPlayer(ulong clientId, string playerId, bool isSpectator, Vector3 playerPos)
+        {
+            // 使用现有的协程生成系统
+            var playerData = PongSessionManager.Instance.GetPlayerData(clientId);
+            if (playerData.HasValue)
+            {
+                SchedulePlayerSpawn(playerData.Value);
+            }
+
+            // 这里返回null，因为实际生成是异步的
+            // 如果需要同步返回NetworkObject，需要重构生成逻辑
+            return null;
+        }
+
+        public override void GetRespawnPoint(ulong clientId, NetworkedTeam.Team team,
+            out Vector3 position, out Quaternion rotation)
+        {
+            position = Vector3.zero;
+            rotation = Quaternion.identity;
+
+            var sessionManager = PongSessionManager.Instance;
+
+            if (m_spawnConfig == null || sessionManager == null)
+            {
+                Debug.LogWarning("[PongPlayerSpawningManager] 未找到生成配置或会话管理器");
+                return;
+            }
+
+            var playerData = sessionManager.GetPlayerData(clientId);
+            if (!playerData.HasValue)
+            {
+                Debug.LogWarning($"[PongPlayerSpawningManager] 未找到客户端 {clientId} 的玩家数据");
+                return;
+            }
+
+            Transform spawnPoint = null;
+            var currentMode = sessionManager.CurrentGameMode;
+
+            if (playerData.Value.IsSpectator)
+            {
+                // 观众生成点
+                spawnPoint = m_spawnConfig.GetSpectatorSpawnPoint(team);
+            }
+            else
+            {
+                // 玩家生成点
+                spawnPoint = m_spawnConfig.GetPlayerSpawnPoint(currentMode, team, playerData.Value.TeamPosition);
+            }
+
+            if (spawnPoint != null)
+            {
+                position = spawnPoint.position;
+                rotation = spawnPoint.rotation;
+            }
+            else
+            {
+                // 回退到队伍中心位置
+                position = m_spawnConfig.GetTeamCenter(team);
+                rotation = Quaternion.LookRotation(team == NetworkedTeam.Team.TeamA ? Vector3.forward : Vector3.back);
+                Debug.LogWarning($"[PongPlayerSpawningManager] 未找到合适的生成点，使用队伍中心位置");
+            }
         }
         #endregion
     }

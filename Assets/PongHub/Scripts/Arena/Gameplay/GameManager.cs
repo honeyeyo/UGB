@@ -317,8 +317,33 @@ namespace PongHub.Arena.Gameplay
                 }
 
                 StartCountdown();
-                ((ArenaPlayerSpawningManager)SpawningManagerBase.Instance).ResetInGameSpawnPoints();
+
+                // 使用新的乒乓球生成管理器
+                var pongSpawningManager = GetPongSpawningManager();
+                if (pongSpawningManager != null)
+                {
+                    pongSpawningManager.ResetInGameSpawnPoints();
+                }
+
                 RespawnAllPlayers();
+            }
+        }
+
+        /// <summary>
+        /// 重置游戏中的生成点
+        /// </summary>
+        private void ResetInGameSpawnPoints()
+        {
+            // 使用新的乒乓球会话管理器重置所有生成点
+            var spawnConfig = FindObjectOfType<PongSpawnConfiguration>();
+            if (spawnConfig != null)
+            {
+                spawnConfig.ResetAllSpawnPoints();
+                Debug.Log("[GameManager] 已重置游戏中的生成点");
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] 未找到PongSpawnConfiguration组件");
             }
         }
 
@@ -388,8 +413,33 @@ namespace PongHub.Arena.Gameplay
             m_ballSpawner.DespawnAllBalls();
             m_currentGamePhase.Value = GamePhase.PostGame;
             m_restartGameButtonContainer.SetActive(true);
-            ((ArenaPlayerSpawningManager)SpawningManagerBase.Instance).ResetPostGameSpawnPoints();
+
+            // 使用新的乒乓球生成管理器
+            var pongSpawningManager = GetPongSpawningManager();
+            if (pongSpawningManager != null)
+            {
+                pongSpawningManager.ResetPostGameSpawnPoints();
+            }
+
             RespawnAllPlayers();
+        }
+
+        /// <summary>
+        /// 重置赛后的生成点
+        /// </summary>
+        private void ResetPostGameSpawnPoints()
+        {
+            // 使用新的乒乓球会话管理器重置观众席生成点
+            var spawnConfig = FindObjectOfType<PongSpawnConfiguration>();
+            if (spawnConfig != null)
+            {
+                spawnConfig.ResetAllSpawnPoints();
+                Debug.Log("[GameManager] 已重置赛后的生成点");
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] 未找到PongSpawnConfiguration组件");
+            }
         }
 
         /// <summary>
@@ -692,9 +742,13 @@ namespace PongHub.Arena.Gameplay
                     {
                         avatar.GetComponent<NetworkedTeam>().MyTeam = team;
 
-                        var playerData = ArenaSessionManager.Instance.GetPlayerData(clientId).Value;
-                        playerData.SelectedTeam = team;
-                        ArenaSessionManager.Instance.SetPlayerData(clientId, playerData);
+                        var playerData = PongSessionManager.Instance.GetPlayerData(clientId);
+                        if (playerData.HasValue)
+                        {
+                            var updatedData = playerData.Value;
+                            updatedData.SelectedTeam = team;
+                            PongSessionManager.Instance.SetPlayerData(clientId, updatedData);
+                        }
                     }
                 }
             }
@@ -744,10 +798,10 @@ namespace PongHub.Arena.Gameplay
                 var allPlayerObjects = LocalPlayerEntities.Instance.GetPlayerObjects(clientId);
                 if (allPlayerObjects.Avatar)
                 {
-                    SpawningManagerBase.Instance.GetRespawnPoint(
-                        clientId,
-                        allPlayerObjects.Avatar.GetComponent<NetworkedTeam>().MyTeam, out var position,
-                        out var rotation);
+                    // 使用新的乒乓球生成系统获取重生点
+                    GetPongRespawnPoint(clientId, allPlayerObjects.Avatar.GetComponent<NetworkedTeam>().MyTeam,
+                        out var position, out var rotation);
+
                     // 仅发送给特定客户端
                     var clientRpcParams = new ClientRpcParams
                     {
@@ -755,6 +809,58 @@ namespace PongHub.Arena.Gameplay
                     };
                     OnRespawnClientRpc(position, rotation, m_currentGamePhase.Value, clientRpcParams);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 获取乒乓球游戏的重生点
+        /// </summary>
+        private void GetPongRespawnPoint(ulong clientId, NetworkedTeam.Team team, out Vector3 position, out Quaternion rotation)
+        {
+            position = Vector3.zero;
+            rotation = Quaternion.identity;
+
+            var spawnConfig = FindObjectOfType<PongSpawnConfiguration>();
+            var sessionManager = PongSessionManager.Instance;
+
+            if (spawnConfig == null || sessionManager == null)
+            {
+                Debug.LogWarning("[GameManager] 未找到乒乓球生成配置或会话管理器");
+                return;
+            }
+
+            var playerData = sessionManager.GetPlayerData(clientId);
+            if (!playerData.HasValue)
+            {
+                Debug.LogWarning($"[GameManager] 未找到客户端 {clientId} 的玩家数据");
+                return;
+            }
+
+            Transform spawnPoint = null;
+            var currentMode = sessionManager.CurrentGameMode;
+
+            if (playerData.Value.IsSpectator)
+            {
+                // 观众生成点
+                spawnPoint = spawnConfig.GetSpectatorSpawnPoint(team);
+            }
+            else
+            {
+                // 玩家生成点
+                spawnPoint = spawnConfig.GetPlayerSpawnPoint(currentMode, team, playerData.Value.TeamPosition);
+            }
+
+            if (spawnPoint != null)
+            {
+                position = spawnPoint.position;
+                rotation = spawnPoint.rotation;
+            }
+            else
+            {
+                // 回退到队伍中心位置
+                position = spawnConfig.GetTeamCenter(team);
+                rotation = Quaternion.LookRotation(team == NetworkedTeam.Team.TeamA ? Vector3.forward : Vector3.back);
+                Debug.LogWarning($"[GameManager] 未找到合适的生成点，使用队伍中心位置");
             }
         }
 
@@ -780,7 +886,14 @@ namespace PongHub.Arena.Gameplay
                 PlayerInputController.Instance.MovementEnabled = false;
             }
             PlayerMovement.Instance.TeleportTo(position, rotation);
+        }
 
+        /// <summary>
+        /// 获取乒乓球生成管理器
+        /// </summary>
+        private PongPlayerSpawningManager GetPongSpawningManager()
+        {
+            return FindObjectOfType<PongPlayerSpawningManager>();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections;
 using PongHub.Arena.Crowd;
 using PongHub.Arena.Player;
 using PongHub.Arena.Services;
+using PongHub.Arena.Gameplay;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -164,13 +165,133 @@ namespace PongHub.Arena.Spectator
         [ServerRpc]
         private void RequestSwitchSideServerRPC()
         {
-            var newLocation =
-                ((ArenaPlayerSpawningManager)SpawningManagerBase.Instance).SwitchSpectatorSide(OwnerClientId, this);
+            var newLocation = SwitchSpectatorSide(OwnerClientId, this);
 
             if (newLocation)
             {
                 OnSideChangedClientRPC(newLocation.position, newLocation.rotation);
             }
+        }
+
+        /// <summary>
+        /// 使用新的乒乓球系统切换观众席位
+        /// </summary>
+        private Transform SwitchSpectatorSide(ulong clientId, SpectatorNetwork spectatorNetwork)
+        {
+            var sessionManager = PongSessionManager.Instance;
+            var spawnConfig = FindObjectOfType<PongSpawnConfiguration>();
+
+            if (sessionManager == null || spawnConfig == null)
+            {
+                Debug.LogWarning("[SpectatorNetwork] 未找到会话管理器或生成配置");
+                return null;
+            }
+
+            var playerData = sessionManager.GetPlayerData(clientId);
+            if (!playerData.HasValue || !playerData.Value.IsSpectator)
+            {
+                Debug.LogWarning($"[SpectatorNetwork] 客户端 {clientId} 不是观众或数据无效");
+                return null;
+            }
+
+            // 释放当前观众席位
+            var currentSpawnPoint = GetCurrentSpectatorSpawnPoint(playerData.Value);
+            if (currentSpawnPoint != null)
+            {
+                spawnConfig.ReleaseSpawnPoint(currentSpawnPoint);
+            }
+
+            // 切换到对面队伍的观众席
+            var newTeam = playerData.Value.SelectedTeam == NetworkedTeam.Team.TeamA
+                ? NetworkedTeam.Team.TeamB
+                : NetworkedTeam.Team.TeamA;
+
+            // 获取新的观众席位
+            var newSpawnPoint = spawnConfig.GetSpectatorSpawnPoint(newTeam);
+            if (newSpawnPoint != null && spawnConfig.OccupySpawnPoint(newSpawnPoint))
+            {
+                // 更新玩家数据
+                var updatedData = playerData.Value;
+                updatedData.SelectedTeam = newTeam;
+                updatedData.SpawnPointIndex = GetSpawnPointIndex(newSpawnPoint);
+                sessionManager.SetPlayerData(clientId, updatedData);
+
+                // 更新观众颜色 - 使用正确的TeamColorProfiles接口
+                var teamColor = GetTeamColorForSide(newTeam);
+                spectatorNetwork.TeamSideColor = teamColor;
+
+                Debug.Log($"[SpectatorNetwork] 观众 {clientId} 从 {playerData.Value.SelectedTeam} 切换到 {newTeam}");
+                return newSpawnPoint;
+            }
+            else
+            {
+                Debug.LogWarning($"[SpectatorNetwork] 无法为观众 {clientId} 找到 {newTeam} 队的空闲观众席");
+
+                // 重新占用原位置
+                if (currentSpawnPoint != null)
+                {
+                    spawnConfig.OccupySpawnPoint(currentSpawnPoint);
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 根据队伍获取对应的颜色
+        /// </summary>
+        private TeamColor GetTeamColorForSide(NetworkedTeam.Team team)
+        {
+            // 获取当前的队伍颜色配置
+            TeamColorProfiles.Instance.GetRandomProfile(out var teamColorA, out var teamColorB);
+
+            // 根据队伍返回对应的颜色
+            return team == NetworkedTeam.Team.TeamA ? teamColorA : teamColorB;
+        }
+
+        /// <summary>
+        /// 获取当前观众的生成点
+        /// </summary>
+        private Transform GetCurrentSpectatorSpawnPoint(PongPlayerData playerData)
+        {
+            var spawnConfig = FindObjectOfType<PongSpawnConfiguration>();
+            if (spawnConfig == null) return null;
+
+            // 根据当前队伍和生成点索引找到对应的Transform
+            var spectatorPositions = playerData.SelectedTeam == NetworkedTeam.Team.TeamA
+                ? spawnConfig.spectatorA_Positions
+                : spawnConfig.spectatorB_Positions;
+
+            if (playerData.SpawnPointIndex >= 0 && playerData.SpawnPointIndex < spectatorPositions.Length)
+            {
+                return spectatorPositions[playerData.SpawnPointIndex];
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 获取生成点在数组中的索引
+        /// </summary>
+        private int GetSpawnPointIndex(Transform spawnPoint)
+        {
+            var spawnConfig = FindObjectOfType<PongSpawnConfiguration>();
+            if (spawnConfig == null) return -1;
+
+            // 在A队观众席中查找
+            for (int i = 0; i < spawnConfig.spectatorA_Positions.Length; i++)
+            {
+                if (spawnConfig.spectatorA_Positions[i] == spawnPoint)
+                    return i;
+            }
+
+            // 在B队观众席中查找
+            for (int i = 0; i < spawnConfig.spectatorB_Positions.Length; i++)
+            {
+                if (spawnConfig.spectatorB_Positions[i] == spawnPoint)
+                    return i;
+            }
+
+            return -1;
         }
 
         [ClientRpc]

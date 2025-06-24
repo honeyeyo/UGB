@@ -313,14 +313,21 @@ namespace PongHub.Arena.PostGame
         {
             try
             {
-                var spawningManager = FindObjectOfType<ArenaPlayerSpawningManager>();
-                if (spawningManager == null)
+                var sessionManager = PongSessionManager.Instance;
+                if (sessionManager == null)
                 {
-                    Debug.LogError("[PostGameController] 找不到ArenaPlayerSpawningManager");
+                    Debug.LogError("[PostGameController] 找不到PongSessionManager");
                     return;
                 }
 
                 var clientId = NetworkManager.Singleton.LocalClientId;
+                var playerData = sessionManager.GetPlayerData(clientId);
+
+                if (!playerData.HasValue)
+                {
+                    Debug.LogError("[PostGameController] 找不到玩家数据");
+                    return;
+                }
 
                 // 销毁当前玩家对象
                 var localPlayer = FindObjectOfType<LocalPlayerEntities>();
@@ -333,9 +340,21 @@ namespace PongHub.Arena.PostGame
                     }
                 }
 
-                // 在观众席生成
-                var playerId = "Player_" + clientId; // 临时解决方案，实际应该从LocalPlayerState获取
-                spawningManager.SpawnPlayer(clientId, playerId, true, Vector3.zero);
+                // 使用新的乒乓球生成系统切换到观众模式
+                // 选择一个随机的观众席位（不指定特定队伍）
+                var preferredTeam = UnityEngine.Random.Range(0, 2) == 0
+                    ? NetworkedTeam.Team.TeamA
+                    : NetworkedTeam.Team.TeamB;
+
+                var spawningManager = FindObjectOfType<PongPlayerSpawningManager>();
+                if (spawningManager != null)
+                {
+                    spawningManager.SwitchToSpectatorServerRpc(preferredTeam);
+                }
+                else
+                {
+                    Debug.LogError("[PostGameController] 找不到PongPlayerSpawningManager");
+                }
 
                 OnSpectatorModeRequested?.Invoke();
                 HidePostGameUI();
