@@ -1,0 +1,1086 @@
+# PongHub VR输入系统设计文档
+
+## 📋 概述
+
+本文档分析了当前项目中的GloveBall输入配置，并为乒乓球VR游戏设计了专门的输入系统，包括输入动作映射、交互设计和实现方案。
+
+## 🔍 GloveBall输入配置分析
+
+### 1. 现有输入映射结构
+
+**GloveBall.inputactions** 包含以下主要功能：
+
+#### 1.1 Player动作映射
+
+```json
+Player动作组:
+├── Move (移动) - 左手摇杆
+├── ThrowLeft (左手投掷) - 左手扳机键
+├── ThrowRight (右手投掷) - 右手扳机键
+├── ShieldLeft (左手护盾) - 左手握持键
+├── ShieldRight (右手护盾) - 右手握持键
+├── Menu (菜单) - 开始键/菜单键
+├── SnapTurnLeft (左转) - 右手摇杆
+├── SnapTurnLeftNoFree (左转无自由) - 左手摇杆
+├── SnapTurnRight (右转) - 右手摇杆
+└── SnapTurnRightNoFree (右转无自由) - 左手摇杆
+```
+
+#### 1.2 Spectator动作映射
+
+```json
+Spectator动作组:
+├── TriggerLeft (左手触发) - 左手扳机键
+├── TriggerRight (右手触发) - 右手扳机键
+└── Menu (菜单) - 开始键/菜单键
+```
+
+### 2. 输入设备支持
+
+**XR控制方案**:
+
+- 左手XR控制器 (必需)
+- 右手XR控制器 (必需)
+
+## 🏓 乒乓球VR输入系统设计
+
+### 3. 乒乓球游戏输入需求分析
+
+#### 3.1 核心游戏交互
+
+- **球拍控制**: 精确的6DOF位置和旋转追踪
+- **击球动作**: 球拍与球的物理接触
+- **发球系统**: 基于物理交互的球生成和抛球检测
+- **移动系统**: 玩家位置调整和瞬移
+- **菜单交互**: 游戏设置和状态控制
+
+#### 3.2 VR交互特性
+
+- **自然手部动作**: 模拟真实乒乓球动作
+- **物理抛球**: 无按键的自然抛球交互
+- **双手协调**: 左右手可以分别持拍
+- **空间定位**: 利用VR房间规模追踪
+- **触觉反馈**: 击球时的震动反馈
+
+#### 3.3 发球系统设计理念
+
+**自然物理交互**:
+
+- 球在手部锚点位置生成
+- 通过手柄加速运动自然抛出球
+- 基于碰撞和相对位置判断抛球动作
+- 符合真实乒乓球发球规则的抛球验证
+
+### 4. PongHub输入动作设计
+
+#### 4.1 Player动作组设计
+
+```json
+{
+    "name": "Player",
+    "actions": [
+        {
+            "name": "LeftPaddleGrip",
+            "type": "Button",
+            "description": "左手球拍抓取/释放"
+        },
+        {
+            "name": "RightPaddleGrip",
+            "type": "Button",
+            "description": "右手球拍抓取/释放"
+        },
+        {
+            "name": "GenerateServeBall",
+            "type": "Button",
+            "description": "生成发球球体（仅在发球权时）"
+        },
+        {
+            "name": "Teleport",
+            "type": "Button",
+            "description": "瞬移移动"
+        },
+        {
+            "name": "TeleportDirection",
+            "type": "Value",
+            "description": "瞬移方向"
+        },
+        {
+            "name": "SnapTurn",
+            "type": "Value",
+            "description": "快速转身"
+        },
+        {
+            "name": "Menu",
+            "type": "Button",
+            "description": "游戏菜单"
+        },
+        {
+            "name": "PauseSinglePlayer",
+            "type": "Button",
+            "description": "暂停游戏（仅单机模式）"
+        },
+        {
+            "name": "ResetPosition",
+            "type": "Button",
+            "description": "重置玩家位置"
+        }
+    ]
+}
+```
+
+#### 4.2 Spectator动作组设计
+
+```json
+{
+    "name": "Spectator",
+    "actions": [
+        {
+            "name": "SelectPlayer",
+            "type": "Button",
+            "description": "选择观看的玩家"
+        },
+        {
+            "name": "ChangeView",
+            "type": "Button",
+            "description": "切换观看视角"
+        },
+        {
+            "name": "Applause",
+            "type": "Button",
+            "description": "鼓掌动作"
+        },
+        {
+            "name": "Cheer",
+            "type": "Button",
+            "description": "欢呼动作"
+        },
+        {
+            "name": "Menu",
+            "type": "Button",
+            "description": "观众菜单"
+        }
+    ]
+}
+```
+
+### 5. 发球系统详细设计
+
+#### 5.1 球体生成机制
+
+**生成条件**:
+
+- 玩家拥有发球权
+- 按下生成发球球体按键
+- 手部锚点位置无其他球体
+
+**生成位置**:
+
+```csharp
+public class ServeBallGenerator : MonoBehaviour
+{
+    [Header("发球配置")]
+    [SerializeField] private Transform m_servingHandAnchor; // 发球手锚点
+    [SerializeField] private Vector3 m_ballSpawnOffset = new Vector3(0, 0.05f, 0.03f); // 球生成偏移
+    [SerializeField] private float m_ballAttachmentRadius = 0.02f; // 附着半径
+
+    public void GenerateServeBall()
+    {
+        if (!CanGenerateServeBall()) return;
+
+        Vector3 spawnPosition = m_servingHandAnchor.position +
+                               m_servingHandAnchor.TransformDirection(m_ballSpawnOffset);
+
+        GameObject ball = BallPool.Instance.GetBall();
+        ball.transform.position = spawnPosition;
+
+        // 设置球为附着状态
+        BallAttachment attachment = ball.GetComponent<BallAttachment>();
+        attachment.AttachToHand(m_servingHandAnchor);
+    }
+}
+```
+
+#### 5.2 物理抛球检测
+
+**抛球动作识别**:
+
+```csharp
+public class ThrowDetection : MonoBehaviour
+{
+    [Header("抛球检测参数")]
+    [SerializeField] private float m_minThrowVelocity = 1.0f; // 最小抛球速度
+    [SerializeField] private float m_detachDistance = 0.1f; // 分离距离阈值
+    [SerializeField] private float m_velocityThreshold = 0.5f; // 速度阈值
+
+    private Vector3 m_lastHandPosition;
+    private Vector3 m_handVelocity;
+    private bool m_ballAttached = false;
+
+    private void Update()
+    {
+        if (m_ballAttached)
+        {
+            UpdateHandVelocity();
+            CheckThrowConditions();
+        }
+    }
+
+    private void UpdateHandVelocity()
+    {
+        Vector3 currentPosition = m_servingHandAnchor.position;
+        m_handVelocity = (currentPosition - m_lastHandPosition) / Time.deltaTime;
+        m_lastHandPosition = currentPosition;
+    }
+
+    private void CheckThrowConditions()
+    {
+        // 检查手部与球的距离
+        float distanceToBall = Vector3.Distance(m_servingHandAnchor.position, m_attachedBall.transform.position);
+
+        // 检查手部加速度（抛球动作）
+        bool hasThrowMotion = m_handVelocity.magnitude > m_minThrowVelocity;
+        bool isDetached = distanceToBall > m_detachDistance;
+
+        if (hasThrowMotion && isDetached)
+        {
+            ExecuteThrow();
+        }
+    }
+
+    private void ExecuteThrow()
+    {
+        // 分离球体
+        BallAttachment attachment = m_attachedBall.GetComponent<BallAttachment>();
+        attachment.DetachFromHand();
+
+        // 应用抛球速度
+        Rigidbody ballRb = m_attachedBall.GetComponent<Rigidbody>();
+        ballRb.velocity = m_handVelocity;
+
+        // 如果是发球环节，验证抛球合规性
+        if (m_isServing)
+        {
+            ValidateServeThrow();
+        }
+
+        m_ballAttached = false;
+    }
+}
+```
+
+#### 5.3 发球规则验证
+
+**抛球合规性检查**:
+
+```csharp
+public class ServeValidation : MonoBehaviour
+{
+    [Header("发球规则参数")]
+    [SerializeField] private float m_minThrowHeight = 0.16f; // 最小抛球高度(16cm)
+    [SerializeField] private float m_maxVerticalDeviation = 15f; // 最大偏离竖直角度
+    [SerializeField] private float m_validationTime = 2f; // 验证时间窗口
+
+    private Vector3 m_throwStartPosition;
+    private Vector3 m_throwDirection;
+    private bool m_isValidating = false;
+
+    public void ValidateServeThrow()
+    {
+        m_throwStartPosition = m_attachedBall.transform.position;
+        m_throwDirection = m_handVelocity.normalized;
+        m_isValidating = true;
+
+        StartCoroutine(ValidateThrowTrajectory());
+    }
+
+    private IEnumerator ValidateThrowTrajectory()
+    {
+        float elapsedTime = 0f;
+        float maxHeight = m_throwStartPosition.y;
+        Vector3 initialPosition = m_throwStartPosition;
+
+        while (elapsedTime < m_validationTime && m_isValidating)
+        {
+            Vector3 currentPosition = m_attachedBall.transform.position;
+
+            // 记录最大高度
+            if (currentPosition.y > maxHeight)
+            {
+                maxHeight = currentPosition.y;
+            }
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // 验证抛球高度
+        float throwHeight = maxHeight - initialPosition.y;
+        bool heightValid = throwHeight >= m_minThrowHeight;
+
+        // 验证抛球方向（相对于竖直方向的角度）
+        Vector3 verticalDirection = Vector3.up;
+        float angle = Vector3.Angle(m_throwDirection, verticalDirection);
+        bool directionValid = angle <= m_maxVerticalDeviation;
+
+        // 发送验证结果
+        bool isValidServe = heightValid && directionValid;
+        OnServeValidationComplete?.Invoke(isValidServe, throwHeight, angle);
+
+        if (!isValidServe)
+        {
+            // 显示违规提示
+            ShowServeViolation(heightValid, directionValid, throwHeight, angle);
+        }
+    }
+
+    private void ShowServeViolation(bool heightValid, bool directionValid, float actualHeight, float actualAngle)
+    {
+        string violationMessage = "发球违规: ";
+
+        if (!heightValid)
+        {
+            violationMessage += $"抛球高度不足 ({actualHeight:F2}m < {m_minThrowHeight}m) ";
+        }
+
+        if (!directionValid)
+        {
+            violationMessage += $"抛球方向偏离过大 ({actualAngle:F1}° > {m_maxVerticalDeviation}°)";
+        }
+
+        UIManager.Instance?.ShowViolationNotice(violationMessage);
+    }
+
+    // 事件
+    public System.Action<bool, float, float> OnServeValidationComplete;
+}
+```
+
+### 6. 暂停系统设计
+
+#### 6.1 暂停功能适用性
+
+**单机模式暂停**:
+
+- ✅ 支持暂停功能
+- 可以暂停游戏时间
+- 可以暂停物理模拟
+- 可以显示暂停菜单
+
+**多人模式限制**:
+
+- ❌ 不支持暂停功能
+- 实时网络对战无法暂停
+- 只能退出当前对局
+- 可以显示游戏选项菜单（不暂停游戏）
+
+#### 6.2 暂停系统实现
+
+```csharp
+public class PauseManager : MonoBehaviour
+{
+    [Header("暂停配置")]
+    [SerializeField] private bool m_isSinglePlayerMode = true;
+    [SerializeField] private GameObject m_pauseMenuPrefab;
+    [SerializeField] private GameObject m_optionsMenuPrefab;
+
+    private bool m_isPaused = false;
+    private GameObject m_currentMenu;
+
+    public void TogglePause()
+    {
+        if (m_isSinglePlayerMode)
+        {
+            ToggleSinglePlayerPause();
+        }
+        else
+        {
+            ShowMultiplayerOptions();
+        }
+    }
+
+    private void ToggleSinglePlayerPause()
+    {
+        m_isPaused = !m_isPaused;
+
+        if (m_isPaused)
+        {
+            // 暂停游戏
+            Time.timeScale = 0f;
+
+            // 暂停物理
+            Physics.simulationMode = SimulationMode.Script;
+
+            // 显示暂停菜单
+            m_currentMenu = Instantiate(m_pauseMenuPrefab);
+
+            // 禁用游戏输入
+            GameInputManager.Instance?.DisableGameplayInputs();
+        }
+        else
+        {
+            // 恢复游戏
+            Time.timeScale = 1f;
+
+            // 恢复物理
+            Physics.simulationMode = SimulationMode.FixedUpdate;
+
+            // 隐藏暂停菜单
+            if (m_currentMenu != null)
+            {
+                Destroy(m_currentMenu);
+            }
+
+            // 启用游戏输入
+            GameInputManager.Instance?.EnableGameplayInputs();
+        }
+    }
+
+    private void ShowMultiplayerOptions()
+    {
+        // 多人模式下显示选项菜单（不暂停游戏）
+        if (m_currentMenu == null)
+        {
+            m_currentMenu = Instantiate(m_optionsMenuPrefab);
+        }
+        else
+        {
+            Destroy(m_currentMenu);
+            m_currentMenu = null;
+        }
+    }
+
+    public bool CanPause()
+    {
+        return m_isSinglePlayerMode && GameManager.Instance.IsGameActive();
+    }
+}
+```
+
+### 7. 完整的PongHub.inputactions配置
+
+```json
+{
+    "name": "PongHub",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "actions": [
+                {
+                    "name": "LeftPaddleGrip",
+                    "type": "Button",
+                    "id": "11111111-1111-1111-1111-111111111111",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "RightPaddleGrip",
+                    "type": "Button",
+                    "id": "22222222-2222-2222-2222-222222222222",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "GenerateServeBall",
+                    "type": "Button",
+                    "id": "33333333-3333-3333-3333-333333333333",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Teleport",
+                    "type": "Button",
+                    "id": "55555555-5555-5555-5555-555555555555",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "TeleportDirection",
+                    "type": "Value",
+                    "id": "66666666-6666-6666-6666-666666666666",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "SnapTurn",
+                    "type": "Value",
+                    "id": "77777777-7777-7777-7777-777777777777",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "Sector(directions=4)",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Menu",
+                    "type": "Button",
+                    "id": "88888888-8888-8888-8888-888888888888",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "PauseSinglePlayer",
+                    "type": "Button",
+                    "id": "99999999-9999-9999-9999-999999999999",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ResetPosition",
+                    "type": "Button",
+                    "id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "Hold(duration=1.0)",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "bind-left-grip",
+                    "path": "<XRController>{LeftHand}/gripPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "LeftPaddleGrip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bind-right-grip",
+                    "path": "<XRController>{RightHand}/gripPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "RightPaddleGrip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bind-generate-ball",
+                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "GenerateServeBall",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bind-teleport",
+                    "path": "<XRController>{RightHand}/triggerPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Teleport",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bind-teleport-dir",
+                    "path": "<XRController>{RightHand}/primary2DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "TeleportDirection",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bind-snap-turn",
+                    "path": "<XRController>{LeftHand}/primary2DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "SnapTurn",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bind-menu",
+                    "path": "<XRController>/menuButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bind-pause",
+                    "path": "<XRController>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "PauseSinglePlayer",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bind-reset",
+                    "path": "<XRController>{RightHand}/secondaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "ResetPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Spectator",
+            "id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+            "actions": [
+                {
+                    "name": "SelectPlayer",
+                    "type": "Button",
+                    "id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ChangeView",
+                    "type": "Button",
+                    "id": "dddddddd-dddd-dddd-dddd-dddddddddddd",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Applause",
+                    "type": "Button",
+                    "id": "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Cheer",
+                    "type": "Button",
+                    "id": "ffffffff-ffff-ffff-ffff-ffffffffffff",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Menu",
+                    "type": "Button",
+                    "id": "12121212-1212-1212-1212-121212121212",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "spec-select",
+                    "path": "<XRController>{LeftHand}/triggerPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "SelectPlayer",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "spec-view",
+                    "path": "<XRController>{RightHand}/triggerPressed",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "ChangeView",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "spec-applause",
+                    "path": "<XRController>{LeftHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Applause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "spec-cheer",
+                    "path": "<XRController>{RightHand}/primaryButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Cheer",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "spec-menu",
+                    "path": "<XRController>/menuButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "XR",
+                    "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "XR",
+            "bindingGroup": "XR",
+            "devices": [
+                {
+                    "devicePath": "<XRController>{LeftHand}",
+                    "isOptional": false,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<XRController>{RightHand}",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
+}
+```
+
+## 🔧 实现方案
+
+### 8. 输入系统集成步骤
+
+#### 8.1 创建新的输入动作文件
+
+1. **创建PongHub.inputactions文件**
+
+   ```text
+   路径: Assets/PongHub/Configs/PongHub.inputactions
+   ```
+
+2. **导入到Unity输入系统**
+
+   ```csharp
+   // 在项目设置中替换默认输入动作
+   Project Settings > XR Plug-in Management > Input Actions
+   ```
+
+#### 8.2 代码集成
+
+**PongHubInputManager.cs**:
+
+```csharp
+using UnityEngine;
+using UnityEngine.InputSystem;
+using PongHub.Gameplay.Paddle;
+using PongHub.Gameplay.Ball;
+
+namespace PongHub.Input
+{
+    public class PongHubInputManager : MonoBehaviour
+    {
+        [Header("输入动作引用")]
+        [SerializeField] private InputActionAsset m_inputActions;
+
+        // 动作组引用
+        private InputActionMap m_playerActions;
+        private InputActionMap m_spectatorActions;
+
+        // 具体动作引用
+        private InputAction m_leftPaddleGrip;
+        private InputAction m_rightPaddleGrip;
+        private InputAction m_generateServeBall;
+        private InputAction m_teleport;
+        private InputAction m_snapTurn;
+        private InputAction m_menu;
+        private InputAction m_pauseSinglePlayer;
+
+        // 组件引用
+        [SerializeField] private Paddle m_leftPaddle;
+        [SerializeField] private Paddle m_rightPaddle;
+        [SerializeField] private ServeBallGenerator m_ballGenerator;
+        [SerializeField] private PauseManager m_pauseManager;
+
+        private void Awake()
+        {
+            InitializeInputActions();
+            BindInputEvents();
+        }
+
+        private void InitializeInputActions()
+        {
+            m_playerActions = m_inputActions.FindActionMap("Player");
+            m_spectatorActions = m_inputActions.FindActionMap("Spectator");
+
+            // 获取具体动作
+            m_leftPaddleGrip = m_playerActions.FindAction("LeftPaddleGrip");
+            m_rightPaddleGrip = m_playerActions.FindAction("RightPaddleGrip");
+            m_generateServeBall = m_playerActions.FindAction("GenerateServeBall");
+            m_teleport = m_playerActions.FindAction("Teleport");
+            m_snapTurn = m_playerActions.FindAction("SnapTurn");
+            m_menu = m_playerActions.FindAction("Menu");
+            m_pauseSinglePlayer = m_playerActions.FindAction("PauseSinglePlayer");
+        }
+
+        private void BindInputEvents()
+        {
+            // 球拍抓取
+            m_leftPaddleGrip.performed += OnLeftPaddleGrip;
+            m_leftPaddleGrip.canceled += OnLeftPaddleRelease;
+
+            m_rightPaddleGrip.performed += OnRightPaddleGrip;
+            m_rightPaddleGrip.canceled += OnRightPaddleRelease;
+
+            // 发球系统
+            m_generateServeBall.performed += OnGenerateServeBall;
+
+            // 移动系统
+            m_teleport.performed += OnTeleport;
+            m_snapTurn.performed += OnSnapTurn;
+
+            // 菜单系统
+            m_menu.performed += OnMenu;
+            m_pauseSinglePlayer.performed += OnPauseSinglePlayer;
+        }
+
+        private void OnEnable()
+        {
+            m_playerActions?.Enable();
+        }
+
+        private void OnDisable()
+        {
+            m_playerActions?.Disable();
+        }
+
+        // 输入事件处理
+        private void OnLeftPaddleGrip(InputAction.CallbackContext context)
+        {
+            m_leftPaddle?.SetGripState(PaddleGripState.Anchored);
+        }
+
+        private void OnLeftPaddleRelease(InputAction.CallbackContext context)
+        {
+            m_leftPaddle?.SetGripState(PaddleGripState.Free);
+        }
+
+        private void OnRightPaddleGrip(InputAction.CallbackContext context)
+        {
+            m_rightPaddle?.SetGripState(PaddleGripState.Anchored);
+        }
+
+        private void OnRightPaddleRelease(InputAction.CallbackContext context)
+        {
+            m_rightPaddle?.SetGripState(PaddleGripState.Free);
+        }
+
+        private void OnGenerateServeBall(InputAction.CallbackContext context)
+        {
+            m_ballGenerator?.GenerateServeBall();
+        }
+
+        private void OnTeleport(InputAction.CallbackContext context)
+        {
+            // 实现瞬移逻辑
+        }
+
+        private void OnSnapTurn(InputAction.CallbackContext context)
+        {
+            Vector2 turnValue = context.ReadValue<Vector2>();
+            // 实现快速转身逻辑
+        }
+
+        private void OnMenu(InputAction.CallbackContext context)
+        {
+            // 打开游戏菜单
+        }
+
+        private void OnPauseSinglePlayer(InputAction.CallbackContext context)
+        {
+            // 仅在单机模式下暂停
+            if (m_pauseManager.CanPause())
+            {
+                m_pauseManager.TogglePause();
+            }
+        }
+
+        // 切换到观众模式
+        public void SwitchToSpectatorMode()
+        {
+            m_playerActions.Disable();
+            m_spectatorActions.Enable();
+        }
+
+        // 切换到玩家模式
+        public void SwitchToPlayerMode()
+        {
+            m_spectatorActions.Disable();
+            m_playerActions.Enable();
+        }
+    }
+}
+```
+
+### 9. 替换输入配置步骤
+
+#### 9.1 项目配置更新
+
+1. **备份原始配置**
+
+   ```text
+   备份: Assets/PongHub/Configs/GloveBall.inputactions
+   重命名为: GloveBall_Backup.inputactions
+   ```
+
+2. **创建新配置文件**
+
+   ```text
+   创建: Assets/PongHub/Configs/PongHub.inputactions
+   使用上述JSON配置内容
+   ```
+
+3. **更新项目引用**
+
+   ```text
+   // 在项目设置中更新
+   Project Settings > Input System Package > Default Input Actions
+   从 GloveBall 改为 PongHub
+   ```
+
+#### 9.2 代码迁移
+
+**查找和替换**:
+
+```csharp
+// 查找所有对GloveBall的引用
+[SerializeField] private InputActionAsset gloveBallActions;
+
+// 替换为
+[SerializeField] private InputActionAsset pongHubActions;
+```
+
+**组件更新**:
+
+```csharp
+// 更新所有使用输入的组件
+- PaddleInput.cs
+- PlayerController.cs
+- MenuController.cs
+- SpectatorController.cs
+```
+
+### 10. 测试验证
+
+#### 10.1 功能测试清单
+
+- [ ] 左手球拍抓取/释放
+- [ ] 右手球拍抓取/释放
+- [ ] 发球球体生成
+- [ ] 物理抛球检测
+- [ ] 发球规则验证
+- [ ] 瞬移移动
+- [ ] 快速转身
+- [ ] 菜单打开
+- [ ] 单机模式暂停
+- [ ] 多人模式选项菜单
+- [ ] 观众模式切换
+
+#### 10.2 发球系统专项测试
+
+- [ ] 球体在手部锚点正确生成
+- [ ] 抛球动作正确识别
+- [ ] 抛球高度验证（>16cm）
+- [ ] 抛球角度验证（<15°偏差）
+- [ ] 违规提示正确显示
+- [ ] 合规发球正常进行
+
+#### 10.3 暂停功能测试
+
+**单机模式**:
+
+- [ ] 游戏正确暂停（timeScale = 0）
+- [ ] 物理模拟正确暂停
+- [ ] 暂停菜单正确显示
+- [ ] 游戏输入正确禁用
+- [ ] 恢复游戏功能正常
+
+**多人模式**:
+
+- [ ] 暂停按键触发选项菜单
+- [ ] 游戏继续运行不暂停
+- [ ] 选项菜单功能正常
+- [ ] 退出选项正确工作
+
+#### 10.4 兼容性测试
+
+- [ ] Oculus Quest 2
+- [ ] Oculus Quest 3
+- [ ] Meta Quest Pro
+- [ ] PC VR (SteamVR)
+
+## 📚 相关文档
+
+- [Input系统实现.md](./Input系统实现.md)
+- [球拍和乒乓球网络同步技术文档.md](./球拍和乒乓球网络同步技术文档.md)
+- [PongHub预制件整改规格书.md](./PongHub预制件整改规格书.md)
+- [乒乓球真实物理.md](./乒乓球真实物理.md)
+
+## 🎯 总结
+
+通过分析GloveBall的输入配置，我们为乒乓球VR游戏设计了更加专业和自然的输入系统。新的输入配置专门针对乒乓球运动的特点，提供了更精确的球拍控制、更自然的发球体验和更丰富的交互功能。
+
+**主要改进**:
+
+1. **物理发球系统**: 无按键的自然抛球交互，基于物理检测的抛球识别
+2. **发球规则验证**: 符合真实乒乓球规则的抛球高度和角度验证
+3. **智能暂停机制**: 区分单机和多人模式的不同暂停策略
+4. **双手协调**: 支持左右手独立球拍控制
+5. **观众互动**: 丰富的观众模式交互
+6. **易于扩展**: 模块化设计便于后续功能添加
+
+**关键特性**:
+
+- **自然交互**: 发球采用物理抛球，无需额外按键操作
+- **规则合规**: 严格按照乒乓球发球规则进行验证
+- **模式感知**: 根据单机/多人模式智能调整功能可用性
+- **用户友好**: 违规操作有清晰的提示和反馈
+
+---
+
+**文档版本**: 2.0
+**创建日期**: [2025.06.25]
+**更新日期**: [2025.06.25]

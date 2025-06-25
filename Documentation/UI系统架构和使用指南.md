@@ -16,7 +16,7 @@ PongHub 的 UI 系统采用模块化设计，支持 VR 和传统输入方式，�
 
 ### 架构层次
 
-```
+```text
 UI系统架构
 ├── UIManager (核心管理器)
 │   ├── 面板状态管理
@@ -241,7 +241,7 @@ public class CustomPointableCanvasModule : PointableCanvasModule
 
 **Canvas 设置**：
 
-```
+```text
 Canvas组件配置：
 ├── Render Mode: World Space
 ├── Event Camera: 指向XR Camera
@@ -265,7 +265,7 @@ vrButton.onClick.AddListener(() => {
 
 ## 📁 文件结构
 
-```
+```text
 Assets/PongHub/Scripts/UI/
 ├── UIManager.cs                      # 统一UI管理器
 ├── MainMenuPanel.cs                  # 主菜单面板
@@ -290,7 +290,7 @@ Assets/PongHub/Scripts/UI/
 
 **基础 UI 设置**：
 
-```
+```text
 UI根对象层次：
 GameUI (Canvas)
 ├── UIManager (脚本)
@@ -427,7 +427,7 @@ public class DistanceBasedUI : MonoBehaviour
 
 **字体规范**：
 
-```
+```text
 标题: 24-36px, Bold
 副标题: 18-24px, Medium
 正文: 14-18px, Regular
@@ -438,7 +438,7 @@ public class DistanceBasedUI : MonoBehaviour
 
 **间距系统**：
 
-```
+```text
 基础单位: 8px
 小间距: 8px
 中间距: 16px
@@ -448,7 +448,7 @@ public class DistanceBasedUI : MonoBehaviour
 
 **组件尺寸**：
 
-```
+```text
 按钮高度: 48px (最小点击区域)
 输入框高度: 40px
 图标尺寸: 24px, 32px, 48px
@@ -474,7 +474,7 @@ public class DistanceBasedUI : MonoBehaviour
 
 ### 1. 添加新面板
 
-**步骤 1：创建面板脚本**
+#### 步骤 1：创建面板脚本
 
 ```csharp
 using UnityEngine;
@@ -512,7 +512,7 @@ namespace PongHub.UI
 }
 ```
 
-**步骤 2：集成到 UIManager**
+#### 步骤 2：集成到 UIManager
 
 ```csharp
 // 在UIManager中添加引用

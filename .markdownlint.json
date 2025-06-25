@@ -5,5 +5,12 @@
     "code_block_line_length": 120
   },
   "MD033": false,
-  "MD041": false
+  "MD041": false,
+  "MD022": true,
+  "MD032": true,
+  "MD031": true,
+  "MD040": true,
+  "MD047": true,
+  "MD001": true,
+  "MD009": true
 }

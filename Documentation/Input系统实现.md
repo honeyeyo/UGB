@@ -1,4 +1,4 @@
-# Pong VR 游戏输入系统使用说明
+# PongHub VR输入系统使用说明
 
 ## 📖 概述
 
@@ -8,7 +8,7 @@
 
 ### 输入数据流
 
-```
+```text
 VR控制器硬件 → Unity Input System → XRInputControlActions → PongInputManager → 游戏逻辑
                                          ↓
                               PaddleConfigurationManager → 配置管理
@@ -166,7 +166,7 @@ private void HandlePaddleGrabbed(bool isLeftHand)
 
 ## 📁 文件结构
 
-```
+```text
 Assets/PongHub/Scripts/Input/
 ├── PongInputManager.cs                  # 核心输入管理器（优化版）
 ├── PaddleConfigurationManager.cs        # 球拍配置管理器（已优化）
@@ -226,7 +226,7 @@ if (currentState.leftAB && !previousState.leftAB)
 
 1. **基础组件设置**
 
-   ```
+   ```text
    场景根对象
    ├── XRInputManager
    ├── PongInputManager
@@ -248,7 +248,7 @@ if (currentState.leftAB && !previousState.leftAB)
 
 1. **球拍位置配置**
 
-   ```
+   ```text
    进入配置 → 调整参数 → 实时预览 → 保存配置
        ↓           ↓          ↓         ↓
    A+B组合键   UI滑条操作   透明预览   Save按钮
