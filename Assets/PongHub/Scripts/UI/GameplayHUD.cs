@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using PongHub.Input;
 
 namespace PongHub.UI
 {
@@ -22,12 +23,12 @@ namespace PongHub.UI
         [SerializeField] private Button m_teleportRightButton;
 
         // 私有变量
-        private PongInputManager m_inputManager;
+        private PongHubInputManager m_inputManager;
         private Coroutine m_messageCoroutine;
 
         private void Start()
         {
-            m_inputManager = FindObjectOfType<PongInputManager>();
+            m_inputManager = PongHubInputManager.Instance;
             InitializeButtons();
             SetupInstructions();
         }
@@ -66,9 +67,20 @@ namespace PongHub.UI
             // 更新球拍状态
             if (m_paddleStatusText != null)
             {
-                if (m_inputManager.IsPaddleHeld)
+                bool leftGripped = m_inputManager.IsLeftPaddleGripped;
+                bool rightGripped = m_inputManager.IsRightPaddleGripped;
+
+                if (leftGripped || rightGripped)
                 {
-                    m_paddleStatusText.text = $"球拍: {(m_inputManager.IsLeftHandHoldingPaddle ? "左手" : "右手")}";
+                    string paddleInfo = "";
+                    if (leftGripped && rightGripped)
+                        paddleInfo = "双手";
+                    else if (leftGripped)
+                        paddleInfo = "左手";
+                    else
+                        paddleInfo = "右手";
+
+                    m_paddleStatusText.text = $"球拍: {paddleInfo}";
                     m_paddleStatusText.color = Color.green;
                 }
                 else

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Threading.Tasks;
 using PongHub.Core;
+using PongHub.Input;
 
 namespace PongHub.UI
 {
@@ -18,7 +19,7 @@ namespace PongHub.UI
         [SerializeField] private GameplayHUD m_gameplayHUD;
 
         [Header("游戏状态")]
-        [SerializeField] private PongInputManager m_inputManager;
+        [SerializeField] private PongHubInputManager m_inputManager;
 
         // 私有变量
         private bool isMenuOpen = false;
@@ -199,10 +200,13 @@ namespace PongHub.UI
         /// </summary>
         public void ConfigurePaddle(bool leftHand)
         {
-            if (m_inputManager != null)
-            {
-                m_inputManager.StartPaddleConfiguration(leftHand);
-            }
+            // TODO: 重新实现球拍配置逻辑
+            // 新的输入系统中，球拍配置逻辑已移至PaddleController
+            Debug.Log($"请重新实现{(leftHand ? "左手" : "右手")}球拍配置");
+
+            // 可以考虑调用PaddleController的相关方法
+            // var paddleController = FindObjectOfType<PaddleController>();
+            // if (paddleController != null) { ... }
         }
 
         /// <summary>
@@ -210,10 +214,13 @@ namespace PongHub.UI
         /// </summary>
         public void TeleportToPoint(int pointIndex)
         {
-            if (m_inputManager != null)
-            {
-                m_inputManager.TeleportToPoint(pointIndex);
-            }
+            // TODO: 重新实现传送逻辑
+            // 新的输入系统中，传送逻辑已移至TeleportController
+            Debug.Log($"请重新实现传送到位置 {pointIndex}");
+
+            // 可以考虑调用TeleportController的相关方法
+            // var teleportController = FindObjectOfType<TeleportController>();
+            // if (teleportController != null) { ... }
         }
 
         private void HideAllPanels()
@@ -236,6 +243,6 @@ namespace PongHub.UI
         public GameState CurrentGameState => currentGameState;
         public bool IsPlaying => currentGameState == GameState.Playing;
         public bool IsMenuOpen => isMenuOpen;
-        public PongInputManager InputManager => m_inputManager;
+        public PongHubInputManager InputManager => m_inputManager;
     }
 }

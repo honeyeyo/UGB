@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Threading.Tasks;
+using PongHub.Input;
 
 namespace PongHub.UI
 {
@@ -21,7 +22,7 @@ namespace PongHub.UI
         [Header("状态显示")]
         [SerializeField] private TextMeshProUGUI m_statusText;
 
-        private PongInputManager m_inputManager;
+        private PongHubInputManager m_inputManager;
 
         private void Awake()
         {
@@ -30,7 +31,7 @@ namespace PongHub.UI
 
         private void Start()
         {
-            m_inputManager = FindObjectOfType<PongInputManager>();
+            m_inputManager = PongHubInputManager.Instance;
         }
 
         private void InitializeButtons()

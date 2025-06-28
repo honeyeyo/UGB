@@ -1,4 +1,4 @@
-# PongHub VR输入系统使用说明
+# PongHub VR 输入系统使用说明
 
 ## 📖 概述
 
@@ -9,7 +9,7 @@
 ### 输入数据流
 
 ```text
-VR控制器硬件 → Unity Input System → XRInputControlActions → PongInputManager → 游戏逻辑
+VR控制器硬件 → Unity Input System → XRInputControlActions → PongHubInputManager → 游戏逻辑
                                          ↓
                               PaddleConfigurationManager → 配置管理
 ```
@@ -23,7 +23,7 @@ VR控制器硬件 → Unity Input System → XRInputControlActions → PongInput
 
 ## 🔧 主要组件
 
-### 1. PongInputManager - 核心输入管理器
+### 1. PongHubInputManager - 核心输入管理器
 
 **架构特点：**
 
@@ -115,7 +115,7 @@ public struct InputState
 
 ## ⚙️ 配置参数
 
-### PongInputManager 配置
+### PongHubInputManager 配置
 
 ```csharp
 [Header("移动设置")]
@@ -143,18 +143,18 @@ public float gripHoldTime = 1f;                 // Grip长按时间
 ```csharp
 private void OnEnable()
 {
-    PongInputManager.OnPaddleGrabbed += HandlePaddleGrabbed;
-    PongInputManager.OnPaddleReleased += HandlePaddleReleased;
-    PongInputManager.OnBallGenerated += HandleBallGenerated;
-    PongInputManager.OnTeleportPerformed += HandleTeleportPerformed;
+    PongHubInputManager.OnPaddleGrabbed += HandlePaddleGrabbed;
+    PongHubInputManager.OnPaddleReleased += HandlePaddleReleased;
+    PongHubInputManager.OnBallGenerated += HandleBallGenerated;
+    PongHubInputManager.OnTeleportPerformed += HandleTeleportPerformed;
 }
 
 private void OnDisable()
 {
-    PongInputManager.OnPaddleGrabbed -= HandlePaddleGrabbed;
-    PongInputManager.OnPaddleReleased -= HandlePaddleReleased;
-    PongInputManager.OnBallGenerated -= HandleBallGenerated;
-    PongInputManager.OnTeleportPerformed -= HandleTeleportPerformed;
+    PongHubInputManager.OnPaddleGrabbed -= HandlePaddleGrabbed;
+    PongHubInputManager.OnPaddleReleased -= HandlePaddleReleased;
+    PongHubInputManager.OnBallGenerated -= HandleBallGenerated;
+    PongHubInputManager.OnTeleportPerformed -= HandleTeleportPerformed;
 }
 
 private void HandlePaddleGrabbed(bool isLeftHand)
@@ -168,7 +168,7 @@ private void HandlePaddleGrabbed(bool isLeftHand)
 
 ```text
 Assets/PongHub/Scripts/Input/
-├── PongInputManager.cs                  # 核心输入管理器（优化版）
+├── PongHubInputManager.cs               # 核心输入管理器（最新版）
 ├── PaddleConfigurationManager.cs        # 球拍配置管理器（已优化）
 ├── CustomPointableCanvasModule.cs       # UI交互模块
 └── README_InputSystem.md               # 本文档
@@ -229,14 +229,14 @@ if (currentState.leftAB && !previousState.leftAB)
    ```text
    场景根对象
    ├── XRInputManager
-   ├── PongInputManager
+   ├── PongHubInputManager
    ├── PaddleConfigurationManager
    └── OVRCameraRig
    ```
 
 2. **组件配置**
 
-   - **PongInputManager**: 设置移动参数、预制件引用、瞬移点
+   - **PongHubInputManager**: 设置移动参数、预制件引用、瞬移点
    - **PaddleConfigurationManager**: 配置 UI Canvas、预览材质
    - **XRInputManager**: 连接 XRInputControlActions 资源
 
@@ -272,7 +272,7 @@ if (currentState.leftAB && !previousState.leftAB)
 ### 控制台日志
 
 ```csharp
-Debug.Log("PongInputManager 已初始化");
+Debug.Log("PongHubInputManager 已初始化");
 Debug.Log($"球拍已握持到{(isLeftHand ? "左手" : "右手")}");
 Debug.Log($"球已从{(fromLeftHand ? "左手" : "右手")}生成");
 Debug.Log("执行瞬移");
@@ -305,7 +305,7 @@ public InputState CurrentInputState { get; }         // 当前输入状态
    };
    ```
 
-3. **在 PongInputManager 中使用**
+3. **在 PongHubInputManager 中使用**
 
    ```csharp
    bool newActionPressed = leftActions.NewAction.action.ReadValue<float>() > 0.5f;
@@ -321,7 +321,7 @@ public static event Action<CustomData> OnCustomEvent;
 OnCustomEvent?.Invoke(customData);
 
 // 订阅处理
-PongInputManager.OnCustomEvent += HandleCustomEvent;
+PongHubInputManager.OnCustomEvent += HandleCustomEvent;
 ```
 
 ## ⚠️ 注意事项

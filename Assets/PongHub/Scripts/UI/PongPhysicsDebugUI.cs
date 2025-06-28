@@ -85,7 +85,7 @@ namespace PongHub.UI
         private BallSpin ballSpin;
         private BallStateSync ballStateSync;
         private ServePermissionManager serveManager;
-        private PongInputManager inputManager;
+        private PongHubInputManager inputManager;
         private PhysicsMaterialConfig materialConfig;
 
         // VR相关
@@ -244,7 +244,7 @@ namespace PongHub.UI
         {
             // 查找游戏组件
             serveManager = ServePermissionManager.Instance;
-            inputManager = PongInputManager.Instance;
+            inputManager = PongHubInputManager.Instance;
 
             // 查找物理材质配置
             materialConfig = Resources.Load<PhysicsMaterialConfig>("PhysicsMaterialConfig");
@@ -317,7 +317,9 @@ namespace PongHub.UI
             // 订阅输入事件
             if (inputManager != null)
             {
-                PongInputManager.OnTeleportPerformed += OnTeleportPerformed;
+                // TODO: 重新实现传送事件订阅
+                // 新的输入系统中，传送事件可能有不同的命名或实现方式
+                // PongHubInputManager.OnTeleportPerformed += OnTeleportPerformed;
             }
         }
 
@@ -326,7 +328,9 @@ namespace PongHub.UI
             // 清理输入事件订阅
             if (inputManager != null)
             {
-                PongInputManager.OnTeleportPerformed -= OnTeleportPerformed;
+                // TODO: 重新实现传送事件取消订阅
+                // 新的输入系统中，传送事件可能有不同的命名或实现方式
+                // PongHubInputManager.OnTeleportPerformed -= OnTeleportPerformed;
             }
         }
         #endregion

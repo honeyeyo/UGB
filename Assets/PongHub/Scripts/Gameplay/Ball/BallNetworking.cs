@@ -5,6 +5,7 @@ using Meta.Utilities;
 using PongHub.Arena.Gameplay;
 using PongHub.Arena.Player;
 using PongHub.Arena.Services;
+using PongHub.Input;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -255,18 +256,26 @@ namespace PongHub.Gameplay.Ball
             if (playerId == NetworkManager.Singleton.LocalClientId)
             {
                 // 获取持拍状态
-                var inputManager = FindObjectOfType<PongInputManager>();
+                var inputManager = PongHubInputManager.Instance;
                 if (inputManager == null || LocalPlayerEntities.Instance == null) return null;
 
                 // 根据持拍手返回非持拍手
-                if (inputManager.IsLeftHandHoldingPaddle)
+                bool leftGripped = inputManager.IsLeftPaddleGripped;
+                bool rightGripped = inputManager.IsRightPaddleGripped;
+
+                if (leftGripped && !rightGripped)
                 {
-                    // 左手持拍，返回右手
+                    // 仅左手持拍，返回右手
                     return LocalPlayerEntities.Instance.RightPaddle?.transform;
+                }
+                else if (rightGripped && !leftGripped)
+                {
+                    // 仅右手持拍，返回左手
+                    return LocalPlayerEntities.Instance.LeftPaddle?.transform;
                 }
                 else
                 {
-                    // 右手持拍或无持拍，返回左手
+                    // 无持拍或双手持拍，默认返回左手
                     return LocalPlayerEntities.Instance.LeftPaddle?.transform;
                 }
             }
