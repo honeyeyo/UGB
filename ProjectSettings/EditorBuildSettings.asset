@@ -22,5 +22,6 @@ EditorBuildSettings:
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 8ebdfdac5222f8546b63134b2f431802, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: c37822f97de43ea48b96c1bfec38f307, type: 2}
     com.unity.input.settings: {fileID: 11400000, guid: 31617391d8a34d24981ec6aff26cd922, type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2de88b9877afbf34f856d91c8862597f, type: 3}
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 91cf836ef018a30448930095c36540ba, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: eb1fb9be53949b94982164119889ba87, type: 2}

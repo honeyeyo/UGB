@@ -2,6 +2,8 @@ using UnityEngine;
 using PongHub.Core;
 using PongHub.Core.Audio;
 using PongHub.Networking;
+using PongHub.Input;
+using PongHub.UI;
 
 namespace PongHub.App
 {
@@ -22,6 +24,7 @@ namespace PongHub.App
         [SerializeField] private GameObject m_gameCoreManagerPrefab;
         [SerializeField] private GameObject m_uiManagerPrefab;
         [SerializeField] private GameObject m_userIconManagerPrefab;
+        [SerializeField] private GameObject m_inputManagerPrefab;
 
         private void Awake()
         {
@@ -37,10 +40,11 @@ namespace PongHub.App
 
             CheckManager<AudioManager>("AudioManager", m_audioManagerPrefab);
             CheckManager<VibrationManager>("VibrationManager", m_vibrationManagerPrefab);
-            CheckManager<PongHub.Networking.NetworkManager>("NetworkManager", m_networkManagerPrefab);
+            CheckManager<NetworkManager>("NetworkManager", m_networkManagerPrefab);
             CheckManager<GameCore>("GameCore", m_gameCoreManagerPrefab);
-            CheckManager<PongHub.UI.UIManager>("UIManager", m_uiManagerPrefab);
+            CheckManager<UIManager>("UIManager", m_uiManagerPrefab);
             CheckManager<UserIconManager>("UserIconManager", m_userIconManagerPrefab);
+            CheckManager<PongHubInputManager>("InputManager", m_inputManagerPrefab);
 
             Debug.Log("=== SceneManagerChecker: 管理器检查完成 ===");
         }
