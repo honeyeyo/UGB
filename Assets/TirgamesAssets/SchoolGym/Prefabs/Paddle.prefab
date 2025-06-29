@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: -1947156560923016944}
   - component: {fileID: 4644102120078694359}
   m_Layer: 0
-  m_Name: PingPongPaddle01
+  m_Name: Paddle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 1315461161979393756}
   - component: {fileID: 4366183102827771823}
   m_Layer: 0
-  m_Name: PingPongBall01
+  m_Name: Ball
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
