@@ -22,8 +22,8 @@ namespace PongHub.Input
     }
 
     /// <summary>
-    /// PongHub主输入管理器
-    /// 处理所有VR控制器输入，包括移动、球拍控制、发球、传送、高度调整等
+    /// PongHub主输入管理器 - 优化版本
+    /// 采用混合模式：事件驱动的离散输入 + 优化的连续输入轮询
     /// </summary>
     public class PongHubInputManager : MonoBehaviour
     {
@@ -42,6 +42,11 @@ namespace PongHub.Input
         [Header("移动设置")]
         [SerializeField] private float m_moveSpeed = 3f;
         [SerializeField] private float m_deadZone = 0.1f;
+
+        [Header("性能优化设置")]
+        [SerializeField] private float m_continuousInputUpdateRate = 90f; // 90Hz for VR
+        [SerializeField] public bool m_useOptimizedPolling = true;
+        [SerializeField] public bool m_enablePerformanceLogging = false;
 
         // 输入动作组
         private InputActionMap m_playerActions;
@@ -66,6 +71,15 @@ namespace PongHub.Input
         private Vector2 m_currentMoveInput = Vector2.zero;
         private Vector2 m_currentTeleportInput = Vector2.zero;
         private InputState m_currentInputState = new InputState();
+
+        // 性能优化变量
+        private float m_lastContinuousInputUpdate = 0f;
+        private float m_continuousInputInterval;
+        private bool m_hasContinuousInputChanged = false;
+
+        // 缓存变量，减少GC分配
+        private Vector2 m_cachedMoveInput;
+        private Vector2 m_cachedTeleportInput;
 
         // 事件定义
         public static event Action<bool> OnPaddleGripped; // bool: isLeftHand
@@ -101,6 +115,10 @@ namespace PongHub.Input
             {
                 Instance = this;
                 DontDestroyOnLoad(gameObject);
+
+                // 计算更新间隔
+                m_continuousInputInterval = 1f / m_continuousInputUpdateRate;
+
                 InitializeInputActions();
             }
             else
@@ -123,7 +141,15 @@ namespace PongHub.Input
 
         private void Update()
         {
-            HandleContinuousInputs();
+            // 🚀 性能优化：限制连续输入的更新频率
+            if (m_useOptimizedPolling)
+            {
+                HandleOptimizedContinuousInputs();
+            }
+            else
+            {
+                HandleContinuousInputs();
+            }
         }
 
         /// <summary>
@@ -253,6 +279,107 @@ namespace PongHub.Input
 
             // 更新输入状态结构（用于调试和兼容性）
             UpdateInputState();
+        }
+
+                /// <summary>
+        /// 🚀 优化的连续输入处理 - 限制更新频率，减少CPU开销
+        /// </summary>
+        private void HandleOptimizedContinuousInputs()
+        {
+            float currentTime = Time.unscaledTime;
+
+            // 只在指定间隔后更新连续输入
+            if (currentTime - m_lastContinuousInputUpdate >= m_continuousInputInterval)
+            {
+                m_lastContinuousInputUpdate = currentTime;
+
+                // 性能监控
+                var startTime = Time.realtimeSinceStartup;
+                ProcessContinuousInputsOptimized();
+                var duration = Time.realtimeSinceStartup - startTime;
+
+                // 记录性能数据
+                RecordPerformanceData(duration);
+
+                // 详细性能日志（仅在启用时）
+                if (m_enablePerformanceLogging && duration > 0.0005f) // 超过0.5ms记录
+                {
+                    Debug.LogWarning($"[PongHubInputManager] 连续输入处理耗时: {duration * 1000f:F2}ms");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 处理优化的连续输入 - 减少每帧ReadValue调用
+        /// </summary>
+        private void ProcessContinuousInputsOptimized()
+        {
+            bool hasMovementChanged = false;
+            bool hasTeleportChanged = false;
+
+            // 缓存当前输入值，避免重复ReadValue调用
+            m_cachedMoveInput = m_moveAction?.ReadValue<Vector2>() ?? Vector2.zero;
+            m_cachedTeleportInput = m_teleportControlAction?.ReadValue<Vector2>() ?? Vector2.zero;
+
+            // 检查移动输入变化
+            if ((m_cachedMoveInput - m_currentMoveInput).sqrMagnitude > 0.001f)
+            {
+                hasMovementChanged = true;
+                m_currentMoveInput = m_cachedMoveInput;
+            }
+
+            // 检查传送输入变化
+            if ((m_cachedTeleportInput - m_currentTeleportInput).sqrMagnitude > 0.001f)
+            {
+                hasTeleportChanged = true;
+                m_currentTeleportInput = m_cachedTeleportInput;
+            }
+
+            // 只在有变化时处理
+            if (hasMovementChanged && m_currentMoveInput.magnitude > m_deadZone)
+            {
+                HandleMovement(m_currentMoveInput);
+            }
+            else if (hasMovementChanged && m_currentMoveInput.magnitude <= m_deadZone)
+            {
+                m_currentMoveInput = Vector2.zero;
+            }
+
+            if (hasTeleportChanged && m_teleportController != null)
+            {
+                m_teleportController.HandleTeleportInput(m_currentTeleportInput);
+            }
+
+            // 减少UpdateInputState的调用频率
+            if (hasMovementChanged || hasTeleportChanged)
+            {
+                UpdateInputStateOptimized();
+            }
+        }
+
+        /// <summary>
+        /// 优化的输入状态更新 - 减少不必要的ReadValue调用
+        /// </summary>
+        private void UpdateInputStateOptimized()
+        {
+            // 摇杆输入（使用已缓存的值）
+            m_currentInputState.leftStick = m_cachedMoveInput;
+            m_currentInputState.rightStick = m_cachedTeleportInput;
+
+            // 握力状态（使用状态标记，避免ReadValue）
+            m_currentInputState.leftGrip = m_isLeftPaddleGripped ? 1.0f : 0.0f;
+            m_currentInputState.rightGrip = m_isRightPaddleGripped ? 1.0f : 0.0f;
+
+            // 扳机状态（仅在需要时读取）
+            if (m_generateServeBallLeftAction?.WasPressedThisFrame() == true ||
+                m_generateServeBallRightAction?.WasPressedThisFrame() == true)
+            {
+                m_currentInputState.leftTrigger = m_generateServeBallLeftAction?.ReadValue<float>() ?? 0.0f;
+                m_currentInputState.rightTrigger = m_generateServeBallRightAction?.ReadValue<float>() ?? 0.0f;
+            }
+
+            // 按钮状态（使用事件缓存，避免每帧ReadValue）
+            // 这些状态在事件回调中已更新，无需每帧读取
         }
 
         /// <summary>
@@ -451,5 +578,47 @@ namespace PongHub.Input
         {
             return isLeftHand ? m_leftHandAnchor : m_rightHandAnchor;
         }
+
+        #region 性能监控
+
+        // 性能监控属性
+        public float LastFrameCPUTime { get; private set; }
+        public float ActualUpdateRate { get; private set; }
+
+        private float m_performanceTimer = 0f;
+        private int m_updateCount = 0;
+
+        /// <summary>
+        /// 记录性能数据
+        /// </summary>
+        private void RecordPerformanceData(float cpuTime)
+        {
+            LastFrameCPUTime = cpuTime * 1000000f; // 转换为微秒
+
+            m_updateCount++;
+            m_performanceTimer += Time.unscaledDeltaTime;
+
+            // 每秒计算一次实际更新频率
+            if (m_performanceTimer >= 1f)
+            {
+                ActualUpdateRate = m_updateCount / m_performanceTimer;
+                m_updateCount = 0;
+                m_performanceTimer = 0f;
+            }
+        }
+
+        /// <summary>
+        /// 获取性能统计信息
+        /// </summary>
+        public string GetPerformanceStats()
+        {
+            return $"输入系统性能:\n" +
+                   $"- CPU时间: {LastFrameCPUTime:F1}μs\n" +
+                   $"- 更新频率: {ActualUpdateRate:F1}Hz\n" +
+                   $"- 目标频率: {m_continuousInputUpdateRate:F1}Hz\n" +
+                   $"- 优化模式: {(m_useOptimizedPolling ? "启用" : "禁用")}";
+        }
+
+        #endregion
     }
 }
