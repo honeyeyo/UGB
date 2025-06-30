@@ -189,6 +189,27 @@ namespace PongHub.Utils
         }
 
         /// <summary>
+        /// 设置测试持续时间
+        /// </summary>
+        /// <param name="duration">测试时长（秒）</param>
+        public void SetTestDuration(int duration)
+        {
+            if (duration > 0)
+            {
+                m_testDuration = duration;
+            }
+        }
+
+        /// <summary>
+        /// 设置是否自动生成报告
+        /// </summary>
+        /// <param name="autoGenerate">是否自动生成</param>
+        public void SetAutoGenerateReport(bool autoGenerate)
+        {
+            m_autoGenerateReport = autoGenerate;
+        }
+
+        /// <summary>
         /// 获取指定百分位数的值
         /// </summary>
         private float GetPercentile(List<float> sortedValues, float percentile)

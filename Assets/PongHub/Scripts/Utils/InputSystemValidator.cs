@@ -115,8 +115,8 @@ namespace PongHub.Utils
             if (benchmark == null)
             {
                 benchmark = gameObject.AddComponent<InputPerformanceBenchmark>();
-                benchmark.m_testDuration = (int)m_validationDuration;
-                benchmark.m_autoGenerateReport = false; // 不自动生成报告
+                benchmark.SetTestDuration((int)m_validationDuration);
+                benchmark.SetAutoGenerateReport(false); // 不自动生成报告
             }
 
             // 运行基准测试
