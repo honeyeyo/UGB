@@ -45,4 +45,4 @@ namespace PongHub.Core
             m_vibrationIntensity = Mathf.Clamp01(intensity);
         }
     }
-} 
+}

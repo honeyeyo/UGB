@@ -1,0 +1,102 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: ALWAYS use system date commands when CREATING OR UPDATING documentation to ENSURE accurate timestamps
+globs: Documentation/**/*.md
+---
+
+# Document Date Generation Standard
+
+<version>1.0.0</version>
+
+## Context
+- When creating or updating any documentation files
+- When adding timestamps to files, reports, or analysis documents
+- When naming files with date suffixes
+
+## Requirements
+
+### 🕐 Date Acquisition
+- ALWAYS use terminal commands to get actual system date
+- NEVER manually type dates that may be incorrect
+- Use consistent date format across all documentation
+
+### 📅 Standard Commands
+```powershell
+# Get current date in Chinese format
+powershell -Command "Get-Date -Format 'yyyy年M月d日'"
+
+# Get current date with time
+powershell -Command "Get-Date -Format 'yyyy年M月d日 HH:mm'"
+
+# Get current date for filename
+powershell -Command "Get-Date -Format 'yyyy-MM-dd'"
+```
+
+### 📝 Documentation Format Standards
+- **File names**: `文档名称_YYYY-MM-DD.md`
+- **Document headers**: `YYYY年M月D日`
+- **Timestamps**: `YYYY年M月D日 HH:mm`
+- **Analysis time**: `YYYY年M月D日`
+
+## Examples
+
+<example>
+✅ Correct: Getting actual date before creating document
+```bash
+# Get system date first
+powershell -Command "Get-Date -Format 'yyyy年M月d日'"
+# Output: 2025年7月1日
+
+# Then use in document:
+**记录时间**: 2025年7月1日 凌晨1:04
+**分析时间**: 2025年7月1日
+```
+</example>
+
+<example type="invalid">
+❌ Incorrect: Manually typing potentially wrong dates
+```markdown
+**记录时间**: 2025年1月2日 凌晨1:00  <!-- Wrong date -->
+**分析时间**: 2025年1月2日  <!-- Should be actual system date -->
+```
+</example>
+
+<example>
+✅ Correct: File naming with system date
+```bash
+# Get date for filename
+$date = powershell -Command "Get-Date -Format 'yyyy-MM-dd'"
+# Create file: Documentation/Unity错误记录_2025-07-01.md
+```
+</example>
+
+<example type="invalid">
+❌ Incorrect: File naming with guessed dates
+```bash
+# Wrong: Using manually typed date
+Documentation/Unity错误记录_2025-01-02.md  <!-- Incorrect date -->
+```
+</example>
+
+## Required Actions
+
+### 🔧 Before Document Creation
+1. Run date command to get current system time
+2. Use output for all timestamps in document
+3. Use date format for filename if needed
+
+### 📋 During Documentation Updates
+1. Update timestamps to reflect actual modification time
+2. Maintain consistent date format throughout document
+3. Use system date for version tracking
+
+### 🚨 Error Prevention
+- Verify date accuracy before publishing documents
+- Use commands instead of memory for date entry
+- Cross-check timestamps for consistency
+
+

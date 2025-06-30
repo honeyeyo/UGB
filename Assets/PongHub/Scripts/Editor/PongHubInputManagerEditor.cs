@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.InputSystem;
 using PongHub.Input;
 
 namespace PongHub.Editor
@@ -13,14 +14,18 @@ namespace PongHub.Editor
     {
         private bool m_showPerformanceSettings = true;
         private bool m_showPerformanceStats = true;
-        private bool m_showInputActions = false;
-        private bool m_showComponentReferences = false;
+        private bool m_showInputActions = true;
+        private bool m_showComponentReferences = true;
+        private bool m_showMoveSettings = true;
 
         private float m_lastUpdateTime;
         private const float UPDATE_INTERVAL = 0.5f;
 
         public override void OnInspectorGUI()
         {
+            // 🔧 修复：在开始时更新序列化对象
+            serializedObject.Update();
+
             PongHubInputManager manager = (PongHubInputManager)target;
 
             EditorGUILayout.Space();
@@ -28,6 +33,33 @@ namespace PongHub.Editor
 
             // 绘制状态信息
             DrawStatusInfo(manager);
+
+            EditorGUILayout.Space();
+
+            // 输入动作折叠面板 - 移到最前面，这是最重要的
+            m_showInputActions = EditorGUILayout.Foldout(m_showInputActions, "🎮 输入动作配置", true);
+            if (m_showInputActions)
+            {
+                DrawInputActionsSettings();
+            }
+
+            EditorGUILayout.Space();
+
+            // 组件引用折叠面板
+            m_showComponentReferences = EditorGUILayout.Foldout(m_showComponentReferences, "🔗 组件引用", true);
+            if (m_showComponentReferences)
+            {
+                DrawComponentReferences();
+            }
+
+            EditorGUILayout.Space();
+
+            // 移动设置折叠面板
+            m_showMoveSettings = EditorGUILayout.Foldout(m_showMoveSettings, "🚶 移动设置", true);
+            if (m_showMoveSettings)
+            {
+                DrawMoveSettings();
+            }
 
             EditorGUILayout.Space();
 
@@ -48,27 +80,12 @@ namespace PongHub.Editor
                 {
                     DrawPerformanceStats(manager);
                 }
-
-                EditorGUILayout.Space();
             }
 
-            // 输入动作折叠面板
-            m_showInputActions = EditorGUILayout.Foldout(m_showInputActions, "🎮 输入动作配置", true);
-            if (m_showInputActions)
-            {
-                DrawInputActionsSettings();
-            }
+            // 🔧 修复：在结束时应用所有修改
+            serializedObject.ApplyModifiedProperties();
 
-            EditorGUILayout.Space();
-
-            // 组件引用折叠面板
-            m_showComponentReferences = EditorGUILayout.Foldout(m_showComponentReferences, "🔗 组件引用", true);
-            if (m_showComponentReferences)
-            {
-                DrawComponentReferences();
-            }
-
-            // 应用修改
+            // 标记目标为脏状态（如果有非SerializedProperty的修改）
             if (GUI.changed)
             {
                 EditorUtility.SetDirty(target);
@@ -103,6 +120,104 @@ namespace PongHub.Editor
             EditorGUILayout.EndVertical();
         }
 
+        private void DrawInputActionsSettings()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            SerializedProperty inputActionsProp = serializedObject.FindProperty("m_inputActions");
+            if (inputActionsProp != null)
+            {
+                EditorGUILayout.PropertyField(inputActionsProp, new GUIContent("输入动作资源"));
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("⚠️ 无法找到 m_inputActions 字段", MessageType.Error);
+                return;
+            }
+
+            // 显示警告信息
+            if (inputActionsProp.objectReferenceValue == null)
+            {
+                EditorGUILayout.HelpBox("⚠️ 输入动作资源未分配！这会导致VR控制器输入失效。\n请分配 GloveBall.inputactions 文件。", MessageType.Error);
+
+                if (GUILayout.Button("🔍 查找 GloveBall.inputactions"))
+                {
+                    string[] guids = AssetDatabase.FindAssets("GloveBall t:InputActionAsset");
+                    if (guids.Length > 0)
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                        var asset = AssetDatabase.LoadAssetAtPath<InputActionAsset>(path);
+                        inputActionsProp.objectReferenceValue = asset;
+                        EditorGUILayout.HelpBox($"✅ 找到并分配了: {path}", MessageType.Info);
+                    }
+                    else
+                    {
+                        EditorGUILayout.HelpBox("❌ 未找到 GloveBall.inputactions 文件", MessageType.Warning);
+                    }
+                }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("✅ 输入动作资源已正确分配", MessageType.Info);
+            }
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawComponentReferences()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            // 玩家Rig
+            SerializedProperty playerRigProp = serializedObject.FindProperty("m_playerRig");
+            if (playerRigProp != null)
+                EditorGUILayout.PropertyField(playerRigProp, new GUIContent("玩家Rig"));
+
+            EditorGUILayout.Space();
+
+            // 手部锚点
+            SerializedProperty leftHandProp = serializedObject.FindProperty("m_leftHandAnchor");
+            SerializedProperty rightHandProp = serializedObject.FindProperty("m_rightHandAnchor");
+            if (leftHandProp != null)
+                EditorGUILayout.PropertyField(leftHandProp, new GUIContent("左手锚点"));
+            if (rightHandProp != null)
+                EditorGUILayout.PropertyField(rightHandProp, new GUIContent("右手锚点"));
+
+            EditorGUILayout.Space();
+
+            // 控制器引用
+            SerializedProperty heightControllerProp = serializedObject.FindProperty("m_heightController");
+            SerializedProperty teleportControllerProp = serializedObject.FindProperty("m_teleportController");
+            SerializedProperty serveBallControllerProp = serializedObject.FindProperty("m_serveBallController");
+            SerializedProperty paddleControllerProp = serializedObject.FindProperty("m_paddleController");
+
+            if (heightControllerProp != null)
+                EditorGUILayout.PropertyField(heightControllerProp, new GUIContent("高度控制器"));
+            if (teleportControllerProp != null)
+                EditorGUILayout.PropertyField(teleportControllerProp, new GUIContent("传送控制器"));
+            if (serveBallControllerProp != null)
+                EditorGUILayout.PropertyField(serveBallControllerProp, new GUIContent("发球控制器"));
+            if (paddleControllerProp != null)
+                EditorGUILayout.PropertyField(paddleControllerProp, new GUIContent("球拍控制器"));
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawMoveSettings()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            SerializedProperty moveSpeedProp = serializedObject.FindProperty("m_moveSpeed");
+            SerializedProperty deadZoneProp = serializedObject.FindProperty("m_deadZone");
+
+            if (moveSpeedProp != null)
+                EditorGUILayout.PropertyField(moveSpeedProp, new GUIContent("移动速度"));
+            if (deadZoneProp != null)
+                EditorGUILayout.PropertyField(deadZoneProp, new GUIContent("死区大小"));
+
+            EditorGUILayout.EndVertical();
+        }
+
         private void DrawPerformanceSettings(PongHubInputManager manager)
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
@@ -129,11 +244,14 @@ namespace PongHub.Editor
 
                 // 更新频率设置
                 SerializedProperty updateRateProp = serializedObject.FindProperty("m_continuousInputUpdateRate");
-                EditorGUILayout.PropertyField(updateRateProp, new GUIContent("连续输入更新频率"));
+                if (updateRateProp != null)
+                {
+                    EditorGUILayout.PropertyField(updateRateProp, new GUIContent("连续输入更新频率"));
 
-                // 显示计算出的间隔
-                float interval = 1f / updateRateProp.floatValue;
-                EditorGUILayout.LabelField($"更新间隔: {interval * 1000f:F1}ms", EditorStyles.miniLabel);
+                    // 显示计算出的间隔
+                    float interval = 1f / updateRateProp.floatValue;
+                    EditorGUILayout.LabelField($"更新间隔: {interval * 1000f:F1}ms", EditorStyles.miniLabel);
+                }
             }
 
             // 性能建议
@@ -146,7 +264,7 @@ namespace PongHub.Editor
             EditorGUILayout.EndVertical();
         }
 
-                private void DrawPerformanceStats(PongHubInputManager manager)
+        private void DrawPerformanceStats(PongHubInputManager manager)
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
@@ -159,7 +277,7 @@ namespace PongHub.Editor
                     Repaint();
                 }
 
-                                // CPU时间
+                // CPU时间
                 float cpuTime = PongHubInputManager.Instance.LastFrameCPUTime;
                 Color cpuColor = cpuTime < 20f ? Color.green : cpuTime < 50f ? Color.yellow : Color.red;
 
@@ -230,56 +348,6 @@ namespace PongHub.Editor
             if (cpuTime < 50f) return "中等 (B)";
             if (cpuTime < 100f) return "较差 (C)";
             return "很差 (D)";
-        }
-
-        private void DrawInputActionsSettings()
-        {
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-            SerializedProperty inputActionsProp = serializedObject.FindProperty("m_inputActionsAsset");
-            EditorGUILayout.PropertyField(inputActionsProp, new GUIContent("输入动作资源"));
-
-            EditorGUILayout.EndVertical();
-        }
-
-        private void DrawComponentReferences()
-        {
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-
-            // 手部锚点
-            SerializedProperty leftHandProp = serializedObject.FindProperty("m_leftHandAnchor");
-            SerializedProperty rightHandProp = serializedObject.FindProperty("m_rightHandAnchor");
-            EditorGUILayout.PropertyField(leftHandProp, new GUIContent("左手锚点"));
-            EditorGUILayout.PropertyField(rightHandProp, new GUIContent("右手锚点"));
-
-            EditorGUILayout.Space();
-
-            // 控制器引用
-            SerializedProperty heightControllerProp = serializedObject.FindProperty("m_heightController");
-            SerializedProperty teleportControllerProp = serializedObject.FindProperty("m_teleportController");
-            SerializedProperty serveBallControllerProp = serializedObject.FindProperty("m_serveBallController");
-            SerializedProperty paddleControllerProp = serializedObject.FindProperty("m_paddleController");
-
-            EditorGUILayout.PropertyField(heightControllerProp, new GUIContent("高度控制器"));
-            EditorGUILayout.PropertyField(teleportControllerProp, new GUIContent("传送控制器"));
-            EditorGUILayout.PropertyField(serveBallControllerProp, new GUIContent("发球控制器"));
-            EditorGUILayout.PropertyField(paddleControllerProp, new GUIContent("球拍控制器"));
-
-            EditorGUILayout.Space();
-
-            // 移动设置
-            SerializedProperty playerRigProp = serializedObject.FindProperty("m_playerRig");
-            SerializedProperty moveSpeedProp = serializedObject.FindProperty("m_moveSpeed");
-            SerializedProperty deadZoneProp = serializedObject.FindProperty("m_deadZone");
-
-            EditorGUILayout.PropertyField(playerRigProp, new GUIContent("玩家Rig"));
-            EditorGUILayout.PropertyField(moveSpeedProp, new GUIContent("移动速度"));
-            EditorGUILayout.PropertyField(deadZoneProp, new GUIContent("死区大小"));
-
-            EditorGUILayout.EndVertical();
-
-            // 应用序列化属性的修改
-            serializedObject.ApplyModifiedProperties();
         }
     }
 }

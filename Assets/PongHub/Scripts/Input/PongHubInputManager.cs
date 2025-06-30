@@ -75,7 +75,7 @@ namespace PongHub.Input
         // 性能优化变量
         private float m_lastContinuousInputUpdate = 0f;
         private float m_continuousInputInterval;
-        private bool m_hasContinuousInputChanged = false;
+        // private bool m_hasContinuousInputChanged = false;
 
         // 缓存变量，减少GC分配
         private Vector2 m_cachedMoveInput;
@@ -229,26 +229,43 @@ namespace PongHub.Input
         /// </summary>
         private void UnbindInputEvents()
         {
-            // 球拍抓取事件
-            m_leftPaddleGripAction.performed -= OnLeftPaddleGripPerformed;
-            m_leftPaddleGripAction.canceled -= OnLeftPaddleGripCanceled;
-            m_rightPaddleGripAction.performed -= OnRightPaddleGripPerformed;
-            m_rightPaddleGripAction.canceled -= OnRightPaddleGripCanceled;
+            // 球拍抓取事件 - 添加null检查
+            if (m_leftPaddleGripAction != null)
+            {
+                m_leftPaddleGripAction.performed -= OnLeftPaddleGripPerformed;
+                m_leftPaddleGripAction.canceled -= OnLeftPaddleGripCanceled;
+            }
+            if (m_rightPaddleGripAction != null)
+            {
+                m_rightPaddleGripAction.performed -= OnRightPaddleGripPerformed;
+                m_rightPaddleGripAction.canceled -= OnRightPaddleGripCanceled;
+            }
 
             // 发球事件
-            m_generateServeBallLeftAction.performed -= OnGenerateServeBallLeft;
-            m_generateServeBallRightAction.performed -= OnGenerateServeBallRight;
+            if (m_generateServeBallLeftAction != null)
+                m_generateServeBallLeftAction.performed -= OnGenerateServeBallLeft;
+            if (m_generateServeBallRightAction != null)
+                m_generateServeBallRightAction.performed -= OnGenerateServeBallRight;
 
             // 高度调整事件
-            m_heightUpAction.performed -= OnHeightUp;
-            m_heightUpAction.canceled -= OnHeightUpCanceled;
-            m_heightDownAction.performed -= OnHeightDown;
-            m_heightDownAction.canceled -= OnHeightDownCanceled;
+            if (m_heightUpAction != null)
+            {
+                m_heightUpAction.performed -= OnHeightUp;
+                m_heightUpAction.canceled -= OnHeightUpCanceled;
+            }
+            if (m_heightDownAction != null)
+            {
+                m_heightDownAction.performed -= OnHeightDown;
+                m_heightDownAction.canceled -= OnHeightDownCanceled;
+            }
 
             // 菜单和控制事件
-            m_menuAction.performed -= OnMenuPerformed;
-            m_pauseSinglePlayerAction.performed -= OnPauseSinglePlayerPerformed;
-            m_resetPositionAction.performed -= OnResetPositionPerformed;
+            if (m_menuAction != null)
+                m_menuAction.performed -= OnMenuPerformed;
+            if (m_pauseSinglePlayerAction != null)
+                m_pauseSinglePlayerAction.performed -= OnPauseSinglePlayerPerformed;
+            if (m_resetPositionAction != null)
+                m_resetPositionAction.performed -= OnResetPositionPerformed;
         }
 
         /// <summary>
@@ -281,7 +298,7 @@ namespace PongHub.Input
             UpdateInputState();
         }
 
-                /// <summary>
+        /// <summary>
         /// 🚀 优化的连续输入处理 - 限制更新频率，减少CPU开销
         /// </summary>
         private void HandleOptimizedContinuousInputs()

@@ -20,7 +20,7 @@ namespace PongHub.Input
         #region 设置配置
         [Header("模拟器设置")]
         [SerializeField] private bool enableInEditor = true;
-        [SerializeField] private bool enableInBuild = false;
+        // [SerializeField] private bool enableInBuild = false;
         [SerializeField] private bool showInstructions = true;
         [SerializeField] private bool verboseLogging = false;
 
@@ -32,7 +32,7 @@ namespace PongHub.Input
 
         [Header("控制器模拟")]
         [SerializeField] private float controllerMoveSpeed = 1f;
-        [SerializeField] private float controllerRotateSpeed = 90f;
+        // [SerializeField] private float controllerRotateSpeed = 90f;
         [SerializeField] private Transform leftControllerTransform;
         [SerializeField] private Transform rightControllerTransform;
         [SerializeField] private Transform headTransform;
@@ -104,10 +104,8 @@ namespace PongHub.Input
                 HandleEditorInput();
             }
 #else
-            if (enableInBuild && !IsVRActive())
-            {
-                HandleEditorInput();
-            }
+            // 在构建版本中默认禁用编辑器模拟器
+            return;
 #endif
         }
 
@@ -135,7 +133,7 @@ namespace PongHub.Input
 #if UNITY_EDITOR
             isActive = enableInEditor && !IsVRActive();
 #else
-            isActive = enableInBuild && !IsVRActive();
+            isActive = false; // 构建版本中禁用
 #endif
 
             if (!isActive)

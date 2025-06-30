@@ -16,8 +16,8 @@ namespace PongHub.Input
 
         [Header("发球规则设置")]
         [SerializeField] private bool m_enforceServingRules = true; // 是否强制发球规则
-        [SerializeField] private float m_minThrowHeight = 0.16f;    // 最小抛球高度（16cm）
-        [SerializeField] private float m_maxThrowAngle = 15f;       // 最大抛球角度偏差
+        // [SerializeField] private float m_minThrowHeight = 0.16f;    // 最小抛球高度（16cm）
+        // [SerializeField] private float m_maxThrowAngle = 15f;       // 最大抛球角度偏差
 
         [Header("物理设置")]
         [SerializeField] private float m_initialVelocityMultiplier = 1f; // 初始速度倍数
@@ -39,7 +39,7 @@ namespace PongHub.Input
         // 发球状态跟踪
         private Vector3 m_lastHandPosition;
         private Vector3 m_handVelocity;
-        private bool m_isTrackingThrow = false;
+        // private bool m_isTrackingThrow = false;
 
         private void Awake()
         {

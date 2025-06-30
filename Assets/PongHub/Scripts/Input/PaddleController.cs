@@ -19,8 +19,8 @@ namespace PongHub.Input
         [SerializeField] private bool m_usePhysicsJoint = true;   // 是否使用物理关节
 
         [Header("物理设置")]
-        [SerializeField] private float m_jointSpring = 3000f;     // 关节弹性
-        [SerializeField] private float m_jointDamper = 50f;       // 关节阻尼
+        // [SerializeField] private float m_jointSpring = 3000f;     // 关节弹性
+        // [SerializeField] private float m_jointDamper = 50f;       // 关节阻尼
         [SerializeField] private float m_maxJointForce = 10000f;  // 最大关节力
 
         [Header("音效")]

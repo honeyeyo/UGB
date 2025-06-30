@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7917622354605840276
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7917622354605840274}
+  - component: {fileID: 7917622354605840275}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7917622354605840274
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7917622354605840276}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7917622354605840275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7917622354605840276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9023dfec30ac7344934df13c8b8d617, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ballHitPaddleSounds: []
+  m_ballHitTableSounds: []
+  m_ballHitNetSounds: []
+  m_ballBounceSounds: []
+  m_ballOutOfBounds: {fileID: 0}
+  m_matchStart: {fileID: 0}
+  m_matchEnd: {fileID: 0}
+  m_pointScored: {fileID: 0}
+  m_gameWon: {fileID: 0}
+  m_setWon: {fileID: 0}
+  m_matchWon: {fileID: 0}
+  m_crowdCheer: {fileID: 0}
+  m_crowdApplause: {fileID: 0}
+  m_crowdBoo: {fileID: 0}
+  m_crowdAmbient: {fileID: 0}
+  m_lobbyAmbient: {fileID: 0}
+  m_arenaAmbient: {fileID: 0}
+  m_footstepSounds: []
+  m_voiceChatNotifications: []
+  m_ballSoundVariation: 0.2
+  m_enableDynamicVolume: 1
+  m_enableCrowdReactions: 1 

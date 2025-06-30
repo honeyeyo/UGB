@@ -67,9 +67,9 @@ namespace PongHub.Gameplay.Serve
         [Header("发球规则")]
         [SerializeField] private float minThrowHeight = 0.16f;        // 最小抛球高度16cm (ITTF规则)
         [SerializeField] private float maxThrowAngle = 30f;           // 最大偏离垂直角度
-        [SerializeField] private float throwValidationTime = 2f;      // 抛球动作验证时间
+        // [SerializeField] private float throwValidationTime = 2f;      // 抛球动作验证时间
         [SerializeField] private float serveTimeLimit = 30f;          // 发球时间限制
-        [SerializeField] private float ballReleaseDetectionRadius = 0.05f; // 球释放检测半径
+        // [SerializeField] private float ballReleaseDetectionRadius = 0.05f; // 球释放检测半径
 
         [Header("物理验证")]
         [SerializeField] private LayerMask tableLayerMask = 1 << 8;   // 球台层级
