@@ -1238,6 +1238,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: InputManager
       objectReference: {fileID: 0}
+    - target: {fileID: 3846497638579762723, guid: e03b9b14a2bc9564d8e0d53504b11641, type: 3}
+      propertyPath: m_ballPrefab
+      value: 
+      objectReference: {fileID: 145934, guid: f78749db511f9ff4eaca80356416fbaa, type: 3}
+    - target: {fileID: 3877983888130134522, guid: e03b9b14a2bc9564d8e0d53504b11641, type: 3}
+      propertyPath: m_inputActions
+      value: 
+      objectReference: {fileID: -944628639613478452, guid: 2de88b9877afbf34f856d91c8862597f, type: 3}
     - target: {fileID: 7619119184991059241, guid: e03b9b14a2bc9564d8e0d53504b11641, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.728992
