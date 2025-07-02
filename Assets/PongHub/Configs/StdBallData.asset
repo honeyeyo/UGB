@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f43d3246daad144429a4301a5a18c9fb, type: 3}
+  m_Name: StdBallData
+  m_EditorClassIdentifier: 
+  m_mass: 0.0027
+  m_radius: 0.02
+  m_bounce: 0.89
+  m_friction: 0.15
+  m_drag: 0.12
+  m_angularDrag: 0.08
+  m_maxSpeed: 28
+  m_minSpeed: 0.3
+  m_maxSpin: 150
+  m_spinDecay: 0.98
+  m_paddleHitMultiplier: 1.2
+  m_tableHitMultiplier: 1
+  m_netHitMultiplier: 0.8
+  TrailWidth: 0.008
+  TrailTime: 0.3
+  TrailColor: {r: 1, g: 1, b: 1, a: 1}
+  SpinVisualMultiplier: 1.5
+  SpinInfluence: 2

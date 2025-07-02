@@ -243,6 +243,23 @@ namespace PongHub.App
                 Debug.Log("步骤4: 初始化BlockUserManager...");
                 _ = BlockUserManager.Instance.Initialize();
 
+                // 验证必要的组件是否已分配
+                if (NetworkLayer == null)
+                {
+                    Debug.LogError("❌ NetworkLayer字段为null！请在Unity Editor的PHApplication组件中分配NetworkLayer引用");
+                    Debug.LogError("提示：在Hierarchy中找到PHApplication GameObject，在Inspector中将NetworkLayer字段拖拽分配");
+                    return false;
+                }
+
+                if (Voip == null)
+                {
+                    Debug.LogError("❌ Voip字段为null！请在Unity Editor的PHApplication组件中分配Voip引用");
+                    Debug.LogError("提示：在Hierarchy中找到PHApplication GameObject，在Inspector中将Voip字段拖拽分配");
+                    return false;
+                }
+
+                Debug.Log("✓ NetworkLayer和Voip组件验证通过");
+
                 Debug.Log("步骤5: 创建NavigationController...");
                 NavigationController = new NavigationController(this, NetworkLayer, LocalPlayerState, PlayerPresenceHandler);
                 m_navigationControllerInitialized = NavigationController != null;
