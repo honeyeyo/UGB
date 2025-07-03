@@ -1,0 +1,74 @@
+# English-First Language Policy
+
+<version>1.1.0</version>
+
+## Context
+
+- During initial game development phase (v1.0)
+- All user-facing text and interface elements
+- Code comments and documentation
+- Multi-language support planned for future versions
+
+## Requirements
+
+- Use English for all UI text, button labels, and menu items
+- Use English for variable names and function names
+- Use English for prefab names and scene object names
+- Store text strings in easily localizable format for future multi-language support
+- Debug.Log messages, documentation, and code comments may use Chinese-English combination for better understanding
+
+## Examples
+
+<example>
+Good UI Text:
+- "Single Player"
+- "Multi Player"
+- "Settings"
+- "Exit Game"
+- "Audio Settings"
+</example>
+
+<example>
+Good Code Comments (Chinese-English combination allowed):
+```csharp
+/// <summary>
+/// Handles VR menu interaction for table-based UI system
+/// VR菜单交互处理器，用于桌面UI系统
+/// </summary>
+public class VRMenuInteraction : MonoBehaviour
+{
+    // Check menu button input from VR controllers
+    // 检查VR控制器的菜单按键输入
+    private void CheckMenuButtonInput()
+    {
+        Debug.Log("Menu button pressed - 菜单按钮被按下");
+    }
+}
+```
+</example>
+
+<example>
+Good Debug Messages (Chinese-English combination allowed):
+```csharp
+Debug.Log("TableMenuSystem: Menu visibility changed - 菜单可见性改变");
+Debug.Log("SettingsPanel: Audio settings opened - 音频设置已打开");
+Debug.LogError("GameModeManager not found - 游戏模式管理器未找到");
+```
+</example>
+
+<example type="invalid">
+Invalid UI Text (Chinese in user interface):
+- "单机模式" (should be "Single Player")
+- "多人模式" (should be "Multi Player")
+- "设置" (should be "Settings")
+</example>
+
+<example type="invalid">
+Invalid Variable Names (Chinese characters):
+```csharp
+private string 菜单标题; // Should use English: menuTitle
+private bool 是否显示菜单; // Should use English: isMenuVisible
+```
+</example>
+
+private bool 是否显示菜单; // Chinese variable name

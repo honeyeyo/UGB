@@ -1,0 +1,58 @@
+---
+description: ALWAYS use terminal commands to get accurate datetime when creating files with timestamps
+globs: **/*.md,**/*.cs,**/*.txt,WorkLog/*
+---
+
+# Accurate DateTime Usage
+
+<version>1.0.0</version>
+
+## Context
+- When creating files with dates/timestamps in filename or content
+- When documenting work completion dates
+- When logging time-sensitive information
+- When generating reports or changelogs
+
+## Requirements
+- Use `date` terminal command to get current system datetime
+- Never assume or fabricate dates (especially year)
+- Format dates consistently: YYYY-MM-DD for filenames, localized format for content
+- Include actual timezone when relevant for distributed teams
+- Verify datetime accuracy before file creation
+
+## Examples
+
+<example>
+Good: Get real datetime first
+```bash
+date  # Get: 2025年7月3日 14:15:59
+```
+Then create: `WorkLog/2025-07-03_Feature_Complete.md`
+Content: **日期**: 2025年7月3日
+</example>
+
+<example type="invalid">
+Bad: Fabricated datetime
+```
+WorkLog/2024-12-19_Feature_Complete.md  # Wrong year!
+**日期**: 2024年12月19日  # Made up date
+```
+</example>
+
+<example>
+Good: Terminal date verification
+```bash
+# Windows PowerShell
+date
+
+# Linux/macOS
+date +"%Y-%m-%d %H:%M:%S"
+```
+</example>
+
+<example type="invalid">
+Bad: Assuming current date
+```markdown
+# Created on 2024-xx-xx  # Never assume year or date
+```
+</example>

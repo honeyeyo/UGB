@@ -1,0 +1,141 @@
+# VR Table Menu UI Design Standards
+
+<version>1.0.0</version>
+
+## Context
+
+- Table-based menu system for VR ping pong game
+- Players look down at table surface from standing position
+- Hand controller ray-casting interaction
+- Adaptive contrast with customizable table colors
+- Clear visibility in VR headset
+
+## Requirements
+
+### Font & Text
+
+- Use large, bold fonts (minimum 24pt for body text, 32pt+ for headers)
+- High contrast text colors (white/black with colored backgrounds)
+- Sans-serif fonts for clarity (Arial, Roboto, or similar)
+- Adequate line spacing (1.5x minimum)
+- Short, concise text labels
+
+### Controls & Layout
+
+- Minimum button size: 80x80 pixels for ray-casting
+- Button spacing: minimum 20px between interactive elements
+- Rounded corners for modern look and better hit detection
+- Visual feedback on hover/selection (glow, scale, color change)
+- Consistent grid-based layout for predictable interaction
+
+### Colors & Contrast
+
+- Dynamic contrast adjustment based on table surface color
+- Primary color palette with high contrast ratios (4.5:1 minimum)
+- Semi-transparent backgrounds with solid borders
+- Use complementary colors for better visibility
+- Test against both light and dark table surfaces
+
+### Icons & Emojis
+
+- Use simple, recognizable emojis for quick identification
+- Combine emoji with text labels for clarity
+- Consistent icon sizing (32x32px minimum)
+- High contrast icon colors
+
+## Examples
+
+<example>
+Good Font Usage:
+
+```csharp
+// Large, bold text for VR readability
+titleText.fontSize = 36;
+titleText.fontStyle = FontStyle.Bold;
+titleText.color = Color.white;
+
+// Body text with adequate size
+bodyText.fontSize = 24;
+bodyText.lineSpacing = 1.5f;
+```
+
+</example>
+
+<example>
+Good Button Design:
+
+```csharp
+// VR-friendly button sizing
+button.GetComponent<RectTransform>().sizeDelta = new Vector2(120, 80);
+
+// Visual feedback for ray-casting
+button.colors = new ColorBlock
+{
+    normalColor = Color.white,
+    highlightedColor = Color.cyan,
+    pressedColor = Color.blue,
+    selectedColor = Color.yellow
+};
+```
+
+</example>
+
+<example>
+Good Emoji Usage:
+- 🎮 Single Player
+- 🌐 Multi Player
+- ⚙️ Settings
+- 🔊 Audio
+- 🚪 Exit Game
+- 🎯 Practice Mode
+- 🏆 Tournament
+</example>
+
+<example>
+Good Contrast Adaptation:
+
+```csharp
+// Adaptive contrast based on table color
+Color tableColor = GetTableSurfaceColor();
+float brightness = tableColor.r * 0.299f + tableColor.g * 0.587f + tableColor.b * 0.114f;
+
+if (brightness > 0.5f) // Light table
+{
+    textColor = Color.black;
+    backgroundColor = new Color(1, 1, 1, 0.9f); // Semi-transparent white
+}
+else // Dark table
+{
+    textColor = Color.white;
+    backgroundColor = new Color(0, 0, 0, 0.9f); // Semi-transparent black
+}
+```
+
+</example>
+
+<example type="invalid">
+Invalid Small Text:
+
+```csharp
+text.fontSize = 12; // Too small for VR
+text.fontStyle = FontStyle.Normal; // Not bold enough
+```
+
+</example>
+
+<example type="invalid">
+Invalid Button Size:
+
+```csharp
+button.sizeDelta = new Vector2(40, 30); // Too small for ray-casting
+// No visual feedback for hover states
+```
+
+</example>
+
+<example type="invalid">
+Invalid Color Usage:
+- Low contrast text (gray on light gray)
+- Fixed colors that don't adapt to table surface
+- No transparency or visual separation from background
+</example>

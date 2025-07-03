@@ -1,0 +1,39 @@
+---
+description: REMIND at 16:15 weekdays to COMMIT and PUSH daily changes before leaving work
+globs: **/*
+---
+
+# 工作日下班前Git提交提醒
+
+<version>1.0.0</version>
+
+## Context
+- 适用于工作日（周一至周五）下午4:15时
+- 当有未提交的更改时需要提醒
+- 确保当天的工作成果得到版本控制保护
+
+## Requirements
+- 在工作日下午4:15主动提醒用户检查git状态
+- 如发现未提交的更改，提醒用户在下班前commit并push
+- 检查`git status`显示是否有修改文件或未跟踪文件
+- 提供快速的git工作流程建议
+- 使用中文进行提醒交流
+
+## Examples
+<example>
+用户在工作日16:15时，检测到有未提交更改：
+"现在是下午4:15，发现您有未提交的更改。建议在下班前完成以下操作：
+1. git add .
+2. git commit -m "描述今天的更改"
+3. git push origin main"
+</example>
+
+<example>
+用户在工作日16:15时，发现工作区干净：
+"现在是下午4:15，您的工作区很干净，所有更改都已提交。祝您工作愉快！"
+</example>
+
+<example type="invalid">
+在非工作时间或周末提醒：
+"现在是周末，无需提醒git提交"
+</example>

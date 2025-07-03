@@ -8,6 +8,7 @@ using PongHub.Arena.Gameplay;
 using PongHub.Arena.Services;
 using PongHub.App;
 using Unity.Netcode;
+using PongHub.Core;
 
 namespace PongHub.Arena.PostGame
 {
@@ -378,7 +379,15 @@ namespace PongHub.Arena.PostGame
                     NetworkManager.Singleton.Shutdown();
                 }
 
-                // 返回主菜单
+                // 优先使用新的GameModeManager架构
+                if (GameModeManager.Instance != null)
+                {
+                    Debug.Log("[PostGameController] 使用GameModeManager切换到Menu模式");
+                    GameModeManager.Instance.SwitchToMode(GameMode.Menu);
+                }
+                // 回退到原有的NavigationController
+                else
+                {
                 var phApplication = PongHub.App.PHApplication.Instance;
                 if (phApplication?.NavigationController != null)
                 {
@@ -386,8 +395,9 @@ namespace PongHub.Arena.PostGame
                 }
                 else
                 {
-                    Debug.LogWarning("[PostGameController] 找不到NavigationController，尝试加载主菜单场景");
+                        Debug.LogWarning("[PostGameController] 找不到GameModeManager和NavigationController，尝试加载主菜单场景");
                     UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+                    }
                 }
             }
             catch (Exception e)

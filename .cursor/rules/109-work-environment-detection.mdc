@@ -1,0 +1,41 @@
+# Work Environment Detection Rule
+
+<version>1.0.0</version>
+
+## Context
+- Automatically detect if user is in company or home environment based on time
+- Adapt development approach and tool usage accordingly
+- Company: Mon-Fri 8:00-17:00 (no VR headset available)
+- Home: Mon-Fri after 17:00, weekends all day (VR headset available)
+
+## Requirements
+- Use terminal command `Get-Date -Format "yyyy-MM-dd HH:mm:ss dddd"` to get current time
+- Parse weekday and time to determine environment
+- Company environment: Focus on documentation, code editing, non-VR tasks
+- Home environment: Can include VR testing, headset-dependent features
+- Update work priorities based on environment constraints
+
+## Examples
+
+<example>
+Current time: 2025-07-03 14:59:52 星期四
+Environment: Company (Thu 14:59 within 8:00-17:00)
+Priority: Documentation, Tooltips, code editing
+Avoid: VR testing, headset-dependent features
+</example>
+
+<example>
+Current time: 2025-07-05 19:30:00 星期六
+Environment: Home (Saturday, weekend)
+Priority: VR testing, headset features, full development
+</example>
+
+<example type="invalid">
+Ignoring time-based environment detection
+Attempting VR testing during company hours
+Not adapting development approach to environment constraints
+</example>
+description:
+globs:
+alwaysApply: false
+---

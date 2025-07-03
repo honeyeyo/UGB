@@ -1,0 +1,60 @@
+---
+description: PAUSE after code changes for MANUAL verification to PREVENT command timeouts
+globs: **/*.cs, **/*.unity, **/*.prefab
+---
+
+# 手动验证工作流程
+
+<version>1.0.0</version>
+
+## Context
+- 当修改完Unity项目中的代码、场景或预制体后
+- 需要进行验证但自动命令行检查容易卡住或超时时
+- 特别适用于Unity编译检查、场景验证等操作
+
+## Requirements
+
+### 修改完成后必须执行
+1. 🛑 **暂停自动检查** - 不要自动执行可能卡住的命令行操作
+2. 📋 **列出检查清单** - 明确告知用户需要执行的验证步骤
+3. ⏸️ **等待用户反馈** - 明确表示需要用户手动执行并反馈结果
+4. ✅ **根据反馈继续** - 基于用户反馈决定下一步操作
+
+### 检查清单应包含
+- Unity编译状态检查
+- 控制台错误/警告检查
+- 场景完整性验证
+- 预制体引用检查
+- 网络组件配置验证
+
+### 暂停提示格式
+```
+🔍 **需要手动验证以下项目：**
+1. [具体检查项目1]
+2. [具体检查项目2]
+3. [具体检查项目N]
+
+⏸️ **请手动执行上述检查，然后回复结果。我会根据您的反馈继续下一步。**
+```
+
+## Examples
+
+<example>
+修改GameModeController.cs后:
+
+🔍 **需要手动验证以下项目：**
+1. Unity控制台是否有编译错误
+2. GameMode相关场景是否正常加载
+3. 网络同步功能是否正常
+
+⏸️ **请手动执行上述检查，然后回复结果。我会根据您的反馈继续下一步。**
+</example>
+
+<example type="invalid">
+修改完代码后直接执行:
+```bash
+dotnet build
+Unity -batchmode -quit -logFile compile.log
+```
+（这种自动检查容易卡住）
+</example>

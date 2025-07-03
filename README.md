@@ -2,10 +2,12 @@
 
 # PongHub
 
-PongHub is a VR ping-pong game built by MagnusLab which you can quickly build an ESport game that gets people together in VR using the Oculus Social Platform API.
-Based off Meta's [Ultimate Glove Ball](https://github.com/oculus-samples/Unity-UltimateGloveBall) project, we have adapted the functionalities for ping-pong gameplay context. We also demonstrate how VR games can have asymmetric experiences. In this project we have players and spectators.
+PongHub is a VR table tennis game built by MagnusLab which you can quickly build an ESport game that gets people together in VR using the Oculus Social Platform API.
 
-This codebase is available both as a reference and as a template for multiplayer VR ping-pong games.
+Based off Meta's [Ultimate Glove Ball](https://github.com/oculus-samples/Unity-UltimateGloveBall) project, we have adapted the functionalities for table tennis gameplay context.
+We also demonstrate how VR games can have asymmetric experiences. In this project we have players and spectators.
+
+This codebase is available both as a reference and as a template for multiplayer VR table tennis games.
 
 See the [CONTRIBUTING](./CONTRIBUTING.md) file for how to help out.
 
@@ -13,7 +15,9 @@ This project was built using the Unity engine with [Photon Realtime](https://git
 
 ## Project Description
 
-This project is an application for the Meta Quest devices that demonstrate a fast pace ping-pong sport game that can be played with friends or strangers. It shows how to integrate connection between users joining random games or specific rooms, invite friends and group launch a party in the same arena, or join as a spectator to a game already in progress. We also integrated Meta Avatars for players to represent their VR persona and voice chat for easy communication.
+This project is an application for the Meta Quest devices that demonstrate a fast pace table tennis sport game that can be played with friends or strangers.
+It shows how to integrate connection between users joining random games or specific rooms, invite friends and group launch a party in the same arena, or join as a spectator to a game already in progress.
+We also integrated Meta Avatars for players to represent their VR persona and voice chat for easy communication.
 
 The project also includes the [Meta Utilities](./Packages/com.meta.utilities/README.md) and [Meta Input Utilities](./Packages/com.meta.utilities.input/README.md) packages, which contain many useful tools and methods.
 
@@ -27,16 +31,16 @@ The project also includes the [Meta Utilities](./Packages/com.meta.utilities/REA
      <summary><b>Quest Link</b></summary>
 
    - Enable Quest Link:
-     - Put on your headset and navigate to "Quick Settings"; select "Quest Link" (or "Quest Air Link" if using Air Link).
-     - Select your desktop from the list and then select, "Launch". This will launch the Quest Link app, allowing you to control your desktop from your headset.
-   - With the headset on, select "Desktop" from the control panel in front of you. You should be able to see your desktop in VR!
+   - With the headset on, select "Desktop" from the control panel in front of you.
    - Navigate to Unity and press "Play" - the application should launch on your headset automatically.
    </details>
+
    <details>
      <summary><b>XR FPS Simulator</b></summary>
 
    - In Unity, press "Play" and enjoy the simulated XR controls!
-   - Review the [XR FPS Simulator documentation](./Packages/com.meta.utilities.input/README.md#xr-device-fps-simulator) for more information. + Note: The mouse is [captured by the simulator](./Packages/com.meta.utilities.input/README.md#mouse-capture) when in play mode. In order to otherwise use the mouse in-game (such as to interact with menus), hold Left Alt.
+   - Review the [XR FPS Simulator documentation](./Packages/com.meta.utilities.input/README.md#xr-device-fps-simulator) for more information.
+   - + Note: The mouse is [captured by the simulator](./Packages/com.meta.utilities.input/README.md#mouse-capture) when in play mode. In order to otherwise use the mouse in-game (such as to interact with menus), hold Left Alt.
    </details>
 
 ## Dependencies
@@ -47,7 +51,7 @@ This project makes use of the following plugins and software:
 - [Dependencies Hunter](https://github.com/AlexeyPerov/Unity-Dependencies-Hunter.git#upm)
 - [Meta Avatars SDK](https://developer.oculus.com/downloads/package/meta-avatars-sdk/)
 - [Meta XR Utilities](https://npm.developer.oculus.com/-/web/detail/com.meta.xr.sdk.utilities)
-- [Oculus Integration SDK](https://developer.oculus.com/downloads/package/unity-integration): released under the _[Oculus SDK License Agreement](./Assets/Oculus/LICENSE.txt)_.
+- [Oculus Integration SDK](https://developer.oculus.com/downloads/package/unity-integration)
 - [ParrelSync](https://github.com/brogan89/ParrelSync)
 - [Photon Realtime for Netcode](https://github.com/Unity-Technologies/multiplayer-community-contributions/tree/main/Transports/com.community.netcode.transport.photon-realtime)
 - [Photon Voice 2](https://assetstore.unity.com/packages/tools/audio/photon-voice-2-130518)
@@ -100,4 +104,4 @@ Also, the [Photon Realtime for Netcode](https://github.com/Unity-Technologies/mu
 
 ## Acknowledgments
 
-This project is based on Meta's Ultimate Glove Ball sample, adapted for ping-pong gameplay.
+This project is based on Meta's Ultimate Glove Ball sample, adapted for table tennis gameplay.

@@ -1,0 +1,147 @@
+# Unity Editor Tooltips Standards
+
+<version>1.0.0</version>
+
+## Context
+
+- All SerializeField and public fields displayed in Unity Inspector
+- Editor script custom properties and settings
+- ScriptableObject configuration fields
+- Custom Editor GUI elements
+- Improve developer experience and reduce documentation lookup
+
+## Requirements
+
+- Add [Tooltip] attribute to all SerializeField and public fields
+- Provide clear, concise descriptions (50-100 characters ideal)
+- Include value ranges, units, or expected formats where applicable
+- Use consistent language and terminology
+- Explain the field's purpose and impact on gameplay/functionality
+- Include default values or recommended settings when helpful
+
+## Examples
+
+<example>
+Good Tooltip Usage:
+
+```csharp
+[Header("VR Settings")]
+[SerializeField]
+[Tooltip("Minimum button size for VR ray-casting interaction (pixels)")]
+private float minButtonSize = 80f;
+
+[SerializeField]
+[Tooltip("Font size for menu titles in VR (recommended: 32-48 for readability)")]
+private int titleFontSize = 36;
+
+[SerializeField]
+[Tooltip("Menu fade animation duration in seconds (0.1-1.0 range)")]
+private float fadeAnimationDuration = 0.3f;
+
+[SerializeField]
+[Tooltip("Table surface material for adaptive contrast calculation")]
+private Material tableSurfaceMaterial;
+```
+
+</example>
+
+<example>
+Good Header + Tooltip Combination:
+
+```csharp
+[Header("Audio Settings")]
+[SerializeField]
+[Tooltip("Master volume level (0.0 = mute, 1.0 = full volume)")]
+private float masterVolume = 0.8f;
+
+[SerializeField]
+[Tooltip("Enable haptic feedback for VR controller interactions")]
+private bool enableHapticFeedback = true;
+
+[Header("Performance")]
+[SerializeField]
+[Tooltip("Target framerate for VR rendering (90 FPS recommended for comfort)")]
+private int targetFramerate = 90;
+```
+
+</example>
+
+<example>
+Good ScriptableObject Tooltips:
+
+```csharp
+[CreateAssetMenu(fileName = "MenuConfig", menuName = "PongHub/Menu Configuration")]
+public class MenuConfiguration : ScriptableObject
+{
+    [Header("Display Settings")]
+    [SerializeField]
+    [Tooltip("Menu position offset from table center (world units)")]
+    private Vector3 menuPositionOffset = Vector3.zero;
+
+    [SerializeField]
+    [Tooltip("Menu scale factor for different table sizes (1.0 = normal size)")]
+    private float menuScale = 1.0f;
+}
+```
+
+</example>
+
+<example>
+Good Range + Tooltip Usage:
+
+```csharp
+[SerializeField]
+[Range(0.1f, 2.0f)]
+[Tooltip("Animation speed multiplier (0.1 = very slow, 2.0 = very fast)")]
+private float animationSpeed = 1.0f;
+
+[SerializeField]
+[Range(10, 100)]
+[Tooltip("Maximum number of UI elements to pool for performance")]
+private int maxPoolSize = 50;
+```
+
+</example>
+
+<example type="invalid">
+Missing Tooltips:
+
+```csharp
+[SerializeField] private float speed; // No tooltip
+[SerializeField] private bool isEnabled; // No tooltip
+public GameObject targetObject; // No tooltip
+```
+
+</example>
+
+<example type="invalid">
+Poor Tooltip Quality:
+
+```csharp
+[SerializeField]
+[Tooltip("Speed")] // Too brief, no context
+private float speed;
+
+[SerializeField]
+[Tooltip("This is the button that does stuff")] // Vague, unhelpful
+private Button actionButton;
+
+[SerializeField]
+[Tooltip("Set this to true or false")] // States obvious, no purpose
+private bool enableFeature;
+```
+
+</example>
+
+<example type="invalid">
+Inconsistent Terminology:
+
+```csharp
+[Tooltip("Menu display time")] // Using "display"
+private float showDuration;
+
+[Tooltip("Menu visibility duration")] // Using "visibility"
+private float hideDuration; // Should use consistent terms
+```
+
+</example>

@@ -5,6 +5,13 @@ using PongHub.Input;
 
 namespace PongHub.UI
 {
+    /// <summary>
+    /// [DEPRECATED] 旧版UI管理器
+    /// 此脚本已被新的模块化UI架构替代，计划在后续版本中移除
+    /// 新架构使用: MenuCanvasController + TableMenuSystem + VRMenuInteraction
+    /// 迁移指南: 请参考 Documentation/Scripts_Usage_Guide.md
+    /// </summary>
+    [System.Obsolete("UIManager is deprecated. Use MenuCanvasController + TableMenuSystem instead. See Scripts_Usage_Guide.md for migration details.", false)]
     public class UIManager : MonoBehaviour
     {
         private static UIManager s_instance;

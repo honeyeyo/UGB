@@ -389,7 +389,7 @@ namespace PongHub.Core
             // GameModeController信息
             if (gameModeController != null)
             {
-                GUI.Label(new Rect(10, yOffset, 400, lineHeight), $"游戏模式: {gameModeController.CurrentGameMode}", GetLabelStyle());
+                GUI.Label(new Rect(10, yOffset, 400, lineHeight), $"游戏模式: {gameModeController.CurrentNetworkState}", GetLabelStyle());
                 yOffset += lineHeight;
 
                 GUI.Label(new Rect(10, yOffset, 400, lineHeight), $"连接状态: {gameModeController.CurrentConnectionState}", GetLabelStyle());
