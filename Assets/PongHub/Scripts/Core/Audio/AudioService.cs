@@ -14,12 +14,22 @@ namespace PongHub.Core.Audio
     public class AudioService : Singleton<AudioService>
     {
         [Header("配置")]
-        [SerializeField] private AudioConfiguration m_configuration;
+        [SerializeField]
+        [Tooltip("Audio Configuration / 音频配置 - Configuration settings for audio system")]
+        private AudioConfiguration m_configuration;
 
         [Header("组件引用")]
-        [SerializeField] private AudioSourcePool m_audioSourcePool;
-        [SerializeField] private AudioMixerController m_mixerController;
-        [SerializeField] private SpatialAudioManager m_spatialAudioManager;
+        [SerializeField]
+        [Tooltip("Audio Source Pool / 音频源池 - Pool for managing audio sources")]
+        private AudioSourcePool m_audioSourcePool;
+
+        [SerializeField]
+        [Tooltip("Audio Mixer Controller / 音频混音器控制器 - Controller for audio mixer settings")]
+        private AudioMixerController m_mixerController;
+
+        [SerializeField]
+        [Tooltip("Spatial Audio Manager / 空间音频管理器 - Manager for spatial audio effects")]
+        private SpatialAudioManager m_spatialAudioManager;
 
         // 当前播放的音频跟踪
         private Dictionary<string, AudioHandle> m_activeAudio = new();

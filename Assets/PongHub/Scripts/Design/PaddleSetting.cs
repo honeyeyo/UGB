@@ -6,20 +6,50 @@ namespace PongHub.Design
 {
     public class PaddleSettings : MonoBehaviour
     {
-        [SerializeField] private PaddleData m_paddleData;
+        [SerializeField]
+        [Tooltip("Paddle Data / 球拍数据 - Paddle configuration data asset")]
+        private PaddleData m_paddleData;
 
         [Header("UI References")]
-        [SerializeField] private Slider m_bounceForceSlider;
-        [SerializeField] private Slider m_spinMultiplierSlider;
-        [SerializeField] private Slider m_surfaceHardnessSlider;
-        [SerializeField] private Slider m_surfaceFrictionSlider;
-        [SerializeField] private Slider m_surfaceBounceSlider;
+        [SerializeField]
+        [Tooltip("Bounce Force Slider / 击球力度滑块 - UI slider for adjusting bounce force")]
+        private Slider m_bounceForceSlider;
 
-        [SerializeField] private TextMeshProUGUI m_bounceForceText;
-        [SerializeField] private TextMeshProUGUI m_spinMultiplierText;
-        [SerializeField] private TextMeshProUGUI m_surfaceHardnessText;
-        [SerializeField] private TextMeshProUGUI m_surfaceFrictionText;
-        [SerializeField] private TextMeshProUGUI m_surfaceBounceText;
+        [SerializeField]
+        [Tooltip("Spin Multiplier Slider / 旋转系数滑块 - UI slider for adjusting spin multiplier")]
+        private Slider m_spinMultiplierSlider;
+
+        [SerializeField]
+        [Tooltip("Surface Hardness Slider / 拍面硬度滑块 - UI slider for adjusting surface hardness")]
+        private Slider m_surfaceHardnessSlider;
+
+        [SerializeField]
+        [Tooltip("Surface Friction Slider / 拍面摩擦滑块 - UI slider for adjusting surface friction")]
+        private Slider m_surfaceFrictionSlider;
+
+        [SerializeField]
+        [Tooltip("Surface Bounce Slider / 拍面弹性滑块 - UI slider for adjusting surface bounce")]
+        private Slider m_surfaceBounceSlider;
+
+        [SerializeField]
+        [Tooltip("Bounce Force Text / 击球力度文本 - Text component displaying bounce force value")]
+        private TextMeshProUGUI m_bounceForceText;
+
+        [SerializeField]
+        [Tooltip("Spin Multiplier Text / 旋转系数文本 - Text component displaying spin multiplier value")]
+        private TextMeshProUGUI m_spinMultiplierText;
+
+        [SerializeField]
+        [Tooltip("Surface Hardness Text / 拍面硬度文本 - Text component displaying surface hardness value")]
+        private TextMeshProUGUI m_surfaceHardnessText;
+
+        [SerializeField]
+        [Tooltip("Surface Friction Text / 拍面摩擦文本 - Text component displaying surface friction value")]
+        private TextMeshProUGUI m_surfaceFrictionText;
+
+        [SerializeField]
+        [Tooltip("Surface Bounce Text / 拍面弹性文本 - Text component displaying surface bounce value")]
+        private TextMeshProUGUI m_surfaceBounceText;
 
         private void Start()
         {

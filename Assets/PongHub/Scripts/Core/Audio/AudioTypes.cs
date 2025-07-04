@@ -63,8 +63,13 @@ namespace PongHub.Core.Audio
     [Serializable]
     public struct FloatRange
     {
-        [SerializeField] private float m_min;
-        [SerializeField] private float m_max;
+        [SerializeField]
+        [Tooltip("Min Value / 最小值 - Minimum value in the range")]
+        private float m_min;
+
+        [SerializeField]
+        [Tooltip("Max Value / 最大值 - Maximum value in the range")]
+        private float m_max;
 
         public float Min => m_min;
         public float Max => m_max;

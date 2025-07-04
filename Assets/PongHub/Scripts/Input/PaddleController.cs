@@ -9,27 +9,55 @@ namespace PongHub.Input
     public class PaddleController : MonoBehaviour
     {
         [Header("球拍设置")]
-        [SerializeField] private GameObject m_leftPaddlePrefab;   // 左手球拍预制件
-        [SerializeField] private GameObject m_rightPaddlePrefab;  // 右手球拍预制件
-        [SerializeField] private float m_paddleGripDistance = 0.1f; // 球拍抓取距离
+        [SerializeField]
+        [Tooltip("Left Paddle Prefab / 左手球拍预制件 - Prefab for left hand paddle")]
+        private GameObject m_leftPaddlePrefab;   // 左手球拍预制件
+
+        [SerializeField]
+        [Tooltip("Right Paddle Prefab / 右手球拍预制件 - Prefab for right hand paddle")]
+        private GameObject m_rightPaddlePrefab;  // 右手球拍预制件
+
+        [SerializeField]
+        [Tooltip("Paddle Grip Distance / 球拍抓取距离 - Maximum distance to grip paddle")]
+        private float m_paddleGripDistance = 0.1f; // 球拍抓取距离
 
         [Header("跟随设置")]
-        [SerializeField] private float m_followSpeed = 15f;       // 跟随速度
-        [SerializeField] private float m_rotationSpeed = 20f;     // 旋转速度
-        [SerializeField] private bool m_usePhysicsJoint = true;   // 是否使用物理关节
+        [SerializeField]
+        [Tooltip("Follow Speed / 跟随速度 - Speed at which paddle follows hand")]
+        private float m_followSpeed = 15f;       // 跟随速度
+
+        [SerializeField]
+        [Tooltip("Rotation Speed / 旋转速度 - Speed of paddle rotation")]
+        private float m_rotationSpeed = 20f;     // 旋转速度
+
+        [SerializeField]
+        [Tooltip("Use Physics Joint / 使用物理关节 - Whether to use physics joint for paddle")]
+        private bool m_usePhysicsJoint = true;   // 是否使用物理关节
 
         [Header("物理设置")]
         // [SerializeField] private float m_jointSpring = 3000f;     // 关节弹性
         // [SerializeField] private float m_jointDamper = 50f;       // 关节阻尼
-        [SerializeField] private float m_maxJointForce = 10000f;  // 最大关节力
+        [SerializeField]
+        [Tooltip("Max Joint Force / 最大关节力 - Maximum force for physics joint")]
+        private float m_maxJointForce = 10000f;  // 最大关节力
 
         [Header("音效")]
-        [SerializeField] private AudioClip m_paddleGripSound;     // 抓取音效
-        [SerializeField] private AudioClip m_paddleReleaseSound;  // 释放音效
+        [SerializeField]
+        [Tooltip("Paddle Grip Sound / 抓取音效 - Audio clip for paddle grip")]
+        private AudioClip m_paddleGripSound;     // 抓取音效
+
+        [SerializeField]
+        [Tooltip("Paddle Release Sound / 释放音效 - Audio clip for paddle release")]
+        private AudioClip m_paddleReleaseSound;  // 释放音效
 
         [Header("组件引用")]
-        [SerializeField] private Transform m_leftHandAnchor;      // 左手锚点
-        [SerializeField] private Transform m_rightHandAnchor;     // 右手锚点
+        [SerializeField]
+        [Tooltip("Left Hand Anchor / 左手锚点 - Transform anchor for left hand")]
+        private Transform m_leftHandAnchor;      // 左手锚点
+
+        [SerializeField]
+        [Tooltip("Right Hand Anchor / 右手锚点 - Transform anchor for right hand")]
+        private Transform m_rightHandAnchor;     // 右手锚点
 
         // 球拍实例
         private GameObject m_leftPaddleInstance;

@@ -32,25 +32,56 @@ namespace PongHub.MainMenu
         }
 
         [Header("主画布")]
-        [SerializeField] private BoxCollider m_canvasCollider;  // 主画布的碰撞体
+        [SerializeField]
+        [Tooltip("Canvas Collider / 画布碰撞体 - Main canvas collider for UI interaction")]
+        private BoxCollider m_canvasCollider;  // 主画布的碰撞体
 
         [Header("菜单控制器")]
-        [SerializeField] private BaseMenuController m_mainMenuController;      // 主菜单控制器
-        [SerializeField] private BaseMenuController m_optionMenuController;    // 选项菜单控制器
-        [SerializeField] private BaseMenuController m_controlsMenuController;  // 控制菜单控制器
-        [SerializeField] private BaseMenuController m_friendsMenuController;   // 好友菜单控制器
-        [SerializeField] private BaseMenuController m_settingsMenuController;  // 设置菜单控制器
-        [SerializeField] private BaseMenuController m_ballTypesMenuController; // 球类型菜单控制器
-        [SerializeField] private BaseMenuController m_storeMenuController;     // 商店菜单控制器
+        [SerializeField]
+        [Tooltip("Main Menu Controller / 主菜单控制器 - Controller for main menu view")]
+        private BaseMenuController m_mainMenuController;      // 主菜单控制器
+
+        [SerializeField]
+        [Tooltip("Option Menu Controller / 选项菜单控制器 - Controller for option menu view")]
+        private BaseMenuController m_optionMenuController;    // 选项菜单控制器
+
+        [SerializeField]
+        [Tooltip("Controls Menu Controller / 控制菜单控制器 - Controller for controls menu view")]
+        private BaseMenuController m_controlsMenuController;  // 控制菜单控制器
+
+        [SerializeField]
+        [Tooltip("Friends Menu Controller / 好友菜单控制器 - Controller for friends menu view")]
+        private BaseMenuController m_friendsMenuController;   // 好友菜单控制器
+
+        [SerializeField]
+        [Tooltip("Settings Menu Controller / 设置菜单控制器 - Controller for settings menu view")]
+        private BaseMenuController m_settingsMenuController;  // 设置菜单控制器
+
+        [SerializeField]
+        [Tooltip("Ball Types Menu Controller / 球类型菜单控制器 - Controller for ball types menu view")]
+        private BaseMenuController m_ballTypesMenuController; // 球类型菜单控制器
+
+        [SerializeField]
+        [Tooltip("Store Menu Controller / 商店菜单控制器 - Controller for store menu view")]
+        private BaseMenuController m_storeMenuController;     // 商店菜单控制器
 
         [Header("错误面板")]
-        [SerializeField] private MenuErrorPanel m_errorPanel;  // 错误信息显示面板
+        [SerializeField]
+        [Tooltip("Error Panel / 错误面板 - Panel for displaying error messages")]
+        private MenuErrorPanel m_errorPanel;  // 错误信息显示面板
 
         [Header("锚点")]
-        [SerializeField] private Transform m_startPosition;    // 起始位置
-        [SerializeField] private Transform m_avatarTransform;  // 玩家头像变换
+        [SerializeField]
+        [Tooltip("Start Position / 起始位置 - Starting position transform for player")]
+        private Transform m_startPosition;    // 起始位置
 
-        [SerializeField] private AudioFadeInOut m_menuMusicFader;  // 菜单音乐淡入淡出控制器
+        [SerializeField]
+        [Tooltip("Avatar Transform / 玩家头像变换 - Player avatar transform component")]
+        private Transform m_avatarTransform;  // 玩家头像变换
+
+        [SerializeField]
+        [Tooltip("Menu Music Fader / 菜单音乐淡入淡出 - Audio fade controller for menu music")]
+        private AudioFadeInOut m_menuMusicFader;  // 菜单音乐淡入淡出控制器
 
         private BaseMenuController m_currentMenu;  // 当前活动的菜单控制器
         private float m_baseMenuMusicVolume;      // 基础菜单音乐音量

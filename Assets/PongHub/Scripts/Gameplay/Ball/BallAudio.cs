@@ -7,18 +7,46 @@ namespace PongHub.Gameplay.Ball
     public class BallAudio : MonoBehaviour
     {
         [Header("音效配置")]
-        [SerializeField] private AudioClip m_hitSound;
-        [SerializeField] private AudioClip m_spinSound;
-        [SerializeField] private AudioClip m_scoreSound;
-        [SerializeField] private AudioClip m_netSound;
-        [SerializeField] private AudioClip m_edgeSound;
+        [SerializeField]
+        [Tooltip("Hit Sound / 击球音效 - Audio clip for ball hit sound")]
+        private AudioClip m_hitSound;
+
+        [SerializeField]
+        [Tooltip("Spin Sound / 旋转音效 - Audio clip for ball spin sound")]
+        private AudioClip m_spinSound;
+
+        [SerializeField]
+        [Tooltip("Score Sound / 得分音效 - Audio clip for scoring sound")]
+        private AudioClip m_scoreSound;
+
+        [SerializeField]
+        [Tooltip("Net Sound / 球网音效 - Audio clip for net hit sound")]
+        private AudioClip m_netSound;
+
+        [SerializeField]
+        [Tooltip("Edge Sound / 边缘音效 - Audio clip for edge hit sound")]
+        private AudioClip m_edgeSound;
 
         [Header("音量设置")]
-        [SerializeField] private float m_hitVolume = 1f;
-        [SerializeField] private float m_spinVolume = 0.5f;
-        [SerializeField] private float m_scoreVolume = 1f;
-        [SerializeField] private float m_netVolume = 0.8f;
-        [SerializeField] private float m_edgeVolume = 0.8f;
+        [SerializeField]
+        [Tooltip("Hit Volume / 击球音量 - Volume level for hit sound")]
+        private float m_hitVolume = 1f;
+
+        [SerializeField]
+        [Tooltip("Spin Volume / 旋转音量 - Volume level for spin sound")]
+        private float m_spinVolume = 0.5f;
+
+        [SerializeField]
+        [Tooltip("Score Volume / 得分音量 - Volume level for score sound")]
+        private float m_scoreVolume = 1f;
+
+        [SerializeField]
+        [Tooltip("Net Volume / 球网音量 - Volume level for net sound")]
+        private float m_netVolume = 0.8f;
+
+        [SerializeField]
+        [Tooltip("Edge Volume / 边缘音量 - Volume level for edge sound")]
+        private float m_edgeVolume = 0.8f;
 
         private AudioSource m_audioSource;
 

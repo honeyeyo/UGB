@@ -16,16 +16,31 @@ namespace PongHub.Arena.Services
     {
         #region Serialized Fields
         [Header("生成配置")]
-        [SerializeField] private PongSpawnConfiguration m_spawnConfig;
+        [SerializeField]
+        [Tooltip("Spawn Configuration / 生成配置 - Configuration for ping pong spawn points")]
+        private PongSpawnConfiguration m_spawnConfig;
 
         [Header("VR传送效果")]
-        [SerializeField] private GameObject m_teleportEffectPrefab;
-        [SerializeField] private AudioClip m_teleportSound;
-        [SerializeField] private float m_teleportDuration = 1.0f;
+        [SerializeField]
+        [Tooltip("Teleport Effect Prefab / 传送效果预制体 - Visual effect prefab for player teleportation")]
+        private GameObject m_teleportEffectPrefab;
+
+        [SerializeField]
+        [Tooltip("Teleport Sound / 传送音效 - Audio clip for teleportation sound")]
+        private AudioClip m_teleportSound;
+
+        [SerializeField]
+        [Tooltip("Teleport Duration / 传送持续时间 - Duration of teleport effect in seconds")]
+        private float m_teleportDuration = 1.0f;
 
         [Header("调试设置")]
-        [SerializeField] private bool m_enableDebugVisualization = true;
-        [SerializeField] private bool m_logSpawnEvents = true;
+        [SerializeField]
+        [Tooltip("Enable Debug Visualization / 启用调试可视化 - Show debug information for spawn points")]
+        private bool m_enableDebugVisualization = true;
+
+        [SerializeField]
+        [Tooltip("Log Spawn Events / 记录生成事件 - Log player spawning events to console")]
+        private bool m_logSpawnEvents = true;
         #endregion
 
         #region Private Fields

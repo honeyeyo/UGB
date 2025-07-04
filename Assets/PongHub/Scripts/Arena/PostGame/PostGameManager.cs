@@ -12,12 +12,22 @@ namespace PongHub.Arena.PostGame
     public class PostGameManager : MonoBehaviour
     {
         [Header("组件引用")]
-        [SerializeField] private PostGameController m_postGameController;
-        [SerializeField] private GameStatisticsTracker m_statisticsTracker;
-        [SerializeField] private TechnicalStatsPanel m_technicalStatsPanel;
+        [SerializeField]
+        [Tooltip("Post Game Controller / 赛后控制器 - Controller component managing post-game UI")]
+        private PostGameController m_postGameController;
+
+        [SerializeField]
+        [Tooltip("Statistics Tracker / 统计跟踪器 - Component tracking game statistics")]
+        private GameStatisticsTracker m_statisticsTracker;
+
+        [SerializeField]
+        [Tooltip("Technical Stats Panel / 技术统计面板 - Panel displaying detailed technical statistics")]
+        private TechnicalStatsPanel m_technicalStatsPanel;
 
         [Header("UI容器")]
-        [SerializeField] private GameObject m_postGameContainer;
+        [SerializeField]
+        [Tooltip("Post Game Container / 赛后容器 - Root container for all post-game UI elements")]
+        private GameObject m_postGameContainer;
 
         // 私有字段
         private bool m_isInitialized;

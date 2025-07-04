@@ -65,20 +65,43 @@ namespace PongHub.Gameplay.Serve
     {
         #region 发球规则设置
         [Header("发球规则")]
-        [SerializeField] private float minThrowHeight = 0.16f;        // 最小抛球高度16cm (ITTF规则)
-        [SerializeField] private float maxThrowAngle = 30f;           // 最大偏离垂直角度
+        [SerializeField]
+        [Tooltip("Min Throw Height / 最小抛球高度 - Minimum ball throw height in meters (ITTF rules)")]
+        private float minThrowHeight = 0.16f;        // 最小抛球高度16cm (ITTF规则)
+
+        [SerializeField]
+        [Tooltip("Max Throw Angle / 最大抛球角度 - Maximum deviation angle from vertical in degrees")]
+        private float maxThrowAngle = 30f;           // 最大偏离垂直角度
+
         // [SerializeField] private float throwValidationTime = 2f;      // 抛球动作验证时间
-        [SerializeField] private float serveTimeLimit = 30f;          // 发球时间限制
+
+        [SerializeField]
+        [Tooltip("Serve Time Limit / 发球时间限制 - Maximum time allowed for serve in seconds")]
+        private float serveTimeLimit = 30f;          // 发球时间限制
+
         // [SerializeField] private float ballReleaseDetectionRadius = 0.05f; // 球释放检测半径
 
         [Header("物理验证")]
-        [SerializeField] private LayerMask tableLayerMask = 1 << 8;   // 球台层级
-        [SerializeField] private LayerMask netLayerMask = 1 << 9;     // 球网层级
-        [SerializeField] private float gravityAcceleration = 9.81f;   // 重力加速度
+        [SerializeField]
+        [Tooltip("Table Layer Mask / 球台层级掩码 - Layer mask for table collision detection")]
+        private LayerMask tableLayerMask = 1 << 8;   // 球台层级
+
+        [SerializeField]
+        [Tooltip("Net Layer Mask / 球网层级掩码 - Layer mask for net collision detection")]
+        private LayerMask netLayerMask = 1 << 9;     // 球网层级
+
+        [SerializeField]
+        [Tooltip("Gravity Acceleration / 重力加速度 - Gravity acceleration value for physics calculations")]
+        private float gravityAcceleration = 9.81f;   // 重力加速度
 
         [Header("调试设置")]
-        [SerializeField] private bool enableDebugVisualization = true;
-        [SerializeField] private bool logValidationDetails = true;
+        [SerializeField]
+        [Tooltip("Enable Debug Visualization / 启用调试可视化 - Whether to show debug visualization")]
+        private bool enableDebugVisualization = true;
+
+        [SerializeField]
+        [Tooltip("Log Validation Details / 记录验证详情 - Whether to log detailed validation information")]
+        private bool logValidationDetails = true;
         #endregion
 
         #region 事件系统

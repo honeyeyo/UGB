@@ -12,25 +12,60 @@ namespace PongHub.AI
     public class AISingle : MonoBehaviour
     {
         [Header("AI配置")]
-        [SerializeField] private float m_difficulty = 0.5f;
-        [SerializeField] private Paddle m_aiPaddle;
-        [SerializeField] private Transform m_aiPaddleTransform;
+        [SerializeField]
+        [Tooltip("Difficulty / 难度 - AI difficulty level from 0 to 1")]
+        private float m_difficulty = 0.5f;
+
+        [SerializeField]
+        [Tooltip("AI Paddle / AI球拍 - Paddle component controlled by AI")]
+        private Paddle m_aiPaddle;
+
+        [SerializeField]
+        [Tooltip("AI Paddle Transform / AI球拍变换 - Transform of the AI paddle")]
+        private Transform m_aiPaddleTransform;
 
         [Header("AI行为参数")]
-        [SerializeField] private float m_reactionTime = 0.2f;
-        [SerializeField] private float m_maxSpeed = 5f;
-        [SerializeField] private float m_predictionAccuracy = 0.8f;
-        [SerializeField] private float m_errorRange = 0.1f;
+        [SerializeField]
+        [Tooltip("Reaction Time / 反应时间 - AI reaction time in seconds")]
+        private float m_reactionTime = 0.2f;
+
+        [SerializeField]
+        [Tooltip("Max Speed / 最大速度 - Maximum movement speed of AI paddle")]
+        private float m_maxSpeed = 5f;
+
+        [SerializeField]
+        [Tooltip("Prediction Accuracy / 预测准确度 - Accuracy of ball position prediction")]
+        private float m_predictionAccuracy = 0.8f;
+
+        [SerializeField]
+        [Tooltip("Error Range / 误差范围 - Random error range for AI prediction")]
+        private float m_errorRange = 0.1f;
 
         [Header("目标区域")]
-        [SerializeField] private Vector3 m_aiSideCenter = new Vector3(0, 0, -1.5f);
-        [SerializeField] private float m_aiSideWidth = 1.5f;
-        [SerializeField] private float m_aiSideLength = 1.37f;
+        [SerializeField]
+        [Tooltip("AI Side Center / AI侧中心 - Center position of AI side")]
+        private Vector3 m_aiSideCenter = new Vector3(0, 0, -1.5f);
+
+        [SerializeField]
+        [Tooltip("AI Side Width / AI侧宽度 - Width of AI side area")]
+        private float m_aiSideWidth = 1.5f;
+
+        [SerializeField]
+        [Tooltip("AI Side Length / AI侧长度 - Length of AI side area")]
+        private float m_aiSideLength = 1.37f;
 
         [Header("调试设置")]
-        [SerializeField] private bool m_enableDebugLog = false;
-        [SerializeField] private bool m_showAIGizmos = false;
-        [SerializeField] private bool m_enableAIVisualization = false;
+        [SerializeField]
+        [Tooltip("Enable Debug Log / 启用调试日志 - Enable debug logging for AI")]
+        private bool m_enableDebugLog = false;
+
+        [SerializeField]
+        [Tooltip("Show AI Gizmos / 显示AI辅助图形 - Show visual debug gizmos for AI")]
+        private bool m_showAIGizmos = false;
+
+        [SerializeField]
+        [Tooltip("Enable AI Visualization / 启用AI可视化 - Enable AI state visualization")]
+        private bool m_enableAIVisualization = false;
 
         // AI状态
         private AIState m_currentState = AIState.Idle;

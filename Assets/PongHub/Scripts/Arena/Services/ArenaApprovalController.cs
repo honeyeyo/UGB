@@ -74,7 +74,9 @@ namespace PongHub.Arena.Services
         /// <summary>
         /// NetworkManager组件引用
         /// </summary>
-        [SerializeField] private NetworkManager m_networkManager;
+        [SerializeField]
+        [Tooltip("Network Manager / 网络管理器 - NetworkManager component for handling connections")]
+        private NetworkManager m_networkManager;
 
         /// <summary>
         /// 已连接玩家的客户端ID集合

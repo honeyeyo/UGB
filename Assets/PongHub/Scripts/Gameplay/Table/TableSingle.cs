@@ -14,21 +14,44 @@ namespace PongHub.Gameplay.Table
     public class TableSingle : MonoBehaviour
     {
         [Header("组件引用")]
-        [SerializeField] private Table m_table;
+        [SerializeField]
+        [Tooltip("Table / 球桌 - Reference to the main table component")]
+        private Table m_table;
 
         [Header("单机模式设置")]
-        [SerializeField] private bool m_enableAI = true;
-        [SerializeField] private bool m_enableMirrorMode = true;
-        [SerializeField] private bool m_enablePracticeMode = true;
+        [SerializeField]
+        [Tooltip("Enable AI / 启用AI - Whether to enable AI opponent in single player mode")]
+        private bool m_enableAI = true;
+
+        [SerializeField]
+        [Tooltip("Enable Mirror Mode / 启用镜像模式 - Whether to enable mirror match mode")]
+        private bool m_enableMirrorMode = true;
+
+        [SerializeField]
+        [Tooltip("Enable Practice Mode / 启用练习模式 - Whether to enable practice mode")]
+        private bool m_enablePracticeMode = true;
 
         [Header("练习模式配置")]
-        [SerializeField] private bool m_showTrajectoryLine = true;
-        [SerializeField] private bool m_enableSlowMotion = false;
-        [SerializeField] private float m_slowMotionScale = 0.5f;
+        [SerializeField]
+        [Tooltip("Show Trajectory Line / 显示轨迹线 - Whether to show ball trajectory line")]
+        private bool m_showTrajectoryLine = true;
+
+        [SerializeField]
+        [Tooltip("Enable Slow Motion / 启用慢动作 - Whether to enable slow motion feature")]
+        private bool m_enableSlowMotion = false;
+
+        [SerializeField]
+        [Tooltip("Slow Motion Scale / 慢动作比例 - Time scale for slow motion effect")]
+        private float m_slowMotionScale = 0.5f;
 
         [Header("调试显示")]
-        [SerializeField] private bool m_showDebugInfo = false;
-        [SerializeField] private bool m_showCollisionGizmos = false;
+        [SerializeField]
+        [Tooltip("Show Debug Info / 显示调试信息 - Whether to show debug information")]
+        private bool m_showDebugInfo = false;
+
+        [SerializeField]
+        [Tooltip("Show Collision Gizmos / 显示碰撞Gizmos - Whether to show collision gizmos in scene view")]
+        private bool m_showCollisionGizmos = false;
 
         // 单机模式状态
         private SinglePlayerMode m_currentMode = SinglePlayerMode.Practice;

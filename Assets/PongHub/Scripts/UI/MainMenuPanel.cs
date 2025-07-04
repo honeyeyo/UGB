@@ -11,21 +11,51 @@ namespace PongHub.UI
     public class MainMenuPanel : MonoBehaviour
     {
         [Header("游戏模式")]
-        [SerializeField] private TMP_Dropdown m_gameModeDropdown;
-        [SerializeField] private TMP_Dropdown m_difficultyDropdown;
+        [SerializeField]
+        [Tooltip("Game Mode Dropdown / 游戏模式下拉菜单 - Dropdown for selecting game mode")]
+        private TMP_Dropdown m_gameModeDropdown;
+
+        [SerializeField]
+        [Tooltip("Difficulty Dropdown / 难度下拉菜单 - Dropdown for selecting difficulty level")]
+        private TMP_Dropdown m_difficultyDropdown;
 
         [Header("UI按钮")]
-        [SerializeField] private Button m_startGameButton;
-        [SerializeField] private Button m_settingsButton;
-        [SerializeField] private Button m_quitButton;
+        [SerializeField]
+        [Tooltip("Start Game Button / 开始游戏按钮 - Button for starting the game")]
+        private Button m_startGameButton;
+
+        [SerializeField]
+        [Tooltip("Settings Button / 设置按钮 - Button for opening settings")]
+        private Button m_settingsButton;
+
+        [SerializeField]
+        [Tooltip("Quit Button / 退出按钮 - Button for quitting the game")]
+        private Button m_quitButton;
 
         [Header("设置面板")]
-        [SerializeField] private GameObject m_settingsPanel;
-        [SerializeField] private Slider m_masterVolumeSlider;
-        [SerializeField] private Slider m_musicVolumeSlider;
-        [SerializeField] private Slider m_sfxVolumeSlider;
-        [SerializeField] private Toggle m_vibrationToggle;
-        [SerializeField] private Button m_settingsBackButton;
+        [SerializeField]
+        [Tooltip("Settings Panel / 设置面板 - Panel containing settings UI")]
+        private GameObject m_settingsPanel;
+
+        [SerializeField]
+        [Tooltip("Master Volume Slider / 主音量滑块 - Slider for master volume control")]
+        private Slider m_masterVolumeSlider;
+
+        [SerializeField]
+        [Tooltip("Music Volume Slider / 音乐音量滑块 - Slider for music volume control")]
+        private Slider m_musicVolumeSlider;
+
+        [SerializeField]
+        [Tooltip("SFX Volume Slider / 音效音量滑块 - Slider for sound effects volume control")]
+        private Slider m_sfxVolumeSlider;
+
+        [SerializeField]
+        [Tooltip("Vibration Toggle / 振动开关 - Toggle for vibration settings")]
+        private Toggle m_vibrationToggle;
+
+        [SerializeField]
+        [Tooltip("Settings Back Button / 设置返回按钮 - Button for returning from settings")]
+        private Button m_settingsBackButton;
 
         private void Awake()
         {

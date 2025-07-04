@@ -13,14 +13,33 @@ namespace PongHub.Arena.Spectator
     {
         private const float FIREWORK_RECHARGE = 5.0f;
 
-        [SerializeField] private Transform m_muzzleLocation;
-        [SerializeField] private ParticleSystem m_muzzleVFX;
-        [SerializeField] private AudioSource m_audioSource;
-        [SerializeField] private AudioClip m_launchSound;
-        [SerializeField] private AudioClip m_failedLaunchSound;
-        [SerializeField] private GameObject m_projectileVisual;
+        [SerializeField]
+        [Tooltip("Muzzle Location / 发射口位置 - Transform position where fireworks are launched from")]
+        private Transform m_muzzleLocation;
 
-        [SerializeField] private Projectile m_projectilePrefab;
+        [SerializeField]
+        [Tooltip("Muzzle VFX / 发射口特效 - Particle system for muzzle flash effect")]
+        private ParticleSystem m_muzzleVFX;
+
+        [SerializeField]
+        [Tooltip("Audio Source / 音频源 - AudioSource component for sound effects")]
+        private AudioSource m_audioSource;
+
+        [SerializeField]
+        [Tooltip("Launch Sound / 发射音效 - Audio clip for successful launch sound")]
+        private AudioClip m_launchSound;
+
+        [SerializeField]
+        [Tooltip("Failed Launch Sound / 发射失败音效 - Audio clip for failed launch attempt")]
+        private AudioClip m_failedLaunchSound;
+
+        [SerializeField]
+        [Tooltip("Projectile Visual / 弹体可视化 - GameObject showing the loaded projectile")]
+        private GameObject m_projectileVisual;
+
+        [SerializeField]
+        [Tooltip("Projectile Prefab / 弹体预制体 - Prefab for the firework projectile")]
+        private Projectile m_projectilePrefab;
 
         private Projectile m_projectile;
 

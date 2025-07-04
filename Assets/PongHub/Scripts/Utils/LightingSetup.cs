@@ -41,9 +41,17 @@ namespace PongHub.Utils
     /// </summary>
     public class LightingSetup : MonoBehaviour
     {
-        [SerializeField] private GameObject[] m_objectsToEnable;        // 需要启用的游戏对象数组
-        [SerializeField] private Transform m_crowdRoot;                 // 人群对象的根节点
-        [SerializeField] private GameObject[] m_contributeToGIStatic;   // 需要设置为静态GI的对象数组
+        [SerializeField]
+        [Tooltip("Objects to Enable / 需要启用的对象 - Array of GameObjects to enable during lighting setup")]
+        private GameObject[] m_objectsToEnable;        // 需要启用的游戏对象数组
+
+        [SerializeField]
+        [Tooltip("Crowd Root / 人群根节点 - Root transform containing crowd objects for lighting setup")]
+        private Transform m_crowdRoot;                 // 人群对象的根节点
+
+        [SerializeField]
+        [Tooltip("Contribute to GI Static / 静态GI贡献对象 - Array of GameObjects to set as static GI contributors")]
+        private GameObject[] m_contributeToGIStatic;   // 需要设置为静态GI的对象数组
 
         /// <summary>
         /// 为光照烘焙设置场景

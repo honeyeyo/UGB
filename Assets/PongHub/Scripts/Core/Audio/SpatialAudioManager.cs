@@ -11,15 +11,34 @@ namespace PongHub.Core.Audio
     public class SpatialAudioManager : MonoBehaviour
     {
         [Header("空间音频设置")]
-        [SerializeField] private Transform m_audioListener;
-        [SerializeField] private float m_maxAudioDistance = 100f;
-        [SerializeField] private LayerMask m_occlusionLayers = -1;
+        [SerializeField]
+        [Tooltip("Audio Listener / 音频监听器 - Transform of the audio listener for spatial calculations")]
+        private Transform m_audioListener;
+
+        [SerializeField]
+        [Tooltip("Max Audio Distance / 最大音频距离 - Maximum distance for audio to be heard")]
+        private float m_maxAudioDistance = 100f;
+
+        [SerializeField]
+        [Tooltip("Occlusion Layers / 遮挡层 - Layer mask for audio occlusion detection")]
+        private LayerMask m_occlusionLayers = -1;
 
         [Header("性能优化")]
-        [SerializeField] private float m_updateInterval = 0.1f;
-        [SerializeField] private int m_maxSpatialAudioSources = 32;
-        [SerializeField] private bool m_enableOcclusion = true;
-        [SerializeField] private bool m_enableDoppler = true;
+        [SerializeField]
+        [Tooltip("Update Interval / 更新间隔 - Time interval between spatial audio updates")]
+        private float m_updateInterval = 0.1f;
+
+        [SerializeField]
+        [Tooltip("Max Spatial Audio Sources / 最大空间音频源 - Maximum number of concurrent spatial audio sources")]
+        private int m_maxSpatialAudioSources = 32;
+
+        [SerializeField]
+        [Tooltip("Enable Occlusion / 启用遮挡 - Whether to enable audio occlusion effects")]
+        private bool m_enableOcclusion = true;
+
+        [SerializeField]
+        [Tooltip("Enable Doppler / 启用多普勒 - Whether to enable doppler effect for moving audio sources")]
+        private bool m_enableDoppler = true;
 
         // 配置引用
         private AudioConfiguration m_configuration;

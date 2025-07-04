@@ -22,9 +22,17 @@ namespace PongHub.Core
         public static GameCore Instance => s_instance;
 
         [Header("游戏设置")]
-        [SerializeField] private int m_maxScore = 11;
-        [SerializeField] private float m_gameStartDelay = 3f;
-        [SerializeField] private float m_pointDelay = 1f;
+        [SerializeField]
+        [Tooltip("Max Score / 最大分数 - Maximum score to win the game")]
+        private int m_maxScore = 11;
+
+        [SerializeField]
+        [Tooltip("Game Start Delay / 游戏开始延迟 - Delay before game starts")]
+        private float m_gameStartDelay = 3f;
+
+        [SerializeField]
+        [Tooltip("Point Delay / 得分后延迟 - Delay after scoring a point")]
+        private float m_pointDelay = 1f;
 
         [Header("游戏状态")]
         private bool m_isGameActive;

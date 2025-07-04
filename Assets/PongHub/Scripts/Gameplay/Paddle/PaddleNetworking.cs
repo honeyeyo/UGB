@@ -10,12 +10,22 @@ namespace PongHub.Gameplay.Paddle
     public class PaddleNetworking : NetworkBehaviour
     {
         [Header("组件引用")]
-        [SerializeField] private Paddle m_paddle;
+        [SerializeField]
+        [Tooltip("Paddle / 球拍 - Reference to the paddle component for networking")]
+        private Paddle m_paddle;
 
         [Header("网络同步参数")]
-        [SerializeField] private float m_positionLerpSpeed = 15f;
-        [SerializeField] private float m_rotationLerpSpeed = 15f;
-        [SerializeField] private float m_velocityLerpSpeed = 15f;
+        [SerializeField]
+        [Tooltip("Position Lerp Speed / 位置插值速度 - Speed for position interpolation in networking")]
+        private float m_positionLerpSpeed = 15f;
+
+        [SerializeField]
+        [Tooltip("Rotation Lerp Speed / 旋转插值速度 - Speed for rotation interpolation in networking")]
+        private float m_rotationLerpSpeed = 15f;
+
+        [SerializeField]
+        [Tooltip("Velocity Lerp Speed / 速度插值速度 - Speed for velocity interpolation in networking")]
+        private float m_velocityLerpSpeed = 15f;
 
         // 网络同步变量
         private NetworkVariable<Vector3> m_networkPosition = new NetworkVariable<Vector3>();

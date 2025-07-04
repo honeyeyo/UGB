@@ -25,22 +25,40 @@ namespace PongHub.Gameplay.Ball
 
         #region Serialized Fields
         [Header("生成设置")]
-        [SerializeField] private NetworkObject pongBallPrefab;              // 乒乓球预制件
-        [SerializeField] private int maxActiveBalls = 1;                    // 最大活跃球数（比赛模式为1）
-        [SerializeField] private float ballRespawnDelay = 2f;               // 球重新生成延迟
+        [SerializeField]
+        [Tooltip("Pong Ball Prefab / 乒乓球预制件 - NetworkObject prefab for ping pong ball")]
+        private NetworkObject pongBallPrefab;              // 乒乓球预制件
+        [SerializeField]
+        [Tooltip("Max Active Balls / 最大活跃球数 - Maximum number of active balls (1 for match mode)")]
+        private int maxActiveBalls = 1;                    // 最大活跃球数（比赛模式为1）
+        [SerializeField]
+        [Tooltip("Ball Respawn Delay / 球重生延迟 - Delay before respawning ball in seconds")]
+        private float ballRespawnDelay = 2f;               // 球重新生成延迟
 
         [Header("生成位置")]
-        [SerializeField] private Transform[] ballSpawnPoints;               // 球生成点
-        [SerializeField] private Transform defaultSpawnPoint;               // 默认生成点
+        [SerializeField]
+        [Tooltip("Ball Spawn Points / 球生成点 - Array of spawn point transforms")]
+        private Transform[] ballSpawnPoints;               // 球生成点
+        [SerializeField]
+        [Tooltip("Default Spawn Point / 默认生成点 - Default spawn point transform")]
+        private Transform defaultSpawnPoint;               // 默认生成点
 
         [Header("对象池")]
-        [SerializeField] private NetworkObjectPool ballPool;               // 球对象池
-        [SerializeField] private int poolInitialSize = 5;                  // 对象池初始大小
+        [SerializeField]
+        [Tooltip("Ball Pool / 球对象池 - NetworkObjectPool for ball objects")]
+        private NetworkObjectPool ballPool;               // 球对象池
+        [SerializeField]
+        [Tooltip("Pool Initial Size / 池初始大小 - Initial size of the object pool")]
+        private int poolInitialSize = 5;                  // 对象池初始大小
         // [SerializeField] private int poolMaxSize = 10;                     // 对象池最大大小（预留用于扩展）
 
         [Header("调试设置")]
-        [SerializeField] private bool enableDebugLog = true;               // 启用调试日志
-        [SerializeField] private bool autoSpawnBalls = false;              // 自动生成球（测试用）
+        [SerializeField]
+        [Tooltip("Enable Debug Log / 启用调试日志 - Whether to enable debug logging")]
+        private bool enableDebugLog = true;               // 启用调试日志
+        [SerializeField]
+        [Tooltip("Auto Spawn Balls / 自动生成球 - Whether to automatically spawn balls for testing")]
+        private bool autoSpawnBalls = false;              // 自动生成球（测试用）
         #endregion
 
         #region Private Fields

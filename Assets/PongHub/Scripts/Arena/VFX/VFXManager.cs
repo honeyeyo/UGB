@@ -12,7 +12,9 @@ namespace PongHub.Arena.VFX
     /// </summary>
     public class VFXManager : Singleton<VFXManager>
     {
-        [SerializeField] private List<ParticleSystem> m_hitVfxs;
+        [SerializeField]
+        [Tooltip("Hit VFXs / 击中特效 - List of particle systems for hit effects")]
+        private List<ParticleSystem> m_hitVfxs;
 
         private int m_hitVFXIndex;
 

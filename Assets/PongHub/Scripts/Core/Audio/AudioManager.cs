@@ -27,37 +27,98 @@ namespace PongHub.Core.Audio
         }
 
         [Header("乒乓球音效")]
-        [SerializeField] private AudioClip[] m_ballHitPaddleSounds;
-        [SerializeField] private AudioClip[] m_ballHitTableSounds;
-        [SerializeField] private AudioClip[] m_ballHitNetSounds;
-        [SerializeField] private AudioClip[] m_ballBounceSounds;
-        [SerializeField] private AudioClip m_ballOutOfBounds;
+        [SerializeField]
+        [Tooltip("Ball Hit Paddle Sounds / 球拍击球音效 - Audio clips for ball hitting paddle")]
+        private AudioClip[] m_ballHitPaddleSounds;
+
+        [SerializeField]
+        [Tooltip("Ball Hit Table Sounds / 球桌击球音效 - Audio clips for ball hitting table")]
+        private AudioClip[] m_ballHitTableSounds;
+
+        [SerializeField]
+        [Tooltip("Ball Hit Net Sounds / 球网击球音效 - Audio clips for ball hitting net")]
+        private AudioClip[] m_ballHitNetSounds;
+
+        [SerializeField]
+        [Tooltip("Ball Bounce Sounds / 球弹跳音效 - Audio clips for ball bouncing")]
+        private AudioClip[] m_ballBounceSounds;
+
+        [SerializeField]
+        [Tooltip("Ball Out Of Bounds / 球出界音效 - Audio clip for ball going out of bounds")]
+        private AudioClip m_ballOutOfBounds;
 
         [Header("比赛音效")]
-        [SerializeField] private AudioClip m_matchStart;
-        [SerializeField] private AudioClip m_matchEnd;
-        [SerializeField] private AudioClip m_pointScored;
-        [SerializeField] private AudioClip m_gameWon;
-        [SerializeField] private AudioClip m_setWon;
-        [SerializeField] private AudioClip m_matchWon;
+        [SerializeField]
+        [Tooltip("Match Start / 比赛开始音效 - Audio clip for match start")]
+        private AudioClip m_matchStart;
+
+        [SerializeField]
+        [Tooltip("Match End / 比赛结束音效 - Audio clip for match end")]
+        private AudioClip m_matchEnd;
+
+        [SerializeField]
+        [Tooltip("Point Scored / 得分音效 - Audio clip for scoring a point")]
+        private AudioClip m_pointScored;
+
+        [SerializeField]
+        [Tooltip("Game Won / 游戏胜利音效 - Audio clip for winning a game")]
+        private AudioClip m_gameWon;
+
+        [SerializeField]
+        [Tooltip("Set Won / 局胜利音效 - Audio clip for winning a set")]
+        private AudioClip m_setWon;
+
+        [SerializeField]
+        [Tooltip("Match Won / 比赛胜利音效 - Audio clip for winning a match")]
+        private AudioClip m_matchWon;
 
         [Header("观众音效")]
-        [SerializeField] private AudioClip m_crowdCheer;
-        [SerializeField] private AudioClip m_crowdApplause;
-        [SerializeField] private AudioClip m_crowdBoo;
-        [SerializeField] private AudioClip m_crowdAmbient;
+        [SerializeField]
+        [Tooltip("Crowd Cheer / 观众欢呼音效 - Audio clip for crowd cheering")]
+        private AudioClip m_crowdCheer;
+
+        [SerializeField]
+        [Tooltip("Crowd Applause / 观众鼓掌音效 - Audio clip for crowd applause")]
+        private AudioClip m_crowdApplause;
+
+        [SerializeField]
+        [Tooltip("Crowd Boo / 观众嘘声音效 - Audio clip for crowd booing")]
+        private AudioClip m_crowdBoo;
+
+        [SerializeField]
+        [Tooltip("Crowd Ambient / 观众环境音效 - Audio clip for crowd ambient sound")]
+        private AudioClip m_crowdAmbient;
 
         [Header("环境音效")]
-        [SerializeField] private AudioClip m_lobbyAmbient;
-        [SerializeField] private AudioClip m_arenaAmbient;
-        [SerializeField] private AudioClip[] m_footstepSounds;
-        [SerializeField] private AudioClip[] m_voiceChatNotifications;
+        [SerializeField]
+        [Tooltip("Lobby Ambient / 大厅环境音效 - Audio clip for lobby ambient sound")]
+        private AudioClip m_lobbyAmbient;
+
+        [SerializeField]
+        [Tooltip("Arena Ambient / 竞技场环境音效 - Audio clip for arena ambient sound")]
+        private AudioClip m_arenaAmbient;
+
+        [SerializeField]
+        [Tooltip("Footstep Sounds / 脚步声音效 - Audio clips for footstep sounds")]
+        private AudioClip[] m_footstepSounds;
+
+        [SerializeField]
+        [Tooltip("Voice Chat Notifications / 语音聊天通知音效 - Audio clips for voice chat notifications")]
+        private AudioClip[] m_voiceChatNotifications;
 
         [Header("音频设置")]
-        [SerializeField] private float m_ballSoundVariation = 0.2f;
+        [SerializeField]
+        [Tooltip("Ball Sound Variation / 球音效变化 - Variation in ball sound pitch and volume")]
+        private float m_ballSoundVariation = 0.2f;
         // [SerializeField] private float m_maxBallSoundDistance = 50f; // 暂时没用到,先注释了
-        [SerializeField] private bool m_enableDynamicVolume = true;
-        [SerializeField] private bool m_enableCrowdReactions = true;
+
+        [SerializeField]
+        [Tooltip("Enable Dynamic Volume / 启用动态音量 - Whether to enable dynamic volume adjustment")]
+        private bool m_enableDynamicVolume = true;
+
+        [SerializeField]
+        [Tooltip("Enable Crowd Reactions / 启用观众反应 - Whether to enable crowd reaction system")]
+        private bool m_enableCrowdReactions = true;
 
         // 音频状态管理
         private AudioHandle m_currentCrowdAmbient;

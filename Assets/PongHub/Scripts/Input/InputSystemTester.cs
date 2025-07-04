@@ -11,14 +11,30 @@ namespace PongHub.Input
     public class InputSystemTester : MonoBehaviour
     {
         [Header("UI引用")]
-        [SerializeField] private Canvas m_testCanvas;
-        [SerializeField] private TextMeshProUGUI m_statusText;
-        [SerializeField] private TextMeshProUGUI m_inputInfoText;
-        [SerializeField] private Button m_testButton;
+        [SerializeField]
+        [Tooltip("Test Canvas / 测试画布 - Canvas for input testing UI")]
+        private Canvas m_testCanvas;
+
+        [SerializeField]
+        [Tooltip("Status Text / 状态文本 - Text component for displaying status")]
+        private TextMeshProUGUI m_statusText;
+
+        [SerializeField]
+        [Tooltip("Input Info Text / 输入信息文本 - Text component for displaying input information")]
+        private TextMeshProUGUI m_inputInfoText;
+
+        [SerializeField]
+        [Tooltip("Test Button / 测试按钮 - Button for manual testing")]
+        private Button m_testButton;
 
         [Header("测试设置")]
-        [SerializeField] private bool m_autoTest = true;
-        [SerializeField] private float m_updateInterval = 0.1f;
+        [SerializeField]
+        [Tooltip("Auto Test / 自动测试 - Whether to automatically run tests")]
+        private bool m_autoTest = true;
+
+        [SerializeField]
+        [Tooltip("Update Interval / 更新间隔 - Interval between input updates")]
+        private float m_updateInterval = 0.1f;
 
         // 私有变量
         private PongHubInputManager m_inputManager;

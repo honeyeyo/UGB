@@ -9,13 +9,21 @@ namespace PongHub.Utils
     public class AudioFadeInOut : MonoBehaviour
     {
         [SerializeField]
+        [Tooltip("Audio Source / 音频源 - AudioSource component to control fade in/out")]
         private AudioSource m_audioSource;
 
         [Range(0, 1)]
-        [SerializeField] private float m_maxVolume = 1f;
-        [SerializeField] private float m_secondsFade = 2f;
+        [SerializeField]
+        [Tooltip("Max Volume / 最大音量 - Maximum volume level when fully faded in")]
+        private float m_maxVolume = 1f;
 
-        [SerializeField] private bool m_fadeInOnStart = true;
+        [SerializeField]
+        [Tooltip("Fade Duration / 淡入淡出时长 - Duration in seconds for fade in/out effect")]
+        private float m_secondsFade = 2f;
+
+        [SerializeField]
+        [Tooltip("Fade In On Start / 开始时淡入 - Automatically fade in when the component starts")]
+        private bool m_fadeInOnStart = true;
 
         private Coroutine m_coroutine;
 

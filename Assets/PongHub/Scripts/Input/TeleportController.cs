@@ -10,28 +10,72 @@ namespace PongHub.Input
     public class TeleportController : MonoBehaviour
     {
         [Header("传送设置")]
-        [SerializeField] private float m_teleportActivationThreshold = 0.7f; // 前推激活阈值
-        [SerializeField] private float m_teleportCancelThreshold = 0.3f;     // 松开取消阈值
-        [SerializeField] private float m_maxTeleportDistance = 10f;          // 最大传送距离
-        [SerializeField] private LayerMask m_teleportLayerMask = -1;         // 传送检测层
+        [SerializeField]
+        [Tooltip("Teleport Activation Threshold / 传送激活阈值 - Threshold for activating teleport")]
+        private float m_teleportActivationThreshold = 0.7f; // 前推激活阈值
+
+        [SerializeField]
+        [Tooltip("Teleport Cancel Threshold / 传送取消阈值 - Threshold for canceling teleport")]
+        private float m_teleportCancelThreshold = 0.3f;     // 松开取消阈值
+
+        [SerializeField]
+        [Tooltip("Max Teleport Distance / 最大传送距离 - Maximum distance for teleportation")]
+        private float m_maxTeleportDistance = 10f;          // 最大传送距离
+
+        [SerializeField]
+        [Tooltip("Teleport Layer Mask / 传送检测层 - Layer mask for teleport detection")]
+        private LayerMask m_teleportLayerMask = -1;         // 传送检测层
 
         [Header("快速转向设置")]
-        [SerializeField] private float m_snapTurnActivationThreshold = 0.8f; // 转向激活阈值
-        [SerializeField] private float m_snapTurnAngle = 45f;                // 每次转向角度
-        [SerializeField] private float m_snapTurnCooldown = 0.3f;            // 转向冷却时间
+        [SerializeField]
+        [Tooltip("Snap Turn Activation Threshold / 快速转向激活阈值 - Threshold for snap turn activation")]
+        private float m_snapTurnActivationThreshold = 0.8f; // 转向激活阈值
+
+        [SerializeField]
+        [Tooltip("Snap Turn Angle / 快速转向角度 - Angle for each snap turn")]
+        private float m_snapTurnAngle = 45f;                // 每次转向角度
+
+        [SerializeField]
+        [Tooltip("Snap Turn Cooldown / 快速转向冷却 - Cooldown time between snap turns")]
+        private float m_snapTurnCooldown = 0.3f;            // 转向冷却时间
 
         [Header("组件引用")]
-        [SerializeField] private Transform m_playerRig;        // 玩家Rig
-        [SerializeField] private Transform m_rightHandAnchor;  // 右手锚点
-        [SerializeField] private LineRenderer m_teleportLine; // 传送射线
-        [SerializeField] private GameObject m_teleportTarget; // 传送目标点
-        [SerializeField] private Camera m_playerCamera;       // 玩家摄像机
+        [SerializeField]
+        [Tooltip("Player Rig / 玩家装备 - Player rig transform")]
+        private Transform m_playerRig;        // 玩家Rig
+
+        [SerializeField]
+        [Tooltip("Right Hand Anchor / 右手锚点 - Transform anchor for right hand")]
+        private Transform m_rightHandAnchor;  // 右手锚点
+
+        [SerializeField]
+        [Tooltip("Teleport Line / 传送射线 - Line renderer for teleport ray")]
+        private LineRenderer m_teleportLine; // 传送射线
+
+        [SerializeField]
+        [Tooltip("Teleport Target / 传送目标点 - GameObject for teleport target indicator")]
+        private GameObject m_teleportTarget; // 传送目标点
+
+        [SerializeField]
+        [Tooltip("Player Camera / 玩家摄像机 - Main camera for player")]
+        private Camera m_playerCamera;       // 玩家摄像机
 
         [Header("视觉效果")]
-        [SerializeField] private Material m_validTeleportMaterial;   // 有效传送材质
-        [SerializeField] private Material m_invalidTeleportMaterial; // 无效传送材质
-        [SerializeField] private AudioClip m_teleportSound;          // 传送音效
-        [SerializeField] private AudioClip m_snapTurnSound;          // 转向音效
+        [SerializeField]
+        [Tooltip("Valid Teleport Material / 有效传送材质 - Material for valid teleport indicator")]
+        private Material m_validTeleportMaterial;   // 有效传送材质
+
+        [SerializeField]
+        [Tooltip("Invalid Teleport Material / 无效传送材质 - Material for invalid teleport indicator")]
+        private Material m_invalidTeleportMaterial; // 无效传送材质
+
+        [SerializeField]
+        [Tooltip("Teleport Sound / 传送音效 - Audio clip for teleport action")]
+        private AudioClip m_teleportSound;          // 传送音效
+
+        [SerializeField]
+        [Tooltip("Snap Turn Sound / 转向音效 - Audio clip for snap turn action")]
+        private AudioClip m_snapTurnSound;          // 转向音效
 
         // 私有变量
         private bool m_isTeleportActive = false;

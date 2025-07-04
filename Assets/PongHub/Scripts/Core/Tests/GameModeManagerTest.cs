@@ -11,8 +11,12 @@ namespace PongHub.Core.Tests
     public class GameModeManagerTest : MonoBehaviour
     {
         [Header("测试配置")]
-        [SerializeField] private bool enableAutoTesting = false;
-        [SerializeField] private float testInterval = 2f;
+        [SerializeField]
+        [Tooltip("Enable Auto Testing / 启用自动测试 - Whether to automatically run tests at intervals")]
+        private bool enableAutoTesting = false;
+        [SerializeField]
+        [Tooltip("Test Interval / 测试间隔 - Time interval between automatic test runs")]
+        private float testInterval = 2f;
 
         private GameObject m_testGameObject;
         private GameModeManager m_gameModeManager;

@@ -12,19 +12,43 @@ namespace PongHub.Core
     {
         #region 组件引用
         [Header("管理器引用")]
-        [SerializeField] private GameModeController gameModeController;
-        [SerializeField] private ServeValidator serveValidator;
-        [SerializeField] private PongHub.Input.EditorInputSimulator editorInputSimulator;
+        [SerializeField]
+        [Tooltip("Game Mode Controller / 游戏模式控制器 - Controller for managing game modes")]
+        private GameModeController gameModeController;
+
+        [SerializeField]
+        [Tooltip("Serve Validator / 发球验证器 - Validator for serve rules and mechanics")]
+        private ServeValidator serveValidator;
+
+        [SerializeField]
+        [Tooltip("Editor Input Simulator / 编辑器输入模拟器 - Input simulator for editor testing")]
+        private PongHub.Input.EditorInputSimulator editorInputSimulator;
 
         [Header("演示设置")]
-        [SerializeField] private bool autoStartDemo = true;
-        [SerializeField] private bool enableKeyboardControls = true;
-        [SerializeField] private float autoScoreInterval = 5f;
-        [SerializeField] private bool showDebugInfo = true;
+        [SerializeField]
+        [Tooltip("Auto Start Demo / 自动开始演示 - Whether to automatically start the demo")]
+        private bool autoStartDemo = true;
+
+        [SerializeField]
+        [Tooltip("Enable Keyboard Controls / 启用键盘控制 - Whether to enable keyboard input controls")]
+        private bool enableKeyboardControls = true;
+
+        [SerializeField]
+        [Tooltip("Auto Score Interval / 自动得分间隔 - Time interval for automatic scoring")]
+        private float autoScoreInterval = 5f;
+
+        [SerializeField]
+        [Tooltip("Show Debug Info / 显示调试信息 - Whether to show debug information on screen")]
+        private bool showDebugInfo = true;
 
         [Header("调试显示")]
-        [SerializeField] private bool showGizmos = true;
-        [SerializeField] private Transform demoArea;
+        [SerializeField]
+        [Tooltip("Show Gizmos / 显示Gizmos - Whether to show debug gizmos in scene view")]
+        private bool showGizmos = true;
+
+        [SerializeField]
+        [Tooltip("Demo Area / 演示区域 - Transform defining the demo area boundaries")]
+        private Transform demoArea;
         #endregion
 
         #region 私有变量

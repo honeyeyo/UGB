@@ -11,7 +11,9 @@ namespace PongHub.Core.Audio
     public class AudioMixerController : MonoBehaviour
     {
         [Header("混音器引用")]
-        [SerializeField] private AudioMixer m_mainMixer;
+        [SerializeField]
+        [Tooltip("Main Mixer / 主混音器 - Main audio mixer for controlling audio output")]
+        private AudioMixer m_mainMixer;
 
         // 配置引用
         private AudioConfiguration m_configuration;

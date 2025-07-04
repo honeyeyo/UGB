@@ -16,9 +16,15 @@ namespace PongHub.Gameplay.Ball
     {
         #region Serialized Fields
         [Header("附着设置")]
-        [SerializeField] private Vector3 attachOffset = Vector3.forward * 0.001f; // 1mm offset
-        [SerializeField] private float attachmentSmoothing = 10f; // 附着位置平滑度
-        [SerializeField] private bool showAttachmentGizmos = true; // 调试显示
+        [SerializeField]
+        [Tooltip("Attach Offset / 附着偏移 - Offset from hand position for ball attachment")]
+        private Vector3 attachOffset = Vector3.forward * 0.001f; // 1mm offset
+        [SerializeField]
+        [Tooltip("Attachment Smoothing / 附着平滑度 - Smoothing factor for attachment position")]
+        private float attachmentSmoothing = 10f; // 附着位置平滑度
+        [SerializeField]
+        [Tooltip("Show Attachment Gizmos / 显示附着Gizmos - Whether to show attachment gizmos in scene view")]
+        private bool showAttachmentGizmos = true; // 调试显示
         #endregion
 
         #region Private Fields

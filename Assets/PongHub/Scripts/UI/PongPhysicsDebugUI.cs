@@ -19,66 +19,146 @@ namespace PongHub.UI
     public class PongPhysicsDebugUI : MonoBehaviour
     {
         [Header("UI面板")]
-        [SerializeField] private Canvas debugCanvas;
-        [SerializeField] private GameObject debugPanel;
-        [SerializeField] private Transform panelTransform;
-        [SerializeField] private float uiDistance = 1.5f;           // UI距离玩家的距离
-        [SerializeField] private float uiHeight = 0.2f;             // UI高度偏移
+        [SerializeField]
+        [Tooltip("Debug Canvas / 调试画布 - Canvas component for debug UI")]
+        private Canvas debugCanvas;
+        [SerializeField]
+        [Tooltip("Debug Panel / 调试面板 - GameObject containing debug UI elements")]
+        private GameObject debugPanel;
+        [SerializeField]
+        [Tooltip("Panel Transform / 面板变换 - Transform of the debug panel")]
+        private Transform panelTransform;
+        [SerializeField]
+        [Tooltip("UI Distance / UI距离 - Distance from player to UI panel")]
+        private float uiDistance = 1.5f;           // UI距离玩家的距离
+        [SerializeField]
+        [Tooltip("UI Height / UI高度 - Height offset for UI panel")]
+        private float uiHeight = 0.2f;             // UI高度偏移
 
         [Header("VR交互设置")]
         // [SerializeField] private bool enableHandTracking = true;    // 启用手部追踪
         // [SerializeField] private float handProximityThreshold = 0.3f; // 手部接近阈值
-        [SerializeField] private LayerMask uiLayerMask = -1;        // UI交互层级
+        [SerializeField]
+        [Tooltip("UI Layer Mask / UI层级掩码 - Layer mask for UI interaction")]
+        private LayerMask uiLayerMask = -1;        // UI交互层级
 
         [Header("球物理调试")]
-        [SerializeField] private Slider ballMassSlider;
-        [SerializeField] private TextMeshProUGUI ballMassText;
-        [SerializeField] private Slider ballDragSlider;
-        [SerializeField] private TextMeshProUGUI ballDragText;
-        [SerializeField] private Slider ballBounciness;
-        [SerializeField] private TextMeshProUGUI ballBouncinessText;
+        [SerializeField]
+        [Tooltip("Ball Mass Slider / 球质量滑块 - Slider for adjusting ball mass")]
+        private Slider ballMassSlider;
+        [SerializeField]
+        [Tooltip("Ball Mass Text / 球质量文本 - Text display for ball mass value")]
+        private TextMeshProUGUI ballMassText;
+        [SerializeField]
+        [Tooltip("Ball Drag Slider / 球阻力滑块 - Slider for adjusting ball drag")]
+        private Slider ballDragSlider;
+        [SerializeField]
+        [Tooltip("Ball Drag Text / 球阻力文本 - Text display for ball drag value")]
+        private TextMeshProUGUI ballDragText;
+        [SerializeField]
+        [Tooltip("Ball Bounciness / 球弹性 - Slider for adjusting ball bounciness")]
+        private Slider ballBounciness;
+        [SerializeField]
+        [Tooltip("Ball Bounciness Text / 球弹性文本 - Text display for ball bounciness value")]
+        private TextMeshProUGUI ballBouncinessText;
 
         [Header("旋转调试")]
-        [SerializeField] private Slider magnusForceSlider;
-        [SerializeField] private TextMeshProUGUI magnusForceText;
-        [SerializeField] private Slider spinDecaySlider;
-        [SerializeField] private TextMeshProUGUI spinDecayText;
-        [SerializeField] private Toggle spinVisualizationToggle;
+        [SerializeField]
+        [Tooltip("Magnus Force Slider / 马格努斯力滑块 - Slider for adjusting Magnus force")]
+        private Slider magnusForceSlider;
+        [SerializeField]
+        [Tooltip("Magnus Force Text / 马格努斯力文本 - Text display for Magnus force value")]
+        private TextMeshProUGUI magnusForceText;
+        [SerializeField]
+        [Tooltip("Spin Decay Slider / 旋转衰减滑块 - Slider for adjusting spin decay")]
+        private Slider spinDecaySlider;
+        [SerializeField]
+        [Tooltip("Spin Decay Text / 旋转衰减文本 - Text display for spin decay value")]
+        private TextMeshProUGUI spinDecayText;
+        [SerializeField]
+        [Tooltip("Spin Visualization Toggle / 旋转可视化开关 - Toggle for spin visualization")]
+        private Toggle spinVisualizationToggle;
 
         [Header("网络调试")]
-        [SerializeField] private Slider syncRateSlider;
-        [SerializeField] private TextMeshProUGUI syncRateText;
-        [SerializeField] private TextMeshProUGUI networkLatencyText;
-        [SerializeField] private TextMeshProUGUI packetLossText;
-        [SerializeField] private Toggle predictiveMotionToggle;
+        [SerializeField]
+        [Tooltip("Sync Rate Slider / 同步率滑块 - Slider for adjusting network sync rate")]
+        private Slider syncRateSlider;
+        [SerializeField]
+        [Tooltip("Sync Rate Text / 同步率文本 - Text display for sync rate value")]
+        private TextMeshProUGUI syncRateText;
+        [SerializeField]
+        [Tooltip("Network Latency Text / 网络延迟文本 - Text display for network latency")]
+        private TextMeshProUGUI networkLatencyText;
+        [SerializeField]
+        [Tooltip("Packet Loss Text / 丢包率文本 - Text display for packet loss")]
+        private TextMeshProUGUI packetLossText;
+        [SerializeField]
+        [Tooltip("Predictive Motion Toggle / 预测运动开关 - Toggle for predictive motion")]
+        private Toggle predictiveMotionToggle;
 
         [Header("游戏状态")]
-        [SerializeField] private TextMeshProUGUI gamePhaseText;
-        [SerializeField] private TextMeshProUGUI currentServerText;
-        [SerializeField] private TextMeshProUGUI scoreText;
-        [SerializeField] private Button resetGameButton;
-        [SerializeField] private Button spawnBallButton;
+        [SerializeField]
+        [Tooltip("Game Phase Text / 游戏阶段文本 - Text display for current game phase")]
+        private TextMeshProUGUI gamePhaseText;
+        [SerializeField]
+        [Tooltip("Current Server Text / 当前服务器文本 - Text display for current server")]
+        private TextMeshProUGUI currentServerText;
+        [SerializeField]
+        [Tooltip("Score Text / 分数文本 - Text display for current score")]
+        private TextMeshProUGUI scoreText;
+        [SerializeField]
+        [Tooltip("Reset Game Button / 重置游戏按钮 - Button to reset the game")]
+        private Button resetGameButton;
+        [SerializeField]
+        [Tooltip("Spawn Ball Button / 生成球按钮 - Button to spawn a new ball")]
+        private Button spawnBallButton;
 
         [Header("实时状态")]
-        [SerializeField] private TextMeshProUGUI ballPositionText;
-        [SerializeField] private TextMeshProUGUI ballVelocityText;
-        [SerializeField] private TextMeshProUGUI ballSpinText;
-        [SerializeField] private TextMeshProUGUI ballAttachmentText;
+        [SerializeField]
+        [Tooltip("Ball Position Text / 球位置文本 - Text display for ball position")]
+        private TextMeshProUGUI ballPositionText;
+        [SerializeField]
+        [Tooltip("Ball Velocity Text / 球速度文本 - Text display for ball velocity")]
+        private TextMeshProUGUI ballVelocityText;
+        [SerializeField]
+        [Tooltip("Ball Spin Text / 球旋转文本 - Text display for ball spin")]
+        private TextMeshProUGUI ballSpinText;
+        [SerializeField]
+        [Tooltip("Ball Attachment Text / 球附着文本 - Text display for ball attachment status")]
+        private TextMeshProUGUI ballAttachmentText;
 
         [Header("快速设置")]
-        [SerializeField] private Button presetRealisticButton;
-        [SerializeField] private Button presetArcadeButton;
-        [SerializeField] private Button presetSlowMotionButton;
+        [SerializeField]
+        [Tooltip("Preset Realistic Button / 真实预设按钮 - Button for realistic physics preset")]
+        private Button presetRealisticButton;
+        [SerializeField]
+        [Tooltip("Preset Arcade Button / 街机预设按钮 - Button for arcade physics preset")]
+        private Button presetArcadeButton;
+        [SerializeField]
+        [Tooltip("Preset Slow Motion Button / 慢动作预设按钮 - Button for slow motion preset")]
+        private Button presetSlowMotionButton;
 
         [Header("控制")]
-        [SerializeField] private Toggle uiVisibilityToggle;
-        [SerializeField] private Button saveSettingsButton;
-        [SerializeField] private Button loadSettingsButton;
+        [SerializeField]
+        [Tooltip("UI Visibility Toggle / UI可见性开关 - Toggle for UI visibility")]
+        private Toggle uiVisibilityToggle;
+        [SerializeField]
+        [Tooltip("Save Settings Button / 保存设置按钮 - Button to save current settings")]
+        private Button saveSettingsButton;
+        [SerializeField]
+        [Tooltip("Load Settings Button / 加载设置按钮 - Button to load saved settings")]
+        private Button loadSettingsButton;
 
         [Header("VR特定UI")]
-        [SerializeField] private Button repositionUIButton;         // 重新定位UI按钮
-        [SerializeField] private Button followPlayerToggle;         // 跟随玩家开关
-        [SerializeField] private TextMeshProUGUI instructionText;   // 操作说明文本
+        [SerializeField]
+        [Tooltip("Reposition UI Button / 重新定位UI按钮 - Button to reposition UI in VR")]
+        private Button repositionUIButton;         // 重新定位UI按钮
+        [SerializeField]
+        [Tooltip("Follow Player Toggle / 跟随玩家开关 - Toggle for UI to follow player")]
+        private Button followPlayerToggle;         // 跟随玩家开关
+        [SerializeField]
+        [Tooltip("Instruction Text / 操作说明文本 - Text display for VR instructions")]
+        private TextMeshProUGUI instructionText;   // 操作说明文本
 
         // 引用组件
         private BallNetworking currentBall;

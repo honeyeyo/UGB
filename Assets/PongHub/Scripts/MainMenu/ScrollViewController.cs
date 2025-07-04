@@ -26,10 +26,21 @@ namespace PongHub.MainMenu
         }
 
         [Header("UI组件引用")]
-        [SerializeField] private GraphicRaycaster m_graphicRaycaster;    // UI射线检测器
-        [SerializeField] private ScrollRect m_scrollRect;                // 滚动视图组件
-        [SerializeField] private float m_scrollSpeed = 0.05f;            // 滚动速度
-        [SerializeField] private GameObject m_targetPointer;             // 目标指针对象
+        [SerializeField]
+        [Tooltip("Graphic Raycaster / UI射线检测器 - Raycaster for detecting UI interactions")]
+        private GraphicRaycaster m_graphicRaycaster;    // UI射线检测器
+
+        [SerializeField]
+        [Tooltip("Scroll Rect / 滚动视图组件 - ScrollRect component for scrolling")]
+        private ScrollRect m_scrollRect;                // 滚动视图组件
+
+        [SerializeField]
+        [Tooltip("Scroll Speed / 滚动速度 - Speed of scrolling with controller input")]
+        private float m_scrollSpeed = 0.05f;            // 滚动速度
+
+        [SerializeField]
+        [Tooltip("Target Pointer / 目标指针对象 - GameObject representing the target pointer")]
+        private GameObject m_targetPointer;             // 目标指针对象
 
         // Oculus控制器输入相关
         private OVRInput.Axis2D m_thumbstickL, m_thumbstickR;           // 左右摇杆输入

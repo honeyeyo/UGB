@@ -16,7 +16,9 @@ namespace PongHub.MainMenu
         /// 菜单中所有需要控制的按钮列表
         /// 在Unity编辑器中通过Inspector面板设置
         /// </summary>
-        [SerializeField] private List<Button> m_menuButtons;
+        [SerializeField]
+        [Tooltip("Menu Buttons / 菜单按钮列表 - List of buttons to control in this menu")]
+        private List<Button> m_menuButtons;
 
         /// <summary>
         /// 显示当前菜单

@@ -21,7 +21,9 @@ namespace PongHub.Arena.Services
             public Color Color;
         }
 
-        [SerializeField] private List<ColorProfile> m_colorProfiles;
+        [SerializeField]
+        [Tooltip("Color Profiles / 颜色配置 - List of color profiles for team A and B color pairing")]
+        private List<ColorProfile> m_colorProfiles;
 
         private readonly Dictionary<TeamColor, Color> m_colors = new();
         protected override void InternalAwake()

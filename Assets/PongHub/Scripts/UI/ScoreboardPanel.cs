@@ -9,27 +9,61 @@ namespace PongHub.UI
     public class ScoreboardPanel : MonoBehaviour
     {
         [Header("玩家信息")]
-        [SerializeField] private TextMeshProUGUI m_playerNameText;
-        [SerializeField] private TextMeshProUGUI m_playerTotalScoreText;
-        [SerializeField] private TextMeshProUGUI m_playerRoundScoreText;
+        [SerializeField]
+        [Tooltip("Player Name Text / 玩家姓名文本 - Text component for displaying player name")]
+        private TextMeshProUGUI m_playerNameText;
+
+        [SerializeField]
+        [Tooltip("Player Total Score Text / 玩家总分文本 - Text component for displaying player total score")]
+        private TextMeshProUGUI m_playerTotalScoreText;
+
+        [SerializeField]
+        [Tooltip("Player Round Score Text / 玩家回合分数文本 - Text component for displaying player round score")]
+        private TextMeshProUGUI m_playerRoundScoreText;
 
         [Header("对手信息")]
-        [SerializeField] private TextMeshProUGUI m_opponentNameText;
-        [SerializeField] private TextMeshProUGUI m_opponentTotalScoreText;
-        [SerializeField] private TextMeshProUGUI m_opponentRoundScoreText;
+        [SerializeField]
+        [Tooltip("Opponent Name Text / 对手姓名文本 - Text component for displaying opponent name")]
+        private TextMeshProUGUI m_opponentNameText;
+
+        [SerializeField]
+        [Tooltip("Opponent Total Score Text / 对手总分文本 - Text component for displaying opponent total score")]
+        private TextMeshProUGUI m_opponentTotalScoreText;
+
+        [SerializeField]
+        [Tooltip("Opponent Round Score Text / 对手回合分数文本 - Text component for displaying opponent round score")]
+        private TextMeshProUGUI m_opponentRoundScoreText;
 
         [Header("游戏状态")]
-        [SerializeField] private TextMeshProUGUI m_gameStatusText;
-        [SerializeField] private TextMeshProUGUI m_roundStatusText;
-        [SerializeField] private TextMeshProUGUI m_timerText;
+        [SerializeField]
+        [Tooltip("Game Status Text / 游戏状态文本 - Text component for displaying game status")]
+        private TextMeshProUGUI m_gameStatusText;
+
+        [SerializeField]
+        [Tooltip("Round Status Text / 回合状态文本 - Text component for displaying round status")]
+        private TextMeshProUGUI m_roundStatusText;
+
+        [SerializeField]
+        [Tooltip("Timer Text / 计时器文本 - Text component for displaying timer")]
+        private TextMeshProUGUI m_timerText;
 
         [Header("按钮")]
-        [SerializeField] private Button m_rematchButton;
-        [SerializeField] private Button m_mainMenuButton;
+        [SerializeField]
+        [Tooltip("Rematch Button / 重新比赛按钮 - Button for starting a rematch")]
+        private Button m_rematchButton;
+
+        [SerializeField]
+        [Tooltip("Main Menu Button / 主菜单按钮 - Button for returning to main menu")]
+        private Button m_mainMenuButton;
 
         [Header("UI引用")]
-        [SerializeField] private TextMeshProUGUI m_leftPlayerScoreText;
-        [SerializeField] private TextMeshProUGUI m_rightPlayerScoreText;
+        [SerializeField]
+        [Tooltip("Left Player Score Text / 左方玩家分数文本 - Text component for left player score")]
+        private TextMeshProUGUI m_leftPlayerScoreText;
+
+        [SerializeField]
+        [Tooltip("Right Player Score Text / 右方玩家分数文本 - Text component for right player score")]
+        private TextMeshProUGUI m_rightPlayerScoreText;
 
         private void Awake()
         {

@@ -42,7 +42,9 @@ namespace PongHub.Networking.Pooling
         /// 预制体配置列表
         /// 在Inspector中配置需要池化的预制体
         /// </summary>
-        [SerializeField] private List<PoolConfigObject> m_pooledPrefabsList = new();
+        [SerializeField]
+        [Tooltip("Pooled Prefabs List / 池化预制体列表 - List of prefabs to be pooled for network spawning")]
+        private List<PoolConfigObject> m_pooledPrefabsList = new();
 
         /// <summary>
         /// 初始化标志
@@ -62,9 +64,15 @@ namespace PongHub.Networking.Pooling
         /// </summary>
         private readonly Dictionary<GameObject, Queue<NetworkObject>> m_pooledObjects = new();
 
-        [SerializeField] private NetworkManager m_networkManager;
-        [SerializeField] private GameObject m_prefab;
-        [SerializeField] private int m_poolSize = 10;
+        [SerializeField]
+        [Tooltip("Network Manager / 网络管理器 - Reference to the custom NetworkManager")]
+        private NetworkManager m_networkManager;
+        [SerializeField]
+        [Tooltip("Prefab / 预制体 - Prefab to be pooled (single prefab mode)")]
+        private GameObject m_prefab;
+        [SerializeField]
+        [Tooltip("Pool Size / 池大小 - Number of instances to prewarm in the pool")]
+        private int m_poolSize = 10;
 
         private Queue<NetworkObject> m_pool;
 

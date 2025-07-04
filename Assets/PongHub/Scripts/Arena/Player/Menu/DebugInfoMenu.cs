@@ -12,10 +12,21 @@ namespace PongHub.Arena.Player.Menu
     /// </summary>
     public class DebugInfoMenu : BasePlayerMenuView
     {
-        [SerializeField] private TMP_Text m_serverTimeText;
-        [SerializeField] private TMP_Text m_pingTimeText;
-        [SerializeField] private TMP_Text m_regionText;
-        [SerializeField] private TMP_Text m_fpsText;
+        [SerializeField]
+        [Tooltip("Server Time Text / 服务器时间文本 - Text component to display server time")]
+        private TMP_Text m_serverTimeText;
+
+        [SerializeField]
+        [Tooltip("Ping Time Text / 延迟时间文本 - Text component to display network ping time")]
+        private TMP_Text m_pingTimeText;
+
+        [SerializeField]
+        [Tooltip("Region Text / 区域文本 - Text component to display network region")]
+        private TMP_Text m_regionText;
+
+        [SerializeField]
+        [Tooltip("FPS Text / 帧率文本 - Text component to display frames per second")]
+        private TMP_Text m_fpsText;
 
         private void OnEnable()
         {

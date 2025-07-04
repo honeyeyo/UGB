@@ -14,24 +14,52 @@ namespace PongHub.Gameplay.Table
     public class Table : MonoBehaviour
     {
         [Header("组件引用")]
-        [SerializeField] private BoxCollider m_tableCollider;
-        [SerializeField] private BoxCollider m_netCollider;
-        [SerializeField] private BoxCollider m_edgeCollider;
-        [SerializeField] private MeshRenderer m_tableRenderer;
-        [SerializeField] private MeshRenderer m_netRenderer;
-        [SerializeField] private MeshRenderer m_lineRenderer;
-        [SerializeField] private MeshRenderer m_renderer;
-        [SerializeField] private Collider m_collider;
-        [SerializeField] private Transform m_netTransform;
+        [SerializeField]
+        [Tooltip("Table Collider / 球桌碰撞体 - Box collider for table surface")]
+        private BoxCollider m_tableCollider;
+        [SerializeField]
+        [Tooltip("Net Collider / 网碰撞体 - Box collider for net")]
+        private BoxCollider m_netCollider;
+        [SerializeField]
+        [Tooltip("Edge Collider / 边缘碰撞体 - Box collider for table edges")]
+        private BoxCollider m_edgeCollider;
+        [SerializeField]
+        [Tooltip("Table Renderer / 球桌渲染器 - Mesh renderer for table surface")]
+        private MeshRenderer m_tableRenderer;
+        [SerializeField]
+        [Tooltip("Net Renderer / 网渲染器 - Mesh renderer for net")]
+        private MeshRenderer m_netRenderer;
+        [SerializeField]
+        [Tooltip("Line Renderer / 线渲染器 - Mesh renderer for table lines")]
+        private MeshRenderer m_lineRenderer;
+        [SerializeField]
+        [Tooltip("Renderer / 渲染器 - Main mesh renderer component")]
+        private MeshRenderer m_renderer;
+        [SerializeField]
+        [Tooltip("Collider / 碰撞体 - Main collider component")]
+        private Collider m_collider;
+        [SerializeField]
+        [Tooltip("Net Transform / 网变换 - Transform of the net")]
+        private Transform m_netTransform;
 
         [Header("本地锚点设置")]
-        [SerializeField] private bool m_isLocalAnchor = true; // 始终为true
-        [SerializeField] private Transform m_tableCenter; // 球桌中心点
-        [SerializeField] private Transform m_leftServiceArea; // 左发球区
-        [SerializeField] private Transform m_rightServiceArea; // 右发球区
+        [SerializeField]
+        [Tooltip("Is Local Anchor / 是否本地锚点 - Whether this table is a local anchor")]
+        private bool m_isLocalAnchor = true; // 始终为true
+        [SerializeField]
+        [Tooltip("Table Center / 球桌中心 - Transform for table center point")]
+        private Transform m_tableCenter; // 球桌中心点
+        [SerializeField]
+        [Tooltip("Left Service Area / 左发球区 - Transform for left service area")]
+        private Transform m_leftServiceArea; // 左发球区
+        [SerializeField]
+        [Tooltip("Right Service Area / 右发球区 - Transform for right service area")]
+        private Transform m_rightServiceArea; // 右发球区
 
         [Header("配置")]
-        [SerializeField] private TableData m_tableData;
+        [SerializeField]
+        [Tooltip("Table Data / 球桌数据 - Table configuration data")]
+        private TableData m_tableData;
 
         // 碰撞检测区域
         private Bounds m_tableBounds;

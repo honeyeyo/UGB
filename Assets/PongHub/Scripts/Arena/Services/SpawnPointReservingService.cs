@@ -15,7 +15,9 @@ namespace PongHub.Arena.Services
     /// </summary>
     public class SpawnPointReservingService : MonoBehaviour
     {
-        [SerializeField] private Transform[] m_spawnPoints = Array.Empty<Transform>();
+        [SerializeField]
+        [Tooltip("Spawn Points / 生成点数组 - Array of transform positions for spawning entities")]
+        private Transform[] m_spawnPoints = Array.Empty<Transform>();
 
         private readonly List<int> m_openSpawnPoints = new();
         private readonly HashSet<int> m_usedSpawnPoints = new();

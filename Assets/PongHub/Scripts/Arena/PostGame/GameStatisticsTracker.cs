@@ -16,7 +16,9 @@ namespace PongHub.Arena.PostGame
     public class GameStatisticsTracker : NetworkBehaviour
     {
         [Header("跟踪设置")]
-        [SerializeField] private bool m_enableDebugLog = true;        // 启用调试日志
+        [SerializeField]
+        [Tooltip("Enable Debug Log / 启用调试日志 - Enable debug logging for statistics tracking")]
+        private bool m_enableDebugLog = true;        // 启用调试日志
 
         // 统计数据
         private GameStatistics m_currentStats;

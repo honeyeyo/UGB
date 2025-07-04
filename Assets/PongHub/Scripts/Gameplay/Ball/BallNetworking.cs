@@ -30,22 +30,55 @@ namespace PongHub.Gameplay.Ball
         #endregion
 
         #region Serialized Fields
-        [SerializeField, AutoSet] private Rigidbody m_rigidbody;
-        [SerializeField, AutoSet] private BallStateSync m_stateSync;
-        [SerializeField, AutoSet] private BallAttachment m_ballAttachment;
-        [SerializeField, AutoSet] private BallSpin m_ballSpin;
-        [SerializeField] private BallPhysicsData m_ballPhysics;
+        [SerializeField, AutoSet]
+        [Tooltip("Rigidbody / 刚体 - Rigidbody component for ball physics")]
+        private Rigidbody m_rigidbody;
+
+        [SerializeField, AutoSet]
+        [Tooltip("Ball State Sync / 球状态同步 - Component for synchronizing ball state")]
+        private BallStateSync m_stateSync;
+
+        [SerializeField, AutoSet]
+        [Tooltip("Ball Attachment / 球附着 - Component for ball attachment system")]
+        private BallAttachment m_ballAttachment;
+
+        [SerializeField, AutoSet]
+        [Tooltip("Ball Spin / 球旋转 - Component for ball spin effects")]
+        private BallSpin m_ballSpin;
+
+        [SerializeField]
+        [Tooltip("Ball Physics Data / 球物理数据 - Physics configuration for the ball")]
+        private BallPhysicsData m_ballPhysics;
 
         [Header("Audio")]
-        [SerializeField] private AudioSource m_audioSource;
-        [SerializeField] private AudioClip m_onServedAudioClip;
-        [SerializeField] private AudioClip m_ballBounceClip;
-        [SerializeField] private AudioClip m_ballHitClip;
+        [SerializeField]
+        [Tooltip("Audio Source / 音频源 - Audio source for ball sounds")]
+        private AudioSource m_audioSource;
+
+        [SerializeField]
+        [Tooltip("On Served Audio Clip / 发球音效 - Audio clip for ball serve sound")]
+        private AudioClip m_onServedAudioClip;
+
+        [SerializeField]
+        [Tooltip("Ball Bounce Clip / 球弹跳音效 - Audio clip for ball bounce sound")]
+        private AudioClip m_ballBounceClip;
+
+        [SerializeField]
+        [Tooltip("Ball Hit Clip / 球击打音效 - Audio clip for ball hit sound")]
+        private AudioClip m_ballHitClip;
 
         [Header("Visual")]
-        [SerializeField] private MeshRenderer m_ballRenderer;
-        [SerializeField] private Material m_defaultMaterial;
-        [SerializeField] private Material m_deadMaterial;
+        [SerializeField]
+        [Tooltip("Ball Renderer / 球渲染器 - Mesh renderer for ball visual")]
+        private MeshRenderer m_ballRenderer;
+
+        [SerializeField]
+        [Tooltip("Default Material / 默认材质 - Default material for ball")]
+        private Material m_defaultMaterial;
+
+        [SerializeField]
+        [Tooltip("Dead Material / 死亡材质 - Material for dead ball state")]
+        private Material m_deadMaterial;
         #endregion
 
         #region Network Variables

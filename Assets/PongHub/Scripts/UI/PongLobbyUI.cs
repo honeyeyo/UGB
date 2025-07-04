@@ -19,59 +19,152 @@ namespace PongHub.UI
     {
         #region UI References - Main Panels
         [Header("主要面板")]
-        [SerializeField] private GameObject m_lobbyPanel;
-        [SerializeField] private GameObject m_waitingPanel;
-        [SerializeField] private GameObject m_gameModePanel;
-        [SerializeField] private GameObject m_teamPanel;
-        [SerializeField] private GameObject m_readyPanel;
-        [SerializeField] private GameObject m_gamePanel;
+        [SerializeField]
+        [Tooltip("Lobby Panel / 大厅面板 - Main lobby interface panel")]
+        private GameObject m_lobbyPanel;
+
+        [SerializeField]
+        [Tooltip("Waiting Panel / 等待面板 - Panel for waiting room interface")]
+        private GameObject m_waitingPanel;
+
+        [SerializeField]
+        [Tooltip("Game Mode Panel / 游戏模式面板 - Panel for game mode selection")]
+        private GameObject m_gameModePanel;
+
+        [SerializeField]
+        [Tooltip("Team Panel / 队伍面板 - Panel for team assignment interface")]
+        private GameObject m_teamPanel;
+
+        [SerializeField]
+        [Tooltip("Ready Panel / 准备面板 - Panel for ready check interface")]
+        private GameObject m_readyPanel;
+
+        [SerializeField]
+        [Tooltip("Game Panel / 游戏面板 - Panel for in-game interface")]
+        private GameObject m_gamePanel;
         #endregion
 
         #region UI References - Waiting Panel
         [Header("等待面板")]
-        [SerializeField] private TextMeshProUGUI m_waitingStatusText;
-        [SerializeField] private TextMeshProUGUI m_playerCountText;
-        [SerializeField] private Button m_joinAsPlayerButton;
-        [SerializeField] private Button m_joinAsSpectatorButton;
-        [SerializeField] private Toggle m_hostControlsToggle;
+        [SerializeField]
+        [Tooltip("Waiting Status Text / 等待状态文本 - Text for displaying waiting status")]
+        private TextMeshProUGUI m_waitingStatusText;
+
+        [SerializeField]
+        [Tooltip("Player Count Text / 玩家数量文本 - Text for displaying player count")]
+        private TextMeshProUGUI m_playerCountText;
+
+        [SerializeField]
+        [Tooltip("Join As Player Button / 加入为玩家按钮 - Button for joining as player")]
+        private Button m_joinAsPlayerButton;
+
+        [SerializeField]
+        [Tooltip("Join As Spectator Button / 加入为观众按钮 - Button for joining as spectator")]
+        private Button m_joinAsSpectatorButton;
+
+        [SerializeField]
+        [Tooltip("Host Controls Toggle / 主机控制开关 - Toggle for host controls")]
+        private Toggle m_hostControlsToggle;
         #endregion
 
-        #region UI References - Game Mode Panel  
+        #region UI References - Game Mode Panel
         [Header("游戏模式面板")]
-        [SerializeField] private GameObject m_hostModeSelection;
-        [SerializeField] private Button m_singlesButton;
-        [SerializeField] private Button m_doublesButton;
-        [SerializeField] private Button m_autoModeButton;
-        [SerializeField] private TextMeshProUGUI m_modeDescriptionText;
-        [SerializeField] private TextMeshProUGUI m_modeRequirementText;
+        [SerializeField]
+        [Tooltip("Host Mode Selection / 主机模式选择 - Container for host mode selection")]
+        private GameObject m_hostModeSelection;
+
+        [SerializeField]
+        [Tooltip("Singles Button / 单打按钮 - Button for selecting singles mode")]
+        private Button m_singlesButton;
+
+        [SerializeField]
+        [Tooltip("Doubles Button / 双打按钮 - Button for selecting doubles mode")]
+        private Button m_doublesButton;
+
+        [SerializeField]
+        [Tooltip("Auto Mode Button / 自动模式按钮 - Button for selecting auto mode")]
+        private Button m_autoModeButton;
+
+        [SerializeField]
+        [Tooltip("Mode Description Text / 模式描述文本 - Text for mode description")]
+        private TextMeshProUGUI m_modeDescriptionText;
+
+        [SerializeField]
+        [Tooltip("Mode Requirement Text / 模式要求文本 - Text for mode requirements")]
+        private TextMeshProUGUI m_modeRequirementText;
         #endregion
 
         #region UI References - Team Panel
         [Header("队伍面板")]
-        [SerializeField] private Transform m_teamAContainer;
-        [SerializeField] private Transform m_teamBContainer;
-        [SerializeField] private Transform m_spectatorsContainer;
-        [SerializeField] private GameObject m_playerSlotPrefab;
-        [SerializeField] private TextMeshProUGUI m_teamBalanceText;
+        [SerializeField]
+        [Tooltip("Team A Container / A队容器 - Container for team A players")]
+        private Transform m_teamAContainer;
+
+        [SerializeField]
+        [Tooltip("Team B Container / B队容器 - Container for team B players")]
+        private Transform m_teamBContainer;
+
+        [SerializeField]
+        [Tooltip("Spectators Container / 观众容器 - Container for spectators")]
+        private Transform m_spectatorsContainer;
+
+        [SerializeField]
+        [Tooltip("Player Slot Prefab / 玩家槽位预制体 - Prefab for player slot")]
+        private GameObject m_playerSlotPrefab;
+
+        [SerializeField]
+        [Tooltip("Team Balance Text / 队伍平衡文本 - Text for team balance information")]
+        private TextMeshProUGUI m_teamBalanceText;
         #endregion
 
         #region UI References - Ready Panel
         [Header("准备面板")]
-        [SerializeField] private Button m_readyButton;
-        [SerializeField] private Button m_notReadyButton;
-        [SerializeField] private TextMeshProUGUI m_readyStatusText;
-        [SerializeField] private TextMeshProUGUI m_readyTimerText;
-        [SerializeField] private Button m_startGameButton;
-        [SerializeField] private Slider m_readyProgressBar;
+        [SerializeField]
+        [Tooltip("Ready Button / 准备按钮 - Button for setting ready status")]
+        private Button m_readyButton;
+
+        [SerializeField]
+        [Tooltip("Not Ready Button / 未准备按钮 - Button for setting not ready status")]
+        private Button m_notReadyButton;
+
+        [SerializeField]
+        [Tooltip("Ready Status Text / 准备状态文本 - Text for ready status")]
+        private TextMeshProUGUI m_readyStatusText;
+
+        [SerializeField]
+        [Tooltip("Ready Timer Text / 准备计时器文本 - Text for ready timer")]
+        private TextMeshProUGUI m_readyTimerText;
+
+        [SerializeField]
+        [Tooltip("Start Game Button / 开始游戏按钮 - Button for starting the game")]
+        private Button m_startGameButton;
+
+        [SerializeField]
+        [Tooltip("Ready Progress Bar / 准备进度条 - Progress bar for ready check")]
+        private Slider m_readyProgressBar;
         #endregion
 
         #region UI References - Spectator Panel
         [Header("观众面板")]
-        [SerializeField] private GameObject m_spectatorPanel;
-        [SerializeField] private Button m_switchToPlayerButton;
-        [SerializeField] private Button m_spectateTeamAButton;
-        [SerializeField] private Button m_spectateTeamBButton;
-        [SerializeField] private TextMeshProUGUI m_spectatorInfoText;
+        [SerializeField]
+        [Tooltip("Spectator Panel / 观众面板 - Panel for spectator interface")]
+        private GameObject m_spectatorPanel;
+
+        [SerializeField]
+        [Tooltip("Switch To Player Button / 切换到玩家按钮 - Button for switching to player")]
+        private Button m_switchToPlayerButton;
+
+        [SerializeField]
+        [Tooltip("Spectate Team A Button / 观看A队按钮 - Button for spectating team A")]
+        private Button m_spectateTeamAButton;
+
+        [SerializeField]
+        [Tooltip("Spectate Team B Button / 观看B队按钮 - Button for spectating team B")]
+        private Button m_spectateTeamBButton;
+
+        [SerializeField]
+        [Tooltip("Spectator Info Text / 观众信息文本 - Text for spectator information")]
+        private TextMeshProUGUI m_spectatorInfoText;
         #endregion
 
         #region Private Fields

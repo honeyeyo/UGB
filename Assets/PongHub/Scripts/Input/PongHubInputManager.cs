@@ -28,25 +28,60 @@ namespace PongHub.Input
     public class PongHubInputManager : MonoBehaviour
     {
         [Header("输入动作配置")]
-        [SerializeField] private InputActionAsset m_inputActions;
+        [SerializeField]
+        [Tooltip("Input Actions / 输入动作 - Input action asset containing all input bindings")]
+        private InputActionAsset m_inputActions;
 
         [Header("组件引用")]
-        [SerializeField] private Transform m_playerRig;
-        [SerializeField] private Transform m_leftHandAnchor;
-        [SerializeField] private Transform m_rightHandAnchor;
-        [SerializeField] private PlayerHeightController m_heightController;
-        [SerializeField] private TeleportController m_teleportController;
-        [SerializeField] private ServeBallController m_serveBallController;
-        [SerializeField] private PaddleController m_paddleController;
+        [SerializeField]
+        [Tooltip("Player Rig / 玩家装备 - Player rig transform")]
+        private Transform m_playerRig;
+
+        [SerializeField]
+        [Tooltip("Left Hand Anchor / 左手锚点 - Transform anchor for left hand")]
+        private Transform m_leftHandAnchor;
+
+        [SerializeField]
+        [Tooltip("Right Hand Anchor / 右手锚点 - Transform anchor for right hand")]
+        private Transform m_rightHandAnchor;
+
+        [SerializeField]
+        [Tooltip("Height Controller / 高度控制器 - Component for controlling player height")]
+        private PlayerHeightController m_heightController;
+
+        [SerializeField]
+        [Tooltip("Teleport Controller / 传送控制器 - Component for teleportation system")]
+        private TeleportController m_teleportController;
+
+        [SerializeField]
+        [Tooltip("Serve Ball Controller / 发球控制器 - Component for serving ball mechanics")]
+        private ServeBallController m_serveBallController;
+
+        [SerializeField]
+        [Tooltip("Paddle Controller / 球拍控制器 - Component for paddle mechanics")]
+        private PaddleController m_paddleController;
 
         [Header("移动设置")]
-        [SerializeField] private float m_moveSpeed = 3f;
-        [SerializeField] private float m_deadZone = 0.1f;
+        [SerializeField]
+        [Tooltip("Move Speed / 移动速度 - Speed of player movement")]
+        private float m_moveSpeed = 3f;
+
+        [SerializeField]
+        [Tooltip("Dead Zone / 死区 - Input dead zone threshold")]
+        private float m_deadZone = 0.1f;
 
         [Header("性能优化设置")]
-        [SerializeField] private float m_continuousInputUpdateRate = 90f; // 90Hz for VR
-        [SerializeField] public bool m_useOptimizedPolling = true;
-        [SerializeField] public bool m_enablePerformanceLogging = false;
+        [SerializeField]
+        [Tooltip("Continuous Input Update Rate / 连续输入更新率 - Update rate for continuous input polling")]
+        private float m_continuousInputUpdateRate = 90f; // 90Hz for VR
+
+        [SerializeField]
+        [Tooltip("Use Optimized Polling / 使用优化轮询 - Whether to use optimized input polling")]
+        public bool m_useOptimizedPolling = true;
+
+        [SerializeField]
+        [Tooltip("Enable Performance Logging / 启用性能日志 - Whether to enable performance logging")]
+        public bool m_enablePerformanceLogging = false;
 
         // 输入动作组
         private InputActionMap m_playerActions;

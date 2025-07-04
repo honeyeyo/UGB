@@ -9,12 +9,22 @@ namespace PongHub.Core.Components
     public class LocalModeComponent : MonoBehaviour, IGameModeComponent
     {
         [Header("单机模式设置")]
-        [SerializeField] private bool m_enableAI = true;
-        [SerializeField] private GameObject[] m_localOnlyObjects;
-        [SerializeField] private MonoBehaviour[] m_localOnlyComponents;
+        [SerializeField]
+        [Tooltip("Enable AI / 启用AI - Enable AI opponent in local mode")]
+        private bool m_enableAI = true;
+
+        [SerializeField]
+        [Tooltip("Local Only Objects / 本地模式专用对象 - GameObjects that are only active in local mode")]
+        private GameObject[] m_localOnlyObjects;
+
+        [SerializeField]
+        [Tooltip("Local Only Components / 本地模式专用组件 - MonoBehaviours that are only enabled in local mode")]
+        private MonoBehaviour[] m_localOnlyComponents;
 
         [Header("调试设置")]
-        [SerializeField] private bool m_debugMode = false;
+        [SerializeField]
+        [Tooltip("Debug Mode / 调试模式 - Enable debug logging for local mode operations")]
+        private bool m_debugMode = false;
 
         #region IGameModeComponent 实现
 

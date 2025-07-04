@@ -8,19 +8,43 @@ namespace PongHub.UI
     public class HUDPanel : MonoBehaviour
     {
         [Header("分数显示")]
-        [SerializeField] private TextMeshProUGUI m_playerScoreText;
-        [SerializeField] private TextMeshProUGUI m_opponentScoreText;
-        [SerializeField] private TextMeshProUGUI m_timerText;
+        [SerializeField]
+        [Tooltip("Player Score Text / 玩家分数文本 - Text component for displaying player score")]
+        private TextMeshProUGUI m_playerScoreText;
+
+        [SerializeField]
+        [Tooltip("Opponent Score Text / 对手分数文本 - Text component for displaying opponent score")]
+        private TextMeshProUGUI m_opponentScoreText;
+
+        [SerializeField]
+        [Tooltip("Timer Text / 计时器文本 - Text component for displaying game timer")]
+        private TextMeshProUGUI m_timerText;
 
         [Header("球的状态")]
-        [SerializeField] private TextMeshProUGUI m_ballSpeedText;
-        [SerializeField] private TextMeshProUGUI m_ballSpinText;
-        [SerializeField] private Image m_ballSpeedBar;
-        [SerializeField] private Image m_ballSpinBar;
+        [SerializeField]
+        [Tooltip("Ball Speed Text / 球速文本 - Text component for displaying ball speed")]
+        private TextMeshProUGUI m_ballSpeedText;
+
+        [SerializeField]
+        [Tooltip("Ball Spin Text / 球旋转文本 - Text component for displaying ball spin")]
+        private TextMeshProUGUI m_ballSpinText;
+
+        [SerializeField]
+        [Tooltip("Ball Speed Bar / 球速条 - Image component for ball speed bar")]
+        private Image m_ballSpeedBar;
+
+        [SerializeField]
+        [Tooltip("Ball Spin Bar / 球旋转条 - Image component for ball spin bar")]
+        private Image m_ballSpinBar;
 
         [Header("提示信息")]
-        [SerializeField] private TextMeshProUGUI m_messageText;
-        [SerializeField] private float m_messageDuration = 2f;
+        [SerializeField]
+        [Tooltip("Message Text / 消息文本 - Text component for displaying messages")]
+        private TextMeshProUGUI m_messageText;
+
+        [SerializeField]
+        [Tooltip("Message Duration / 消息持续时间 - Duration for message display in seconds")]
+        private float m_messageDuration = 2f;
 
         private float m_messageTimer;
         private bool m_isMessageVisible;

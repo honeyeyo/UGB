@@ -20,11 +20,25 @@ namespace PongHub.MainMenu
         private static readonly Color s_normalTextColor = Color.black;
 
         [Header("UI组件引用")]
-        [SerializeField] private Transform m_root;           // 按钮的根Transform，用于旋转效果
-        [SerializeField] private Image m_bgImage;           // 按钮背景图片
-        [SerializeField] private TMPro.TMP_Text m_text;     // 按钮文本组件
-        [SerializeField] private Color m_normalTextColor = s_normalTextColor;  // 可自定义的普通文本颜色
-        [SerializeField] private UnityEvent<string> m_onHover;  // 悬停事件回调
+        [SerializeField]
+        [Tooltip("Root Transform / 根变换 - Root transform for button rotation effects")]
+        private Transform m_root;           // 按钮的根Transform，用于旋转效果
+
+        [SerializeField]
+        [Tooltip("Background Image / 背景图片 - Image component for button background")]
+        private Image m_bgImage;           // 按钮背景图片
+
+        [SerializeField]
+        [Tooltip("Text Component / 文本组件 - Text component for button label")]
+        private TMPro.TMP_Text m_text;     // 按钮文本组件
+
+        [SerializeField]
+        [Tooltip("Normal Text Color / 普通文本颜色 - Color for button text in normal state")]
+        private Color m_normalTextColor = s_normalTextColor;  // 可自定义的普通文本颜色
+
+        [SerializeField]
+        [Tooltip("On Hover Event / 悬停事件 - Unity event triggered when button is hovered")]
+        private UnityEvent<string> m_onHover;  // 悬停事件回调
 
         // 当前指向按钮的指针数量
         private int m_currentPointerCount = 0;

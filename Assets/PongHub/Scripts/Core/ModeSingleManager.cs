@@ -16,24 +16,46 @@ namespace PongHub.Core
         public static ModeSingleManager Instance { get; private set; }
 
         [Header("组件引用")]
-        [SerializeField] private TableSingle m_tableSingle;
-        [SerializeField] private BallSingleManager m_ballManager;
-        [SerializeField] private AISingle m_aiSystem;
+        [SerializeField]
+        [Tooltip("Table Single / 单人球桌 - Table component for single player mode")]
+        private TableSingle m_tableSingle;
+
+        [SerializeField]
+        [Tooltip("Ball Manager / 球管理器 - Ball manager for single player mode")]
+        private BallSingleManager m_ballManager;
+
+        [SerializeField]
+        [Tooltip("AI System / AI系统 - AI system for single player mode")]
+        private AISingle m_aiSystem;
 
         [Header("模式配置")]
-        [SerializeField] private SingleGameMode m_defaultMode = SingleGameMode.Practice;
-        [SerializeField] private bool m_autoStartDefaultMode = true;
+        [SerializeField]
+        [Tooltip("Default Mode / 默认模式 - Default game mode to start with")]
+        private SingleGameMode m_defaultMode = SingleGameMode.Practice;
+
+        [SerializeField]
+        [Tooltip("Auto Start Default Mode / 自动启动默认模式 - Whether to automatically start default mode")]
+        private bool m_autoStartDefaultMode = true;
 
         [Header("练习模式设置")]
-        [SerializeField] private bool m_enablePracticeStatistics = true;
+        [SerializeField]
+        [Tooltip("Enable Practice Statistics / 启用练习统计 - Whether to enable practice mode statistics")]
+        private bool m_enablePracticeStatistics = true;
         // [SerializeField] private bool m_showPracticeUI = true;
 
         [Header("AI模式设置")]
-        [SerializeField] private float m_defaultAIDifficulty = 0.5f;
-        [SerializeField] private bool m_enableAIVisualization = true;
+        [SerializeField]
+        [Tooltip("Default AI Difficulty / 默认AI难度 - Default difficulty level for AI mode")]
+        private float m_defaultAIDifficulty = 0.5f;
+
+        [SerializeField]
+        [Tooltip("Enable AI Visualization / 启用AI可视化 - Whether to enable AI visualization")]
+        private bool m_enableAIVisualization = true;
 
         [Header("调试设置")]
-        [SerializeField] private bool m_enableDebugLog = false;
+        [SerializeField]
+        [Tooltip("Enable Debug Log / 启用调试日志 - Whether to enable debug logging")]
+        private bool m_enableDebugLog = false;
         // [SerializeField] private bool m_showModeUI = true;
 
         // 当前状态

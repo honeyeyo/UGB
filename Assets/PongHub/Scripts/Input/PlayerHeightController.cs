@@ -10,16 +10,31 @@ namespace PongHub.Input
     public class PlayerHeightController : MonoBehaviour
     {
         [Header("高度调整设置")]
-        [SerializeField] private float m_heightSpeed = 0.01f; // 1cm/s = 0.01m/s
-        [SerializeField] private float m_minHeightOffset = -0.5f; // 最低高度偏移
-        [SerializeField] private float m_maxHeightOffset = 2.0f;  // 最高高度偏移
+        [SerializeField]
+        [Tooltip("Height Speed / 高度调整速度 - Speed of height adjustment in m/s")]
+        private float m_heightSpeed = 0.01f; // 1cm/s = 0.01m/s
+
+        [SerializeField]
+        [Tooltip("Min Height Offset / 最低高度偏移 - Minimum height offset in meters")]
+        private float m_minHeightOffset = -0.5f; // 最低高度偏移
+
+        [SerializeField]
+        [Tooltip("Max Height Offset / 最高高度偏移 - Maximum height offset in meters")]
+        private float m_maxHeightOffset = 2.0f;  // 最高高度偏移
 
         [Header("组件引用")]
-        [SerializeField] private Transform m_playerRig; // OVRCameraRig或XR Rig
+        [SerializeField]
+        [Tooltip("Player Rig / 玩家装备 - Player rig transform (OVRCameraRig or XR Rig)")]
+        private Transform m_playerRig; // OVRCameraRig或XR Rig
 
         [Header("调试信息")]
-        [SerializeField] private bool m_showDebugInfo = true;
-        [SerializeField] private float m_currentHeightOffset = 0f;
+        [SerializeField]
+        [Tooltip("Show Debug Info / 显示调试信息 - Whether to show debug information")]
+        private bool m_showDebugInfo = true;
+
+        [SerializeField]
+        [Tooltip("Current Height Offset / 当前高度偏移 - Current height offset value")]
+        private float m_currentHeightOffset = 0f;
 
         // 私有变量
         private Vector3 m_originalPosition;
@@ -29,8 +44,13 @@ namespace PongHub.Input
 
         // UI反馈（可选）
         [Header("UI反馈")]
-        [SerializeField] private GameObject m_heightIndicatorUI;
-        [SerializeField] private TMPro.TextMeshProUGUI m_heightText;
+        [SerializeField]
+        [Tooltip("Height Indicator UI / 高度指示器UI - UI GameObject for height indicator")]
+        private GameObject m_heightIndicatorUI;
+
+        [SerializeField]
+        [Tooltip("Height Text / 高度文本 - Text component for displaying height")]
+        private TMPro.TextMeshProUGUI m_heightText;
 
         private void Start()
         {

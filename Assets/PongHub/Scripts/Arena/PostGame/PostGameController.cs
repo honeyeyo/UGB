@@ -19,30 +19,73 @@ namespace PongHub.Arena.PostGame
     public class PostGameController : MonoBehaviour
     {
         [Header("UI组件")]
-        [SerializeField] private GameObject m_postGamePanel;
-        [SerializeField] private TMP_Text m_resultTitle;
-        [SerializeField] private TMP_Text m_scoreDisplay;
-        [SerializeField] private TMP_Text m_setProgressText;
+        [SerializeField]
+        [Tooltip("Post Game Panel / 赛后面板 - Main GameObject containing the post-game UI")]
+        private GameObject m_postGamePanel;
+
+        [SerializeField]
+        [Tooltip("Result Title / 结果标题 - Text component displaying the match result title")]
+        private TMP_Text m_resultTitle;
+
+        [SerializeField]
+        [Tooltip("Score Display / 比分显示 - Text component showing the current score")]
+        private TMP_Text m_scoreDisplay;
+
+        [SerializeField]
+        [Tooltip("Set Progress Text / 局数进度文本 - Text component displaying set progress")]
+        private TMP_Text m_setProgressText;
 
         [Header("技术统计面板")]
-        [SerializeField] private GameObject m_statsPanel;
-        [SerializeField] private TMP_Text m_winnersStatsText;
-        [SerializeField] private TMP_Text m_errorsStatsText;
-        [SerializeField] private TMP_Text m_rallyStatsText;
-        [SerializeField] private TMP_Text m_timeStatsText;
+        [SerializeField]
+        [Tooltip("Stats Panel / 统计面板 - GameObject containing technical statistics display")]
+        private GameObject m_statsPanel;
+
+        [SerializeField]
+        [Tooltip("Winners Stats Text / 制胜球统计文本 - Text component showing winners statistics")]
+        private TMP_Text m_winnersStatsText;
+
+        [SerializeField]
+        [Tooltip("Errors Stats Text / 失误统计文本 - Text component showing errors statistics")]
+        private TMP_Text m_errorsStatsText;
+
+        [SerializeField]
+        [Tooltip("Rally Stats Text / 回合统计文本 - Text component showing rally statistics")]
+        private TMP_Text m_rallyStatsText;
+
+        [SerializeField]
+        [Tooltip("Time Stats Text / 时间统计文本 - Text component showing time statistics")]
+        private TMP_Text m_timeStatsText;
 
         [Header("按钮")]
-        [SerializeField] private Button m_nextSetButton;
-        [SerializeField] private Button m_spectatorButton;
-        [SerializeField] private Button m_exitButton;
+        [SerializeField]
+        [Tooltip("Next Set Button / 下一局按钮 - Button to proceed to the next set")]
+        private Button m_nextSetButton;
+
+        [SerializeField]
+        [Tooltip("Spectator Button / 观战按钮 - Button to switch to spectator mode")]
+        private Button m_spectatorButton;
+
+        [SerializeField]
+        [Tooltip("Exit Button / 退出按钮 - Button to exit to main menu")]
+        private Button m_exitButton;
 
         [Header("效果")]
-        [SerializeField] private GameObject m_fireworksContainer;
-        [SerializeField] private AudioSource m_victoryAudio;
+        [SerializeField]
+        [Tooltip("Fireworks Container / 烟花容器 - GameObject containing fireworks effects")]
+        private GameObject m_fireworksContainer;
+
+        [SerializeField]
+        [Tooltip("Victory Audio / 胜利音效 - AudioSource for victory sound effects")]
+        private AudioSource m_victoryAudio;
 
         [Header("设置")]
-        [SerializeField] private bool m_enableAutoProgress = false;
-        [SerializeField] private float m_autoProgressDelay = 10f;
+        [SerializeField]
+        [Tooltip("Enable Auto Progress / 启用自动进度 - Automatically progress after a delay")]
+        private bool m_enableAutoProgress = false;
+
+        [SerializeField]
+        [Tooltip("Auto Progress Delay / 自动进度延迟 - Delay in seconds before auto-progression")]
+        private float m_autoProgressDelay = 10f;
 
         // 私有字段
         private GameStatistics m_currentStats;

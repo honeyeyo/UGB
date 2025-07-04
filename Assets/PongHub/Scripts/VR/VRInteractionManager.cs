@@ -10,27 +10,68 @@ namespace PongHub.VR
     public class VRInteractionManager : MonoBehaviour
     {
         [Header("控制器引用")]
-        [SerializeField] private XRController m_leftController;
-        [SerializeField] private XRController m_rightController;
+        [SerializeField]
+        [Tooltip("Left Controller / 左控制器 - Reference to the left XR controller")]
+        private XRController m_leftController;
+
+        [SerializeField]
+        [Tooltip("Right Controller / 右控制器 - Reference to the right XR controller")]
+        private XRController m_rightController;
 
         [Header("交互器引用")]
-        [SerializeField] private XRBaseInteractor m_leftInteractor;
-        [SerializeField] private XRBaseInteractor m_rightInteractor;
-        [SerializeField] private XRRayInteractor m_leftRayInteractor;
-        [SerializeField] private XRRayInteractor m_rightRayInteractor;
+        [SerializeField]
+        [Tooltip("Left Interactor / 左交互器 - Base interactor for left hand direct interaction")]
+        private XRBaseInteractor m_leftInteractor;
+
+        [SerializeField]
+        [Tooltip("Right Interactor / 右交互器 - Base interactor for right hand direct interaction")]
+        private XRBaseInteractor m_rightInteractor;
+
+        [SerializeField]
+        [Tooltip("Left Ray Interactor / 左射线交互器 - Ray interactor for left hand pointer interaction")]
+        private XRRayInteractor m_leftRayInteractor;
+
+        [SerializeField]
+        [Tooltip("Right Ray Interactor / 右射线交互器 - Ray interactor for right hand pointer interaction")]
+        private XRRayInteractor m_rightRayInteractor;
 
         [Header("输入动作")]
-        [SerializeField] private InputActionReference m_leftGripAction;
-        [SerializeField] private InputActionReference m_rightGripAction;
-        [SerializeField] private InputActionReference m_leftTriggerAction;
-        [SerializeField] private InputActionReference m_rightTriggerAction;
-        [SerializeField] private InputActionReference m_leftActivateAction;
-        [SerializeField] private InputActionReference m_rightActivateAction;
+        [SerializeField]
+        [Tooltip("Left Grip Action / 左手握持动作 - Input action for left hand grip button")]
+        private InputActionReference m_leftGripAction;
+
+        [SerializeField]
+        [Tooltip("Right Grip Action / 右手握持动作 - Input action for right hand grip button")]
+        private InputActionReference m_rightGripAction;
+
+        [SerializeField]
+        [Tooltip("Left Trigger Action / 左手扳机动作 - Input action for left hand trigger button")]
+        private InputActionReference m_leftTriggerAction;
+
+        [SerializeField]
+        [Tooltip("Right Trigger Action / 右手扳机动作 - Input action for right hand trigger button")]
+        private InputActionReference m_rightTriggerAction;
+
+        [SerializeField]
+        [Tooltip("Left Activate Action / 左手激活动作 - Input action for left hand activate button")]
+        private InputActionReference m_leftActivateAction;
+
+        [SerializeField]
+        [Tooltip("Right Activate Action / 右手激活动作 - Input action for right hand activate button")]
+        private InputActionReference m_rightActivateAction;
 
         [Header("交互设置")]
-        [SerializeField] private float m_grabThreshold = 0.1f;
-        [SerializeField] private float m_throwForce = 10f;
-        [SerializeField] private float m_throwAngle = 45f;
+        [SerializeField]
+        [Tooltip("Grab Threshold / 抓取阈值 - Minimum input value required to trigger grab")]
+        private float m_grabThreshold = 0.1f;
+
+        [SerializeField]
+        [Tooltip("Throw Force / 投掷力度 - Force multiplier for throwing objects")]
+        private float m_throwForce = 10f;
+
+        [SerializeField]
+        [Tooltip("Throw Angle / 投掷角度 - Angle adjustment for throwing trajectory")]
+        private float m_throwAngle = 45f;
 
         private bool m_isLeftGrabbing;
         private bool m_isRightGrabbing;

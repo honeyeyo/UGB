@@ -11,20 +11,47 @@ namespace PongHub.VR
     public class VRPaddle : MonoBehaviour
     {
         [Header("球拍设置")]
-        [SerializeField] private Transform m_paddleHead;
-        [SerializeField] private Transform m_paddleHandle;
-        [SerializeField] private float m_swingForce = 10f;
-        [SerializeField] private float m_swingAngle = 45f;
+        [SerializeField]
+        [Tooltip("Paddle Head / 球拍头部 - Transform of the paddle head for movement tracking")]
+        private Transform m_paddleHead;
+
+        [SerializeField]
+        [Tooltip("Paddle Handle / 球拍手柄 - Transform of the paddle handle for grip reference")]
+        private Transform m_paddleHandle;
+
+        [SerializeField]
+        [Tooltip("Swing Force / 挥拍力度 - Minimum force threshold for swing detection")]
+        private float m_swingForce = 10f;
+
+        [SerializeField]
+        [Tooltip("Swing Angle / 挥拍角度 - Maximum angle for swing detection")]
+        private float m_swingAngle = 45f;
 
         [Header("振动设置")]
-        [SerializeField] private float m_hitVibrationIntensity = 0.5f;
-        [SerializeField] private float m_hitVibrationDuration = 0.1f;
-        [SerializeField] private float m_swingVibrationIntensity = 0.3f;
-        [SerializeField] private float m_swingVibrationDuration = 0.05f;
+        [SerializeField]
+        [Tooltip("Hit Vibration Intensity / 击球振动强度 - Vibration intensity when hitting ball")]
+        private float m_hitVibrationIntensity = 0.5f;
+
+        [SerializeField]
+        [Tooltip("Hit Vibration Duration / 击球振动时长 - Duration of hit vibration in seconds")]
+        private float m_hitVibrationDuration = 0.1f;
+
+        [SerializeField]
+        [Tooltip("Swing Vibration Intensity / 挥拍振动强度 - Vibration intensity during swing")]
+        private float m_swingVibrationIntensity = 0.3f;
+
+        [SerializeField]
+        [Tooltip("Swing Vibration Duration / 挥拍振动时长 - Duration of swing vibration in seconds")]
+        private float m_swingVibrationDuration = 0.05f;
 
         [Header("输入动作")]
-        [SerializeField] private InputActionReference m_swingAction;
-        [SerializeField] private InputActionReference m_hitAction;
+        [SerializeField]
+        [Tooltip("Swing Action / 挥拍动作 - Input action reference for swing detection")]
+        private InputActionReference m_swingAction;
+
+        [SerializeField]
+        [Tooltip("Hit Action / 击球动作 - Input action reference for hit detection")]
+        private InputActionReference m_hitAction;
 
         private VRInteractable m_interactable;
         private Paddle m_paddle;
@@ -33,7 +60,10 @@ namespace PongHub.VR
         private Quaternion m_lastRotation;
         private float m_swingSpeed;
         private bool m_isSwinging;
-        [SerializeField] private XRGrabInteractable m_grabInteractable;
+
+        [SerializeField]
+        [Tooltip("Grab Interactable / 抓取交互 - XR grab interactable component for VR interaction")]
+        private XRGrabInteractable m_grabInteractable;
 
         private void Awake()
         {

@@ -19,43 +19,112 @@ namespace PongHub.Input
     {
         #region 设置配置
         [Header("模拟器设置")]
-        [SerializeField] private bool enableInEditor = true;
+        [SerializeField]
+        [Tooltip("Enable In Editor / 编辑器启用 - Whether to enable simulation in editor")]
+        private bool enableInEditor = true;
         // [SerializeField] private bool enableInBuild = false;
-        [SerializeField] private bool showInstructions = true;
-        [SerializeField] private bool verboseLogging = false;
+
+        [SerializeField]
+        [Tooltip("Show Instructions / 显示说明 - Whether to show control instructions")]
+        private bool showInstructions = true;
+
+        [SerializeField]
+        [Tooltip("Verbose Logging / 详细日志 - Whether to enable verbose logging")]
+        private bool verboseLogging = false;
 
         [Header("头显模拟")]
-        [SerializeField] private float headMoveSpeed = 2f;
-        [SerializeField] private float headRotateSpeed = 100f;
-        [SerializeField] private KeyCode headMoveUpKey = KeyCode.Q;
-        [SerializeField] private KeyCode headMoveDownKey = KeyCode.E;
+        [SerializeField]
+        [Tooltip("Head Move Speed / 头部移动速度 - Speed of head movement")]
+        private float headMoveSpeed = 2f;
+
+        [SerializeField]
+        [Tooltip("Head Rotate Speed / 头部旋转速度 - Speed of head rotation")]
+        private float headRotateSpeed = 100f;
+
+        [SerializeField]
+        [Tooltip("Head Move Up Key / 头部上移键 - Key for moving head up")]
+        private KeyCode headMoveUpKey = KeyCode.Q;
+
+        [SerializeField]
+        [Tooltip("Head Move Down Key / 头部下移键 - Key for moving head down")]
+        private KeyCode headMoveDownKey = KeyCode.E;
 
         [Header("控制器模拟")]
-        [SerializeField] private float controllerMoveSpeed = 1f;
+        [SerializeField]
+        [Tooltip("Controller Move Speed / 控制器移动速度 - Speed of controller movement")]
+        private float controllerMoveSpeed = 1f;
         // [SerializeField] private float controllerRotateSpeed = 90f;
-        [SerializeField] private Transform leftControllerTransform;
-        [SerializeField] private Transform rightControllerTransform;
-        [SerializeField] private Transform headTransform;
+
+        [SerializeField]
+        [Tooltip("Left Controller Transform / 左控制器变换 - Transform for left controller")]
+        private Transform leftControllerTransform;
+
+        [SerializeField]
+        [Tooltip("Right Controller Transform / 右控制器变换 - Transform for right controller")]
+        private Transform rightControllerTransform;
+
+        [SerializeField]
+        [Tooltip("Head Transform / 头部变换 - Transform for head/camera")]
+        private Transform headTransform;
 
         [Header("乒乓球输入映射")]
-        [SerializeField] private KeyCode leftPaddleHitKey = KeyCode.Q;        // 左拍击球
-        [SerializeField] private KeyCode rightPaddleHitKey = KeyCode.E;       // 右拍击球
-        [SerializeField] private KeyCode serveKey = KeyCode.Space;            // 发球
-        [SerializeField] private KeyCode moveLeftKey = KeyCode.A;             // 左移
-        [SerializeField] private KeyCode moveRightKey = KeyCode.D;            // 右移
-        [SerializeField] private KeyCode moveForwardKey = KeyCode.W;          // 前移
-        [SerializeField] private KeyCode moveBackwardKey = KeyCode.S;         // 后移
+        [SerializeField]
+        [Tooltip("Left Paddle Hit Key / 左拍击球键 - Key for left paddle hit")]
+        private KeyCode leftPaddleHitKey = KeyCode.Q;        // 左拍击球
+
+        [SerializeField]
+        [Tooltip("Right Paddle Hit Key / 右拍击球键 - Key for right paddle hit")]
+        private KeyCode rightPaddleHitKey = KeyCode.E;       // 右拍击球
+
+        [SerializeField]
+        [Tooltip("Serve Key / 发球键 - Key for serving ball")]
+        private KeyCode serveKey = KeyCode.Space;            // 发球
+
+        [SerializeField]
+        [Tooltip("Move Left Key / 左移键 - Key for moving left")]
+        private KeyCode moveLeftKey = KeyCode.A;             // 左移
+
+        [SerializeField]
+        [Tooltip("Move Right Key / 右移键 - Key for moving right")]
+        private KeyCode moveRightKey = KeyCode.D;            // 右移
+
+        [SerializeField]
+        [Tooltip("Move Forward Key / 前移键 - Key for moving forward")]
+        private KeyCode moveForwardKey = KeyCode.W;          // 前移
+
+        [SerializeField]
+        [Tooltip("Move Backward Key / 后移键 - Key for moving backward")]
+        private KeyCode moveBackwardKey = KeyCode.S;         // 后移
 
         [Header("调试功能")]
-        [SerializeField] private KeyCode togglePauseKey = KeyCode.P;          // 暂停
-        [SerializeField] private KeyCode resetPositionKey = KeyCode.R;        // 重置位置
-        [SerializeField] private KeyCode toggleMenuKey = KeyCode.Tab;         // 菜单
-        [SerializeField] private KeyCode toggleInstructionsKey = KeyCode.F1;  // 帮助
+        [SerializeField]
+        [Tooltip("Toggle Pause Key / 暂停切换键 - Key for toggling pause")]
+        private KeyCode togglePauseKey = KeyCode.P;          // 暂停
+
+        [SerializeField]
+        [Tooltip("Reset Position Key / 重置位置键 - Key for resetting position")]
+        private KeyCode resetPositionKey = KeyCode.R;        // 重置位置
+
+        [SerializeField]
+        [Tooltip("Toggle Menu Key / 菜单切换键 - Key for toggling menu")]
+        private KeyCode toggleMenuKey = KeyCode.Tab;         // 菜单
+
+        [SerializeField]
+        [Tooltip("Toggle Instructions Key / 说明切换键 - Key for toggling instructions")]
+        private KeyCode toggleInstructionsKey = KeyCode.F1;  // 帮助
 
         [Header("默认位置")]
-        [SerializeField] private Vector3 defaultHeadPosition = new Vector3(0, 1.6f, 0);
-        [SerializeField] private Vector3 defaultLeftHandPosition = new Vector3(-0.3f, 1.3f, 0.3f);
-        [SerializeField] private Vector3 defaultRightHandPosition = new Vector3(0.3f, 1.3f, 0.3f);
+        [SerializeField]
+        [Tooltip("Default Head Position / 默认头部位置 - Default position for head/camera")]
+        private Vector3 defaultHeadPosition = new Vector3(0, 1.6f, 0);
+
+        [SerializeField]
+        [Tooltip("Default Left Hand Position / 默认左手位置 - Default position for left hand")]
+        private Vector3 defaultLeftHandPosition = new Vector3(-0.3f, 1.3f, 0.3f);
+
+        [SerializeField]
+        [Tooltip("Default Right Hand Position / 默认右手位置 - Default position for right hand")]
+        private Vector3 defaultRightHandPosition = new Vector3(0.3f, 1.3f, 0.3f);
         #endregion
 
         #region 私有变量

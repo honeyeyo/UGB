@@ -6,21 +6,54 @@ namespace PongHub.Gameplay.Ball
     public class BallParticles : MonoBehaviour
     {
         [Header("粒子系统引用")]
-        [SerializeField] private ParticleSystem m_hitParticles;
-        [SerializeField] private ParticleSystem m_spinParticles;
-        [SerializeField] private ParticleSystem m_trailParticles;
-        [SerializeField] private ParticleSystem m_scoreParticles;
+        [SerializeField]
+        [Tooltip("Hit Particles / 碰撞粒子 - Particle system for ball hit effects")]
+        private ParticleSystem m_hitParticles;
+
+        [SerializeField]
+        [Tooltip("Spin Particles / 旋转粒子 - Particle system for ball spin effects")]
+        private ParticleSystem m_spinParticles;
+
+        [SerializeField]
+        [Tooltip("Trail Particles / 拖尾粒子 - Particle system for ball trail effects")]
+        private ParticleSystem m_trailParticles;
+
+        [SerializeField]
+        [Tooltip("Score Particles / 得分粒子 - Particle system for scoring effects")]
+        private ParticleSystem m_scoreParticles;
 
         [Header("粒子配置")]
-        [SerializeField] private Color m_hitColor = Color.white;
-        [SerializeField] private Color m_spinColor = Color.cyan;
-        [SerializeField] private Color m_trailColor = Color.yellow;
-        [SerializeField] private Color m_scoreColor = Color.green;
+        [SerializeField]
+        [Tooltip("Hit Color / 碰撞颜色 - Color for hit particle effects")]
+        private Color m_hitColor = Color.white;
 
-        [SerializeField] private float m_hitSize = 0.1f;
-        [SerializeField] private float m_spinSize = 0.05f;
-        [SerializeField] private float m_trailSize = 0.02f;
-        [SerializeField] private float m_scoreSize = 0.2f;
+        [SerializeField]
+        [Tooltip("Spin Color / 旋转颜色 - Color for spin particle effects")]
+        private Color m_spinColor = Color.cyan;
+
+        [SerializeField]
+        [Tooltip("Trail Color / 拖尾颜色 - Color for trail particle effects")]
+        private Color m_trailColor = Color.yellow;
+
+        [SerializeField]
+        [Tooltip("Score Color / 得分颜色 - Color for score particle effects")]
+        private Color m_scoreColor = Color.green;
+
+        [SerializeField]
+        [Tooltip("Hit Size / 碰撞大小 - Size for hit particles")]
+        private float m_hitSize = 0.1f;
+
+        [SerializeField]
+        [Tooltip("Spin Size / 旋转大小 - Size for spin particles")]
+        private float m_spinSize = 0.05f;
+
+        [SerializeField]
+        [Tooltip("Trail Size / 拖尾大小 - Size for trail particles")]
+        private float m_trailSize = 0.02f;
+
+        [SerializeField]
+        [Tooltip("Score Size / 得分大小 - Size for score particles")]
+        private float m_scoreSize = 0.2f;
 
         private void Awake()
         {

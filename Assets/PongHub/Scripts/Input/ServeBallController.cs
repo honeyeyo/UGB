@@ -9,27 +9,55 @@ namespace PongHub.Input
     public class ServeBallController : MonoBehaviour
     {
         [Header("发球设置")]
-        [SerializeField] private GameObject m_ballPrefab;           // 球体预制件
-        [SerializeField] private float m_ballGenerationHeight = 0.2f; // 球生成高度偏移
-        [SerializeField] private float m_ballLifetime = 30f;        // 球体生存时间
-        [SerializeField] private int m_maxActiveBalls = 3;          // 最大活跃球数
+        [SerializeField]
+        [Tooltip("Ball Prefab / 球体预制件 - Prefab for serve ball")]
+        private GameObject m_ballPrefab;           // 球体预制件
+
+        [SerializeField]
+        [Tooltip("Ball Generation Height / 球生成高度 - Height offset for ball generation")]
+        private float m_ballGenerationHeight = 0.2f; // 球生成高度偏移
+
+        [SerializeField]
+        [Tooltip("Ball Lifetime / 球体生存时间 - Lifetime of serve ball in seconds")]
+        private float m_ballLifetime = 30f;        // 球体生存时间
+
+        [SerializeField]
+        [Tooltip("Max Active Balls / 最大活跃球数 - Maximum number of active balls")]
+        private int m_maxActiveBalls = 3;          // 最大活跃球数
 
         [Header("发球规则设置")]
-        [SerializeField] private bool m_enforceServingRules = true; // 是否强制发球规则
+        [SerializeField]
+        [Tooltip("Enforce Serving Rules / 强制发球规则 - Whether to enforce serving rules")]
+        private bool m_enforceServingRules = true; // 是否强制发球规则
         // [SerializeField] private float m_minThrowHeight = 0.16f;    // 最小抛球高度（16cm）
         // [SerializeField] private float m_maxThrowAngle = 15f;       // 最大抛球角度偏差
 
         [Header("物理设置")]
-        [SerializeField] private float m_initialVelocityMultiplier = 1f; // 初始速度倍数
-        [SerializeField] private PhysicMaterial m_ballPhysicMaterial;    // 球体物理材质
+        [SerializeField]
+        [Tooltip("Initial Velocity Multiplier / 初始速度倍数 - Multiplier for initial ball velocity")]
+        private float m_initialVelocityMultiplier = 1f; // 初始速度倍数
+
+        [SerializeField]
+        [Tooltip("Ball Physics Material / 球体物理材质 - Physics material for ball")]
+        private PhysicMaterial m_ballPhysicMaterial;    // 球体物理材质
 
         [Header("音效")]
-        [SerializeField] private AudioClip m_ballGenerateSound;     // 球生成音效
-        [SerializeField] private AudioClip m_invalidServeSound;     // 无效发球音效
+        [SerializeField]
+        [Tooltip("Ball Generate Sound / 球生成音效 - Audio clip for ball generation")]
+        private AudioClip m_ballGenerateSound;     // 球生成音效
+
+        [SerializeField]
+        [Tooltip("Invalid Serve Sound / 无效发球音效 - Audio clip for invalid serve")]
+        private AudioClip m_invalidServeSound;     // 无效发球音效
 
         [Header("组件引用")]
-        [SerializeField] private Transform m_leftHandAnchor;        // 左手锚点
-        [SerializeField] private Transform m_rightHandAnchor;       // 右手锚点
+        [SerializeField]
+        [Tooltip("Left Hand Anchor / 左手锚点 - Transform anchor for left hand")]
+        private Transform m_leftHandAnchor;        // 左手锚点
+
+        [SerializeField]
+        [Tooltip("Right Hand Anchor / 右手锚点 - Transform anchor for right hand")]
+        private Transform m_rightHandAnchor;       // 右手锚点
 
         // 私有变量
         private GameObject[] m_activeBalls;

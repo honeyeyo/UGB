@@ -12,16 +12,33 @@ namespace PongHub.Arena.VFX
     /// </summary>
     public class FireworkController : MonoBehaviour
     {
-        [SerializeField] private ParticleSystem[] m_fireworks;
+        [SerializeField]
+        [Tooltip("Fireworks Array / 烟花数组 - Array of firework particle systems to randomly play")]
+        private ParticleSystem[] m_fireworks;
 
-        [SerializeField] private Collider m_winnerCollider;
-        [SerializeField] private Collider m_loserCollider;
+        [SerializeField]
+        [Tooltip("Winner Collider / 获胜者碰撞体 - Collider defining the area where winner fireworks can spawn")]
+        private Collider m_winnerCollider;
 
-        [SerializeField] private float m_minTime = 0.2f;
-        [SerializeField] private float m_maxTime = 0.6f;
+        [SerializeField]
+        [Tooltip("Loser Collider / 失败者碰撞体 - Collider defining the area where loser fireworks can spawn")]
+        private Collider m_loserCollider;
 
-        [SerializeField] private AudioSource[] m_audioSources;
-        [SerializeField] private AudioClip m_explosionSound;
+        [SerializeField]
+        [Tooltip("Min Time / 最小时间间隔 - Minimum time in seconds between firework spawns")]
+        private float m_minTime = 0.2f;
+
+        [SerializeField]
+        [Tooltip("Max Time / 最大时间间隔 - Maximum time in seconds between firework spawns")]
+        private float m_maxTime = 0.6f;
+
+        [SerializeField]
+        [Tooltip("Audio Sources / 音频源数组 - Array of audio sources for playing firework explosion sounds")]
+        private AudioSource[] m_audioSources;
+
+        [SerializeField]
+        [Tooltip("Explosion Sound / 爆炸音效 - Audio clip to play when firework explodes")]
+        private AudioClip m_explosionSound;
 
         private int m_nextAudioSourceIndex = 0;
 

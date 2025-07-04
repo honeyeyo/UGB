@@ -38,7 +38,9 @@ namespace PongHub.App
         /// <summary>
         /// Photon实时传输组件
         /// </summary>
-        [SerializeField, AutoSet] private PhotonRealtimeTransport m_photonRealtimeTransport;
+        [SerializeField, AutoSet]
+        [Tooltip("Photon Realtime Transport / Photon实时传输 - Transport component for Photon networking")]
+        private PhotonRealtimeTransport m_photonRealtimeTransport;
 
         /// <summary>
         /// 初始化时设置Photon传输组件的回调函数

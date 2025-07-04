@@ -5,24 +5,63 @@ using Meta.Utilities.Input;
 public class PaddleConfigurationManager : MonoBehaviour
 {
     [Header("配置UI")]
-    [SerializeField] private Canvas configCanvas;
-    [SerializeField] private Slider positionXSlider;
-    [SerializeField] private Slider positionYSlider;
-    [SerializeField] private Slider positionZSlider;
-    [SerializeField] private Slider rotationXSlider;
-    [SerializeField] private Slider rotationYSlider;
-    [SerializeField] private Slider rotationZSlider;
-    [SerializeField] private Button saveButton;
-    [SerializeField] private Button resetButton;
-    [SerializeField] private Button previewButton;
+    [SerializeField]
+    [Tooltip("Config Canvas / 配置画布 - Canvas for paddle configuration UI")]
+    private Canvas configCanvas;
+
+    [SerializeField]
+    [Tooltip("Position X Slider / X位置滑块 - Slider for X position adjustment")]
+    private Slider positionXSlider;
+
+    [SerializeField]
+    [Tooltip("Position Y Slider / Y位置滑块 - Slider for Y position adjustment")]
+    private Slider positionYSlider;
+
+    [SerializeField]
+    [Tooltip("Position Z Slider / Z位置滑块 - Slider for Z position adjustment")]
+    private Slider positionZSlider;
+
+    [SerializeField]
+    [Tooltip("Rotation X Slider / X旋转滑块 - Slider for X rotation adjustment")]
+    private Slider rotationXSlider;
+
+    [SerializeField]
+    [Tooltip("Rotation Y Slider / Y旋转滑块 - Slider for Y rotation adjustment")]
+    private Slider rotationYSlider;
+
+    [SerializeField]
+    [Tooltip("Rotation Z Slider / Z旋转滑块 - Slider for Z rotation adjustment")]
+    private Slider rotationZSlider;
+
+    [SerializeField]
+    [Tooltip("Save Button / 保存按钮 - Button to save configuration")]
+    private Button saveButton;
+
+    [SerializeField]
+    [Tooltip("Reset Button / 重置按钮 - Button to reset configuration")]
+    private Button resetButton;
+
+    [SerializeField]
+    [Tooltip("Preview Button / 预览按钮 - Button to toggle preview")]
+    private Button previewButton;
 
     [Header("预览设置")]
-    [SerializeField] private GameObject previewPaddlePrefab;
-    [SerializeField] private Material previewMaterial;
+    [SerializeField]
+    [Tooltip("Preview Paddle Prefab / 预览球拍预制件 - Prefab for paddle preview")]
+    private GameObject previewPaddlePrefab;
+
+    [SerializeField]
+    [Tooltip("Preview Material / 预览材质 - Material for preview paddle")]
+    private Material previewMaterial;
 
     [Header("默认设置")]
-    [SerializeField] private Vector3 defaultPosition = Vector3.zero;
-    [SerializeField] private Vector3 defaultRotation = Vector3.zero;
+    [SerializeField]
+    [Tooltip("Default Position / 默认位置 - Default position offset")]
+    private Vector3 defaultPosition = Vector3.zero;
+
+    [SerializeField]
+    [Tooltip("Default Rotation / 默认旋转 - Default rotation offset")]
+    private Vector3 defaultRotation = Vector3.zero;
 
     // 私有变量
     private GameObject previewPaddle;

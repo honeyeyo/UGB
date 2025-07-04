@@ -9,8 +9,13 @@ namespace PongHub.Networking
         private static NetworkManager s_instance;
         public static NetworkManager Instance => s_instance;
 
-        [SerializeField] private Unity.Netcode.NetworkManager m_networkManager;
-        [SerializeField] private NetworkObject[] m_networkPrefabs;
+        [SerializeField]
+        [Tooltip("Network Manager / 网络管理器 - Unity Netcode NetworkManager component")]
+        private Unity.Netcode.NetworkManager m_networkManager;
+
+        [SerializeField]
+        [Tooltip("Network Prefabs / 网络预制体 - Array of NetworkObject prefabs for spawning")]
+        private NetworkObject[] m_networkPrefabs;
 
         // 创建一个预制体处理器类
         private class CustomPrefabHandler : INetworkPrefabInstanceHandler

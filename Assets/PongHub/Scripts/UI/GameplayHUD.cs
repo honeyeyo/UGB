@@ -9,18 +9,39 @@ namespace PongHub.UI
     public class GameplayHUD : MonoBehaviour
     {
         [Header("状态显示")]
-        [SerializeField] private TextMeshProUGUI m_gameStatusText;
-        [SerializeField] private TextMeshProUGUI m_paddleStatusText;
-        [SerializeField] private TextMeshProUGUI m_instructionText;
+        [SerializeField]
+        [Tooltip("Game Status Text / 游戏状态文本 - Text component for displaying game status")]
+        private TextMeshProUGUI m_gameStatusText;
+
+        [SerializeField]
+        [Tooltip("Paddle Status Text / 球拍状态文本 - Text component for displaying paddle status")]
+        private TextMeshProUGUI m_paddleStatusText;
+
+        [SerializeField]
+        [Tooltip("Instruction Text / 指令文本 - Text component for displaying instructions")]
+        private TextMeshProUGUI m_instructionText;
 
         [Header("临时消息")]
-        [SerializeField] private GameObject m_messagePanel;
-        [SerializeField] private TextMeshProUGUI m_messageText;
+        [SerializeField]
+        [Tooltip("Message Panel / 消息面板 - Panel for displaying temporary messages")]
+        private GameObject m_messagePanel;
+
+        [SerializeField]
+        [Tooltip("Message Text / 消息文本 - Text component for temporary messages")]
+        private TextMeshProUGUI m_messageText;
 
         [Header("游戏内按钮")]
-        [SerializeField] private Button m_menuButton;
-        [SerializeField] private Button m_teleportLeftButton;
-        [SerializeField] private Button m_teleportRightButton;
+        [SerializeField]
+        [Tooltip("Menu Button / 菜单按钮 - Button for opening game menu")]
+        private Button m_menuButton;
+
+        [SerializeField]
+        [Tooltip("Teleport Left Button / 瞬移左方按钮 - Button for teleporting to left side")]
+        private Button m_teleportLeftButton;
+
+        [SerializeField]
+        [Tooltip("Teleport Right Button / 瞬移右方按钮 - Button for teleporting to right side")]
+        private Button m_teleportRightButton;
 
         // 私有变量
         private PongHubInputManager m_inputManager;

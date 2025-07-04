@@ -12,22 +12,55 @@ namespace PongHub.Arena.PostGame
     public class TechnicalStatsPanel : MonoBehaviour
     {
         [Header("基础统计显示")]
-        [SerializeField] private TMP_Text m_winnersStatsText;        // 制胜球统计
-        [SerializeField] private TMP_Text m_errorsStatsText;         // 失误统计
-        [SerializeField] private TMP_Text m_serveStatsText;          // 发球统计
-        [SerializeField] private TMP_Text m_rallyStatsText;          // 回合统计
-        [SerializeField] private TMP_Text m_timeStatsText;           // 时间统计
+        [SerializeField]
+        [Tooltip("Winners Stats Text / 制胜球统计文本 - Text component showing winners statistics")]
+        private TMP_Text m_winnersStatsText;        // 制胜球统计
+
+        [SerializeField]
+        [Tooltip("Errors Stats Text / 失误统计文本 - Text component showing error statistics")]
+        private TMP_Text m_errorsStatsText;         // 失误统计
+
+        [SerializeField]
+        [Tooltip("Serve Stats Text / 发球统计文本 - Text component showing serve statistics")]
+        private TMP_Text m_serveStatsText;          // 发球统计
+
+        [SerializeField]
+        [Tooltip("Rally Stats Text / 回合统计文本 - Text component showing rally statistics")]
+        private TMP_Text m_rallyStatsText;          // 回合统计
+
+        [SerializeField]
+        [Tooltip("Time Stats Text / 时间统计文本 - Text component showing time statistics")]
+        private TMP_Text m_timeStatsText;           // 时间统计
 
         [Header("高级统计显示")]
-        [SerializeField] private TMP_Text m_averageRallyText;        // 平均回合长度
-        [SerializeField] private TMP_Text m_totalRalliesText;        // 总回合数
-        [SerializeField] private TMP_Text m_winPercentageText;       // 获胜率
+        [SerializeField]
+        [Tooltip("Average Rally Text / 平均回合文本 - Text component showing average rally length")]
+        private TMP_Text m_averageRallyText;        // 平均回合长度
+
+        [SerializeField]
+        [Tooltip("Total Rallies Text / 总回合数文本 - Text component showing total number of rallies")]
+        private TMP_Text m_totalRalliesText;        // 总回合数
+
+        [SerializeField]
+        [Tooltip("Win Percentage Text / 获胜率文本 - Text component showing win percentage")]
+        private TMP_Text m_winPercentageText;       // 获胜率
 
         [Header("可视化元素")]
-        [SerializeField] private GameObject m_playerAStatsContainer; // A队统计容器
-        [SerializeField] private GameObject m_playerBStatsContainer; // B队统计容器
-        [SerializeField] private Color m_playerAColor = Color.blue;   // A队颜色
-        [SerializeField] private Color m_playerBColor = Color.red;    // B队颜色
+        [SerializeField]
+        [Tooltip("Player A Stats Container / A队统计容器 - Container GameObject for Player A statistics")]
+        private GameObject m_playerAStatsContainer; // A队统计容器
+
+        [SerializeField]
+        [Tooltip("Player B Stats Container / B队统计容器 - Container GameObject for Player B statistics")]
+        private GameObject m_playerBStatsContainer; // B队统计容器
+
+        [SerializeField]
+        [Tooltip("Player A Color / A队颜色 - Color used for Player A statistics display")]
+        private Color m_playerAColor = Color.blue;   // A队颜色
+
+        [SerializeField]
+        [Tooltip("Player B Color / B队颜色 - Color used for Player B statistics display")]
+        private Color m_playerBColor = Color.red;    // B队颜色
 
         /// <summary>
         /// 更新统计数据显示

@@ -15,10 +15,21 @@ namespace PongHub.MainMenu
     public class JoinFriendListElement : MonoBehaviour
     {
         // UI组件引用
-        [SerializeField] private TMP_Text m_usernameText;        // 显示好友用户名的文本组件
-        [SerializeField] private TMP_Text m_destinationText;     // 显示好友当前状态的文本组件
-        [SerializeField] private Button m_joinButton;            // 加入游戏按钮
-        [SerializeField] private Button m_watchButton;           // 观战按钮
+        [SerializeField]
+        [Tooltip("Username Text / 用户名文本 - Text component for displaying friend's username")]
+        private TMP_Text m_usernameText;        // 显示好友用户名的文本组件
+
+        [SerializeField]
+        [Tooltip("Destination Text / 状态文本 - Text component for displaying friend's current status")]
+        private TMP_Text m_destinationText;     // 显示好友当前状态的文本组件
+
+        [SerializeField]
+        [Tooltip("Join Button / 加入按钮 - Button for joining friend's game")]
+        private Button m_joinButton;            // 加入游戏按钮
+
+        [SerializeField]
+        [Tooltip("Watch Button / 观战按钮 - Button for watching friend's game")]
+        private Button m_watchButton;           // 观战按钮
 
         // 内部状态变量
         private FriendsMenuController m_friendsMenuController;   // 好友菜单控制器引用

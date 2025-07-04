@@ -10,8 +10,13 @@ namespace PongHub.Utils
     public class InputSystemValidator : MonoBehaviour
     {
         [Header("验证设置")]
-        [SerializeField] private bool m_runValidationOnStart = true;
-        [SerializeField] private float m_validationDuration = 5f;
+        [SerializeField]
+        [Tooltip("Run Validation On Start / 开始时运行验证 - Automatically run validation when component starts")]
+        private bool m_runValidationOnStart = true;
+
+        [SerializeField]
+        [Tooltip("Validation Duration / 验证持续时间 - Duration of validation test in seconds")]
+        private float m_validationDuration = 5f;
 
         private void Start()
         {

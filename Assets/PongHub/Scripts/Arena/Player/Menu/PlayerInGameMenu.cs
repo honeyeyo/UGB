@@ -27,21 +27,51 @@ namespace PongHub.Arena.Player.Menu
         private const float UPDATE_FREQUENCY = 0.25f;
 
         [Header("基础组件")]
-        [SerializeField] private GameObject m_menuRoot;           // 菜单根节点
-        [SerializeField] private Color m_tabSelectedColor;       // 标签选中颜色
-        [SerializeField] private Color m_tabUnselectedColor;     // 标签未选中颜色
-        [SerializeField] private Collider m_canvasCollider;      // 画布碰撞体
-        [SerializeField] private float m_closingSqrMagnitude = 9;// 关闭菜单的距离阈值（平方）
+        [SerializeField]
+        [Tooltip("Menu Root / 菜单根节点 - Root GameObject containing all menu UI elements")]
+        private GameObject m_menuRoot;           // 菜单根节点
+
+        [SerializeField]
+        [Tooltip("Tab Selected Color / 标签选中颜色 - Color used for selected tab buttons")]
+        private Color m_tabSelectedColor;       // 标签选中颜色
+
+        [SerializeField]
+        [Tooltip("Tab Unselected Color / 标签未选中颜色 - Color used for unselected tab buttons")]
+        private Color m_tabUnselectedColor;     // 标签未选中颜色
+
+        [SerializeField]
+        [Tooltip("Canvas Collider / 画布碰撞体 - Collider component for menu canvas interaction")]
+        private Collider m_canvasCollider;      // 画布碰撞体
+
+        [SerializeField]
+        [Tooltip("Closing Square Magnitude / 关闭距离阈值 - Squared distance threshold for auto-closing menu")]
+        private float m_closingSqrMagnitude = 9;// 关闭菜单的距离阈值（平方）
 
         [Header("视图组件")]
-        [SerializeField] private BasePlayerMenuView m_settingsView;   // 设置视图
-        [SerializeField] private BasePlayerMenuView m_debugInfoView;  // 调试信息视图
-        [SerializeField] private BasePlayerMenuView m_playersView;    // 玩家列表视图
+        [SerializeField]
+        [Tooltip("Settings View / 设置视图 - View component for settings menu")]
+        private BasePlayerMenuView m_settingsView;   // 设置视图
+
+        [SerializeField]
+        [Tooltip("Debug Info View / 调试信息视图 - View component for debug information display")]
+        private BasePlayerMenuView m_debugInfoView;  // 调试信息视图
+
+        [SerializeField]
+        [Tooltip("Players View / 玩家列表视图 - View component for players list display")]
+        private BasePlayerMenuView m_playersView;    // 玩家列表视图
 
         [Header("标签按钮")]
-        [SerializeField] private TabButton m_tabSettingButton;    // 设置标签按钮
-        [SerializeField] private TabButton m_tabDebugInfoButton;  // 调试信息标签按钮
-        [SerializeField] private TabButton m_tabPlayersButton;    // 玩家列表标签按钮
+        [SerializeField]
+        [Tooltip("Tab Setting Button / 设置标签按钮 - Tab button for switching to settings view")]
+        private TabButton m_tabSettingButton;    // 设置标签按钮
+
+        [SerializeField]
+        [Tooltip("Tab Debug Info Button / 调试信息标签按钮 - Tab button for switching to debug info view")]
+        private TabButton m_tabDebugInfoButton;  // 调试信息标签按钮
+
+        [SerializeField]
+        [Tooltip("Tab Players Button / 玩家列表标签按钮 - Tab button for switching to players list view")]
+        private TabButton m_tabPlayersButton;    // 玩家列表标签按钮
 
         private Transform m_cameraTransform;      // 相机变换组件引用
         private float m_updateTimer;             // 更新计时器

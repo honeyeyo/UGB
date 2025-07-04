@@ -11,17 +11,42 @@ namespace PongHub.Core.Audio
     public class AudioController : MonoBehaviour
     {
         [Header("音频设置")]
-        [SerializeField] private bool m_enableDebugLogging = false;
-        [SerializeField] private bool m_pauseAudioOnFocusLoss = true;
-        [SerializeField] private bool m_lowerVolumeOnPause = true;
-        [SerializeField] private float m_pausedVolumeFactor = 0.3f;
+        [SerializeField]
+        [Tooltip("Enable Debug Logging / 启用调试日志 - Whether to enable debug logging for audio operations")]
+        private bool m_enableDebugLogging = false;
+
+        [SerializeField]
+        [Tooltip("Pause Audio On Focus Loss / 失去焦点时暂停音频 - Whether to pause audio when application loses focus")]
+        private bool m_pauseAudioOnFocusLoss = true;
+
+        [SerializeField]
+        [Tooltip("Lower Volume On Pause / 暂停时降低音量 - Whether to lower volume instead of pausing audio")]
+        private bool m_lowerVolumeOnPause = true;
+
+        [SerializeField]
+        [Tooltip("Paused Volume Factor / 暂停时音量因子 - Volume multiplier when application is paused")]
+        private float m_pausedVolumeFactor = 0.3f;
 
         [Header("快捷音效配置")]
-        [SerializeField] private AudioClip m_buttonClickSound;
-        [SerializeField] private AudioClip m_buttonHoverSound;
-        [SerializeField] private AudioClip m_errorSound;
-        [SerializeField] private AudioClip m_successSound;
-        [SerializeField] private AudioClip m_notificationSound;
+        [SerializeField]
+        [Tooltip("Button Click Sound / 按钮点击音效 - Audio clip for button click sound")]
+        private AudioClip m_buttonClickSound;
+
+        [SerializeField]
+        [Tooltip("Button Hover Sound / 按钮悬停音效 - Audio clip for button hover sound")]
+        private AudioClip m_buttonHoverSound;
+
+        [SerializeField]
+        [Tooltip("Error Sound / 错误音效 - Audio clip for error notification sound")]
+        private AudioClip m_errorSound;
+
+        [SerializeField]
+        [Tooltip("Success Sound / 成功音效 - Audio clip for success notification sound")]
+        private AudioClip m_successSound;
+
+        [SerializeField]
+        [Tooltip("Notification Sound / 通知音效 - Audio clip for general notification sound")]
+        private AudioClip m_notificationSound;
 
         // 应用状态管理
         private bool m_isApplicationPaused = false;

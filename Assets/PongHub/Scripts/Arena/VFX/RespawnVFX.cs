@@ -14,11 +14,25 @@ namespace PongHub.Arena.VFX
     public class RespawnVFX : MonoBehaviour
     {
         private static readonly int s_dissolveAmountParam = Shader.PropertyToID("_DisAmount");
-        [SerializeField] private float m_startDissolveAmount;
-        [SerializeField] private float m_endDissolveAmount;
-        [SerializeField] private float m_duration;
-        [SerializeField] private MeshRenderer m_meshRenderer;
-        [SerializeField] private AvatarEntity m_avatar;
+        [SerializeField]
+        [Tooltip("Start Dissolve Amount / 开始溶解量 - Initial dissolve amount for the material")]
+        private float m_startDissolveAmount;
+
+        [SerializeField]
+        [Tooltip("End Dissolve Amount / 结束溶解量 - Final dissolve amount for the material")]
+        private float m_endDissolveAmount;
+
+        [SerializeField]
+        [Tooltip("Duration / 持续时间 - Animation duration in seconds")]
+        private float m_duration;
+
+        [SerializeField]
+        [Tooltip("Mesh Renderer / 网格渲染器 - MeshRenderer component for the VFX")]
+        private MeshRenderer m_meshRenderer;
+
+        [SerializeField]
+        [Tooltip("Avatar Entity / 头像实体 - Avatar entity for position reference")]
+        private AvatarEntity m_avatar;
         private MaterialPropertyBlock m_materialBlock;
         private float m_timer;
         private bool m_active;

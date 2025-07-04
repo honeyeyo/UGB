@@ -19,19 +19,36 @@ namespace PongHub.MainMenu
     public class SettingsMenu : BaseMenuController
     {
         [Header("音频设置")]
-        [SerializeField] private Slider m_musicVolumeSlider;        // 音乐音量滑块
-        [SerializeField] private TMP_Text m_musicVolumeValueText;   // 音乐音量数值文本
+        [SerializeField]
+        [Tooltip("Music Volume Slider / 音乐音量滑块 - Slider for adjusting music volume")]
+        private Slider m_musicVolumeSlider;        // 音乐音量滑块
+
+        [SerializeField]
+        [Tooltip("Music Volume Value Text / 音乐音量数值文本 - Text displaying current music volume percentage")]
+        private TMP_Text m_musicVolumeValueText;   // 音乐音量数值文本
 
         [Header("移动设置")]
-        [SerializeField] private Toggle m_snapBlackoutToggle;       // 瞬移黑屏开关
-        [SerializeField] private Toggle m_freeLocomotionToggle;     // 自由移动开关
-        [SerializeField] private Toggle m_locomotionVignetteToggle; // 移动晕影开关
+        [SerializeField]
+        [Tooltip("Snap Blackout Toggle / 瞬移黑屏开关 - Toggle for enabling blackout during snap turns")]
+        private Toggle m_snapBlackoutToggle;       // 瞬移黑屏开关
+
+        [SerializeField]
+        [Tooltip("Free Locomotion Toggle / 自由移动开关 - Toggle for enabling free locomotion movement")]
+        private Toggle m_freeLocomotionToggle;     // 自由移动开关
+
+        [SerializeField]
+        [Tooltip("Locomotion Vignette Toggle / 移动晕影开关 - Toggle for enabling vignette during locomotion")]
+        private Toggle m_locomotionVignetteToggle; // 移动晕影开关
 
         [Header("网络设置")]
-        [SerializeField] private TMP_Dropdown m_regionDropDown;     // 区域选择下拉框
+        [SerializeField]
+        [Tooltip("Region Dropdown / 区域选择下拉框 - Dropdown for selecting network region")]
+        private TMP_Dropdown m_regionDropDown;     // 区域选择下拉框
 
         [Header("版本信息")]
-        [SerializeField] private TMP_Text m_versionText;            // 版本号文本
+        [SerializeField]
+        [Tooltip("Version Text / 版本号文本 - Text component displaying application version")]
+        private TMP_Text m_versionText;            // 版本号文本
 
         // 是否处理区域变更的标志
         private bool m_handleRegionChange = false;

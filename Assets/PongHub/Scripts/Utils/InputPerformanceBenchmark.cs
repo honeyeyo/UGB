@@ -13,13 +13,26 @@ namespace PongHub.Utils
     public class InputPerformanceBenchmark : MonoBehaviour
     {
         [Header("基准测试设置")]
-        [SerializeField] private int m_testDuration = 10; // 测试持续时间(秒)
-        [SerializeField] private bool m_runOnStart = false;
-        [SerializeField] private bool m_autoGenerateReport = true;
+        [SerializeField]
+        [Tooltip("Test Duration / 测试持续时间 - Duration of the benchmark test in seconds")]
+        private int m_testDuration = 10; // 测试持续时间(秒)
+
+        [SerializeField]
+        [Tooltip("Run On Start / 开始时运行 - Automatically start benchmark when the component starts")]
+        private bool m_runOnStart = false;
+
+        [SerializeField]
+        [Tooltip("Auto Generate Report / 自动生成报告 - Automatically generate performance report after test completion")]
+        private bool m_autoGenerateReport = true;
 
         [Header("测试结果显示")]
-        [SerializeField] private bool m_showRealtimeStats = true;
-        [SerializeField] private KeyCode m_startTestKey = KeyCode.F8;
+        [SerializeField]
+        [Tooltip("Show Realtime Stats / 显示实时统计 - Display real-time performance statistics during test")]
+        private bool m_showRealtimeStats = true;
+
+        [SerializeField]
+        [Tooltip("Start Test Key / 开始测试按键 - Key to manually start the benchmark test")]
+        private KeyCode m_startTestKey = KeyCode.F8;
 
         private List<float> m_cpuTimeSamples = new List<float>();
         private List<float> m_frameTimes = new List<float>();

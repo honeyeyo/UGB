@@ -20,12 +20,16 @@ namespace PongHub.MainMenu
         /// <summary>
         /// 错误标题文本组件引用
         /// </summary>
-        [SerializeField] private TMP_Text m_titleText;
+        [SerializeField]
+        [Tooltip("Title Text / 标题文本 - Text component for error title display")]
+        private TMP_Text m_titleText;
 
         /// <summary>
         /// 错误消息文本组件引用
         /// </summary>
-        [SerializeField] private TMP_Text m_messageText;
+        [SerializeField]
+        [Tooltip("Message Text / 消息文本 - Text component for error message display")]
+        private TMP_Text m_messageText;
 
         /// <summary>
         /// 显示错误消息

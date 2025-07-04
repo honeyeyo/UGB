@@ -10,19 +10,37 @@ namespace PongHub.UI
     public class SettingsPanel : MonoBehaviour
     {
         [Header("音频设置")]
-        [SerializeField] private Slider m_masterVolumeSlider;
-        [SerializeField] private Slider m_musicVolumeSlider;
-        [SerializeField] private Slider m_sfxVolumeSlider;
+        [SerializeField]
+        [Tooltip("Master Volume Slider / 主音量滑块 - Slider for adjusting master volume")]
+        private Slider m_masterVolumeSlider;
+        [SerializeField]
+        [Tooltip("Music Volume Slider / 音乐音量滑块 - Slider for adjusting music volume")]
+        private Slider m_musicVolumeSlider;
+        [SerializeField]
+        [Tooltip("SFX Volume Slider / 音效音量滑块 - Slider for adjusting sound effects volume")]
+        private Slider m_sfxVolumeSlider;
 
         [Header("图形设置")]
-        [SerializeField] private TMP_Dropdown m_qualityDropdown;
-        [SerializeField] private Toggle m_vsyncToggle;
-        [SerializeField] private Toggle m_fullscreenToggle;
+        [SerializeField]
+        [Tooltip("Quality Dropdown / 质量下拉菜单 - Dropdown for selecting graphics quality")]
+        private TMP_Dropdown m_qualityDropdown;
+        [SerializeField]
+        [Tooltip("VSync Toggle / 垂直同步开关 - Toggle for vertical synchronization")]
+        private Toggle m_vsyncToggle;
+        [SerializeField]
+        [Tooltip("Fullscreen Toggle / 全屏开关 - Toggle for fullscreen mode")]
+        private Toggle m_fullscreenToggle;
 
         [Header("控制设置")]
-        [SerializeField] private Slider m_vibrationIntensitySlider;
-        [SerializeField] private Toggle m_invertYToggle;
-        [SerializeField] private Button m_inputSettingsButton;
+        [SerializeField]
+        [Tooltip("Vibration Intensity Slider / 振动强度滑块 - Slider for adjusting vibration intensity")]
+        private Slider m_vibrationIntensitySlider;
+        [SerializeField]
+        [Tooltip("Invert Y Toggle / 反转Y轴开关 - Toggle for inverting Y axis")]
+        private Toggle m_invertYToggle;
+        [SerializeField]
+        [Tooltip("Input Settings Button / 输入设置按钮 - Button to open input settings")]
+        private Button m_inputSettingsButton;
 
         private void Start()
         {

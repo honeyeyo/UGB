@@ -11,7 +11,9 @@ namespace PongHub.Arena.Spectator
     {
         private static readonly int s_attachmentColorID = Shader.PropertyToID("_Attachment_Color");
 
-        [SerializeField] private Renderer m_renderer;
+        [SerializeField]
+        [Tooltip("Renderer / 渲染器 - Renderer component for applying team color")]
+        private Renderer m_renderer;
         private MaterialPropertyBlock m_materialBlock;
         public void SetColor(Color color)
         {

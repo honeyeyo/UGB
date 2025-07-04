@@ -20,16 +20,31 @@ namespace PongHub.MainMenu
         private const float LOADING_ROTATION_SPEED = -100f;
 
         [Header("UI预制体和容器")]
-        [SerializeField] private JoinFriendListElement m_friendListElementPrefab;  // 好友列表项预制体
-        [SerializeField] private Transform m_contentTransform;                      // 好友列表的容器Transform
+        [SerializeField]
+        [Tooltip("Friend List Element Prefab / 好友列表项预制体 - Prefab for friend list UI elements")]
+        private JoinFriendListElement m_friendListElementPrefab;  // 好友列表项预制体
+
+        [SerializeField]
+        [Tooltip("Content Transform / 内容容器变换 - Transform container for friend list layout")]
+        private Transform m_contentTransform;                      // 好友列表的容器Transform
 
         [Header("运行时数据")]
-        [SerializeField] private List<JoinFriendListElement> m_spawnedElements;    // 已生成的好友列表项列表
+        [SerializeField]
+        [Tooltip("Spawned Elements / 已生成元素列表 - List of instantiated friend list elements")]
+        private List<JoinFriendListElement> m_spawnedElements;    // 已生成的好友列表项列表
 
         [Header("其他引用")]
-        [SerializeField] private MainMenuController m_mainMenuController;          // 主菜单控制器引用
-        [SerializeField] private GameObject m_noFriendsMessage;                    // 无好友时显示的提示信息
-        [SerializeField] private Image m_loadingImage;                             // 加载动画图片
+        [SerializeField]
+        [Tooltip("Main Menu Controller / 主菜单控制器 - Reference to main menu controller")]
+        private MainMenuController m_mainMenuController;          // 主菜单控制器引用
+
+        [SerializeField]
+        [Tooltip("No Friends Message / 无好友消息 - GameObject shown when no friends available")]
+        private GameObject m_noFriendsMessage;                    // 无好友时显示的提示信息
+
+        [SerializeField]
+        [Tooltip("Loading Image / 加载图片 - Image component for loading animation")]
+        private Image m_loadingImage;                             // 加载动画图片
 
         // 是否正在加载好友列表的标志
         private bool m_isLoadingFriendsList = false;

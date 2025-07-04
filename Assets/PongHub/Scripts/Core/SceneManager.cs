@@ -9,9 +9,17 @@ namespace PongHub.Core
         public static SceneManager Instance { get; private set; }
 
         [Header("场景设置")]
-        [SerializeField] private string mainMenuScene = "MainMenu";
-        [SerializeField] private string gameScene = "Game";
-        [SerializeField] private float minLoadingTime = 1f;  // 最小加载时间，用于显示加载画面
+        [SerializeField]
+        [Tooltip("Main Menu Scene / 主菜单场景 - Scene name for main menu")]
+        private string mainMenuScene = "MainMenu";
+
+        [SerializeField]
+        [Tooltip("Game Scene / 游戏场景 - Scene name for game")]
+        private string gameScene = "Game";
+
+        [SerializeField]
+        [Tooltip("Min Loading Time / 最小加载时间 - Minimum loading time for loading screen")]
+        private float minLoadingTime = 1f;  // 最小加载时间，用于显示加载画面
 
         private bool isLoading = false;
 

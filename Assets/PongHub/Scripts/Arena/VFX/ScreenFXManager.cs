@@ -13,8 +13,13 @@ namespace PongHub.Arena.VFX
     /// </summary>
     public class ScreenFXManager : Singleton<ScreenFXManager>
     {
-        [SerializeField] private GameObject m_deathVignette;
-        [SerializeField] private GameObject m_locomotionVignette;
+        [SerializeField]
+        [Tooltip("Death Vignette / 死亡晕影 - GameObject for death screen effect")]
+        private GameObject m_deathVignette;
+
+        [SerializeField]
+        [Tooltip("Locomotion Vignette / 运动晕影 - GameObject for locomotion screen effect")]
+        private GameObject m_locomotionVignette;
 
         private Transform m_mainCamera;
         private void LateUpdate()

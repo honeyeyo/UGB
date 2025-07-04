@@ -10,13 +10,26 @@ namespace PongHub.Utils
     public class InputPerformanceMonitor : MonoBehaviour
     {
         [Header("监控设置")]
-        [SerializeField] private bool m_showInGameUI = false;
-        [SerializeField] private bool m_logToConsole = false;
-        [SerializeField] private float m_updateInterval = 1f;
+        [SerializeField]
+        [Tooltip("Show In Game UI / 显示游戏内UI - Whether to show performance UI in game")]
+        private bool m_showInGameUI = false;
+
+        [SerializeField]
+        [Tooltip("Log To Console / 记录到控制台 - Whether to log performance data to console")]
+        private bool m_logToConsole = false;
+
+        [SerializeField]
+        [Tooltip("Update Interval / 更新间隔 - Interval between performance updates")]
+        private float m_updateInterval = 1f;
 
         [Header("UI设置")]
-        [SerializeField] private KeyCode m_toggleKey = KeyCode.F9;
-        [SerializeField] private int m_fontSize = 14;
+        [SerializeField]
+        [Tooltip("Toggle Key / 切换键 - Key for toggling performance display")]
+        private KeyCode m_toggleKey = KeyCode.F9;
+
+        [SerializeField]
+        [Tooltip("Font Size / 字体大小 - Font size for performance display")]
+        private int m_fontSize = 14;
 
         private float m_lastUpdateTime;
         private string m_cachedStats = "";

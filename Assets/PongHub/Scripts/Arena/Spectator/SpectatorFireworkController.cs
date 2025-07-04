@@ -15,9 +15,17 @@ namespace PongHub.Arena.Spectator
         private const float FIREWORK_TRAVEL_SPEED = 10f;
         private const float FIREWORK_MAX_TRAVEL_DIST = FIREWORK_TRAVEL_SPEED / FIREWORK_MAX_TRAVEL_TIME;
 
-        [SerializeField] private ParticleSystem[] m_fireworks;
-        [SerializeField] private AudioSource[] m_fireworksAudioSources;
-        [SerializeField] private AudioClip m_fireworkSound;
+        [SerializeField]
+        [Tooltip("Fireworks Array / 烟花数组 - Array of firework particle systems")]
+        private ParticleSystem[] m_fireworks;
+
+        [SerializeField]
+        [Tooltip("Fireworks Audio Sources / 烟花音频源 - Array of audio sources for firework sounds")]
+        private AudioSource[] m_fireworksAudioSources;
+
+        [SerializeField]
+        [Tooltip("Firework Sound / 烟花音效 - Audio clip for firework explosion sound")]
+        private AudioClip m_fireworkSound;
 
         private int m_audioSourceIndex = 0;
 

@@ -11,9 +11,17 @@ namespace PongHub.Core.Audio
     public class AudioSourcePool : MonoBehaviour
     {
         [Header("对象池设置")]
-        [SerializeField] private int m_initialPoolSize = 20;
-        [SerializeField] private int m_maxPoolSize = 50;
-        [SerializeField] private bool m_allowPoolExpansion = true;
+        [SerializeField]
+        [Tooltip("Initial Pool Size / 初始池大小 - Initial number of AudioSource objects in the pool")]
+        private int m_initialPoolSize = 20;
+
+        [SerializeField]
+        [Tooltip("Max Pool Size / 最大池大小 - Maximum number of AudioSource objects in the pool")]
+        private int m_maxPoolSize = 50;
+
+        [SerializeField]
+        [Tooltip("Allow Pool Expansion / 允许池扩展 - Whether to allow pool expansion beyond initial size")]
+        private bool m_allowPoolExpansion = true;
 
         // 对象池
         private Queue<AudioSource> m_availableAudioSources = new();

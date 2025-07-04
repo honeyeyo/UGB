@@ -26,16 +26,38 @@ namespace PongHub.Gameplay.Paddle
     public class Paddle : MonoBehaviour
     {
         [Header("组件引用")]
-        [SerializeField] private Rigidbody m_rigidbody;
-        [SerializeField] private MeshRenderer m_renderer;
-        [SerializeField] private Collider m_collider;
-        [SerializeField] private PaddleRubber m_forehandRubber;  // 正手胶皮
-        [SerializeField] private PaddleRubber m_backhandRubber;  // 反手胶皮
-        [SerializeField] private PaddleBlade m_blade;           // 底板
-        [SerializeField] private XRController m_controller;     // XR控制器引用
+        [SerializeField]
+        [Tooltip("Rigidbody / 刚体 - Rigidbody component for physics simulation")]
+        private Rigidbody m_rigidbody;
+
+        [SerializeField]
+        [Tooltip("Renderer / 渲染器 - Mesh renderer for visual representation")]
+        private MeshRenderer m_renderer;
+
+        [SerializeField]
+        [Tooltip("Collider / 碰撞体 - Collider component for collision detection")]
+        private Collider m_collider;
+
+        [SerializeField]
+        [Tooltip("Forehand Rubber / 正手胶皮 - Rubber component for forehand side")]
+        private PaddleRubber m_forehandRubber;  // 正手胶皮
+
+        [SerializeField]
+        [Tooltip("Backhand Rubber / 反手胶皮 - Rubber component for backhand side")]
+        private PaddleRubber m_backhandRubber;  // 反手胶皮
+
+        [SerializeField]
+        [Tooltip("Blade / 底板 - Blade component for paddle structure")]
+        private PaddleBlade m_blade;           // 底板
+
+        [SerializeField]
+        [Tooltip("XR Controller / XR控制器 - XR controller reference for input")]
+        private XRController m_controller;     // XR控制器引用
 
         [Header("配置")]
-        [SerializeField] private PaddleData m_paddleData;
+        [SerializeField]
+        [Tooltip("Paddle Data / 球拍数据 - Paddle configuration data")]
+        private PaddleData m_paddleData;
 
         // 球拍状态
         private PaddleGripState m_gripState = PaddleGripState.Anchored;

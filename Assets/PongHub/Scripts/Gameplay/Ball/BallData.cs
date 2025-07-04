@@ -6,21 +6,58 @@ namespace PongHub.Gameplay.Ball
     public class BallData : ScriptableObject
     {
         [Header("物理属性")]
-        [SerializeField] private float m_mass = 0.0027f;
-        [SerializeField] private float m_radius = 0.02f;
-        [SerializeField] private float m_bounce = 0.8f;
-        [SerializeField] private float m_friction = 0.1f;
-        [SerializeField] private float m_drag = 0.1f;
-        [SerializeField] private float m_angularDrag = 0.1f;
-        [SerializeField] private float m_maxSpeed = 10f;
-        [SerializeField] private float m_minSpeed = 0.5f;
-        [SerializeField] private float m_maxSpin = 20f;
-        [SerializeField] private float m_spinDecay = 0.95f;
+        [SerializeField]
+        [Tooltip("Mass / 质量 - Mass of the ball for physics calculations")]
+        private float m_mass = 0.0027f;
+
+        [SerializeField]
+        [Tooltip("Radius / 半径 - Radius of the ball")]
+        private float m_radius = 0.02f;
+
+        [SerializeField]
+        [Tooltip("Bounce / 弹性 - Bounce coefficient when ball hits surfaces")]
+        private float m_bounce = 0.8f;
+
+        [SerializeField]
+        [Tooltip("Friction / 摩擦力 - Friction coefficient for ball movement")]
+        private float m_friction = 0.1f;
+
+        [SerializeField]
+        [Tooltip("Drag / 阻力 - Air resistance coefficient for the ball")]
+        private float m_drag = 0.1f;
+
+        [SerializeField]
+        [Tooltip("Angular Drag / 角阻力 - Angular drag coefficient for ball rotation")]
+        private float m_angularDrag = 0.1f;
+
+        [SerializeField]
+        [Tooltip("Max Speed / 最大速度 - Maximum speed limit for ball movement")]
+        private float m_maxSpeed = 10f;
+
+        [SerializeField]
+        [Tooltip("Min Speed / 最小速度 - Minimum speed threshold for ball movement")]
+        private float m_minSpeed = 0.5f;
+
+        [SerializeField]
+        [Tooltip("Max Spin / 最大旋转 - Maximum spin limit for ball rotation")]
+        private float m_maxSpin = 20f;
+
+        [SerializeField]
+        [Tooltip("Spin Decay / 旋转衰减 - Spin decay coefficient over time")]
+        private float m_spinDecay = 0.95f;
 
         [Header("音效设置")]
-        [SerializeField] private float m_paddleHitMultiplier = 1f;
-        [SerializeField] private float m_tableHitMultiplier = 1f;
-        [SerializeField] private float m_netHitMultiplier = 1f;
+        [SerializeField]
+        [Tooltip("Paddle Hit Multiplier / 球拍击球倍数 - Sound multiplier when ball hits paddle")]
+        private float m_paddleHitMultiplier = 1f;
+
+        [SerializeField]
+        [Tooltip("Table Hit Multiplier / 球桌击球倍数 - Sound multiplier when ball hits table")]
+        private float m_tableHitMultiplier = 1f;
+
+        [SerializeField]
+        [Tooltip("Net Hit Multiplier / 球网击球倍数 - Sound multiplier when ball hits net")]
+        private float m_netHitMultiplier = 1f;
 
         // 物理属性
         public float Mass => m_mass;

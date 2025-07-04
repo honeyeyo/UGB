@@ -8,6 +8,8 @@ namespace PongHub.Core
         private static VibrationManager s_instance;
         public static VibrationManager Instance => s_instance;
 
+        [SerializeField]
+        [Tooltip("Vibration Intensity / 振动强度 - Default vibration intensity multiplier")]
         private float m_vibrationIntensity = 1f;
 
         private void Awake()

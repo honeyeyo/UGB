@@ -14,21 +14,55 @@ namespace PongHub.MainMenu
     /// </summary>
     public class StoreMenuController : BaseMenuController
     {
-        [SerializeField] private StoreIconButton m_storeIconButtonPrefab;
-        [SerializeField] private GameObject m_iconSelectionView;
-        [SerializeField] private Transform m_grid;
-        [SerializeField] private GameObject m_backButton;
-        [SerializeField] private MainMenuController m_menuController;
+        [SerializeField]
+        [Tooltip("Store Icon Button Prefab / 商店图标按钮预制件 - Prefab for store icon buttons")]
+        private StoreIconButton m_storeIconButtonPrefab;
+
+        [SerializeField]
+        [Tooltip("Icon Selection View / 图标选择视图 - GameObject for icon selection interface")]
+        private GameObject m_iconSelectionView;
+
+        [SerializeField]
+        [Tooltip("Grid Transform / 网格变换 - Transform for arranging icon buttons in grid")]
+        private Transform m_grid;
+
+        [SerializeField]
+        [Tooltip("Back Button / 返回按钮 - Button for navigating back to menu")]
+        private GameObject m_backButton;
+
+        [SerializeField]
+        [Tooltip("Menu Controller / 菜单控制器 - Reference to main menu controller")]
+        private MainMenuController m_menuController;
+
         [Header("Purchase Flow")]
-        [SerializeField] private GameObject m_purchaseFlowRoot;
-        [SerializeField] private TMP_Text m_purchaseName;
-        [SerializeField] private Image m_purchaseImage;
-        [SerializeField] private TMP_Text m_purchasePrice;
-        [SerializeField] private GameObject m_processingMessage;
+        [SerializeField]
+        [Tooltip("Purchase Flow Root / 购买流程根对象 - Root GameObject for purchase flow UI")]
+        private GameObject m_purchaseFlowRoot;
+
+        [SerializeField]
+        [Tooltip("Purchase Name Text / 购买名称文本 - Text component for purchase item name")]
+        private TMP_Text m_purchaseName;
+
+        [SerializeField]
+        [Tooltip("Purchase Image / 购买图像 - Image component for purchase item preview")]
+        private Image m_purchaseImage;
+
+        [SerializeField]
+        [Tooltip("Purchase Price Text / 购买价格文本 - Text component for purchase item price")]
+        private TMP_Text m_purchasePrice;
+
+        [SerializeField]
+        [Tooltip("Processing Message / 处理中消息 - GameObject for processing purchase message")]
+        private GameObject m_processingMessage;
 
         [Header("Cats")]
-        [SerializeField] private TMP_Text m_catCountText;
-        [SerializeField] private Button m_catBuyButton;
+        [SerializeField]
+        [Tooltip("Cat Count Text / 猫咪数量文本 - Text component displaying owned cat count")]
+        private TMP_Text m_catCountText;
+
+        [SerializeField]
+        [Tooltip("Cat Buy Button / 猫咪购买按钮 - Button for purchasing cats")]
+        private Button m_catBuyButton;
 
         private StoreIconButton m_selectedButton;
 

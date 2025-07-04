@@ -40,7 +40,9 @@ namespace PongHub.App
         /// <summary>
         /// 网络会话预制体
         /// </summary>
-        [SerializeField] private NetworkSession m_sessionPrefab;
+        [SerializeField]
+        [Tooltip("Session Prefab / 会话预制体 - Network session prefab for multiplayer functionality")]
+        private NetworkSession m_sessionPrefab;
 
         /// <summary>
         /// 启动类型
@@ -68,21 +70,51 @@ namespace PongHub.App
         public NetworkStateHandler NetworkStateHandler { get; private set; }
 
         [Header("运行时状态 (只读)")]
-        [SerializeField, ReadOnly] private bool m_navigationControllerInitialized;
-        [SerializeField, ReadOnly] private bool m_playerPresenceHandlerInitialized;
-        [SerializeField, ReadOnly] private bool m_networkStateHandlerInitialized;
+        [SerializeField, ReadOnly]
+        [Tooltip("Navigation Controller Initialized / 导航控制器已初始化 - Runtime status indicator")]
+        private bool m_navigationControllerInitialized;
+
+        [SerializeField, ReadOnly]
+        [Tooltip("Player Presence Handler Initialized / 玩家存在处理器已初始化 - Runtime status indicator")]
+        private bool m_playerPresenceHandlerInitialized;
+
+        [SerializeField, ReadOnly]
+        [Tooltip("Network State Handler Initialized / 网络状态处理器已初始化 - Runtime status indicator")]
+        private bool m_networkStateHandlerInitialized;
 
         [Header("UI系统")]
-        [SerializeField] private ScoreboardPanel m_scoreboardPanel;
-        [SerializeField] private MainMenuPanel m_mainMenuPanel;
-        [SerializeField] private SettingsPanel m_settingsPanel;
-        [SerializeField] private PauseMenuPanel m_pauseMenuPanel;
+        [SerializeField]
+        [Tooltip("Scoreboard Panel / 记分板面板 - UI component for displaying game scores")]
+        private ScoreboardPanel m_scoreboardPanel;
+
+        [SerializeField]
+        [Tooltip("Main Menu Panel / 主菜单面板 - UI component for main menu interface")]
+        private MainMenuPanel m_mainMenuPanel;
+
+        [SerializeField]
+        [Tooltip("Settings Panel / 设置面板 - UI component for game settings")]
+        private SettingsPanel m_settingsPanel;
+
+        [SerializeField]
+        [Tooltip("Pause Menu Panel / 暂停菜单面板 - UI component for pause menu")]
+        private PauseMenuPanel m_pauseMenuPanel;
 
         [Header("游戏系统")]
-        [SerializeField] private Table m_table;
-        [SerializeField] private BallPhysics m_ball;
-        [SerializeField] private Paddle m_leftPaddle;
-        [SerializeField] private Paddle m_rightPaddle;
+        [SerializeField]
+        [Tooltip("Table / 球桌 - Ping pong table component")]
+        private Table m_table;
+
+        [SerializeField]
+        [Tooltip("Ball Physics / 球物理 - Ball physics component for gameplay")]
+        private BallPhysics m_ball;
+
+        [SerializeField]
+        [Tooltip("Left Paddle / 左球拍 - Left player's paddle component")]
+        private Paddle m_leftPaddle;
+
+        [SerializeField]
+        [Tooltip("Right Paddle / 右球拍 - Right player's paddle component")]
+        private Paddle m_rightPaddle;
 
         private bool m_isInitialized = false;
 

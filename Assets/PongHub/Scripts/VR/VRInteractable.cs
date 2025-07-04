@@ -9,21 +9,51 @@ namespace PongHub.VR
     public class VRInteractable : MonoBehaviour
     {
         [Header("交互设置")]
-        [SerializeField] protected bool m_isGrabbable = true;
-        [SerializeField] protected bool m_isThrowable = true;
-        [SerializeField] protected float m_throwForce = 10f;
-        [SerializeField] protected float m_throwAngle = 45f;
+        [SerializeField]
+        [Tooltip("Is Grabbable / 是否可抓取 - Whether this object can be grabbed in VR")]
+        protected bool m_isGrabbable = true;
+
+        [SerializeField]
+        [Tooltip("Is Throwable / 是否可投掷 - Whether this object can be thrown when released")]
+        protected bool m_isThrowable = true;
+
+        [SerializeField]
+        [Tooltip("Throw Force / 投掷力度 - Force multiplier for throwing the object")]
+        protected float m_throwForce = 10f;
+
+        [SerializeField]
+        [Tooltip("Throw Angle / 投掷角度 - Angle multiplier for throwing the object")]
+        protected float m_throwAngle = 45f;
 
         [Header("交互效果")]
-        [SerializeField] protected GameObject m_hoverEffect;
-        [SerializeField] protected GameObject m_grabEffect;
-        [SerializeField] protected AudioClip m_hoverSound;
-        [SerializeField] protected AudioClip m_grabSound;
-        [SerializeField] protected AudioClip m_releaseSound;
+        [SerializeField]
+        [Tooltip("Hover Effect / 悬停效果 - Visual effect when hovering over the object")]
+        protected GameObject m_hoverEffect;
+
+        [SerializeField]
+        [Tooltip("Grab Effect / 抓取效果 - Visual effect when grabbing the object")]
+        protected GameObject m_grabEffect;
+
+        [SerializeField]
+        [Tooltip("Hover Sound / 悬停音效 - Audio clip for hover interaction")]
+        protected AudioClip m_hoverSound;
+
+        [SerializeField]
+        [Tooltip("Grab Sound / 抓取音效 - Audio clip for grab interaction")]
+        protected AudioClip m_grabSound;
+
+        [SerializeField]
+        [Tooltip("Release Sound / 释放音效 - Audio clip for release interaction")]
+        protected AudioClip m_releaseSound;
 
         [Header("输入动作")]
-        [SerializeField] protected InputActionReference m_gripAction;
-        [SerializeField] protected InputActionReference m_triggerAction;
+        [SerializeField]
+        [Tooltip("Grip Action / 握持动作 - Input action reference for grip interaction")]
+        protected InputActionReference m_gripAction;
+
+        [SerializeField]
+        [Tooltip("Trigger Action / 扳机动作 - Input action reference for trigger interaction")]
+        protected InputActionReference m_triggerAction;
 
         protected XRGrabInteractable m_grabInteractable;
         protected Rigidbody m_rigidbody;

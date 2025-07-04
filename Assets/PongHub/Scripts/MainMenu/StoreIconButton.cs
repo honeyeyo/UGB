@@ -15,10 +15,21 @@ namespace PongHub.MainMenu
     public class StoreIconButton : MonoBehaviour
     {
         [Header("UI组件引用")]
-        [SerializeField] private TMP_Text m_priceText;    // 价格文本组件
-        [SerializeField] private TMP_Text m_nameText;     // 名称文本组件
-        [SerializeField] private Image m_iconImg;         // 图标图片组件
-        [SerializeField] private Image m_bgImg;           // 背景图片组件
+        [SerializeField]
+        [Tooltip("Price Text / 价格文本 - Text component for displaying product price")]
+        private TMP_Text m_priceText;    // 价格文本组件
+
+        [SerializeField]
+        [Tooltip("Name Text / 名称文本 - Text component for displaying product name")]
+        private TMP_Text m_nameText;     // 名称文本组件
+
+        [SerializeField]
+        [Tooltip("Icon Image / 图标图片 - Image component for displaying product icon")]
+        private Image m_iconImg;         // 图标图片组件
+
+        [SerializeField]
+        [Tooltip("Background Image / 背景图片 - Image component for button background")]
+        private Image m_bgImg;           // 背景图片组件
 
         private Color m_baseColor;                        // 背景基础颜色
         private Action<StoreIconButton> m_onClickedCallback;  // 点击回调函数

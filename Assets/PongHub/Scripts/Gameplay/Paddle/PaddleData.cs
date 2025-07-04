@@ -6,18 +6,38 @@ namespace PongHub.Gameplay.Paddle
     public class PaddleData : ScriptableObject
     {
         [Header("物理属性")]
-        [SerializeField] private float m_mass = 0.17f;
-        [SerializeField] private float m_drag = 0.1f;
-        [SerializeField] private float m_bounce = 0.8f;
-        [SerializeField] private float m_friction = 0.1f;
-        [SerializeField] private float m_maxSpeed = 10f;
-        [SerializeField] private float m_hitMultiplier = 1.0f;
-        [SerializeField] private float m_hitVolume = 1.0f;
+        [SerializeField]
+        [Tooltip("Mass / 质量 - Mass of the paddle for physics calculations")]
+        private float m_mass = 0.17f;
+        [SerializeField]
+        [Tooltip("Drag / 阻力 - Air resistance coefficient for the paddle")]
+        private float m_drag = 0.1f;
+        [SerializeField]
+        [Tooltip("Bounce / 弹性 - Bounce coefficient when ball hits paddle")]
+        private float m_bounce = 0.8f;
+        [SerializeField]
+        [Tooltip("Friction / 摩擦力 - Friction coefficient for paddle movement")]
+        private float m_friction = 0.1f;
+        [SerializeField]
+        [Tooltip("Max Speed / 最大速度 - Maximum speed limit for paddle movement")]
+        private float m_maxSpeed = 10f;
+        [SerializeField]
+        [Tooltip("Hit Multiplier / 击球倍数 - Multiplier for ball speed when hitting paddle")]
+        private float m_hitMultiplier = 1.0f;
+        [SerializeField]
+        [Tooltip("Hit Volume / 击球音量 - Volume level for paddle hit sound")]
+        private float m_hitVolume = 1.0f;
 
         [Header("视觉效果")]
-        [SerializeField] private Color m_paddleColor = Color.red;
-        [SerializeField] private float m_trailWidth = 0.01f;
-        [SerializeField] private float m_trailTime = 0.5f;
+        [SerializeField]
+        [Tooltip("Paddle Color / 球拍颜色 - Color of the paddle for visual representation")]
+        private Color m_paddleColor = Color.red;
+        [SerializeField]
+        [Tooltip("Trail Width / 轨迹宽度 - Width of the paddle movement trail")]
+        private float m_trailWidth = 0.01f;
+        [SerializeField]
+        [Tooltip("Trail Time / 轨迹时间 - Duration of the paddle movement trail")]
+        private float m_trailTime = 0.5f;
 
         // 物理属性
         public float Mass => m_mass;

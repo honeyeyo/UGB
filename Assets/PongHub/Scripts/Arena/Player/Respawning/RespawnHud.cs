@@ -13,8 +13,13 @@ namespace PongHub.Arena.Player.Respawning
     {
         public event Action RespawnInitiated;
 
-        [SerializeField] private TMP_Text m_text;
-        [SerializeField] private GameObject m_button;
+        [SerializeField]
+        [Tooltip("Text Component / 文本组件 - Text component to display respawn countdown and messages")]
+        private TMP_Text m_text;
+
+        [SerializeField]
+        [Tooltip("Respawn Button / 重生按钮 - Button GameObject for manual respawn")]
+        private GameObject m_button;
 
         public void DisplayText(bool enable)
         {

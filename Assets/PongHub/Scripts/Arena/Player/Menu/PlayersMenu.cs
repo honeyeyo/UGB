@@ -17,7 +17,10 @@ namespace PongHub.Arena.Player.Menu
     /// </summary>
     public class PlayersMenu : BasePlayerMenuView
     {
-        [FormerlySerializedAs("playerInfoItemRef")][SerializeField] private PlayerInfoItem m_playerInfoItemRef;
+        [FormerlySerializedAs("playerInfoItemRef")]
+        [SerializeField]
+        [Tooltip("Player Info Item Reference / 玩家信息项引用 - Template for player info items in the list")]
+        private PlayerInfoItem m_playerInfoItemRef;
 
         private List<PlayerInfoItem> m_playerInfoItems = new();
         private void Awake()

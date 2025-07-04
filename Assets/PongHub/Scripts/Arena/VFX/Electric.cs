@@ -21,10 +21,17 @@ namespace PongHub.Arena.VFX
 
         private static readonly int s_mainTex = Shader.PropertyToID("_MainTex");
 
-        [SerializeField] private Transform m_transformPointA;
-        [SerializeField] private Transform m_transformPointB;
+        [SerializeField]
+        [Tooltip("Transform Point A / 变换点A - Start point transform for electric effect")]
+        private Transform m_transformPointA;
 
-        [SerializeField] private float m_timerTimeOut = 0.0135f;
+        [SerializeField]
+        [Tooltip("Transform Point B / 变换点B - End point transform for electric effect")]
+        private Transform m_transformPointB;
+
+        [SerializeField]
+        [Tooltip("Timer Timeout / 计时器超时 - Update interval for electric effect calculation")]
+        private float m_timerTimeOut = 0.0135f;
 
         private float m_timer;
         private LineRenderer m_lRend;

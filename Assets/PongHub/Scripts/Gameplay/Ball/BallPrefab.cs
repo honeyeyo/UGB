@@ -9,16 +9,32 @@ namespace PongHub.Gameplay.Ball
     public class BallPrefab : MonoBehaviour
     {
         [Header("组件引用")]
-        [SerializeField] private BallPhysics m_ballPhysics;
-        [SerializeField] private BallSpinVisual m_ballVisual;
-        [SerializeField] private BallNetworking m_ballNetworking;
-        [SerializeField] private TrailRenderer m_trailRenderer;
-        [SerializeField] private ParticleSystem m_hitParticles;
-        [SerializeField] private ParticleSystem m_spinParticles;
-        [SerializeField] private AudioSource m_audioSource;
+        [SerializeField]
+        [Tooltip("Ball Physics / 球物理 - Ball physics component for movement and collision")]
+        private BallPhysics m_ballPhysics;
+        [SerializeField]
+        [Tooltip("Ball Visual / 球视觉效果 - Ball visual effects component")]
+        private BallSpinVisual m_ballVisual;
+        [SerializeField]
+        [Tooltip("Ball Networking / 球网络 - Ball networking component for multiplayer")]
+        private BallNetworking m_ballNetworking;
+        [SerializeField]
+        [Tooltip("Trail Renderer / 轨迹渲染器 - Trail renderer for ball movement trail")]
+        private TrailRenderer m_trailRenderer;
+        [SerializeField]
+        [Tooltip("Hit Particles / 击球粒子 - Particle system for hit effects")]
+        private ParticleSystem m_hitParticles;
+        [SerializeField]
+        [Tooltip("Spin Particles / 旋转粒子 - Particle system for spin effects")]
+        private ParticleSystem m_spinParticles;
+        [SerializeField]
+        [Tooltip("Audio Source / 音频源 - Audio source for ball sounds")]
+        private AudioSource m_audioSource;
 
         [Header("配置")]
-        [SerializeField] private BallData m_ballData;
+        [SerializeField]
+        [Tooltip("Ball Data / 球数据 - Ball configuration data")]
+        private BallData m_ballData;
 
         private void Awake()
         {

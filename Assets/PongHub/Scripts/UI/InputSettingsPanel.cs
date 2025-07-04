@@ -9,18 +9,32 @@ namespace PongHub.UI
     public class InputSettingsPanel : MonoBehaviour
     {
         [Header("球拍配置UI")]
-        [SerializeField] private Button m_configLeftPaddleButton;
-        [SerializeField] private Button m_configRightPaddleButton;
+        [SerializeField]
+        [Tooltip("Config Left Paddle Button / 配置左手球拍按钮 - Button for configuring left hand paddle")]
+        private Button m_configLeftPaddleButton;
+
+        [SerializeField]
+        [Tooltip("Config Right Paddle Button / 配置右手球拍按钮 - Button for configuring right hand paddle")]
+        private Button m_configRightPaddleButton;
 
         [Header("瞬移设置")]
-        [SerializeField] private Button m_teleportLeftButton;
-        [SerializeField] private Button m_teleportRightButton;
+        [SerializeField]
+        [Tooltip("Teleport Left Button / 瞬移左方按钮 - Button for teleporting to left side")]
+        private Button m_teleportLeftButton;
+
+        [SerializeField]
+        [Tooltip("Teleport Right Button / 瞬移右方按钮 - Button for teleporting to right side")]
+        private Button m_teleportRightButton;
 
         [Header("导航按钮")]
-        [SerializeField] private Button m_backButton;
+        [SerializeField]
+        [Tooltip("Back Button / 返回按钮 - Button for returning to previous menu")]
+        private Button m_backButton;
 
         [Header("状态显示")]
-        [SerializeField] private TextMeshProUGUI m_statusText;
+        [SerializeField]
+        [Tooltip("Status Text / 状态文本 - Text component for displaying status information")]
+        private TextMeshProUGUI m_statusText;
 
         private PongHubInputManager m_inputManager;
 

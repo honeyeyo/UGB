@@ -18,15 +18,34 @@ namespace PongHub.UI
         public static UIManager Instance => s_instance;
 
         [Header("UI面板")]
-        [SerializeField] private MainMenuPanel m_mainMenuPanel;
-        [SerializeField] private SettingsPanel m_settingsPanel;
-        [SerializeField] private PauseMenuPanel m_pauseMenuPanel;
-        [SerializeField] private ScoreboardPanel m_scoreboardPanel;
-        [SerializeField] private InputSettingsPanel m_inputSettingsPanel;
-        [SerializeField] private GameplayHUD m_gameplayHUD;
+        [SerializeField]
+        [Tooltip("Main Menu Panel / 主菜单面板 - Panel for main menu interface")]
+        private MainMenuPanel m_mainMenuPanel;
+
+        [SerializeField]
+        [Tooltip("Settings Panel / 设置面板 - Panel for settings interface")]
+        private SettingsPanel m_settingsPanel;
+
+        [SerializeField]
+        [Tooltip("Pause Menu Panel / 暂停菜单面板 - Panel for pause menu interface")]
+        private PauseMenuPanel m_pauseMenuPanel;
+
+        [SerializeField]
+        [Tooltip("Scoreboard Panel / 记分板面板 - Panel for scoreboard interface")]
+        private ScoreboardPanel m_scoreboardPanel;
+
+        [SerializeField]
+        [Tooltip("Input Settings Panel / 输入设置面板 - Panel for input settings interface")]
+        private InputSettingsPanel m_inputSettingsPanel;
+
+        [SerializeField]
+        [Tooltip("Gameplay HUD / 游戏HUD - HUD for gameplay interface")]
+        private GameplayHUD m_gameplayHUD;
 
         [Header("游戏状态")]
-        [SerializeField] private PongHubInputManager m_inputManager;
+        [SerializeField]
+        [Tooltip("Input Manager / 输入管理器 - Input manager for handling user input")]
+        private PongHubInputManager m_inputManager;
 
         // 私有变量
         private bool isMenuOpen = false;

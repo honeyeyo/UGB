@@ -18,11 +18,17 @@ namespace PongHub.Gameplay.Ball
     public class BallPhysics : MonoBehaviour
     {
         [Header("组件引用")]
-        [SerializeField] private Rigidbody m_rigidbody;
-        [SerializeField] private Collider m_collider;
+        [SerializeField]
+        [Tooltip("Rigidbody / 刚体 - Rigidbody component for ball physics")]
+        private Rigidbody m_rigidbody;
+        [SerializeField]
+        [Tooltip("Collider / 碰撞器 - Collider component for ball collision detection")]
+        private Collider m_collider;
 
         [Header("配置")]
-        [SerializeField] private BallData m_ballData;
+        [SerializeField]
+        [Tooltip("Ball Data / 球数据 - Ball configuration data for physics properties")]
+        private BallData m_ballData;
 
         // 物理状态
         private Vector3 m_velocity;
