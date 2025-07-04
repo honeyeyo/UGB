@@ -87,6 +87,17 @@ namespace PongHub.Core
         // 模式切换过程中的标志
         private bool m_isSwitching = false;
 
+        // 自动发现的组件缓存
+        private readonly Dictionary<System.Type, List<IGameModeComponent>> m_componentCache = new();
+
+        // 事务性切换状态
+        private GameMode m_pendingMode = GameMode.Local;
+        private bool m_hasTransaction = false;
+
+        // 性能监控
+        private float m_lastSwitchTime = 0f;
+        private int m_switchCount = 0;
+
         #region Unity 生命周期
 
         private void Awake()
@@ -266,8 +277,8 @@ namespace PongHub.Core
             // 更新当前模式
             CurrentMode = newMode;
 
-            // 通知所有组件
-            NotifyComponents(newMode, previousMode);
+            // 使用优化的组件切换
+            OptimizeComponentSwitching(newMode, previousMode);
 
             // 触发模式改变事件
             OnModeChanged?.Invoke(newMode, previousMode);
@@ -364,5 +375,358 @@ namespace PongHub.Core
 
             Debug.Log("✓ GameModeManager 引用自动分配完成");
         }
+
+        #region 组件自动发现功能
+
+        /// <summary>
+        /// 自动发现并注册场景中的游戏模式组件
+        /// </summary>
+        [ContextMenu("Auto Discover Components")]
+        public void AutoDiscoverComponents()
+        {
+            if (m_debugMode)
+            {
+                Debug.Log("[GameModeManager] 开始自动发现组件");
+            }
+
+            // 清理缓存
+            m_componentCache.Clear();
+
+            // 发现LocalModeComponent
+            var localComponents = FindObjectsOfType<LocalModeComponent>();
+            CacheComponents(typeof(LocalModeComponent), localComponents);
+
+            // 发现NetworkModeComponent
+            var networkComponents = FindObjectsOfType<NetworkModeComponent>();
+            CacheComponents(typeof(NetworkModeComponent), networkComponents);
+
+            // 注册所有发现的组件
+            int registeredCount = 0;
+            foreach (var componentList in m_componentCache.Values)
+            {
+                foreach (var component in componentList)
+                {
+                    if (!m_registeredComponents.Contains(component))
+                    {
+                        RegisterComponent(component);
+                        registeredCount++;
+                    }
+                }
+            }
+
+            if (m_debugMode)
+            {
+                Debug.Log($"[GameModeManager] 自动发现完成，注册了 {registeredCount} 个新组件，" +
+                         $"缓存了 {m_componentCache.Count} 种类型");
+            }
+        }
+
+        /// <summary>
+        /// 缓存组件到类型字典中
+        /// </summary>
+        private void CacheComponents<T>(System.Type type, T[] components) where T : MonoBehaviour, IGameModeComponent
+        {
+            var componentList = new List<IGameModeComponent>();
+            foreach (var component in components)
+            {
+                componentList.Add(component);
+            }
+
+            m_componentCache[type] = componentList;
+
+            if (m_debugMode)
+            {
+                Debug.Log($"[GameModeManager] 缓存了 {components.Length} 个 {type.Name} 组件");
+            }
+        }
+
+        /// <summary>
+        /// 根据类型获取缓存的组件
+        /// </summary>
+        public List<IGameModeComponent> GetComponentsByType(System.Type type)
+        {
+            return m_componentCache.TryGetValue(type, out var components) ? components : new List<IGameModeComponent>();
+        }
+
+        /// <summary>
+        /// 获取指定模式下激活的组件数量
+        /// </summary>
+        public int GetActiveComponentCount(GameMode mode)
+        {
+            int count = 0;
+            foreach (var component in m_registeredComponents)
+            {
+                if (component != null && component.IsActiveInMode(mode))
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        #endregion
+
+        #region 事务性模式切换
+
+        /// <summary>
+        /// 开始事务性模式切换
+        /// </summary>
+        public void BeginModeTransaction(GameMode targetMode)
+        {
+            if (m_hasTransaction)
+            {
+                Debug.LogWarning($"[GameModeManager] 已有活跃事务，目标模式: {m_pendingMode}");
+                return;
+            }
+
+            m_pendingMode = targetMode;
+            m_hasTransaction = true;
+
+            if (m_debugMode)
+            {
+                Debug.Log($"[GameModeManager] 开始模式切换事务: {CurrentMode} -> {targetMode}");
+            }
+        }
+
+        /// <summary>
+        /// 提交事务性模式切换
+        /// </summary>
+        public void CommitModeTransaction()
+        {
+            if (!m_hasTransaction)
+            {
+                Debug.LogWarning("[GameModeManager] 没有活跃的模式切换事务");
+                return;
+            }
+
+            if (m_debugMode)
+            {
+                Debug.Log($"[GameModeManager] 提交模式切换事务: {m_pendingMode}");
+            }
+
+            SwitchToMode(m_pendingMode);
+            m_hasTransaction = false;
+        }
+
+        /// <summary>
+        /// 回滚事务性模式切换
+        /// </summary>
+        public void RollbackModeTransaction()
+        {
+            if (!m_hasTransaction)
+            {
+                Debug.LogWarning("[GameModeManager] 没有活跃的模式切换事务");
+                return;
+            }
+
+            if (m_debugMode)
+            {
+                Debug.Log($"[GameModeManager] 回滚模式切换事务: {m_pendingMode}");
+            }
+
+            m_hasTransaction = false;
+            m_pendingMode = CurrentMode;
+        }
+
+        /// <summary>
+        /// 检查是否有活跃的事务
+        /// </summary>
+        public bool HasActiveTransaction => m_hasTransaction;
+
+        /// <summary>
+        /// 获取待处理的模式
+        /// </summary>
+        public GameMode PendingMode => m_pendingMode;
+
+        #endregion
+
+        #region 性能优化和监控
+
+        /// <summary>
+        /// 优化组件状态切换性能
+        /// </summary>
+        private void OptimizeComponentSwitching(GameMode newMode, GameMode previousMode)
+        {
+            // 记录性能数据
+            m_lastSwitchTime = Time.time;
+            m_switchCount++;
+
+            // 按优先级排序组件，重要组件先切换
+            var prioritizedComponents = new List<IGameModeComponent>(m_registeredComponents);
+            prioritizedComponents.Sort((a, b) => GetComponentPriority(a).CompareTo(GetComponentPriority(b)));
+
+            // 分批处理组件以避免帧率下降
+            StartCoroutine(BatchProcessComponents(prioritizedComponents, newMode, previousMode));
+        }
+
+        /// <summary>
+        /// 获取组件优先级（数值越小优先级越高）
+        /// </summary>
+        private int GetComponentPriority(IGameModeComponent component)
+        {
+            if (component is LocalModeComponent) return 1;
+            if (component is NetworkModeComponent) return 2;
+            return 10; // 默认优先级
+        }
+
+        /// <summary>
+        /// 分批处理组件协程
+        /// </summary>
+        private System.Collections.IEnumerator BatchProcessComponents(List<IGameModeComponent> components, GameMode newMode, GameMode previousMode)
+        {
+            const int batchSize = 5; // 每批处理5个组件
+            var componentsToRemove = new List<IGameModeComponent>();
+
+            for (int i = 0; i < components.Count; i += batchSize)
+            {
+                // 处理当前批次
+                for (int j = i; j < Mathf.Min(i + batchSize, components.Count); j++)
+                {
+                    var component = components[j];
+                    if (component == null)
+                    {
+                        componentsToRemove.Add(component);
+                        continue;
+                    }
+
+                    try
+                    {
+                        component.OnGameModeChanged(newMode, previousMode);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"[GameModeManager] 组件 {component.GetType().Name} 模式切换失败: {e.Message}");
+                    }
+                }
+
+                // 每批处理后暂停一帧
+                yield return null;
+            }
+
+            // 清理空引用
+            foreach (var nullComponent in componentsToRemove)
+            {
+                m_registeredComponents.Remove(nullComponent);
+            }
+        }
+
+        /// <summary>
+        /// 获取性能统计信息
+        /// </summary>
+        public string GetPerformanceStats()
+        {
+            return $"模式切换次数: {m_switchCount}\n" +
+                   $"上次切换时间: {m_lastSwitchTime:F2}s\n" +
+                   $"注册组件数量: {m_registeredComponents.Count}\n" +
+                   $"缓存组件类型: {m_componentCache.Count}\n" +
+                   $"当前事务状态: {(m_hasTransaction ? $"活跃({m_pendingMode})" : "无")}";
+        }
+
+        /// <summary>
+        /// 重置性能统计
+        /// </summary>
+        [ContextMenu("Reset Performance Stats")]
+        public void ResetPerformanceStats()
+        {
+            m_switchCount = 0;
+            m_lastSwitchTime = 0f;
+
+            if (m_debugMode)
+            {
+                Debug.Log("[GameModeManager] 性能统计已重置");
+            }
+        }
+
+        #endregion
+
+        #region 增强调试功能
+
+        /// <summary>
+        /// 获取详细调试信息
+        /// </summary>
+        public string GetDetailedDebugInfo()
+        {
+            var info = new System.Text.StringBuilder();
+            info.AppendLine($"=== GameModeManager 调试信息 ===");
+            info.AppendLine($"当前模式: {CurrentMode}");
+            info.AppendLine($"正在切换: {m_isSwitching}");
+            info.AppendLine($"注册组件数量: {m_registeredComponents.Count}");
+
+            // 按模式分组显示组件
+            foreach (GameMode mode in System.Enum.GetValues(typeof(GameMode)))
+            {
+                int activeCount = GetActiveComponentCount(mode);
+                info.AppendLine($"{mode}模式激活组件: {activeCount}");
+            }
+
+            info.AppendLine(GetPerformanceStats());
+
+            return info.ToString();
+        }
+
+        /// <summary>
+        /// 验证系统完整性
+        /// </summary>
+        [ContextMenu("Validate System Integrity")]
+        public bool ValidateSystemIntegrity()
+        {
+            bool isValid = true;
+            var issues = new List<string>();
+
+            // 检查必要的引用
+            if (m_gameAreaRoot == null)
+            {
+                issues.Add("Game Area Root 引用缺失");
+                isValid = false;
+            }
+
+            if (m_environmentRoot == null)
+            {
+                issues.Add("Environment Root 引用缺失");
+                isValid = false;
+            }
+
+            // 检查组件完整性
+            foreach (var component in m_registeredComponents)
+            {
+                if (component == null)
+                {
+                    issues.Add("发现空引用组件");
+                    isValid = false;
+                }
+            }
+
+            // 检查是否至少有一个本地模式组件
+            bool hasLocalComponent = GetActiveComponentCount(GameMode.Local) > 0;
+            if (!hasLocalComponent)
+            {
+                issues.Add("缺少本地模式组件");
+                isValid = false;
+            }
+
+            // 检查是否至少有一个网络模式组件
+            bool hasNetworkComponent = GetActiveComponentCount(GameMode.Network) > 0;
+            if (!hasNetworkComponent)
+            {
+                issues.Add("缺少网络模式组件");
+                isValid = false;
+            }
+
+            if (m_debugMode)
+            {
+                if (isValid)
+                {
+                    Debug.Log("[GameModeManager] ✓ 系统完整性验证通过");
+                }
+                else
+                {
+                    Debug.LogWarning($"[GameModeManager] ✗ 系统完整性验证失败:\n{string.Join("\n", issues)}");
+                }
+            }
+
+            return isValid;
+        }
+
+        #endregion
     }
 }
