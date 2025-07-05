@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace PongHub.Core.Components
+namespace PongHub.Core
 {
     /// <summary>
     /// 单机模式组件

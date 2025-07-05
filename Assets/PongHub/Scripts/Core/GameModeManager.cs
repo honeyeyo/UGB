@@ -9,6 +9,7 @@ using Unity.Netcode;
 using System;
 using System.Collections.Generic;
 using PongHub.Utils;
+using PongHub.Core.Components;
 
 namespace PongHub.Core
 {
@@ -146,12 +147,12 @@ namespace PongHub.Core
         /// <param name="newMode">目标游戏模式</param>
         /// <param name="force">是否强制切换（忽略当前切换状态）</param>
         public void SwitchToMode(GameMode newMode, bool force = false)
-            {
+        {
             if (!force && m_isSwitching)
-                {
+            {
                 Debug.LogWarning($"[GameModeManager] 正在切换模式中，忽略新的切换请求: {newMode}");
                 return;
-                }
+            }
 
             if (CurrentMode == newMode && !force)
             {
@@ -170,18 +171,18 @@ namespace PongHub.Core
         /// </summary>
         /// <param name="component">要注册的组件</param>
         public void RegisterComponent(IGameModeComponent component)
-            {
+        {
             if (component == null)
-                {
+            {
                 Debug.LogError("[GameModeManager] 尝试注册空的游戏模式组件");
                 return;
-                }
+            }
 
             if (m_registeredComponents.Contains(component))
-                {
+            {
                 Debug.LogWarning($"[GameModeManager] 组件已经注册: {component.GetType().Name}");
                 return;
-                }
+            }
 
             m_registeredComponents.Add(component);
 
@@ -193,7 +194,7 @@ namespace PongHub.Core
                     component.OnGameModeChanged(CurrentMode, CurrentMode);
                 }
                 catch (Exception e)
-            {
+                {
                     Debug.LogError($"[GameModeManager] 组件 {component.GetType().Name} 初始化失败: {e.Message}");
                 }
             }
@@ -211,14 +212,14 @@ namespace PongHub.Core
         public void UnregisterComponent(IGameModeComponent component)
         {
             if (component == null)
-                {
+            {
                 return;
-                }
+            }
 
             if (m_registeredComponents.Remove(component))
-                {
-                if (m_debugMode)
             {
+                if (m_debugMode)
+                {
                     Debug.Log($"[GameModeManager] 注销组件: {component.GetType().Name}");
                 }
             }
@@ -228,7 +229,7 @@ namespace PongHub.Core
         /// 获取当前注册的组件数量
         /// </summary>
         public int GetRegisteredComponentCount()
-            {
+        {
             return m_registeredComponents.Count;
         }
 
@@ -270,7 +271,7 @@ namespace PongHub.Core
 
             // 切换延迟
             if (m_switchDelay > 0)
-        {
+            {
                 yield return new WaitForSeconds(m_switchDelay);
             }
 
@@ -311,7 +312,7 @@ namespace PongHub.Core
                     component.OnGameModeChanged(newMode, previousMode);
                 }
                 catch (Exception e)
-        {
+                {
                     Debug.LogError($"[GameModeManager] 组件 {component.GetType().Name} 模式切换失败: {e.Message}");
                 }
             }
@@ -325,7 +326,7 @@ namespace PongHub.Core
             if (m_debugMode && componentsToRemove.Count > 0)
             {
                 Debug.Log($"[GameModeManager] 清理了 {componentsToRemove.Count} 个空引用组件");
-        }
+            }
         }
 
         #endregion

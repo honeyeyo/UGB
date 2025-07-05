@@ -113,39 +113,39 @@ namespace PongHub.Core.Tests
         {
             if (!m_enableKeyboardTesting || m_testTarget == null) return;
 
-            if (Input.GetKeyDown(KeyCode.N))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.N))
             {
                 TestToggleNetworkSync();
             }
-            else if (Input.GetKeyDown(KeyCode.C))
+            else if (UnityEngine.Input.GetKeyDown(KeyCode.C))
             {
                 TestNetworkConnection();
             }
-            else if (Input.GetKeyDown(KeyCode.D))
+            else if (UnityEngine.Input.GetKeyDown(KeyCode.D))
             {
                 TestDisconnectNetwork();
             }
-            else if (Input.GetKeyDown(KeyCode.R))
+            else if (UnityEngine.Input.GetKeyDown(KeyCode.R))
             {
                 TestForceReconnect();
             }
-            else if (Input.GetKeyDown(KeyCode.S))
+            else if (UnityEngine.Input.GetKeyDown(KeyCode.S))
             {
                 ShowNetworkStatus();
             }
-            else if (Input.GetKeyDown(KeyCode.T))
+            else if (UnityEngine.Input.GetKeyDown(KeyCode.T))
             {
                 RunFullTest();
             }
-            else if (Input.GetKeyDown(KeyCode.F))
+            else if (UnityEngine.Input.GetKeyDown(KeyCode.F))
             {
                 TestSetSyncRate(30f);
             }
-            else if (Input.GetKeyDown(KeyCode.G))
+            else if (UnityEngine.Input.GetKeyDown(KeyCode.G))
             {
                 TestSetSyncRate(60f);
             }
-            else if (Input.GetKeyDown(KeyCode.H))
+            else if (UnityEngine.Input.GetKeyDown(KeyCode.H))
             {
                 TestSetSyncRate(90f);
             }
