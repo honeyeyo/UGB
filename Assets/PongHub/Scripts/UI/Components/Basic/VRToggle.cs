@@ -176,13 +176,20 @@ namespace PongHub.UI.Components
         /// <summary>
         /// 设置标签文本
         /// </summary>
-        public void SetLabel(string label)
+        public void SetLabel(string text)
         {
-            m_label = label;
             if (m_labelText != null)
             {
-                m_labelText.text = m_label;
+                m_labelText.text = text;
             }
+        }
+
+        /// <summary>
+        /// 设置文本（SetLabel的别名）
+        /// </summary>
+        public void SetText(string text)
+        {
+            SetLabel(text);
         }
 
         #endregion

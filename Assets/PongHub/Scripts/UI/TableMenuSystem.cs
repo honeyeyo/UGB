@@ -38,9 +38,11 @@ namespace PongHub.UI
         [Tooltip("Show animation duration")]
         private float showDuration = 0.5f;
 
+#pragma warning disable 0414
         [SerializeField]
-        [Tooltip("Easing strength for animation")]
-        private float easeStrength = 1.5f;
+        [Tooltip("Ease Strength / 缓动强度 - Strength of the easing function for animations")]
+        private float easeStrength = 2f; // 保留用于将来实现缓动效果
+#pragma warning restore 0414
 
         [Header("Menu Panels")]
         [SerializeField]
@@ -92,6 +94,83 @@ namespace PongHub.UI
 
             // Ensure menu is correctly positioned
             UpdateMenuPosition();
+        }
+
+        /// <summary>
+        /// 异步初始化方法
+        /// </summary>
+        public async System.Threading.Tasks.Task InitializeAsync()
+        {
+            await System.Threading.Tasks.Task.Yield();
+
+            // 初始化组件
+            InitializeComponents();
+            SetupMenuPosition();
+            HideMenuImmediate();
+
+            // 查找桌子Transform
+            if (tableTransform == null)
+            {
+                FindTableTransform();
+            }
+
+            // 更新菜单位置
+            UpdateMenuPosition();
+        }
+
+        /// <summary>
+        /// 配置球拍
+        /// </summary>
+        public void ConfigurePaddle(bool leftHand)
+        {
+            // TODO: 实现球拍配置逻辑
+            Debug.Log($"配置{(leftHand ? "左手" : "右手")}球拍");
+
+            // 可以调用输入管理器的配置方法
+            var inputManager = FindObjectOfType<PongHub.Input.PongHubInputManager>();
+            if (inputManager != null)
+            {
+                // inputManager.ConfigurePaddle(leftHand);
+            }
+        }
+
+        /// <summary>
+        /// 瞬移到指定位置
+        /// </summary>
+        public void TeleportToPoint(int pointIndex)
+        {
+            // TODO: 实现瞬移功能
+            Debug.Log($"瞬移到位置 {pointIndex}");
+
+            // 可以调用VR传送系统
+            var cameraRig = FindObjectOfType<OVRCameraRig>();
+            if (cameraRig != null)
+            {
+                // 实现瞬移逻辑
+                Vector3 teleportPosition = GetTeleportPosition(pointIndex);
+                cameraRig.transform.position = teleportPosition;
+            }
+        }
+
+        /// <summary>
+        /// 获取瞬移位置
+        /// </summary>
+        private Vector3 GetTeleportPosition(int pointIndex)
+        {
+            // 根据索引返回预定义的瞬移位置
+            Vector3[] teleportPositions = {
+                new Vector3(-2f, 0f, 0f), // 左侧位置
+                new Vector3(2f, 0f, 0f),  // 右侧位置
+                new Vector3(0f, 0f, -2f), // 后方位置
+                new Vector3(0f, 0f, 2f)   // 前方位置
+            };
+
+            if (pointIndex >= 0 && pointIndex < teleportPositions.Length)
+            {
+                return teleportPositions[pointIndex];
+            }
+
+            return Vector3.zero;
         }
 
         private void InitializeComponents()

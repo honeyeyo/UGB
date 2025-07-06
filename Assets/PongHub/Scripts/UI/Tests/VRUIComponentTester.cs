@@ -1,296 +1,526 @@
 using UnityEngine;
-using PongHub.UI.Core;
-using PongHub.UI.Components;
+using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
+using PongHub.UI.Components;
+using PongHub.UI.Core;
 
 namespace PongHub.UI.Tests
 {
     /// <summary>
-    /// VR UI组件测试器
-    /// 用于测试VR UI组件库的功能
+    /// VR UI组件测试脚本
+    /// 用于测试所有UI组件的功能
     /// </summary>
     public class VRUIComponentTester : MonoBehaviour
     {
         [Header("测试设置")]
         [SerializeField]
-        [Tooltip("Test Panel / 测试面板 - Panel containing the test UI components")]
-        private Transform m_testPanel;
+        [Tooltip("Canvas / 画布 - Canvas for UI components")]
+        private Canvas m_Canvas;
 
         [SerializeField]
-        [Tooltip("Theme / 主题 - Theme to apply to the test components")]
-        private VRUITheme m_theme;
+        [Tooltip("Test Panel / 测试面板 - Panel for testing UI components")]
+        private RectTransform m_TestPanel;
 
         [SerializeField]
-        [Tooltip("Status Text / 状态文本 - Text component for displaying component status")]
-        private TextMeshProUGUI m_statusText;
-
-        [Header("测试组件")]
-        [SerializeField]
-        [Tooltip("Test Button / 测试按钮 - Button component to test")]
-        private VRButton m_testButton;
+        [Tooltip("Theme / 主题 - Theme for UI components")]
+        private VRUITheme m_Theme;
 
         [SerializeField]
-        [Tooltip("Test Toggle / 测试开关 - Toggle component to test")]
-        private VRToggle m_testToggle;
+        [Tooltip("Test Basic Components / 测试基础组件 - Whether to test basic components")]
+        private bool m_TestBasicComponents = true;
 
         [SerializeField]
-        [Tooltip("Test Slider / 测试滑块 - Slider component to test")]
-        private VRSlider m_testSlider;
+        [Tooltip("Test Container Components / 测试容器组件 - Whether to test container components")]
+        private bool m_TestContainerComponents = true;
 
-        private void Start()
+        [SerializeField]
+        [Tooltip("Test All Components / 测试所有组件 - Whether to test all components")]
+        private bool m_TestAllComponents = false;
+
+        [SerializeField]
+        [Tooltip("Spacing / 间距 - Spacing between test components")]
+        private float m_Spacing = 20f;
+
+        // 内部变量
+        private List<VRUIComponent> m_TestComponents = new List<VRUIComponent>();
+
+        private void Awake()
         {
-            // 初始化UI管理器
-            InitializeUIManager();
-
-            // 初始化测试组件
-            InitializeTestComponents();
-
-            // 注册事件处理
-            RegisterEventHandlers();
-
-            // 更新状态文本
-            UpdateStatusText();
-        }
-
-        /// <summary>
-        /// 初始化UI管理器
-        /// </summary>
-        private void InitializeUIManager()
-        {
-            // 查找或创建UI管理器
-            VRUIManager uiManager = FindObjectOfType<VRUIManager>();
-            if (uiManager == null)
+            // 确保有Canvas
+            if (m_Canvas == null)
             {
-                GameObject managerObj = new GameObject("VRUIManager");
-                uiManager = managerObj.AddComponent<VRUIManager>();
+                m_Canvas = GetComponentInParent<Canvas>();
+                if (m_Canvas == null)
+                {
+                    m_Canvas = gameObject.AddComponent<Canvas>();
+                    m_Canvas.renderMode = RenderMode.WorldSpace;
+
+                    // 添加Canvas Scaler
+                    CanvasScaler scaler = gameObject.AddComponent<CanvasScaler>();
+                    scaler.dynamicPixelsPerUnit = 100;
+                    scaler.referencePixelsPerUnit = 100;
+
+                    // 添加Graphic Raycaster
+                    gameObject.AddComponent<GraphicRaycaster>();
+                }
             }
 
-            // 设置主题
-            if (m_theme != null)
-            {
-                uiManager.SetTheme(m_theme);
-            }
-        }
-
-        /// <summary>
-        /// 初始化测试组件
-        /// </summary>
-        private void InitializeTestComponents()
-        {
-            // 如果没有测试面板，创建一个
-            if (m_testPanel == null)
+            // 确保有测试面板
+            if (m_TestPanel == null)
             {
                 GameObject panelObj = new GameObject("TestPanel");
                 panelObj.transform.SetParent(transform);
-                panelObj.transform.localPosition = Vector3.zero;
-                panelObj.transform.localRotation = Quaternion.identity;
-                m_testPanel = panelObj.transform;
+
+                m_TestPanel = panelObj.AddComponent<RectTransform>();
+                m_TestPanel.anchorMin = Vector2.zero;
+                m_TestPanel.anchorMax = Vector2.one;
+                m_TestPanel.offsetMin = Vector2.zero;
+                m_TestPanel.offsetMax = Vector2.zero;
+
+                // 添加背景
+                Image panelImage = panelObj.AddComponent<Image>();
+                panelImage.color = new Color(0.1f, 0.1f, 0.1f, 0.8f);
             }
 
-            // 创建测试按钮
-            if (m_testButton == null)
+            // 确保有主题
+            if (m_Theme == null)
             {
-                m_testButton = CreateTestButton();
+                m_Theme = ScriptableObject.CreateInstance<VRUITheme>();
+            }
+        }
+
+        private void Start()
+        {
+            // 测试所有组件
+            if (m_TestAllComponents)
+            {
+                m_TestBasicComponents = true;
+                m_TestContainerComponents = true;
             }
 
-            // 创建测试开关
-            if (m_testToggle == null)
-            {
-                m_testToggle = CreateTestToggle();
-            }
-
-            // 创建测试滑块
-            if (m_testSlider == null)
-            {
-                m_testSlider = CreateTestSlider();
-            }
-
-            // 创建状态文本
-            if (m_statusText == null)
-            {
-                m_statusText = CreateStatusText();
-            }
+            // 创建测试组件
+            CreateTestComponents();
         }
 
         /// <summary>
-        /// 注册事件处理
+        /// 创建测试组件
         /// </summary>
-        private void RegisterEventHandlers()
+        private void CreateTestComponents()
         {
-            // 按钮点击事件
-            if (m_testButton != null)
+            // 清除现有组件
+            foreach (Transform child in m_TestPanel)
             {
-                m_testButton.OnClick.AddListener(OnButtonClick);
+                Destroy(child.gameObject);
+            }
+            m_TestComponents.Clear();
+
+            // 创建垂直布局组
+            GameObject layoutObj = new GameObject("TestLayout");
+            layoutObj.transform.SetParent(m_TestPanel);
+
+            RectTransform layoutRect = layoutObj.AddComponent<RectTransform>();
+            layoutRect.anchorMin = new Vector2(0, 0);
+            layoutRect.anchorMax = new Vector2(1, 1);
+            layoutRect.offsetMin = new Vector2(20, 20);
+            layoutRect.offsetMax = new Vector2(-20, -20);
+
+            VerticalLayoutGroup layoutGroup = layoutObj.AddComponent<VerticalLayoutGroup>();
+            layoutGroup.childAlignment = TextAnchor.UpperCenter;
+            layoutGroup.spacing = m_Spacing;
+            layoutGroup.childForceExpandWidth = true;
+            layoutGroup.childForceExpandHeight = false;
+            layoutGroup.padding = new RectOffset(10, 10, 10, 10);
+
+            // 添加内容大小适配器
+            ContentSizeFitter sizeFitter = layoutObj.AddComponent<ContentSizeFitter>();
+            sizeFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            sizeFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            // 测试基础组件
+            if (m_TestBasicComponents)
+            {
+                // 添加标题
+                CreateSectionTitle(layoutObj.transform, "基础组件测试");
+
+                // 测试按钮
+                CreateTestButton(layoutObj.transform);
+
+                // 测试开关
+                CreateTestToggle(layoutObj.transform);
+
+                // 测试滑块
+                CreateTestSlider(layoutObj.transform);
+
+                // 测试标签
+                CreateTestLabel(layoutObj.transform);
+
+                // 测试输入框
+                CreateTestInputField(layoutObj.transform);
+
+                // 测试下拉菜单
+                CreateTestDropdown(layoutObj.transform);
             }
 
-            // 开关值变化事件
-            if (m_testToggle != null)
+            // 测试容器组件
+            if (m_TestContainerComponents)
             {
-                m_testToggle.OnValueChanged.AddListener(OnToggleValueChanged);
+                // 添加标题
+                CreateSectionTitle(layoutObj.transform, "容器组件测试");
+
+                // 测试面板
+                CreateTestPanel(layoutObj.transform);
+
+                // 测试布局组
+                CreateTestLayoutGroup(layoutObj.transform);
+
+                // 测试标签页
+                CreateTestTabView(layoutObj.transform);
+
+                // 测试列表视图
+                CreateTestListView(layoutObj.transform);
+
+                // 测试弹出窗口
+                CreateTestPopupWindow(layoutObj.transform);
             }
 
-            // 滑块值变化事件
-            if (m_testSlider != null)
-            {
-                m_testSlider.OnValueChanged.AddListener(OnSliderValueChanged);
-            }
+            // 添加滚动视图
+            ScrollRect scrollRect = layoutObj.AddComponent<ScrollRect>();
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+            scrollRect.scrollSensitivity = 30;
+            scrollRect.movementType = ScrollRect.MovementType.Elastic;
+            scrollRect.elasticity = 0.1f;
+            scrollRect.inertia = true;
+            scrollRect.decelerationRate = 0.135f;
+            scrollRect.content = layoutRect;
         }
+
+        /// <summary>
+        /// 创建章节标题
+        /// </summary>
+        private void CreateSectionTitle(Transform parent, string title)
+        {
+            GameObject titleObj = new GameObject("Title_" + title);
+            titleObj.transform.SetParent(parent);
+
+            RectTransform titleRect = titleObj.AddComponent<RectTransform>();
+            titleRect.sizeDelta = new Vector2(0, 50);
+
+            TextMeshProUGUI titleText = titleObj.AddComponent<TextMeshProUGUI>();
+            titleText.text = title;
+            titleText.fontSize = 24;
+            titleText.alignment = TextAlignmentOptions.Center;
+            titleText.color = Color.white;
+        }
+
+        #region 基础组件测试
 
         /// <summary>
         /// 创建测试按钮
         /// </summary>
-        private VRButton CreateTestButton()
+        private void CreateTestButton(Transform parent)
         {
             GameObject buttonObj = new GameObject("TestButton");
-            buttonObj.transform.SetParent(m_testPanel);
-            buttonObj.transform.localPosition = new Vector3(0, 0.1f, 0);
-            buttonObj.transform.localRotation = Quaternion.identity;
-            buttonObj.transform.localScale = Vector3.one;
+            buttonObj.transform.SetParent(parent);
 
-            // 添加RectTransform
-            RectTransform rectTransform = buttonObj.AddComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(200, 50);
+            RectTransform buttonRect = buttonObj.AddComponent<RectTransform>();
+            buttonRect.sizeDelta = new Vector2(200, 50);
 
-            // 添加背景图像
-            UnityEngine.UI.Image background = buttonObj.AddComponent<UnityEngine.UI.Image>();
-            background.color = new Color(0.227f, 0.525f, 1f);
-
-            // 添加按钮组件
             VRButton button = buttonObj.AddComponent<VRButton>();
+            button.SetTheme(m_Theme);
             button.SetText("测试按钮");
+            button.OnClick.AddListener(() => Debug.Log("按钮被点击"));
 
-            return button;
+            m_TestComponents.Add(button);
         }
 
         /// <summary>
         /// 创建测试开关
         /// </summary>
-        private VRToggle CreateTestToggle()
+        private void CreateTestToggle(Transform parent)
         {
             GameObject toggleObj = new GameObject("TestToggle");
-            toggleObj.transform.SetParent(m_testPanel);
-            toggleObj.transform.localPosition = new Vector3(0, 0, 0);
-            toggleObj.transform.localRotation = Quaternion.identity;
-            toggleObj.transform.localScale = Vector3.one;
+            toggleObj.transform.SetParent(parent);
 
-            // 添加RectTransform
-            RectTransform rectTransform = toggleObj.AddComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(200, 30);
+            RectTransform toggleRect = toggleObj.AddComponent<RectTransform>();
+            toggleRect.sizeDelta = new Vector2(200, 50);
 
-            // 添加开关组件
             VRToggle toggle = toggleObj.AddComponent<VRToggle>();
-            toggle.SetLabel("测试开关");
+            toggle.SetTheme(m_Theme);
+            toggle.SetText("测试开关");
+            toggle.OnValueChanged.AddListener((value) => Debug.Log("开关值变化: " + value));
 
-            return toggle;
+            m_TestComponents.Add(toggle);
         }
 
         /// <summary>
         /// 创建测试滑块
         /// </summary>
-        private VRSlider CreateTestSlider()
+        private void CreateTestSlider(Transform parent)
         {
             GameObject sliderObj = new GameObject("TestSlider");
-            sliderObj.transform.SetParent(m_testPanel);
-            sliderObj.transform.localPosition = new Vector3(0, -0.1f, 0);
-            sliderObj.transform.localRotation = Quaternion.identity;
-            sliderObj.transform.localScale = Vector3.one;
+            sliderObj.transform.SetParent(parent);
 
-            // 添加RectTransform
-            RectTransform rectTransform = sliderObj.AddComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(200, 30);
+            RectTransform sliderRect = sliderObj.AddComponent<RectTransform>();
+            sliderRect.sizeDelta = new Vector2(300, 50);
 
-            // 添加滑块组件
             VRSlider slider = sliderObj.AddComponent<VRSlider>();
-            slider.SetRange(0, 100);
+            slider.SetTheme(m_Theme);
+            slider.SetMinMaxValues(0, 100);
             slider.SetValue(50);
-            slider.SetLabel("测试滑块");
+            slider.OnValueChanged.AddListener((value) => Debug.Log("滑块值变化: " + value));
 
-            return slider;
+            m_TestComponents.Add(slider);
         }
 
         /// <summary>
-        /// 创建状态文本
+        /// 创建测试标签
         /// </summary>
-        private TextMeshProUGUI CreateStatusText()
+        private void CreateTestLabel(Transform parent)
         {
-            GameObject textObj = new GameObject("StatusText");
-            textObj.transform.SetParent(m_testPanel);
-            textObj.transform.localPosition = new Vector3(0, -0.2f, 0);
-            textObj.transform.localRotation = Quaternion.identity;
-            textObj.transform.localScale = Vector3.one;
+            GameObject labelObj = new GameObject("TestLabel");
+            labelObj.transform.SetParent(parent);
 
-            // 添加RectTransform
-            RectTransform rectTransform = textObj.AddComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(300, 100);
+            RectTransform labelRect = labelObj.AddComponent<RectTransform>();
+            labelRect.sizeDelta = new Vector2(300, 50);
 
-            // 添加文本组件
-            TextMeshProUGUI text = textObj.AddComponent<TextMeshProUGUI>();
-            text.fontSize = 16;
-            text.alignment = TextAlignmentOptions.Center;
-            text.color = Color.white;
-            text.text = "组件状态将显示在这里";
+            VRLabel label = labelObj.AddComponent<VRLabel>();
+            label.SetTheme(m_Theme);
+            label.SetText("这是一个测试标签");
 
-            return text;
+            m_TestComponents.Add(label);
         }
 
         /// <summary>
-        /// 按钮点击事件处理
+        /// 创建测试输入框
         /// </summary>
-        private void OnButtonClick()
+        private void CreateTestInputField(Transform parent)
         {
-            Debug.Log("按钮被点击");
+            GameObject inputObj = new GameObject("TestInputField");
+            inputObj.transform.SetParent(parent);
 
-            // 随机改变开关状态
-            if (m_testToggle != null)
+            RectTransform inputRect = inputObj.AddComponent<RectTransform>();
+            inputRect.sizeDelta = new Vector2(300, 50);
+
+            VRInputField inputField = inputObj.AddComponent<VRInputField>();
+            inputField.SetTheme(m_Theme);
+            inputField.SetPlaceholderText("请输入文本...");
+            inputField.OnValueChanged.AddListener((text) => Debug.Log("输入值变化: " + text));
+
+            m_TestComponents.Add(inputField);
+        }
+
+        /// <summary>
+        /// 创建测试下拉菜单
+        /// </summary>
+        private void CreateTestDropdown(Transform parent)
+        {
+            GameObject dropdownObj = new GameObject("TestDropdown");
+            dropdownObj.transform.SetParent(parent);
+
+            RectTransform dropdownRect = dropdownObj.AddComponent<RectTransform>();
+            dropdownRect.sizeDelta = new Vector2(300, 50);
+
+            VRDropdown dropdown = dropdownObj.AddComponent<VRDropdown>();
+            dropdown.SetTheme(m_Theme);
+
+            // 添加选项
+            dropdown.AddOption("选项 1");
+            dropdown.AddOption("选项 2");
+            dropdown.AddOption("选项 3");
+            dropdown.AddOption("选项 4");
+            dropdown.AddOption("选项 5");
+
+            dropdown.OnValueChanged.AddListener((index) => Debug.Log("下拉菜单值变化: " + index));
+
+            m_TestComponents.Add(dropdown);
+        }
+
+        #endregion
+
+        #region 容器组件测试
+
+        /// <summary>
+        /// 创建测试面板
+        /// </summary>
+        private void CreateTestPanel(Transform parent)
+        {
+            GameObject panelObj = new GameObject("TestPanel");
+            panelObj.transform.SetParent(parent);
+
+            RectTransform panelRect = panelObj.AddComponent<RectTransform>();
+            panelRect.sizeDelta = new Vector2(300, 200);
+
+            VRPanel panel = panelObj.AddComponent<VRPanel>();
+            panel.SetTheme(m_Theme);
+            panel.SetTitle("测试面板");
+            panel.SetDraggable(true);
+
+            // 添加内容
+            GameObject contentObj = new GameObject("PanelContent");
+            contentObj.transform.SetParent(panel.GetContentArea());
+
+            RectTransform contentRect = contentObj.AddComponent<RectTransform>();
+            contentRect.anchorMin = Vector2.zero;
+            contentRect.anchorMax = Vector2.one;
+            contentRect.offsetMin = new Vector2(10, 10);
+            contentRect.offsetMax = new Vector2(-10, -10);
+
+            TextMeshProUGUI contentText = contentObj.AddComponent<TextMeshProUGUI>();
+            contentText.text = "这是面板内容\n可以拖动此面板";
+            contentText.alignment = TextAlignmentOptions.Center;
+            contentText.color = Color.white;
+
+            m_TestComponents.Add(panel);
+        }
+
+        /// <summary>
+        /// 创建测试布局组
+        /// </summary>
+        private void CreateTestLayoutGroup(Transform parent)
+        {
+            GameObject layoutObj = new GameObject("TestLayoutGroup");
+            layoutObj.transform.SetParent(parent);
+
+            RectTransform layoutRect = layoutObj.AddComponent<RectTransform>();
+            layoutRect.sizeDelta = new Vector2(300, 200);
+
+            VRLayoutGroup layoutGroup = layoutObj.AddComponent<VRLayoutGroup>();
+            layoutGroup.SetTheme(m_Theme);
+            layoutGroup.SetLayoutType(VRLayoutGroup.LayoutType.Horizontal);
+            layoutGroup.SetSpacing(10);
+
+            // 添加内容
+            for (int i = 0; i < 3; i++)
             {
-                m_testToggle.SetIsOn(!m_testToggle.GetIsOn());
+                GameObject itemObj = new GameObject("Item_" + i);
+                itemObj.transform.SetParent(layoutGroup.GetContentArea());
+
+                RectTransform itemRect = itemObj.AddComponent<RectTransform>();
+                itemRect.sizeDelta = new Vector2(80, 80);
+
+                Image itemImage = itemObj.AddComponent<Image>();
+                itemImage.color = new Color(0.3f + i * 0.2f, 0.3f, 0.8f - i * 0.2f, 1);
+
+                TextMeshProUGUI itemText = itemObj.AddComponent<TextMeshProUGUI>();
+                itemText.text = (i + 1).ToString();
+                itemText.alignment = TextAlignmentOptions.Center;
+                itemText.color = Color.white;
             }
 
-            // 随机改变滑块值
-            if (m_testSlider != null)
+            m_TestComponents.Add(layoutGroup);
+        }
+
+        /// <summary>
+        /// 创建测试标签页
+        /// </summary>
+        private void CreateTestTabView(Transform parent)
+        {
+            GameObject tabViewObj = new GameObject("TestTabView");
+            tabViewObj.transform.SetParent(parent);
+
+            RectTransform tabViewRect = tabViewObj.AddComponent<RectTransform>();
+            tabViewRect.sizeDelta = new Vector2(300, 200);
+
+            VRTabView tabView = tabViewObj.AddComponent<VRTabView>();
+            tabView.SetTheme(m_Theme);
+
+            // 创建标签内容
+            for (int i = 0; i < 3; i++)
             {
-                m_testSlider.SetValue(Random.Range(0, 100));
+                GameObject tabContentObj = new GameObject("TabContent_" + i);
+
+                RectTransform tabContentRect = tabContentObj.AddComponent<RectTransform>();
+                tabContentRect.sizeDelta = new Vector2(300, 150);
+
+                Image tabContentImage = tabContentObj.AddComponent<Image>();
+                tabContentImage.color = new Color(0.2f, 0.2f + i * 0.2f, 0.4f + i * 0.1f, 0.5f);
+
+                TextMeshProUGUI tabContentText = tabContentObj.AddComponent<TextMeshProUGUI>();
+                tabContentText.text = "标签 " + (i + 1) + " 内容";
+                tabContentText.alignment = TextAlignmentOptions.Center;
+                tabContentText.color = Color.white;
+
+                // 添加标签
+                tabView.AddTab("标签 " + (i + 1), tabContentObj);
             }
 
-            // 更新状态文本
-            UpdateStatusText();
+            tabView.OnTabChanged.AddListener((index) => Debug.Log("标签切换: " + index));
+
+            m_TestComponents.Add(tabView);
         }
 
         /// <summary>
-        /// 开关值变化事件处理
+        /// 创建测试列表视图
         /// </summary>
-        private void OnToggleValueChanged(bool isOn)
+        private void CreateTestListView(Transform parent)
         {
-            Debug.Log($"开关状态变为: {isOn}");
+            GameObject listViewObj = new GameObject("TestListView");
+            listViewObj.transform.SetParent(parent);
 
-            // 更新状态文本
-            UpdateStatusText();
+            RectTransform listViewRect = listViewObj.AddComponent<RectTransform>();
+            listViewRect.sizeDelta = new Vector2(300, 200);
+
+            VRListView listView = listViewObj.AddComponent<VRListView>();
+            listView.SetTheme(m_Theme);
+
+            // 添加列表项
+            for (int i = 0; i < 10; i++)
+            {
+                listView.AddItem("列表项 " + (i + 1));
+            }
+
+            listView.OnItemSelected.AddListener((index) => Debug.Log("列表项选中: " + index));
+
+            m_TestComponents.Add(listView);
         }
 
         /// <summary>
-        /// 滑块值变化事件处理
+        /// 创建测试弹出窗口
         /// </summary>
-        private void OnSliderValueChanged(float value)
+        private void CreateTestPopupWindow(Transform parent)
         {
-            Debug.Log($"滑块值变为: {value}");
+            // 创建按钮打开窗口
+            GameObject buttonObj = new GameObject("OpenPopupButton");
+            buttonObj.transform.SetParent(parent);
 
-            // 更新状态文本
-            UpdateStatusText();
+            RectTransform buttonRect = buttonObj.AddComponent<RectTransform>();
+            buttonRect.sizeDelta = new Vector2(200, 50);
+
+            VRButton button = buttonObj.AddComponent<VRButton>();
+            button.SetTheme(m_Theme);
+            button.SetText("打开弹出窗口");
+
+            // 创建弹出窗口
+            GameObject popupObj = new GameObject("TestPopupWindow");
+            popupObj.transform.SetParent(transform);
+
+            VRPopupWindow popup = popupObj.AddComponent<VRPopupWindow>();
+            popup.SetTheme(m_Theme);
+            popup.SetTitle("测试弹出窗口");
+
+            // 创建窗口内容
+            GameObject popupContentObj = new GameObject("PopupContent");
+
+            RectTransform popupContentRect = popupContentObj.AddComponent<RectTransform>();
+            popupContentRect.sizeDelta = new Vector2(300, 200);
+
+            TextMeshProUGUI popupContentText = popupContentObj.AddComponent<TextMeshProUGUI>();
+            popupContentText.text = "这是弹出窗口内容\n可以拖动此窗口\n点击窗口外部或关闭按钮关闭窗口";
+            popupContentText.alignment = TextAlignmentOptions.Center;
+            popupContentText.color = Color.white;
+
+            // 设置内容
+            popup.SetContent(popupContentObj);
+
+            // 设置按钮事件
+            button.OnClick.AddListener(() => popup.Open());
+
+            m_TestComponents.Add(button);
+            m_TestComponents.Add(popup);
         }
 
-        /// <summary>
-        /// 更新状态文本
-        /// </summary>
-        private void UpdateStatusText()
-        {
-            if (m_statusText == null)
-                return;
-
-            string buttonState = m_testButton != null ? "可用" : "未创建";
-            string toggleState = m_testToggle != null ? (m_testToggle.GetIsOn() ? "开启" : "关闭") : "未创建";
-            string sliderValue = m_testSlider != null ? m_testSlider.GetValue().ToString("F2") : "N/A";
-
-            m_statusText.text = $"按钮: {buttonState}\n开关: {toggleState}\n滑块: {sliderValue}";
-        }
+        #endregion
     }
 }

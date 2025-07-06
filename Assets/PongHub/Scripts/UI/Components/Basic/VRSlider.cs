@@ -186,7 +186,18 @@ namespace PongHub.UI.Components
         {
             m_minValue = minValue;
             m_maxValue = maxValue;
-            SetValue(m_value);
+
+            // 确保当前值在新范围内
+            m_value = Mathf.Clamp(m_value, m_minValue, m_maxValue);
+
+            // 更新滑块位置
+            UpdateHandlePosition();
+
+            // 更新填充区域
+            UpdateFillArea();
+
+            // 更新值文本
+            UpdateValueText();
         }
 
         /// <summary>
@@ -199,6 +210,21 @@ namespace PongHub.UI.Components
             {
                 m_labelText.text = m_label;
             }
+        }
+
+        /// <summary>
+        /// 设置是否显示数值
+        /// </summary>
+        public void SetShowValue(bool showValue)
+        {
+            m_showValueText = showValue;
+
+            if (m_valueText != null)
+            {
+                m_valueText.gameObject.SetActive(showValue);
+            }
+
+            UpdateVisuals();
         }
 
         #endregion
@@ -607,12 +633,12 @@ namespace PongHub.UI.Components
             if (m_rectTransform == null)
                 return;
 
-            // 获取指针位置
-            Vector3 pointerPosition = Input.mousePosition;
+            // 获取VR指针位置
+            Vector3 pointerPosition = GetVRPointerPosition();
 
             // 转换为本地坐标
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                m_rectTransform, pointerPosition, null, out Vector2 localPoint);
+                m_rectTransform, pointerPosition, Camera.main, out Vector2 localPoint);
 
             // 根据方向计算值
             float normalizedValue = 0f;
@@ -639,6 +665,33 @@ namespace PongHub.UI.Components
 
             // 设置值
             SetValue(m_minValue + normalizedValue * (m_maxValue - m_minValue));
+        }
+
+        /// <summary>
+        /// 获取VR指针位置
+        /// </summary>
+        private Vector3 GetVRPointerPosition()
+        {
+            // 尝试从VR交互管理器获取射线位置
+            var vrInteractionManager = FindObjectOfType<PongHub.VR.VRInteractionManager>();
+            if (vrInteractionManager != null)
+            {
+                // 检查左右手射线交互器
+                if (vrInteractionManager.LeftRayInteractor != null &&
+                    vrInteractionManager.LeftRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit leftHit))
+                {
+                    return leftHit.point;
+                }
+
+                if (vrInteractionManager.RightRayInteractor != null &&
+                    vrInteractionManager.RightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit rightHit))
+                {
+                    return rightHit.point;
+                }
+            }
+
+            // 如果无法获取VR指针位置，回退到鼠标位置（用于非VR测试）
+            return UnityEngine.Input.mousePosition;
         }
 
         #endregion
