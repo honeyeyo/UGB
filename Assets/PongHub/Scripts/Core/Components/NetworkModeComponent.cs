@@ -51,6 +51,24 @@ namespace PongHub.Core.Components
         [Tooltip("Max Players / 最大玩家数 - Maximum number of players in network session")]
         private int m_maxPlayers = 2;
 
+        [Header("状态保持设置")]
+        [SerializeField]
+        [Tooltip("Save State / 保存状态 - Save and restore component state during mode switching")]
+        private bool m_saveState = true;
+
+        [SerializeField]
+        [Tooltip("State Keys / 状态键 - Keys for state data that should be preserved")]
+        private string[] m_stateKeys;
+
+        [Header("过渡动画设置")]
+        [SerializeField]
+        [Tooltip("Transition Duration / 过渡时长 - Duration of transition animations in seconds")]
+        private float m_transitionDuration = 0.5f;
+
+        [SerializeField]
+        [Tooltip("Transition Effect / 过渡效果 - Visual effect during mode transition")]
+        private GameObject m_transitionEffect;
+
         [Header("调试设置")]
         [SerializeField]
         [Tooltip("Debug Mode / 调试模式 - Enable debug logging for network mode operations")]
@@ -65,6 +83,19 @@ namespace PongHub.Core.Components
         private Dictionary<string, object> m_syncedStates = new Dictionary<string, object>();
         private Coroutine m_syncCoroutine = null;
 
+        // 状态保持
+        private Dictionary<string, object> m_savedState = new Dictionary<string, object>();
+        private bool m_hasRestoredState = false;
+
+        // 过渡动画
+        private Coroutine m_transitionCoroutine = null;
+
+        // 事件
+        public System.Action<bool> OnNetworkStatusChanged;
+        public System.Action<string> OnNetworkError;
+        public System.Action OnTransitionStarted;
+        public System.Action OnTransitionCompleted;
+
         #region IGameModeComponent 实现
 
         public void OnGameModeChanged(GameMode newMode, GameMode previousMode)
@@ -75,6 +106,15 @@ namespace PongHub.Core.Components
             {
                 Debug.Log($"[NetworkModeComponent] 模式切换: {previousMode} -> {newMode}, 激活状态: {shouldBeActive}");
             }
+
+            // 保存当前状态（如果从网络模式切换出去）
+            if (m_saveState && previousMode == GameMode.Network && !shouldBeActive)
+            {
+                SaveComponentState();
+            }
+
+            // 开始过渡动画
+            StartTransitionEffect(shouldBeActive);
 
             // 启用/禁用网络模式专用对象
             foreach (var obj in m_networkOnlyObjects)
@@ -103,6 +143,13 @@ namespace PongHub.Core.Components
             {
                 DisableNetworkMode();
             }
+
+            // 恢复保存的状态（如果切换到网络模式）
+            if (m_saveState && newMode == GameMode.Network && shouldBeActive && !m_hasRestoredState)
+            {
+                RestoreComponentState();
+                m_hasRestoredState = true;
+            }
         }
 
         public bool IsActiveInMode(GameMode mode)
@@ -126,6 +173,12 @@ namespace PongHub.Core.Components
                 Debug.LogWarning("[NetworkModeComponent] GameModeManager实例不存在，延迟注册");
                 Invoke(nameof(RegisterWithDelay), 0.5f);
             }
+
+            // 初始化过渡效果
+            if (m_transitionEffect != null)
+            {
+                m_transitionEffect.SetActive(false);
+            }
         }
 
         private void Update()
@@ -148,6 +201,13 @@ namespace PongHub.Core.Components
             {
                 StopCoroutine(m_syncCoroutine);
                 m_syncCoroutine = null;
+            }
+
+            // 停止过渡协程
+            if (m_transitionCoroutine != null)
+            {
+                StopCoroutine(m_transitionCoroutine);
+                m_transitionCoroutine = null;
             }
 
             // 从GameModeManager注销
@@ -174,6 +234,9 @@ namespace PongHub.Core.Components
             m_isNetworkActive = true;
             m_isConnecting = false;
 
+            // 通知状态变化
+            OnNetworkStatusChanged?.Invoke(true);
+
             // 开始同步协程
             if (m_enableNetworkSync && IsOwner)
             {
@@ -191,6 +254,9 @@ namespace PongHub.Core.Components
             }
 
             m_isNetworkActive = false;
+
+            // 通知状态变化
+            OnNetworkStatusChanged?.Invoke(false);
 
             // 停止同步协程
             if (m_syncCoroutine != null)
@@ -253,10 +319,16 @@ namespace PongHub.Core.Components
             }
 
             // 断开网络连接
-            DisconnectFromNetwork();
+            if (m_isNetworkActive || m_isConnecting)
+            {
+                DisconnectFromNetwork();
+            }
 
-            // 清理网络模式状态
+            // 清理网络游戏玩法
             CleanupNetworkGameplay();
+
+            // 重置状态
+            m_hasRestoredState = false;
         }
 
         /// <summary>
@@ -268,39 +340,54 @@ namespace PongHub.Core.Components
             {
                 if (m_debugMode)
                 {
-                    Debug.LogWarning("[NetworkModeComponent] 网络已连接或正在连接中");
+                    Debug.Log("[NetworkModeComponent] 已经在连接或已连接到网络");
                 }
                 return;
             }
 
             if (m_debugMode)
             {
-                Debug.Log("[NetworkModeComponent] 开始建立网络连接");
+                Debug.Log("[NetworkModeComponent] 开始网络连接");
             }
 
             m_isConnecting = true;
             m_connectionStartTime = Time.time;
 
-            // 尝试启动网络管理器
-            if (NetworkManager.Singleton != null)
-            {
-                // 注册网络事件
-                NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-                NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
-
-                // 尝试作为主机启动
-                if (!NetworkManager.Singleton.StartHost())
-                {
-                    // 如果主机启动失败，尝试作为客户端连接
-                    if (!NetworkManager.Singleton.StartClient())
-                    {
-                        HandleConnectionFailure("无法启动网络连接");
-                    }
-                }
-            }
-            else
+            // 检查NetworkManager是否存在
+            if (NetworkManager.Singleton == null)
             {
                 HandleConnectionFailure("NetworkManager不存在");
+                return;
+            }
+
+            // 设置连接批准回调来限制玩家数量
+            NetworkManager.Singleton.ConnectionApprovalCallback = (request, response) =>
+            {
+                // 如果当前连接数量已经达到最大玩家数，拒绝连接
+                if (NetworkManager.Singleton.ConnectedClientsIds.Count >= m_maxPlayers)
+                {
+                    response.Approved = false;
+                    response.Reason = "服务器已满";
+                }
+                else
+                {
+                    response.Approved = true;
+                }
+            };
+
+            // 注册连接事件
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+
+            // 启动作为主机
+            if (!NetworkManager.Singleton.StartHost())
+            {
+                // 如果无法作为主机启动，尝试作为客户端连接
+                if (!NetworkManager.Singleton.StartClient())
+                {
+                    HandleConnectionFailure("无法作为主机或客户端启动");
+                    return;
+                }
             }
         }
 
@@ -309,23 +396,32 @@ namespace PongHub.Core.Components
         /// </summary>
         private void DisconnectFromNetwork()
         {
-            if (NetworkManager.Singleton != null && m_isNetworkActive)
+            if (!m_isConnecting && !m_isNetworkActive)
             {
-                // 注销网络事件
+                return;
+            }
+
+            if (m_debugMode)
+            {
+                Debug.Log("[NetworkModeComponent] 断开网络连接");
+            }
+
+            m_isConnecting = false;
+
+            // 检查NetworkManager是否存在
+            if (NetworkManager.Singleton != null)
+            {
+                // 注销连接事件
                 NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
                 NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+                NetworkManager.Singleton.ConnectionApprovalCallback = null;
 
-                // 关闭网络连接
+                // 关闭连接
                 NetworkManager.Singleton.Shutdown();
-
-                if (m_debugMode)
-                {
-                    Debug.Log("[NetworkModeComponent] 已断开网络连接");
-                }
             }
 
             m_isNetworkActive = false;
-            m_isConnecting = false;
+            OnNetworkStatusChanged?.Invoke(false);
         }
 
         /// <summary>
@@ -333,6 +429,7 @@ namespace PongHub.Core.Components
         /// </summary>
         private void HandleConnectionTimeout()
         {
+            m_isConnecting = false;
             HandleConnectionFailure("连接超时");
         }
 
@@ -341,16 +438,22 @@ namespace PongHub.Core.Components
         /// </summary>
         private void HandleConnectionFailure(string reason)
         {
+            m_isConnecting = false;
+            m_isNetworkActive = false;
+
             if (m_debugMode)
             {
                 Debug.LogError($"[NetworkModeComponent] 网络连接失败: {reason}");
             }
 
-            m_isConnecting = false;
-            m_isNetworkActive = false;
+            // 通知错误
+            OnNetworkError?.Invoke(reason);
 
-            // 可以在这里实现回退到单机模式的逻辑
-            // 例如：GameModeManager.Instance.SwitchToMode(GameMode.Local);
+            // 如果在网络模式下连接失败，切换回本地模式
+            if (GameModeManager.Instance != null && GameModeManager.Instance.CurrentMode == GameMode.Network)
+            {
+                GameModeManager.Instance.SwitchToMode(GameMode.Local);
+            }
         }
 
         /// <summary>
@@ -358,12 +461,9 @@ namespace PongHub.Core.Components
         /// </summary>
         private void ConfigureNetworkPhysics()
         {
-            // TODO: 配置网络物理参数
-            // 例如：设置网络物理同步、碰撞检测、球的网络属性等
-            if (m_debugMode)
-            {
-                Debug.Log("[NetworkModeComponent] 网络物理模拟已配置");
-            }
+            // 配置网络物理模拟
+            // 这里可以根据需要调整物理设置，例如插值、预测等
+            Physics.autoSimulation = !m_isNetworkActive; // 在网络模式下禁用自动物理模拟
         }
 
         /// <summary>
@@ -371,24 +471,27 @@ namespace PongHub.Core.Components
         /// </summary>
         private void InitializeNetworkGameplay()
         {
-            // TODO: 初始化网络游戏特定的功能
-            // 例如：同步分数、设置多人游戏规则、配置玩家角色等
             if (m_debugMode)
             {
-                Debug.Log("[NetworkModeComponent] 网络游戏玩法已初始化");
+                Debug.Log("[NetworkModeComponent] 初始化网络游戏玩法");
             }
+
+            // 初始化网络游戏玩法
+            // 这里可以初始化网络游戏相关的组件和逻辑
         }
 
         /// <summary>
-        /// 清理网络游戏状态
+        /// 清理网络游戏玩法
         /// </summary>
         private void CleanupNetworkGameplay()
         {
-            // TODO: 清理网络模式的游戏状态
             if (m_debugMode)
             {
-                Debug.Log("[NetworkModeComponent] 网络游戏状态已清理");
+                Debug.Log("[NetworkModeComponent] 清理网络游戏玩法");
             }
+
+            // 清理网络游戏玩法
+            // 这里可以清理网络游戏相关的组件和逻辑
         }
 
         /// <summary>
@@ -405,72 +508,207 @@ namespace PongHub.Core.Components
         }
 
         /// <summary>
-        /// 状态同步协程
+        /// 同步状态协程
         /// </summary>
         private IEnumerator SyncStateCoroutine()
         {
-            float syncInterval = 1f / m_syncRate;
+            float syncInterval = 1.0f / m_syncRate;
+            WaitForSeconds wait = new WaitForSeconds(syncInterval);
 
-            while (m_isNetworkActive && IsOwner)
+            while (m_isNetworkActive && m_enableNetworkSync)
             {
-                SyncComponentState();
-                yield return new WaitForSeconds(syncInterval);
+                // 同步变换数据
+                if (m_syncTransform)
+                {
+                    SyncTransformData();
+                }
+
+                // 同步动画数据
+                if (m_syncAnimation)
+                {
+                    SyncAnimationData();
+                }
+
+                // 同步自定义状态
+                SyncCustomStates();
+
+                yield return wait;
             }
         }
 
-        #endregion
-
-        #region 网络事件处理
-
         /// <summary>
-        /// 客户端连接成功
+        /// 客户端连接回调
         /// </summary>
         private void OnClientConnected(ulong clientId)
         {
             if (m_debugMode)
             {
-                Debug.Log($"[NetworkModeComponent] 客户端连接成功: {clientId}");
+                Debug.Log($"[NetworkModeComponent] 客户端已连接: {clientId}");
             }
 
             m_isConnecting = false;
             m_isNetworkActive = true;
+
+            // 通知状态变化
+            OnNetworkStatusChanged?.Invoke(true);
         }
 
         /// <summary>
-        /// 客户端断开连接
+        /// 客户端断开连接回调
         /// </summary>
         private void OnClientDisconnected(ulong clientId)
         {
             if (m_debugMode)
             {
-                Debug.Log($"[NetworkModeComponent] 客户端断开连接: {clientId}");
+                Debug.Log($"[NetworkModeComponent] 客户端已断开连接: {clientId}");
             }
 
-            // 如果是本地客户端断开，重置状态
+            // 如果是本地客户端断开连接，更新状态
             if (clientId == NetworkManager.Singleton.LocalClientId)
             {
                 m_isNetworkActive = false;
-                m_isConnecting = false;
+
+                // 通知状态变化
+                OnNetworkStatusChanged?.Invoke(false);
+
+                // 如果在网络模式下断开连接，切换回本地模式
+                if (GameModeManager.Instance != null && GameModeManager.Instance.CurrentMode == GameMode.Network)
+                {
+                    GameModeManager.Instance.SwitchToMode(GameMode.Local);
+                }
             }
+        }
+
+        /// <summary>
+        /// 保存组件状态
+        /// </summary>
+        private void SaveComponentState()
+        {
+            if (!m_saveState)
+            {
+                return;
+            }
+
+            if (m_debugMode)
+            {
+                Debug.Log("[NetworkModeComponent] 保存组件状态");
+            }
+
+            m_savedState.Clear();
+
+            // 保存关键状态数据
+            foreach (var key in m_stateKeys)
+            {
+                if (m_syncedStates.TryGetValue(key, out var value))
+                {
+                    m_savedState[key] = value;
+                }
+            }
+
+            // 可以添加更多特定状态的保存逻辑
+        }
+
+        /// <summary>
+        /// 恢复组件状态
+        /// </summary>
+        private void RestoreComponentState()
+        {
+            if (!m_saveState || m_savedState.Count == 0)
+            {
+                return;
+            }
+
+            if (m_debugMode)
+            {
+                Debug.Log("[NetworkModeComponent] 恢复组件状态");
+            }
+
+            // 恢复关键状态数据
+            foreach (var pair in m_savedState)
+            {
+                m_syncedStates[pair.Key] = pair.Value;
+            }
+
+            // 可以添加更多特定状态的恢复逻辑
+        }
+
+        /// <summary>
+        /// 开始过渡效果
+        /// </summary>
+        private void StartTransitionEffect(bool activating)
+        {
+            if (m_transitionEffect == null || m_transitionDuration <= 0)
+            {
+                return;
+            }
+
+            // 停止当前过渡
+            if (m_transitionCoroutine != null)
+            {
+                StopCoroutine(m_transitionCoroutine);
+            }
+
+            // 开始新的过渡
+            m_transitionCoroutine = StartCoroutine(TransitionEffectCoroutine(activating));
+        }
+
+        /// <summary>
+        /// 过渡效果协程
+        /// </summary>
+        private IEnumerator TransitionEffectCoroutine(bool activating)
+        {
+            // 通知过渡开始
+            OnTransitionStarted?.Invoke();
+
+            // 显示过渡效果
+            m_transitionEffect.SetActive(true);
+
+            // 过渡动画逻辑
+            float elapsedTime = 0;
+            while (elapsedTime < m_transitionDuration)
+            {
+                float progress = elapsedTime / m_transitionDuration;
+
+                // 可以在这里添加更复杂的过渡动画逻辑
+                // 例如调整透明度、缩放等
+
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+            // 隐藏过渡效果
+            m_transitionEffect.SetActive(false);
+
+            // 通知过渡完成
+            OnTransitionCompleted?.Invoke();
         }
 
         #endregion
 
-        #region 公共方法
+        #region 公共API
 
         /// <summary>
         /// 同步组件状态
         /// </summary>
         public void SyncComponentState()
         {
-            if (!m_isNetworkActive || !IsOwner)
+            if (!m_isNetworkActive || !m_enableNetworkSync)
+            {
                 return;
+            }
 
+            if (m_debugMode)
+            {
+                Debug.Log("[NetworkModeComponent] 手动同步组件状态");
+            }
+
+            // 同步变换数据
             if (m_syncTransform)
             {
                 SyncTransformData();
             }
 
+            // 同步动画数据
             if (m_syncAnimation)
             {
                 SyncAnimationData();
@@ -483,16 +721,25 @@ namespace PongHub.Core.Components
         /// <summary>
         /// 设置网络同步启用状态
         /// </summary>
-        /// <param name="enabled">是否启用同步</param>
         public void SetNetworkSyncEnabled(bool enabled)
         {
+            if (m_enableNetworkSync == enabled)
+            {
+                return;
+            }
+
             m_enableNetworkSync = enabled;
 
-            if (enabled && m_isNetworkActive && IsOwner)
+            if (m_debugMode)
+            {
+                Debug.Log($"[NetworkModeComponent] 设置网络同步: {enabled}");
+            }
+
+            if (m_enableNetworkSync && m_isNetworkActive)
             {
                 StartSyncCoroutine();
             }
-            else if (m_syncCoroutine != null)
+            else if (!m_enableNetworkSync && m_syncCoroutine != null)
             {
                 StopCoroutine(m_syncCoroutine);
                 m_syncCoroutine = null;
@@ -502,13 +749,26 @@ namespace PongHub.Core.Components
         /// <summary>
         /// 设置同步频率
         /// </summary>
-        /// <param name="rate">同步频率（Hz）</param>
         public void SetSyncRate(float rate)
         {
-            m_syncRate = Mathf.Clamp(rate, 10f, 120f);
+            if (rate < 10f)
+            {
+                rate = 10f;
+            }
+            else if (rate > 120f)
+            {
+                rate = 120f;
+            }
 
-            // 如果正在同步，重新启动协程以应用新频率
-            if (m_syncCoroutine != null)
+            m_syncRate = rate;
+
+            if (m_debugMode)
+            {
+                Debug.Log($"[NetworkModeComponent] 设置同步频率: {rate}");
+            }
+
+            // 重启同步协程以应用新频率
+            if (m_enableNetworkSync && m_isNetworkActive)
             {
                 StartSyncCoroutine();
             }
@@ -519,12 +779,22 @@ namespace PongHub.Core.Components
         /// </summary>
         public string GetNetworkStatusInfo()
         {
-            return $"网络激活: {m_isNetworkActive}\n" +
-                   $"正在连接: {m_isConnecting}\n" +
-                   $"同步启用: {m_enableNetworkSync}\n" +
-                   $"同步频率: {m_syncRate}Hz\n" +
-                   $"是否拥有者: {(IsSpawned ? IsOwner.ToString() : "未生成")}\n" +
-                   $"是否服务器: {(IsSpawned ? IsServer.ToString() : "未生成")}";
+            string status = "未连接";
+
+            if (m_isConnecting)
+            {
+                status = "正在连接...";
+            }
+            else if (m_isNetworkActive)
+            {
+                status = "已连接";
+                if (NetworkManager.Singleton != null)
+                {
+                    status += $" (ID: {NetworkManager.Singleton.LocalClientId})";
+                }
+            }
+
+            return status;
         }
 
         /// <summary>
@@ -537,23 +807,34 @@ namespace PongHub.Core.Components
                 Debug.Log("[NetworkModeComponent] 强制重新连接");
             }
 
+            // 断开当前连接
             DisconnectFromNetwork();
 
-            // 延迟重新连接以确保完全断开
-            Invoke(nameof(StartNetworkConnection), 1f);
+            // 短暂延迟后重新连接
+            StartCoroutine(ReconnectAfterDelay());
+        }
+
+        /// <summary>
+        /// 延迟重新连接协程
+        /// </summary>
+        private IEnumerator ReconnectAfterDelay()
+        {
+            yield return new WaitForSeconds(0.5f);
+            StartNetworkConnection();
         }
 
         #endregion
 
-        #region 私有同步方法
+        #region 同步方法
 
         /// <summary>
         /// 同步变换数据
         /// </summary>
         private void SyncTransformData()
         {
-            // TODO: 实现变换数据的网络同步
-            // 使用NetworkTransform或自定义RPC
+            // 这里实现变换数据的同步逻辑
+            // 例如位置、旋转、缩放等
+            // 可以使用NetworkTransform组件或自定义RPC
         }
 
         /// <summary>
@@ -561,8 +842,9 @@ namespace PongHub.Core.Components
         /// </summary>
         private void SyncAnimationData()
         {
-            // TODO: 实现动画状态的网络同步
-            // 使用NetworkAnimator或自定义RPC
+            // 这里实现动画数据的同步逻辑
+            // 例如动画状态、参数等
+            // 可以使用NetworkAnimator组件或自定义RPC
         }
 
         /// <summary>
@@ -570,8 +852,9 @@ namespace PongHub.Core.Components
         /// </summary>
         private void SyncCustomStates()
         {
-            // TODO: 实现自定义游戏状态的网络同步
-            // 例如：分数、游戏进度、特殊效果等
+            // 这里实现自定义状态的同步逻辑
+            // 例如游戏状态、玩家数据等
+            // 可以使用NetworkVariable或自定义RPC
         }
 
         #endregion

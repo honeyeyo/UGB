@@ -7,9 +7,11 @@ using PongHub.Gameplay.Ball;
 using PongHub.Gameplay.Paddle;
 using Unity.Netcode;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using PongHub.Utils;
 using PongHub.Core.Components;
+using System.Linq; // Added for .OfType()
 
 namespace PongHub.Core
 {
@@ -33,6 +35,14 @@ namespace PongHub.Core
         [Tooltip("Switch Delay / 切换延迟 - Delay in seconds between mode switch operations")]
         private float m_switchDelay = 0.1f; // 模式切换延迟
 
+        [SerializeField]
+        [Tooltip("Use Transition Effects / 使用过渡效果 - Enable visual transition effects during mode switching")]
+        private bool m_useTransitionEffects = true;
+
+        [SerializeField]
+        [Tooltip("Auto Discover Components / 自动发现组件 - Automatically discover IGameModeComponent implementations")]
+        private bool m_autoDiscoverComponents = true;
+
         [Header("Game Area References / 游戏区域引用")]
         [SerializeField]
         [Tooltip("Game Area Root / 游戏区域根节点 - Root transform containing all game area objects")]
@@ -49,6 +59,15 @@ namespace PongHub.Core
         [SerializeField]
         [Tooltip("Paddles Array / 球拍数组 - Array of paddle components for local/network modes")]
         private Paddle[] m_paddles;
+
+        [Header("Core Components / 核心组件")]
+        [SerializeField]
+        [Tooltip("Environment State Manager / 环境状态管理器 - Reference to the environment state manager")]
+        private EnvironmentStateManager m_environmentStateManager;
+
+        [SerializeField]
+        [Tooltip("Mode Transition Effect / 模式切换效果 - Reference to the mode transition effect")]
+        private ModeTransitionEffect m_transitionEffect;
 
         [Header("Local Mode Components / 单机模式组件")]
         [SerializeField]
@@ -99,6 +118,9 @@ namespace PongHub.Core
         private float m_lastSwitchTime = 0f;
         private int m_switchCount = 0;
 
+        // 模式切换状态
+        private bool m_transitionInProgress = false;
+
         #region Unity 生命周期
 
         private void Awake()
@@ -125,6 +147,15 @@ namespace PongHub.Core
 
         private void Start()
         {
+            // 查找核心组件（如果未指定）
+            FindCoreComponents();
+
+            // 如果启用了自动发现，查找所有IGameModeComponent实现
+            if (m_autoDiscoverComponents)
+            {
+                DiscoverGameModeComponents();
+            }
+
             // 延迟一帧确保所有组件都已初始化
             Invoke(nameof(InitializeDefaultMode), 0.1f);
         }
@@ -186,6 +217,15 @@ namespace PongHub.Core
 
             m_registeredComponents.Add(component);
 
+            // 缓存组件类型
+            var type = component.GetType();
+            if (!m_componentCache.TryGetValue(type, out var components))
+            {
+                components = new List<IGameModeComponent>();
+                m_componentCache[type] = components;
+            }
+            components.Add(component);
+
             // 如果当前已经有激活模式，立即通知新组件
             if (CurrentMode != GameMode.Menu) // Menu是临时状态，不通知
             {
@@ -218,6 +258,17 @@ namespace PongHub.Core
 
             if (m_registeredComponents.Remove(component))
             {
+                // 从缓存中移除
+                var type = component.GetType();
+                if (m_componentCache.TryGetValue(type, out var components))
+                {
+                    components.Remove(component);
+                    if (components.Count == 0)
+                    {
+                        m_componentCache.Remove(type);
+                    }
+                }
+
                 if (m_debugMode)
                 {
                     Debug.Log($"[GameModeManager] 注销组件: {component.GetType().Name}");
@@ -238,9 +289,71 @@ namespace PongHub.Core
         /// </summary>
         public bool IsSwitching => m_isSwitching;
 
+        /// <summary>
+        /// 检查是否正在过渡中
+        /// </summary>
+        public bool IsTransitioning => m_transitionInProgress;
+
         #endregion
 
         #region 私有方法
+
+        /// <summary>
+        /// 查找核心组件
+        /// </summary>
+        private void FindCoreComponents()
+        {
+            // 查找环境状态管理器
+            if (m_environmentStateManager == null)
+            {
+                m_environmentStateManager = FindObjectOfType<EnvironmentStateManager>();
+
+                // 如果没有找到，创建一个
+                if (m_environmentStateManager == null && m_environmentRoot != null)
+                {
+                    GameObject envStateObj = new GameObject("EnvironmentStateManager");
+                    envStateObj.transform.SetParent(transform);
+                    m_environmentStateManager = envStateObj.AddComponent<EnvironmentStateManager>();
+                }
+            }
+
+            // 查找模式切换效果
+            if (m_transitionEffect == null && m_useTransitionEffects)
+            {
+                m_transitionEffect = FindObjectOfType<ModeTransitionEffect>();
+
+                // 如果没有找到，创建一个
+                if (m_transitionEffect == null)
+                {
+                    GameObject transitionObj = new GameObject("ModeTransitionEffect");
+                    transitionObj.transform.SetParent(transform);
+                    m_transitionEffect = transitionObj.AddComponent<ModeTransitionEffect>();
+                }
+            }
+        }
+
+        /// <summary>
+        /// 自动发现游戏模式组件
+        /// </summary>
+        private void DiscoverGameModeComponents()
+        {
+            // 查找场景中所有实现了IGameModeComponent的组件
+            var components = FindObjectsOfType<MonoBehaviour>().OfType<IGameModeComponent>();
+
+            foreach (var component in components)
+            {
+                // 排除已注册的组件
+                if (!m_registeredComponents.Contains(component))
+                {
+                    RegisterComponent(component);
+
+                    if (m_debugMode)
+                    {
+                        Debug.Log($"[GameModeManager] 自动发现组件: {component.GetType().Name}");
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// 初始化默认模式
@@ -259,7 +372,7 @@ namespace PongHub.Core
         /// <summary>
         /// 模式切换协程
         /// </summary>
-        private System.Collections.IEnumerator SwitchModeCoroutine(GameMode newMode)
+        private IEnumerator SwitchModeCoroutine(GameMode newMode)
         {
             m_isSwitching = true;
             GameMode previousMode = CurrentMode;
@@ -269,63 +382,131 @@ namespace PongHub.Core
                 Debug.Log($"[GameModeManager] 开始切换模式: {previousMode} -> {newMode}");
             }
 
-            // 切换延迟
-            if (m_switchDelay > 0)
+            // 记录切换时间（用于性能监控）
+            m_lastSwitchTime = Time.realtimeSinceStartup;
+            m_switchCount++;
+
+            // 如果使用过渡效果，启动过渡
+            if (m_useTransitionEffects && m_transitionEffect != null)
             {
+                m_transitionInProgress = true;
+                m_transitionEffect.TriggerTransition(previousMode, newMode);
+
+                // 等待过渡开始
                 yield return new WaitForSeconds(m_switchDelay);
             }
 
             // 更新当前模式
             CurrentMode = newMode;
 
-            // 使用优化的组件切换
-            OptimizeComponentSwitching(newMode, previousMode);
+            // 通知组件模式变化
+            NotifyComponents(newMode, previousMode);
+
+            // 如果使用过渡效果，等待过渡完成
+            if (m_useTransitionEffects && m_transitionEffect != null)
+            {
+                // 等待过渡完成
+                while (m_transitionEffect.IsTransitioning)
+                {
+                    yield return null;
+                }
+                m_transitionInProgress = false;
+            }
 
             // 触发模式改变事件
             OnModeChanged?.Invoke(newMode, previousMode);
 
+            // 记录切换完成时间（用于性能监控）
+            float switchTime = Time.realtimeSinceStartup - m_lastSwitchTime;
+            if (m_debugMode)
+            {
+                Debug.Log($"[GameModeManager] 模式切换完成: {previousMode} -> {newMode}，耗时: {switchTime:F3}秒");
+            }
+
             m_isSwitching = false;
+        }
+
+        /// <summary>
+        /// 通知组件模式变化
+        /// </summary>
+        private void NotifyComponents(GameMode newMode, GameMode previousMode)
+        {
+            if (m_registeredComponents.Count == 0)
+            {
+                return;
+            }
 
             if (m_debugMode)
             {
-                Debug.Log($"[GameModeManager] 模式切换完成: {previousMode} -> {newMode}");
+                Debug.Log($"[GameModeManager] 通知组件模式变化: {previousMode} -> {newMode}，组件数量: {m_registeredComponents.Count}");
+            }
+
+            try
+            {
+                // 按优先级排序组件
+                var sortedComponents = m_registeredComponents
+                    .OrderBy(GetComponentPriority)
+                    .ToList();
+
+                // 分批处理组件以避免性能问题
+                StartCoroutine(BatchProcessComponents(sortedComponents, newMode, previousMode));
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"[GameModeManager] 通知组件时出错: {e.Message}\n{e.StackTrace}");
             }
         }
 
         /// <summary>
-        /// 通知所有注册的组件模式变化
+        /// 获取组件优先级（数值越小优先级越高）
         /// </summary>
-        private void NotifyComponents(GameMode newMode, GameMode previousMode)
+        private int GetComponentPriority(IGameModeComponent component)
         {
+            if (component is EnvironmentStateManager) return 0; // 环境状态管理器优先级最高
+            if (component is LocalModeComponent) return 1;
+            if (component is NetworkModeComponent) return 2;
+            if (component is ModeTransitionEffect) return 100; // 过渡效果优先级最低
+            return 10; // 默认优先级
+        }
+
+        /// <summary>
+        /// 分批处理组件协程
+        /// </summary>
+        private IEnumerator BatchProcessComponents(List<IGameModeComponent> components, GameMode newMode, GameMode previousMode)
+        {
+            const int batchSize = 5; // 每批处理5个组件
             var componentsToRemove = new List<IGameModeComponent>();
 
-            foreach (var component in m_registeredComponents)
+            for (int i = 0; i < components.Count; i += batchSize)
             {
-                if (component == null)
+                // 处理当前批次
+                for (int j = i; j < Mathf.Min(i + batchSize, components.Count); j++)
                 {
-                    componentsToRemove.Add(component);
-                    continue;
+                    var component = components[j];
+                    if (component == null)
+                    {
+                        componentsToRemove.Add(component);
+                        continue;
+                    }
+
+                    try
+                    {
+                        component.OnGameModeChanged(newMode, previousMode);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"[GameModeManager] 组件 {component.GetType().Name} 模式切换失败: {e.Message}");
+                    }
                 }
 
-                try
-                {
-                    component.OnGameModeChanged(newMode, previousMode);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"[GameModeManager] 组件 {component.GetType().Name} 模式切换失败: {e.Message}");
-                }
+                // 每批处理后暂停一帧
+                yield return null;
             }
 
             // 清理空引用
             foreach (var nullComponent in componentsToRemove)
             {
                 m_registeredComponents.Remove(nullComponent);
-            }
-
-            if (m_debugMode && componentsToRemove.Count > 0)
-            {
-                Debug.Log($"[GameModeManager] 清理了 {componentsToRemove.Count} 个空引用组件");
             }
         }
 
@@ -505,8 +686,12 @@ namespace PongHub.Core
                 Debug.Log($"[GameModeManager] 提交模式切换事务: {m_pendingMode}");
             }
 
-            SwitchToMode(m_pendingMode);
+            // 保存事务状态
+            GameMode targetMode = m_pendingMode;
             m_hasTransaction = false;
+
+            // 执行模式切换
+            SwitchToMode(targetMode);
         }
 
         /// <summary>
@@ -535,7 +720,7 @@ namespace PongHub.Core
         public bool HasActiveTransaction => m_hasTransaction;
 
         /// <summary>
-        /// 获取待处理的模式
+        /// 获取挂起的模式
         /// </summary>
         public GameMode PendingMode => m_pendingMode;
 
@@ -558,57 +743,6 @@ namespace PongHub.Core
 
             // 分批处理组件以避免帧率下降
             StartCoroutine(BatchProcessComponents(prioritizedComponents, newMode, previousMode));
-        }
-
-        /// <summary>
-        /// 获取组件优先级（数值越小优先级越高）
-        /// </summary>
-        private int GetComponentPriority(IGameModeComponent component)
-        {
-            if (component is LocalModeComponent) return 1;
-            if (component is NetworkModeComponent) return 2;
-            return 10; // 默认优先级
-        }
-
-        /// <summary>
-        /// 分批处理组件协程
-        /// </summary>
-        private System.Collections.IEnumerator BatchProcessComponents(List<IGameModeComponent> components, GameMode newMode, GameMode previousMode)
-        {
-            const int batchSize = 5; // 每批处理5个组件
-            var componentsToRemove = new List<IGameModeComponent>();
-
-            for (int i = 0; i < components.Count; i += batchSize)
-            {
-                // 处理当前批次
-                for (int j = i; j < Mathf.Min(i + batchSize, components.Count); j++)
-                {
-                    var component = components[j];
-                    if (component == null)
-                    {
-                        componentsToRemove.Add(component);
-                        continue;
-                    }
-
-                    try
-                    {
-                        component.OnGameModeChanged(newMode, previousMode);
-                    }
-                    catch (Exception e)
-                    {
-                        Debug.LogError($"[GameModeManager] 组件 {component.GetType().Name} 模式切换失败: {e.Message}");
-                    }
-                }
-
-                // 每批处理后暂停一帧
-                yield return null;
-            }
-
-            // 清理空引用
-            foreach (var nullComponent in componentsToRemove)
-            {
-                m_registeredComponents.Remove(nullComponent);
-            }
         }
 
         /// <summary>
