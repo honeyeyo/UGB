@@ -47,9 +47,11 @@ namespace PongHub.UI
         [Tooltip("Hover Sound / 悬停音效 - Audio clip played when hovering over UI elements")]
         private AudioClip hoverSound;
 
+#pragma warning disable 0414
         [SerializeField]
-        [Tooltip("Haptic Feedback / 触觉反馈 - Enable haptic feedback for VR interactions")]
-        private bool enableHapticFeedback = true;
+        [Tooltip("Enable Haptic Feedback / 启用触觉反馈 - Whether to enable haptic feedback for menu interactions")]
+        private bool enableHapticFeedback = true; // 保留用于将来实现触觉反馈
+#pragma warning restore 0414
 
         [Header("Interaction Feedback")]
         [SerializeField]
@@ -346,7 +348,7 @@ namespace PongHub.UI
             }
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             // 绘制射线交互的可视化调试信息
@@ -364,6 +366,6 @@ namespace PongHub.UI
                 Gizmos.DrawRay(rightTransform.position, rightTransform.forward * 10f);
             }
         }
-        #endif
+#endif
     }
 }

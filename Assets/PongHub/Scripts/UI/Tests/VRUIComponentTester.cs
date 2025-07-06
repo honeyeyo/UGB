@@ -267,7 +267,7 @@ namespace PongHub.UI.Tests
 
             VRSlider slider = sliderObj.AddComponent<VRSlider>();
             slider.SetTheme(m_Theme);
-            slider.SetMinMaxValues(0, 100);
+            slider.SetRange(0, 100);
             slider.SetValue(50);
             slider.OnValueChanged.AddListener((value) => Debug.Log("滑块值变化: " + value));
 
@@ -305,7 +305,7 @@ namespace PongHub.UI.Tests
 
             VRInputField inputField = inputObj.AddComponent<VRInputField>();
             inputField.SetTheme(m_Theme);
-            inputField.SetPlaceholderText("请输入文本...");
+            inputField.SetPlaceholder("请输入文本...");
             inputField.OnValueChanged.AddListener((text) => Debug.Log("输入值变化: " + text));
 
             m_TestComponents.Add(inputField);
@@ -359,7 +359,7 @@ namespace PongHub.UI.Tests
 
             // 添加内容
             GameObject contentObj = new GameObject("PanelContent");
-            contentObj.transform.SetParent(panel.GetContentArea());
+            contentObj.transform.SetParent(panel.contentArea);
 
             RectTransform contentRect = contentObj.AddComponent<RectTransform>();
             contentRect.anchorMin = Vector2.zero;
@@ -395,7 +395,7 @@ namespace PongHub.UI.Tests
             for (int i = 0; i < 3; i++)
             {
                 GameObject itemObj = new GameObject("Item_" + i);
-                itemObj.transform.SetParent(layoutGroup.GetContentArea());
+                itemObj.transform.SetParent(layoutGroup.contentArea);
 
                 RectTransform itemRect = itemObj.AddComponent<RectTransform>();
                 itemRect.sizeDelta = new Vector2(80, 80);

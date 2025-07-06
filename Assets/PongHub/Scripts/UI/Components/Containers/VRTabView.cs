@@ -104,17 +104,19 @@ namespace PongHub.UI.Components
         [Tooltip("Inactive Tab Color / 未激活标签颜色 - Color for inactive tabs")]
         private Color m_InactiveTabColor = new Color(0.2f, 0.2f, 0.2f, 0.8f);
 
+#pragma warning disable 0414
         [SerializeField]
-        [Tooltip("Tab Transition Duration / 标签过渡时长 - Duration of tab transition animation")]
-        private float m_TabTransitionDuration = 0.3f;
+        [Tooltip("Tab Transition Duration / 标签切换持续时间 - Duration of tab transition animations")]
+        private float m_TabTransitionDuration = 0.3f; // 保留用于将来实现标签切换动画
+
+        [SerializeField]
+        [Tooltip("Use Slide Transition / 使用滑动过渡 - Whether to use slide transition animation")]
+        private bool m_UseSlideTransition = true; // 保留用于将来实现滑动过渡效果
+#pragma warning restore 0414
 
         [SerializeField]
         [Tooltip("Use Fade Transition / 使用淡入淡出过渡 - Whether to use fade transition for tab content")]
         private bool m_UseFadeTransition = true;
-
-        [SerializeField]
-        [Tooltip("Use Slide Transition / 使用滑动过渡 - Whether to use slide transition for tab content")]
-        private bool m_UseSlideTransition = false;
 
         [SerializeField]
         [Tooltip("Background / 背景 - Background for the tab view")]

@@ -139,9 +139,10 @@ namespace PongHub.UI
 
         private void OnInputSettingsClicked()
         {
-            if (UIManager.Instance != null)
+            MenuCanvasController menuCanvasController = FindObjectOfType<MenuCanvasController>();
+            if (menuCanvasController != null)
             {
-                UIManager.Instance.ShowInputSettings();
+                menuCanvasController.ShowInputSettings();
             }
         }
 

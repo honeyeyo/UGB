@@ -184,9 +184,9 @@ namespace PongHub.Core.Components
         private void Update()
         {
             // 检查连接超时
-            if (m_isConnecting && Time.time - m_connectionStartTime > m_connectionTimeout)
+            if (m_isConnecting && !m_isNetworkActive)
             {
-                if (m_debugMode)
+                if (Time.time - m_connectionStartTime > m_connectionTimeout)
                 {
                     Debug.LogWarning("[NetworkModeComponent] 网络连接超时");
                 }
@@ -194,7 +194,7 @@ namespace PongHub.Core.Components
             }
         }
 
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             // 停止同步协程
             if (m_syncCoroutine != null)
@@ -215,6 +215,9 @@ namespace PongHub.Core.Components
             {
                 GameModeManager.Instance.UnregisterComponent(this);
             }
+
+            // 调用基类的OnDestroy
+            base.OnDestroy();
         }
 
         #endregion
@@ -463,7 +466,7 @@ namespace PongHub.Core.Components
         {
             // 配置网络物理模拟
             // 这里可以根据需要调整物理设置，例如插值、预测等
-            Physics.autoSimulation = !m_isNetworkActive; // 在网络模式下禁用自动物理模拟
+            Physics.simulationMode = m_isNetworkActive ? SimulationMode.Script : SimulationMode.FixedUpdate;
         }
 
         /// <summary>

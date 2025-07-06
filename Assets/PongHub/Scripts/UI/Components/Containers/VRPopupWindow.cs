@@ -93,9 +93,11 @@ namespace PongHub.UI.Components
         [Tooltip("Border Width / 边框宽度 - Width of the window border")]
         private float m_BorderWidth = 2f;
 
+#pragma warning disable 0414
         [SerializeField]
         [Tooltip("Corner Radius / 圆角半径 - Radius of the window corners")]
-        private float m_CornerRadius = 10f;
+        private float m_CornerRadius = 10f; // 保留用于将来实现圆角效果
+#pragma warning restore 0414
 
         [SerializeField]
         [Tooltip("Animation Duration / 动画时长 - Duration of the window animation")]
@@ -722,9 +724,13 @@ namespace PongHub.UI.Components
 
                 // 添加调整大小事件
                 VRButton resizeButton = resizeHandleObj.AddComponent<VRButton>();
-                resizeButton.OnPointerDown.AddListener((eventData) => BeginResize(eventData.position));
-                resizeButton.OnPointerDrag.AddListener((eventData) => Resize(eventData.position));
-                resizeButton.OnPointerUp.AddListener((eventData) => EndResize());
+
+                // 使用事件处理器替代直接访问方法
+                DragHandler resizeHandler = resizeHandleObj.AddComponent<DragHandler>();
+                resizeHandler.popupWindow = this;
+
+                // 设置调整大小功能
+                resizeButton.OnClick.AddListener(() => { /* 可选的点击处理 */ });
             }
         }
 

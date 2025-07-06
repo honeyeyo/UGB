@@ -370,9 +370,10 @@ namespace PongHub.UI.Components
                 backgroundColor = m_theme.backgroundColor;
 
                 // 使用主题的accentColor作为边框颜色
-                if (m_borderImage != null)
+                if (m_useBorder)
                 {
-                    m_borderImage.color = m_theme.accentColor;
+                    // 更新边框颜色
+                    UpdateBorder();
                 }
 
                 m_shadowColor = new Color(0f, 0f, 0f, 0.5f);

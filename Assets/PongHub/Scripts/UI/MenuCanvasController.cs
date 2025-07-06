@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using PongHub.Core;
 
 namespace PongHub.UI
 {
@@ -53,9 +54,11 @@ namespace PongHub.UI
         [Tooltip("Block Raycast / 阻挡射线 - Whether canvas blocks raycasts for interaction")]
         private bool blockRaycast = true;
 
+#pragma warning disable 0414
         [SerializeField]
-        [Tooltip("Animation duration in seconds")]
-        private float animationDuration = 0.3f;
+        [Tooltip("Animation Duration / 动画持续时间 - Duration of menu animations")]
+        private float animationDuration = 0.3f; // 保留用于将来实现菜单动画
+#pragma warning restore 0414
 
         // 私有字段
         private bool isInitialized = false;
@@ -192,6 +195,77 @@ namespace PongHub.UI
             SetVisibility(false, false);
 
             isInitialized = true;
+        }
+
+        /// <summary>
+        /// 异步初始化方法
+        /// </summary>
+        public async System.Threading.Tasks.Task InitializeAsync()
+        {
+            await System.Threading.Tasks.Task.Yield();
+            Initialize();
+        }
+
+        /// <summary>
+        /// 开始游戏
+        /// </summary>
+        public void StartGame()
+        {
+            // 隐藏菜单，开始游戏
+            HideCanvas(true);
+
+            // 通知游戏核心开始游戏
+            var gameCore = FindObjectOfType<GameCore>();
+            if (gameCore != null)
+            {
+                gameCore.StartGame();
+            }
+        }
+
+        /// <summary>
+        /// 暂停游戏
+        /// </summary>
+        public void PauseGame()
+        {
+            // 显示暂停菜单
+            ShowCanvas(true);
+
+            // 切换到暂停面板
+            var tableMenuSystem = FindObjectOfType<TableMenuSystem>();
+            if (tableMenuSystem != null)
+            {
+                tableMenuSystem.ShowPanel(MenuPanel.Main);
+            }
+        }
+
+        /// <summary>
+        /// 显示设置
+        /// </summary>
+        public void ShowSettings()
+        {
+            // 显示菜单并切换到设置面板
+            ShowCanvas(true);
+
+            var tableMenuSystem = FindObjectOfType<TableMenuSystem>();
+            if (tableMenuSystem != null)
+            {
+                tableMenuSystem.ShowPanel(MenuPanel.Settings);
+            }
+        }
+
+        /// <summary>
+        /// 显示输入设置
+        /// </summary>
+        public void ShowInputSettings()
+        {
+            // 显示菜单并切换到控制设置面板
+            ShowCanvas(true);
+
+            var tableMenuSystem = FindObjectOfType<TableMenuSystem>();
+            if (tableMenuSystem != null)
+            {
+                tableMenuSystem.ShowPanel(MenuPanel.Controls);
+            }
         }
 
         public void ShowCanvas(bool animated = true)
@@ -426,7 +500,7 @@ namespace PongHub.UI
             return c3 * t * t * t - c1 * t * t;
         }
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         private void OnValidate()
         {
             if (Application.isPlaying && isInitialized)
@@ -449,6 +523,6 @@ namespace PongHub.UI
                 }
             }
         }
-        #endif
+#endif
     }
 }

@@ -64,25 +64,28 @@ namespace PongHub.UI
 
         private void ConfigurePaddle(bool leftHand)
         {
-            if (UIManager.Instance != null)
+            TableMenuSystem tableMenuSystem = FindObjectOfType<TableMenuSystem>();
+            if (tableMenuSystem != null)
             {
-                UIManager.Instance.ConfigurePaddle(leftHand);
+                tableMenuSystem.ConfigurePaddle(leftHand);
             }
         }
 
         private void TeleportToSide(int sideIndex)
         {
-            if (UIManager.Instance != null)
+            TableMenuSystem tableMenuSystem = FindObjectOfType<TableMenuSystem>();
+            if (tableMenuSystem != null)
             {
-                UIManager.Instance.TeleportToPoint(sideIndex);
+                tableMenuSystem.TeleportToPoint(sideIndex);
             }
         }
 
         private void OnBackClicked()
         {
-            if (UIManager.Instance != null)
+            MenuCanvasController menuCanvasController = FindObjectOfType<MenuCanvasController>();
+            if (menuCanvasController != null)
             {
-                UIManager.Instance.ShowSettings();
+                menuCanvasController.ShowSettings();
             }
         }
     }

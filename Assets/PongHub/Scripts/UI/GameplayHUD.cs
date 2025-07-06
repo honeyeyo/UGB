@@ -144,17 +144,19 @@ namespace PongHub.UI
 
         private void OnMenuClicked()
         {
-            if (UIManager.Instance != null)
+            MenuCanvasController menuCanvasController = FindObjectOfType<MenuCanvasController>();
+            if (menuCanvasController != null)
             {
-                UIManager.Instance.PauseGame();
+                menuCanvasController.PauseGame();
             }
         }
 
         private void TeleportToSide(int sideIndex)
         {
-            if (UIManager.Instance != null)
+            TableMenuSystem tableMenuSystem = FindObjectOfType<TableMenuSystem>();
+            if (tableMenuSystem != null)
             {
-                UIManager.Instance.TeleportToPoint(sideIndex);
+                tableMenuSystem.TeleportToPoint(sideIndex);
                 ShowMessage($"已瞬移到{(sideIndex == 0 ? "左" : "右")}侧", 1f);
             }
         }

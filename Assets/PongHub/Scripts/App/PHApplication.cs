@@ -489,10 +489,18 @@ namespace PongHub.App
 
         private async Task InitializeUISystems()
         {
-            // 使用别名访问我们的 UIManager
-            if (PongHub.UI.UIManager.Instance != null)
+            // 使用新的菜单系统替代过时的UIManager
+            MenuCanvasController menuCanvasController = FindObjectOfType<MenuCanvasController>();
+            TableMenuSystem tableMenuSystem = FindObjectOfType<TableMenuSystem>();
+
+            if (menuCanvasController != null)
             {
-                await PongHub.UI.UIManager.Instance.InitializeAsync();
+                await menuCanvasController.InitializeAsync();
+            }
+
+            if (tableMenuSystem != null)
+            {
+                await tableMenuSystem.InitializeAsync();
             }
 
             // 初始化记分牌面板

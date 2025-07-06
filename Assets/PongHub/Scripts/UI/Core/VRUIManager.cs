@@ -24,6 +24,9 @@ namespace PongHub.UI.Core
         [Tooltip("Haptic Feedback Enabled / 启用触觉反馈 - Enable haptic feedback for interactions")]
         private bool m_hapticFeedbackEnabled = true;
 
+        // 移除未使用的字段或添加注释说明保留这些字段用于将来功能
+        // 保留这些字段用于将来实现音频和视觉反馈功能
+#pragma warning disable 0414
         [SerializeField]
         [Tooltip("Audio Feedback Enabled / 启用音频反馈 - Enable audio feedback for interactions")]
         private bool m_audioFeedbackEnabled = true;
@@ -31,6 +34,7 @@ namespace PongHub.UI.Core
         [SerializeField]
         [Tooltip("Visual Feedback Enabled / 启用视觉反馈 - Enable visual feedback for interactions")]
         private bool m_visualFeedbackEnabled = true;
+#pragma warning restore 0414
 
         [Header("调试设置")]
         [SerializeField]

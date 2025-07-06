@@ -190,9 +190,10 @@ namespace PongHub.UI
 
         private void OnStartGameClicked()
         {
-            if (UIManager.Instance != null)
+            MenuCanvasController menuCanvasController = FindObjectOfType<MenuCanvasController>();
+            if (menuCanvasController != null)
             {
-                UIManager.Instance.StartGame();
+                menuCanvasController.StartGame();
             }
             else if (GameCore.Instance != null)
             {
@@ -202,19 +203,20 @@ namespace PongHub.UI
 
         private void OnSettingsClicked()
         {
-            if (UIManager.Instance != null)
+            MenuCanvasController menuCanvasController = FindObjectOfType<MenuCanvasController>();
+            if (menuCanvasController != null)
             {
-                UIManager.Instance.ShowSettings();
+                menuCanvasController.ShowSettings();
             }
         }
 
         private void OnQuitClicked()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
-            #else
+#else
             Application.Quit();
-            #endif
+#endif
         }
     }
 }

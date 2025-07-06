@@ -190,14 +190,8 @@ namespace PongHub.UI.Components
             // 确保当前值在新范围内
             m_value = Mathf.Clamp(m_value, m_minValue, m_maxValue);
 
-            // 更新滑块位置
-            UpdateHandlePosition();
-
-            // 更新填充区域
-            UpdateFillArea();
-
-            // 更新值文本
-            UpdateValueText();
+            // 更新滑块位置和视觉效果
+            UpdateVisuals();
         }
 
         /// <summary>
@@ -619,6 +613,93 @@ namespace PongHub.UI.Components
             }
 
             // 更新数值文本
+            if (m_valueText != null && m_showValueText)
+            {
+                m_valueText.text = string.Format(m_valueFormat, m_value);
+            }
+        }
+
+        /// <summary>
+        /// 更新滑块位置
+        /// </summary>
+        private void UpdateHandlePosition()
+        {
+            if (m_handle == null || m_rectTransform == null)
+                return;
+
+            // 计算填充比例
+            float fillAmount = (m_value - m_minValue) / (m_maxValue - m_minValue);
+            Vector2 size = m_rectTransform.sizeDelta;
+
+            // 根据方向设置滑块位置
+            switch (m_direction)
+            {
+                case Direction.LeftToRight:
+                    m_handle.anchoredPosition = new Vector2(size.x * fillAmount, 0);
+                    break;
+                case Direction.RightToLeft:
+                    m_handle.anchoredPosition = new Vector2(-size.x * fillAmount, 0);
+                    break;
+                case Direction.BottomToTop:
+                    m_handle.anchoredPosition = new Vector2(0, size.y * fillAmount);
+                    break;
+                case Direction.TopToBottom:
+                    m_handle.anchoredPosition = new Vector2(0, -size.y * fillAmount);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 更新填充区域
+        /// </summary>
+        private void UpdateFillArea()
+        {
+            if (m_fill == null || m_rectTransform == null)
+                return;
+
+            // 计算填充比例
+            float fillAmount = (m_value - m_minValue) / (m_maxValue - m_minValue);
+            Vector2 size = m_rectTransform.sizeDelta;
+
+            // 根据方向设置填充区域
+            switch (m_direction)
+            {
+                case Direction.LeftToRight:
+                    RectTransform fillRect = m_fill.rectTransform;
+                    fillRect.anchorMin = new Vector2(0, 0);
+                    fillRect.anchorMax = new Vector2(0, 1);
+                    fillRect.pivot = new Vector2(0, 0.5f);
+                    fillRect.sizeDelta = new Vector2(size.x * fillAmount, 0);
+                    break;
+                case Direction.RightToLeft:
+                    RectTransform fillRectRL = m_fill.rectTransform;
+                    fillRectRL.anchorMin = new Vector2(1, 0);
+                    fillRectRL.anchorMax = new Vector2(1, 1);
+                    fillRectRL.pivot = new Vector2(1, 0.5f);
+                    fillRectRL.sizeDelta = new Vector2(size.x * fillAmount, 0);
+                    break;
+                case Direction.BottomToTop:
+                    RectTransform fillRectBT = m_fill.rectTransform;
+                    fillRectBT.anchorMin = new Vector2(0, 0);
+                    fillRectBT.anchorMax = new Vector2(1, 0);
+                    fillRectBT.pivot = new Vector2(0.5f, 0);
+                    fillRectBT.sizeDelta = new Vector2(0, size.y * fillAmount);
+                    break;
+                case Direction.TopToBottom:
+                    RectTransform fillRectTB = m_fill.rectTransform;
+                    fillRectTB.anchorMin = new Vector2(0, 1);
+                    fillRectTB.anchorMax = new Vector2(1, 1);
+                    fillRectTB.pivot = new Vector2(0.5f, 1);
+                    fillRectTB.sizeDelta = new Vector2(0, size.y * fillAmount);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 更新数值文本
+        /// </summary>
+        private void UpdateValueText()
+        {
             if (m_valueText != null && m_showValueText)
             {
                 m_valueText.text = string.Format(m_valueFormat, m_value);

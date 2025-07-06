@@ -134,7 +134,8 @@ namespace PongHub.UI.Testing
             if (VRUIManager.Instance != null)
             {
                 // 使用正确的方法应用主题
-                VRUIManager.Instance.theme = m_theme;
+                // 检查VRUIManager是否有SetTheme方法
+                VRUIManager.Instance.SetTheme(m_theme);
             }
         }
 
