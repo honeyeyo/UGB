@@ -177,10 +177,14 @@ MonoBehaviour:
   m_defaultMode: 0
   m_debugMode: 0
   m_switchDelay: 0.1
+  m_useTransitionEffects: 1
+  m_autoDiscoverComponents: 1
   m_gameAreaRoot: {fileID: 0}
   m_table: {fileID: 0}
   m_ballPhysics: {fileID: 0}
   m_paddles: []
+  m_environmentStateManager: {fileID: 0}
+  m_transitionEffect: {fileID: 0}
   m_localModeComponents: []
   m_networkModeComponents: []
   m_environmentRoot: {fileID: 0}

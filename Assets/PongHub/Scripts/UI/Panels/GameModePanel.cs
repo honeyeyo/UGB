@@ -21,7 +21,7 @@ namespace PongHub.UI.Panels
         [SerializeField] private Button m_friendsListButton;     // 好友列表按钮
 
         [Header("控制按钮")]
-        [SerializeField] private Button m_backButton;            // 返回按钮
+        [SerializeField] private new Button m_backButton;        // 返回按钮
 
         [Header("音效")]
         [SerializeField] private AudioClip m_buttonClickSound;   // 按钮点击音效

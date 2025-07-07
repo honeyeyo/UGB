@@ -2,19 +2,19 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem;
 
 namespace PongHub.UI
 {
     /// <summary>
     /// VR菜单交互控制器，处理VR控制器与UI的交互
+    /// 使用OVR SDK进行VR交互
     /// </summary>
     public class VRMenuInteraction : MonoBehaviour
     {
         [Header("交互设置")]
-        [SerializeField] private XRRayInteractor m_leftRayInteractor;   // 左手射线交互器
-        [SerializeField] private XRRayInteractor m_rightRayInteractor;  // 右手射线交互器
+        [SerializeField] private Transform m_leftControllerTransform;    // 左手控制器Transform
+        [SerializeField] private Transform m_rightControllerTransform;   // 右手控制器Transform
         [SerializeField] private float m_maxRayDistance = 10f;          // 最大射线距离
         [SerializeField] private LayerMask m_uiLayerMask;               // UI层掩码
 
@@ -38,7 +38,7 @@ namespace PongHub.UI
         [Header("反馈设置")]
         [SerializeField] private bool m_enableVisualFeedback = true;    // 启用视觉反馈
         [SerializeField] private bool m_enableHapticFeedback = true;    // 启用触觉反馈
-        [SerializeField] private bool m_enableAudioFeedback = true;     // 启用音频反馈
+        // [SerializeField] private bool m_enableAudioFeedback = true;     // 启用音频反馈（暂未使用）
         [SerializeField] private float m_interactionDistance = 5.0f;    // 交互距离阈值
 
         // 事件
@@ -156,11 +156,11 @@ namespace PongHub.UI
         {
             if (m_isLeftRayActive && m_leftCurrentTarget != null)
             {
-                return Vector3.Distance(m_leftRayInteractor.transform.position, m_leftCurrentResult.worldPosition);
+                return Vector3.Distance(m_leftControllerTransform.position, m_leftCurrentResult.worldPosition);
             }
             else if (m_isRightRayActive && m_rightCurrentTarget != null)
             {
-                return Vector3.Distance(m_rightRayInteractor.transform.position, m_rightCurrentResult.worldPosition);
+                return Vector3.Distance(m_rightControllerTransform.position, m_rightCurrentResult.worldPosition);
             }
 
             return float.MaxValue;
@@ -196,6 +196,15 @@ namespace PongHub.UI
             return m_interactionDistance;
         }
 
+        /// <summary>
+        /// 菜单按钮按下事件（用于测试）
+        /// </summary>
+        public void OnMenuButtonPressed()
+        {
+            // 触发选择事件
+            TriggerSelection();
+        }
+
         #endregion
 
         #region 私有方法
@@ -205,47 +214,31 @@ namespace PongHub.UI
         /// </summary>
         private void InitializeComponents()
         {
-            // 初始化射线交互器
-            if (m_leftRayInteractor == null)
+            // 自动查找控制器Transform（如果未指定）
+            if (m_leftControllerTransform == null || m_rightControllerTransform == null)
             {
-                var leftController = GameObject.Find("LeftHand Controller");
-                if (leftController != null)
+                var cameraRig = FindObjectOfType<OVRCameraRig>();
+                if (cameraRig != null)
                 {
-                    m_leftRayInteractor = leftController.GetComponent<XRRayInteractor>();
+                    if (m_leftControllerTransform == null)
+                        m_leftControllerTransform = cameraRig.leftControllerAnchor;
+                    if (m_rightControllerTransform == null)
+                        m_rightControllerTransform = cameraRig.rightControllerAnchor;
                 }
             }
 
-            if (m_rightRayInteractor == null)
+            // 设置线渲染器
+            if (m_leftLineRenderer != null)
             {
-                var rightController = GameObject.Find("RightHand Controller");
-                if (rightController != null)
-                {
-                    m_rightRayInteractor = rightController.GetComponent<XRRayInteractor>();
-                }
+                SetupLineRenderer(m_leftLineRenderer);
             }
 
-            // 初始化线渲染器
-            if (m_leftLineRenderer == null && m_leftRayInteractor != null)
+            if (m_rightLineRenderer != null)
             {
-                m_leftLineRenderer = m_leftRayInteractor.GetComponent<LineRenderer>();
-                if (m_leftLineRenderer == null)
-                {
-                    m_leftLineRenderer = m_leftRayInteractor.gameObject.AddComponent<LineRenderer>();
-                    SetupLineRenderer(m_leftLineRenderer);
-                }
+                SetupLineRenderer(m_rightLineRenderer);
             }
 
-            if (m_rightLineRenderer == null && m_rightRayInteractor != null)
-            {
-                m_rightLineRenderer = m_rightRayInteractor.GetComponent<LineRenderer>();
-                if (m_rightLineRenderer == null)
-                {
-                    m_rightLineRenderer = m_rightRayInteractor.gameObject.AddComponent<LineRenderer>();
-                    SetupLineRenderer(m_rightLineRenderer);
-                }
-            }
-
-            // 初始化瞄准点
+            // 创建瞄准点（如果需要）
             if (m_leftReticle == null)
             {
                 m_leftReticle = CreateReticle("LeftReticle");
@@ -266,9 +259,6 @@ namespace PongHub.UI
             {
                 m_rightReticleOriginalScale = m_rightReticle.transform.localScale;
             }
-
-            // 设置初始可见性
-            SetRayVisibility(false);
         }
 
         /// <summary>
@@ -352,177 +342,139 @@ namespace PongHub.UI
         private void UpdateRays()
         {
             // 更新左手射线
-            if (m_isLeftRayActive && m_leftRayInteractor != null)
+            if (m_leftControllerTransform != null)
             {
-                UpdateRay(m_leftRayInteractor, m_leftLineRenderer, m_leftReticle, true);
+                UpdateRay(m_leftControllerTransform, m_leftLineRenderer, m_leftReticle, true);
             }
 
             // 更新右手射线
-            if (m_isRightRayActive && m_rightRayInteractor != null)
+            if (m_rightControllerTransform != null)
             {
-                UpdateRay(m_rightRayInteractor, m_rightLineRenderer, m_rightReticle, false);
+                UpdateRay(m_rightControllerTransform, m_rightLineRenderer, m_rightReticle, false);
             }
         }
 
         /// <summary>
-        /// 更新射线
+        /// 更新单个射线
         /// </summary>
-        private void UpdateRay(XRRayInteractor rayInteractor, LineRenderer lineRenderer, GameObject reticle, bool isLeft)
+        private void UpdateRay(Transform controllerTransform, LineRenderer lineRenderer, GameObject reticle, bool isLeft)
         {
-            // 获取射线起点和方向
-            Vector3 rayOrigin = rayInteractor.transform.position;
-            Vector3 rayDirection = rayInteractor.transform.forward;
+            if (controllerTransform == null) return;
 
-            // 执行射线检测
-            RaycastResult result = PerformUIRaycast(rayOrigin, rayDirection);
-            GameObject currentTarget = result.gameObject;
+            bool rayActive = isLeft ? m_isLeftRayActive : m_isRightRayActive;
 
-            // 更新当前目标
-            if (isLeft)
-            {
-                // 如果目标发生变化
-                if (m_leftCurrentTarget != currentTarget)
-                {
-                    // 处理先前目标的退出
-                    if (m_leftCurrentTarget != null)
-                    {
-                        HandleUIExit(m_leftCurrentResult, true);
-                    }
+            // 进行射线检测
+            RaycastHit hit;
+            Vector3 rayOrigin = controllerTransform.position;
+            Vector3 rayDirection = controllerTransform.forward;
 
-                    // 更新当前目标
-                    m_leftCurrentTarget = currentTarget;
-                    m_leftCurrentResult = result;
-
-                    // 处理新目标的进入
-                    if (m_leftCurrentTarget != null)
-                    {
-                        HandleUIEnter(m_leftCurrentResult, true);
-                    }
-                }
-            }
-            else
-            {
-                // 如果目标发生变化
-                if (m_rightCurrentTarget != currentTarget)
-                {
-                    // 处理先前目标的退出
-                    if (m_rightCurrentTarget != null)
-                    {
-                        HandleUIExit(m_rightCurrentResult, false);
-                    }
-
-                    // 更新当前目标
-                    m_rightCurrentTarget = currentTarget;
-                    m_rightCurrentResult = result;
-
-                    // 处理新目标的进入
-                    if (m_rightCurrentTarget != null)
-                    {
-                        HandleUIEnter(m_rightCurrentResult, false);
-                    }
-                }
-            }
+            bool hasHit = Physics.Raycast(rayOrigin, rayDirection, out hit, m_maxRayDistance, m_uiLayerMask);
 
             // 更新线渲染器
-            if (lineRenderer != null && m_enableVisualFeedback)
+            if (rayActive && hasHit)
             {
-                // 设置起点
-                lineRenderer.SetPosition(0, rayOrigin);
+                lineRenderer.enabled = true;
+                Vector3 endPoint = hit.point;
+                lineRenderer.SetPosition(0, controllerTransform.position);
+                lineRenderer.SetPosition(1, endPoint);
 
-                // 设置终点
-                if (currentTarget != null)
-                {
-                    lineRenderer.SetPosition(1, result.worldPosition);
-
-                    // 检查交互距离是否有效
-                    bool isDistanceValid = Vector3.Distance(rayOrigin, result.worldPosition) <= m_interactionDistance;
-
-                    // 根据距离设置颜色
-                    if (isDistanceValid)
-                    {
-                        lineRenderer.startColor = m_hoverColor;
-                        lineRenderer.endColor = m_hoverColor;
-                    }
-                    else
-                    {
-                        lineRenderer.startColor = m_invalidColor;
-                        lineRenderer.endColor = m_invalidColor;
-                    }
-                }
-                else
-                {
-                    lineRenderer.SetPosition(1, rayOrigin + rayDirection * m_maxRayDistance);
-                    lineRenderer.startColor = m_normalColor;
-                    lineRenderer.endColor = m_normalColor;
-                }
+                // 根据是否命中设置颜色
+                Color rayColor = hasHit ? m_hoverColor : m_normalColor;
+                lineRenderer.startColor = rayColor;
+                lineRenderer.endColor = rayColor;
+            }
+            else if (lineRenderer != null)
+            {
+                lineRenderer.enabled = false;
             }
 
             // 更新瞄准点
-            if (reticle != null && m_enableVisualFeedback)
+            if (reticle != null && rayActive)
             {
-                if (currentTarget != null)
+                if (hasHit)
                 {
                     reticle.SetActive(true);
-                    reticle.transform.position = result.worldPosition;
-
-                    // 检查交互距离是否有效
-                    bool isDistanceValid = Vector3.Distance(rayOrigin, result.worldPosition) <= m_interactionDistance;
-
-                    // 设置瞄准点外观
-                    Renderer renderer = reticle.GetComponent<Renderer>();
-                    if (renderer != null)
-                    {
-                        if (isDistanceValid)
-                        {
-                            renderer.material.color = m_hoverColor;
-
-                            // 应用悬停缩放
-                            Vector3 originalScale = isLeft ? m_leftReticleOriginalScale : m_rightReticleOriginalScale;
-                            reticle.transform.localScale = originalScale * m_reticleHoverScale;
-                        }
-                        else
-                        {
-                            renderer.material.color = m_invalidColor;
-
-                            // 恢复原始缩放
-                            Vector3 originalScale = isLeft ? m_leftReticleOriginalScale : m_rightReticleOriginalScale;
-                            reticle.transform.localScale = originalScale;
-                        }
-                    }
+                    reticle.transform.position = hit.point;
+                    reticle.transform.LookAt(controllerTransform.position);
                 }
                 else
                 {
                     reticle.SetActive(false);
                 }
             }
-        }
+            else if (reticle != null)
+            {
+                reticle.SetActive(false);
+            }
 
-        /// <summary>
-        /// 执行UI射线检测
-        /// </summary>
-        private RaycastResult PerformUIRaycast(Vector3 origin, Vector3 direction)
-        {
-            // 创建指针事件数据
-            PointerEventData eventData = new PointerEventData(EventSystem.current);
-            eventData.position = Camera.main.WorldToScreenPoint(origin + direction);
+            // 处理UI交互
+            if (hasHit && rayActive)
+            {
+                // 创建RaycastResult用于UI系统
+                RaycastResult result = new RaycastResult
+                {
+                    gameObject = hit.collider.gameObject,
+                    worldPosition = hit.point,
+                    distance = hit.distance
+                };
 
-            // 执行射线检测
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(eventData, results);
+                // 检查是否是新目标
+                GameObject currentTarget = isLeft ? m_leftCurrentTarget : m_rightCurrentTarget;
 
-            // 过滤结果
-            results.RemoveAll(r => !IsInLayerMask(r.gameObject.layer, m_uiLayerMask));
+                if (currentTarget != hit.collider.gameObject)
+                {
+                    // 退出旧目标
+                    if (currentTarget != null)
+                    {
+                        HandleUIExit(isLeft ? m_leftCurrentResult : m_rightCurrentResult, isLeft);
+                    }
 
-            // 返回最近的结果
-            return results.Count > 0 ? results[0] : new RaycastResult();
-        }
+                    // 进入新目标
+                    HandleUIEnter(result, isLeft);
 
-        /// <summary>
-        /// 检查层是否在层掩码中
-        /// </summary>
-        private bool IsInLayerMask(int layer, LayerMask layerMask)
-        {
-            return ((1 << layer) & layerMask) != 0;
+                    // 更新当前目标
+                    if (isLeft)
+                    {
+                        m_leftCurrentTarget = hit.collider.gameObject;
+                        m_leftCurrentResult = result;
+                    }
+                    else
+                    {
+                        m_rightCurrentTarget = hit.collider.gameObject;
+                        m_rightCurrentResult = result;
+                    }
+                }
+                else
+                {
+                    // 更新结果
+                    if (isLeft)
+                    {
+                        m_leftCurrentResult = result;
+                    }
+                    else
+                    {
+                        m_rightCurrentResult = result;
+                    }
+                }
+            }
+            else
+            {
+                // 没有命中，清除当前目标
+                GameObject currentTarget = isLeft ? m_leftCurrentTarget : m_rightCurrentTarget;
+                if (currentTarget != null)
+                {
+                    HandleUIExit(isLeft ? m_leftCurrentResult : m_rightCurrentResult, isLeft);
+
+                    if (isLeft)
+                    {
+                        m_leftCurrentTarget = null;
+                    }
+                    else
+                    {
+                        m_rightCurrentTarget = null;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -577,7 +529,7 @@ namespace PongHub.UI
         {
             // 检查交互距离是否有效
             bool isDistanceValid = Vector3.Distance(
-                isLeft ? m_leftRayInteractor.transform.position : m_rightRayInteractor.transform.position,
+                isLeft ? m_leftControllerTransform.position : m_rightControllerTransform.position,
                 result.worldPosition
             ) <= m_interactionDistance;
 
@@ -651,29 +603,24 @@ namespace PongHub.UI
             // 创建指针事件数据
             PointerEventData eventData = new PointerEventData(EventSystem.current);
 
-            // 执行事件
-            ExecuteEvents.Execute(target, eventData, GetEventHandler(eventType));
-        }
-
-        /// <summary>
-        /// 获取事件处理器
-        /// </summary>
-        private ExecuteEvents.EventFunction<IPointerEventHandler> GetEventHandler(EventTriggerType eventType)
-        {
+            // 根据事件类型执行相应的事件
             switch (eventType)
             {
                 case EventTriggerType.PointerEnter:
-                    return ExecuteEvents.pointerEnterHandler;
+                    ExecuteEvents.Execute(target, eventData, ExecuteEvents.pointerEnterHandler);
+                    break;
                 case EventTriggerType.PointerExit:
-                    return ExecuteEvents.pointerExitHandler;
+                    ExecuteEvents.Execute(target, eventData, ExecuteEvents.pointerExitHandler);
+                    break;
                 case EventTriggerType.PointerDown:
-                    return ExecuteEvents.pointerDownHandler;
+                    ExecuteEvents.Execute(target, eventData, ExecuteEvents.pointerDownHandler);
+                    break;
                 case EventTriggerType.PointerUp:
-                    return ExecuteEvents.pointerUpHandler;
+                    ExecuteEvents.Execute(target, eventData, ExecuteEvents.pointerUpHandler);
+                    break;
                 case EventTriggerType.PointerClick:
-                    return ExecuteEvents.pointerClickHandler;
-                default:
-                    return null;
+                    ExecuteEvents.Execute(target, eventData, ExecuteEvents.pointerClickHandler);
+                    break;
             }
         }
 

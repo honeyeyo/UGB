@@ -93,12 +93,13 @@ namespace PongHub.UI.Panels
             string playerStatus = "Online";
 
             // TODO: 从玩家数据管理器获取实际信息
-            var playerManager = FindObjectOfType<PlayerManager>();
-            if (playerManager != null)
-            {
-                // playerName = playerManager.GetPlayerName();
-                // playerStatus = playerManager.GetPlayerStatus();
-            }
+            // TODO : 暂时注释掉PlayerManager相关代码，因为该类不存在
+            // var playerManager = FindObjectOfType<PlayerManager>();
+            // if (playerManager != null)
+            // {
+            //     playerName = playerManager.GetPlayerName();
+            //     playerStatus = playerManager.GetPlayerStatus();
+            // }
 
             // 更新UI
             if (m_playerNameText != null)

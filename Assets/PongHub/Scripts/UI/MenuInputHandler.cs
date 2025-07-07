@@ -8,7 +8,8 @@ using UnityEngine.XR.Interaction.Toolkit;
 namespace PongHub.UI
 {
     /// <summary>
-    /// 菜单输入处理器，负责处理与菜单相关的输入事件
+    /// 菜单输入处理器
+    /// 处理VR控制器输入并提供触觉、音频反馈
     /// </summary>
     public class MenuInputHandler : MonoBehaviour
     {
@@ -41,21 +42,17 @@ namespace PongHub.UI
         [SerializeField] private float m_audioVolume = 0.5f;
 
         [Header("高级触觉设置")]
-        [SerializeField] private bool m_usePatternFeedback = false;
+        [SerializeField] private bool m_useAdvancedHaptics = true;
         [SerializeField] [Range(0, 1)] private AnimationCurve m_buttonClickPattern;
         [SerializeField] [Range(0, 1)] private AnimationCurve m_menuNavigationPattern;
         [SerializeField] private float m_patternDuration = 0.2f;
         [SerializeField] private int m_patternSteps = 10;
 
-        // XR控制器
-        private XRBaseController m_leftController;
-        private XRBaseController m_rightController;
-
-        // 输入状态
+        // 私有变量
         private bool m_isMenuPressed = false;
         private bool m_isBackPressed = false;
 
-        // 触觉反馈协程
+        // 协程引用
         private Coroutine m_leftHapticCoroutine;
         private Coroutine m_rightHapticCoroutine;
 
@@ -63,9 +60,6 @@ namespace PongHub.UI
 
         private void Awake()
         {
-            // 查找控制器
-            FindControllers();
-
             // 初始化音频源
             InitializeAudioSource();
         }
@@ -80,9 +74,6 @@ namespace PongHub.UI
         {
             // 禁用输入动作
             DisableInputActions();
-
-            // 停止所有触觉反馈
-            StopAllHaptics();
         }
 
         private void Update()
@@ -93,36 +84,34 @@ namespace PongHub.UI
 
         #endregion
 
-        #region 公共方法
+        #region 公共方法 - 触觉反馈
 
         /// <summary>
         /// 提供触觉反馈
         /// </summary>
-        /// <param name="isLeftController">是否为左控制器</param>
-        /// <param name="amplitude">振动强度</param>
-        /// <param name="duration">振动持续时间</param>
         public void ProvideFeedback(bool isLeftController, float amplitude, float duration)
         {
             if (!m_enableHapticFeedback) return;
 
-            XRBaseController controller = isLeftController ? m_leftController : m_rightController;
-            if (controller != null)
-            {
-                controller.SendHapticImpulse(amplitude, duration);
-            }
+            OVRInput.Controller controller = isLeftController ? OVRInput.Controller.LTouch : OVRInput.Controller.RTouch;
+
+            // 使用OVR的振动API
+            OVRInput.SetControllerVibration(amplitude, amplitude, controller);
+
+            // 延迟停止振动
+            StartCoroutine(StopVibrationAfterDelay(controller, duration));
         }
 
         /// <summary>
-        /// 提供默认触觉反馈
+        /// 提供标准触觉反馈
         /// </summary>
-        /// <param name="isLeftController">是否为左控制器</param>
         public void ProvideFeedback(bool isLeftController)
         {
             ProvideFeedback(isLeftController, m_hapticAmplitude, m_hapticDuration);
         }
 
         /// <summary>
-        /// 提供双控制器触觉反馈
+        /// 为两个控制器提供反馈
         /// </summary>
         public void ProvideFeedbackBoth()
         {
@@ -133,14 +122,13 @@ namespace PongHub.UI
         /// <summary>
         /// 提供强烈触觉反馈
         /// </summary>
-        /// <param name="isLeftController">是否为左控制器</param>
         public void ProvideStrongFeedback(bool isLeftController)
         {
             ProvideFeedback(isLeftController, m_strongHapticAmplitude, m_strongHapticDuration);
         }
 
         /// <summary>
-        /// 提供强烈双控制器触觉反馈
+        /// 为两个控制器提供强烈反馈
         /// </summary>
         public void ProvideStrongFeedbackBoth()
         {
@@ -151,14 +139,13 @@ namespace PongHub.UI
         /// <summary>
         /// 提供轻微触觉反馈
         /// </summary>
-        /// <param name="isLeftController">是否为左控制器</param>
         public void ProvideLightFeedback(bool isLeftController)
         {
             ProvideFeedback(isLeftController, m_lightHapticAmplitude, m_lightHapticDuration);
         }
 
         /// <summary>
-        /// 提供轻微双控制器触觉反馈
+        /// 为两个控制器提供轻微反馈
         /// </summary>
         public void ProvideLightFeedbackBoth()
         {
@@ -173,7 +160,7 @@ namespace PongHub.UI
         /// <param name="pattern">振动模式曲线</param>
         public void ProvidePatternFeedback(bool isLeftController, AnimationCurve pattern)
         {
-            if (!m_enableHapticFeedback || !m_usePatternFeedback) return;
+            if (!m_enableHapticFeedback || !m_useAdvancedHaptics) return;
 
             // 停止当前协程
             if (isLeftController && m_leftHapticCoroutine != null)
@@ -205,7 +192,7 @@ namespace PongHub.UI
         /// <param name="isLeftController">是否为左控制器</param>
         public void ProvideButtonClickFeedback(bool isLeftController)
         {
-            if (m_usePatternFeedback && m_buttonClickPattern != null)
+            if (m_useAdvancedHaptics && m_buttonClickPattern != null)
             {
                 ProvidePatternFeedback(isLeftController, m_buttonClickPattern);
             }
@@ -224,7 +211,7 @@ namespace PongHub.UI
         /// <param name="isLeftController">是否为左控制器</param>
         public void ProvideMenuNavigationFeedback(bool isLeftController)
         {
-            if (m_usePatternFeedback && m_menuNavigationPattern != null)
+            if (m_useAdvancedHaptics && m_menuNavigationPattern != null)
             {
                 ProvidePatternFeedback(isLeftController, m_menuNavigationPattern);
             }
@@ -291,15 +278,9 @@ namespace PongHub.UI
                 m_rightHapticCoroutine = null;
             }
 
-            if (m_leftController != null)
-            {
-                m_leftController.SendHapticImpulse(0, 0.1f);
-            }
-
-            if (m_rightController != null)
-            {
-                m_rightController.SendHapticImpulse(0, 0.1f);
-            }
+            // 停止OVR输入的振动
+            OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.LTouch);
+            OVRInput.SetControllerVibration(0, 0, OVRInput.Controller.RTouch);
         }
 
         #endregion
@@ -320,27 +301,6 @@ namespace PongHub.UI
                     m_audioSource.playOnAwake = false;
                     m_audioSource.spatialBlend = 0.0f; // 2D音效
                     m_audioSource.volume = m_audioVolume;
-                }
-            }
-        }
-
-        /// <summary>
-        /// 查找XR控制器
-        /// </summary>
-        private void FindControllers()
-        {
-            // 查找左右控制器
-            // 实际项目中应该根据项目的XR设置来查找控制器
-            XRBaseController[] controllers = FindObjectsOfType<XRBaseController>();
-            foreach (var controller in controllers)
-            {
-                if (controller.name.ToLower().Contains("left"))
-                {
-                    m_leftController = controller;
-                }
-                else if (controller.name.ToLower().Contains("right"))
-                {
-                    m_rightController = controller;
                 }
             }
         }
@@ -428,8 +388,8 @@ namespace PongHub.UI
         /// </summary>
         private IEnumerator PlayHapticPattern(bool isLeftController, AnimationCurve pattern)
         {
-            XRBaseController controller = isLeftController ? m_leftController : m_rightController;
-            if (controller == null) yield break;
+            OVRInput.Controller controller = isLeftController ? OVRInput.Controller.LTouch : OVRInput.Controller.RTouch;
+            if (controller == OVRInput.Controller.None) yield break;
 
             float timeStep = m_patternDuration / m_patternSteps;
 
@@ -438,7 +398,7 @@ namespace PongHub.UI
                 float t = (float)i / (m_patternSteps - 1);
                 float amplitude = pattern.Evaluate(t);
 
-                controller.SendHapticImpulse(amplitude, timeStep);
+                OVRInput.SetControllerVibration(amplitude, amplitude, controller);
                 yield return new WaitForSeconds(timeStep);
             }
 
@@ -466,6 +426,15 @@ namespace PongHub.UI
             ProvideFeedback(isLeftController, m_strongHapticAmplitude, m_strongHapticDuration / 2);
         }
 
+        /// <summary>
+        /// 延迟停止振动
+        /// </summary>
+        private IEnumerator StopVibrationAfterDelay(OVRInput.Controller controller, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            OVRInput.SetControllerVibration(0, 0, controller);
+        }
+
         #endregion
 
         #region 输入事件处理
@@ -480,7 +449,7 @@ namespace PongHub.UI
             // 切换菜单显示状态
             if (m_menuController != null)
             {
-                bool wasMenuVisible = m_menuController.IsMenuVisible();
+                bool wasMenuVisible = m_menuController.IsMenuVisible;
                 m_menuController.ToggleMenu();
 
                 // 根据菜单状态播放不同音效

@@ -148,10 +148,10 @@ namespace PongHub.UI.Settings
         private void OnBackButtonClicked()
         {
             // 如果有父菜单控制器，则调用其返回方法
-            MainMenu.MainMenuController menuController = GetComponentInParent<MainMenu.MainMenuController>();
+            MainMenuController menuController = GetComponentInParent<MainMenuController>();
             if (menuController != null)
             {
-                menuController.ShowMainPanel();
+                menuController.ShowMainMenuPanel();
             }
         }
 

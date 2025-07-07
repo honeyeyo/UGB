@@ -91,7 +91,7 @@ namespace PongHub.Editor
             CheckManager<VibrationManager>("VibrationManager");
             CheckManager<PongHub.Networking.NetworkManager>("NetworkManager");
             CheckManager<GameCore>("GameCore");
-            CheckManager<PongHub.UI.UIManager>("UIManager");
+            CheckManager<MenuCanvasController>("MenuCanvasController");
         }
 
         private void CheckManager<T>(string name) where T : MonoBehaviour

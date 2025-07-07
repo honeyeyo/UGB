@@ -23,7 +23,7 @@ namespace PongHub.UI
         [SerializeField] private GameModeManager m_gameModeManager;
 
         [Header("配置")]
-        [SerializeField] private float m_panelTransitionTime = 0.3f;
+        // [SerializeField] private float m_panelTransitionTime = 0.3f;     // 面板切换时间（暂未使用）
         [SerializeField] private bool m_showMenuOnStart = true;
 
         // 当前活动面板
@@ -116,6 +116,22 @@ namespace PongHub.UI
         }
 
         /// <summary>
+        /// 显示主面板（兼容性方法）
+        /// </summary>
+        public void ShowMainPanel()
+        {
+            ShowMainMenuPanel();
+        }
+
+        /// <summary>
+        /// 检查菜单是否可见
+        /// </summary>
+        public bool IsMenuVisible
+        {
+            get { return m_isMenuVisible; }
+        }
+
+        /// <summary>
         /// 显示设置面板
         /// </summary>
         public void ShowSettingsPanel()
@@ -163,7 +179,7 @@ namespace PongHub.UI
         {
             if (m_gameModeManager != null)
             {
-                m_gameModeManager.SwitchGameMode(GameMode.Local);
+                m_gameModeManager.SwitchToMode(GameMode.Local);
                 HideMenu();
             }
         }
@@ -175,7 +191,7 @@ namespace PongHub.UI
         {
             if (m_gameModeManager != null)
             {
-                m_gameModeManager.SwitchGameMode(GameMode.Network);
+                m_gameModeManager.SwitchToMode(GameMode.Network);
                 HideMenu();
             }
         }
