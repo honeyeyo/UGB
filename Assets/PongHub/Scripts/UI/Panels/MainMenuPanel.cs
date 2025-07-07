@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using PongHub.Core;
@@ -5,340 +6,418 @@ using PongHub.Core;
 namespace PongHub.UI.Panels
 {
     /// <summary>
-    /// Main menu panel for table-based VR interface
-    /// 主菜单面板，用于桌面VR界面
+    /// 主菜单面板，显示游戏的主要功能入口
     /// </summary>
-    public class MainMenuPanel : MonoBehaviour
+    public class MainMenuPanel : MenuPanelBase
     {
-        [Header("UI Components - UI组件")]
-        [SerializeField]
-        [Tooltip("Title Text / 标题文本 - Main menu title display component")]
-        private Text titleText;
+        [Header("按钮引用")]
+        [SerializeField] private Button m_singlePlayerButton;    // 单机模式按钮
+        [SerializeField] private Button m_multiplayerButton;     // 多人模式按钮
+        [SerializeField] private Button m_settingsButton;        // 设置按钮
+        [SerializeField] private Button m_helpButton;            // 帮助按钮
+        [SerializeField] private Button m_exitButton;            // 退出按钮
 
-        [SerializeField]
-        [Tooltip("Single Player Button / 单机模式按钮 - Opens single player/practice mode")]
-        private Button singlePlayerButton;
+        [Header("玩家信息")]
+        [SerializeField] private Text m_playerNameText;          // 玩家名称文本
+        [SerializeField] private Text m_playerStatusText;        // 玩家状态文本
+        [SerializeField] private Image m_playerAvatar;           // 玩家头像
 
-        [SerializeField]
-        [Tooltip("Multi-Player Button / 多人模式按钮 - Opens multiplayer network mode")]
-        private Button multiPlayerButton;
+        [Header("音效")]
+        [SerializeField] private AudioClip m_buttonClickSound;   // 按钮点击音效
+        [SerializeField] private AudioClip m_panelShowSound;     // 面板显示音效
+        [SerializeField] private AudioClip m_panelHideSound;     // 面板隐藏音效
 
-        [SerializeField]
-        [Tooltip("Settings Button / 设置按钮 - Opens game settings panel")]
-        private Button settingsButton;
+        // 事件
+        public event Action OnSinglePlayerSelected;
+        public event Action OnMultiplayerSelected;
+        public event Action OnSettingsSelected;
+        public event Action OnHelpSelected;
+        public event Action OnExitSelected;
 
-        [SerializeField]
-        [Tooltip("Exit Button / 退出按钮 - Closes the game application")]
-        private Button exitButton;
+        // 音频源
+        private AudioSource m_audioSource;
 
-        [Header("Text Components - 文本组件")]
-        [SerializeField]
-        [Tooltip("Local Mode Label / 单机模式标签 - Text label for single player button")]
-        private Text localModeText;
+        // 主菜单控制器引用
+        private MainMenuController m_menuController;
 
-        [SerializeField]
-        [Tooltip("Network Mode Label / 网络模式标签 - Text label for multiplayer button")]
-        private Text networkModeText;
+        #region Unity生命周期
 
-        [SerializeField]
-        [Tooltip("Settings Label / 设置标签 - Text label for settings button")]
-        private Text settingsText;
-
-        [SerializeField]
-        [Tooltip("Exit Label / 退出标签 - Text label for exit button")]
-        private Text exitText;
-
-        // References
-        private TableMenuSystem tableMenuSystem;
-        private GameModeManager gameModeManager;
-
-        // Events
-        public System.Action OnLocalModeSelected;
-        public System.Action OnNetworkModeSelected;
-        public System.Action OnSettingsSelected;
-        public System.Action OnExitSelected;
-
-        private void Awake()
+        protected override void Awake()
         {
-            InitializeComponents();
-            SetupButtons();
-        }
+            base.Awake();
 
-        private void Start()
-        {
-            FindReferences();
-            SetupTexts();
-            ApplyVRUISettings();
-        }
-
-        private void InitializeComponents()
-        {
-            // Try to find buttons automatically if not specified
-            if (singlePlayerButton == null)
-                singlePlayerButton = transform.Find("SinglePlayerButton")?.GetComponent<Button>();
-
-            if (multiPlayerButton == null)
-                multiPlayerButton = transform.Find("MultiPlayerButton")?.GetComponent<Button>();
-
-            if (settingsButton == null)
-                settingsButton = transform.Find("SettingsButton")?.GetComponent<Button>();
-
-            if (exitButton == null)
-                exitButton = transform.Find("ExitButton")?.GetComponent<Button>();
-        }
-
-        private void SetupButtons()
-        {
-            // Setup button click events
-            if (singlePlayerButton != null)
+            // 获取音频源
+            m_audioSource = GetComponent<AudioSource>();
+            if (m_audioSource == null)
             {
-                singlePlayerButton.onClick.AddListener(OnLocalModeButtonClicked);
+                m_audioSource = gameObject.AddComponent<AudioSource>();
             }
 
-            if (multiPlayerButton != null)
+            // 查找主菜单控制器
+            m_menuController = FindObjectOfType<MainMenuController>();
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+
+            // 注册按钮事件
+            RegisterButtonEvents();
+
+            // 更新玩家信息
+            UpdatePlayerInfo();
+
+            // 设置自定义动画
+            SetupCustomAnimation();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+
+            // 取消注册按钮事件
+            UnregisterButtonEvents();
+        }
+
+        #endregion
+
+        #region 公共方法
+
+        /// <summary>
+        /// 更新玩家信息
+        /// </summary>
+        public void UpdatePlayerInfo()
+        {
+            // 获取玩家信息
+            string playerName = "Player";
+            string playerStatus = "Online";
+
+            // TODO: 从玩家数据管理器获取实际信息
+            var playerManager = FindObjectOfType<PlayerManager>();
+            if (playerManager != null)
             {
-                multiPlayerButton.onClick.AddListener(OnNetworkModeButtonClicked);
+                // playerName = playerManager.GetPlayerName();
+                // playerStatus = playerManager.GetPlayerStatus();
             }
 
-            if (settingsButton != null)
+            // 更新UI
+            if (m_playerNameText != null)
             {
-                settingsButton.onClick.AddListener(OnSettingsButtonClicked);
+                m_playerNameText.text = playerName;
             }
 
-            if (exitButton != null)
+            if (m_playerStatusText != null)
             {
-                exitButton.onClick.AddListener(OnExitButtonClicked);
-            }
-        }
-
-        private void FindReferences()
-        {
-            // Find system references
-            if (tableMenuSystem == null)
-                tableMenuSystem = FindObjectOfType<TableMenuSystem>();
-
-            if (gameModeManager == null)
-                gameModeManager = FindObjectOfType<GameModeManager>();
-        }
-
-        private void SetupTexts()
-        {
-            // Set VR-optimized text with emojis
-            if (titleText != null)
-                titleText.text = "🏓 PongHub VR";
-
-            if (localModeText != null)
-                localModeText.text = "🎮 Single Player";
-
-            if (networkModeText != null)
-                networkModeText.text = "🌐 Multi Player";
-
-            if (settingsText != null)
-                settingsText.text = "⚙️ Settings";
-
-            if (exitText != null)
-                exitText.text = "🚪 Exit";
-        }
-
-        private void ApplyVRUISettings()
-        {
-            // Apply VR-optimized font settings
-            ApplyVRFontSettings(titleText, 36, FontStyle.Bold);
-            ApplyVRFontSettings(localModeText, 24, FontStyle.Bold);
-            ApplyVRFontSettings(networkModeText, 24, FontStyle.Bold);
-            ApplyVRFontSettings(settingsText, 24, FontStyle.Bold);
-            ApplyVRFontSettings(exitText, 24, FontStyle.Bold);
-
-            // Apply VR-friendly button sizing
-            ApplyVRButtonSettings(singlePlayerButton);
-            ApplyVRButtonSettings(multiPlayerButton);
-            ApplyVRButtonSettings(settingsButton);
-            ApplyVRButtonSettings(exitButton);
-        }
-
-        private void ApplyVRFontSettings(Text textComponent, int fontSize, FontStyle fontStyle)
-        {
-            if (textComponent != null)
-            {
-                textComponent.fontSize = fontSize;
-                textComponent.fontStyle = fontStyle;
-                textComponent.lineSpacing = 1.5f;
-
-                // Apply adaptive contrast (simplified version)
-                // In a full implementation, this would check table surface color
-                textComponent.color = Color.white;
+                m_playerStatusText.text = playerStatus;
             }
         }
 
-        private void ApplyVRButtonSettings(Button button)
-        {
-            if (button != null)
-            {
-                // Set minimum VR-friendly button size
-                var rectTransform = button.GetComponent<RectTransform>();
-                if (rectTransform != null)
-                {
-                    var currentSize = rectTransform.sizeDelta;
-                    rectTransform.sizeDelta = new Vector2(
-                        Mathf.Max(currentSize.x, 120f),
-                        Mathf.Max(currentSize.y, 80f)
-                    );
-                }
+        #endregion
 
-                // Setup VR-friendly visual feedback
-                var colors = button.colors;
-                colors.normalColor = new Color(1f, 1f, 1f, 0.9f);
-                colors.highlightedColor = new Color(0f, 1f, 1f, 1f); // Cyan highlight
-                colors.pressedColor = new Color(0f, 0.5f, 1f, 1f); // Blue pressed
-                colors.selectedColor = new Color(1f, 1f, 0f, 1f); // Yellow selected
-                button.colors = colors;
+        #region 保护方法重写
+
+        /// <summary>
+        /// 初始化时调用
+        /// </summary>
+        protected override void OnInitialize()
+        {
+            m_panelName = "MainMenu";
+        }
+
+        /// <summary>
+        /// 显示动画开始时调用
+        /// </summary>
+        protected override void OnShowAnimationStart()
+        {
+            // 播放显示音效
+            PlaySound(m_panelShowSound);
+
+            // 设置按钮初始状态
+            SetButtonsInteractable(false);
+        }
+
+        /// <summary>
+        /// 显示动画结束时调用
+        /// </summary>
+        protected override void OnShowAnimationComplete()
+        {
+            // 设置按钮可交互
+            SetButtonsInteractable(true);
+
+            // 可以在这里添加按钮出现的序列动画
+            StartCoroutine(AnimateButtonsSequentially());
+        }
+
+        /// <summary>
+        /// 隐藏动画开始时调用
+        /// </summary>
+        protected override void OnHideAnimationStart()
+        {
+            // 播放隐藏音效
+            PlaySound(m_panelHideSound);
+
+            // 设置按钮不可交互
+            SetButtonsInteractable(false);
+        }
+
+        #endregion
+
+        #region 私有方法
+
+        /// <summary>
+        /// 设置自定义动画
+        /// </summary>
+        private void SetupCustomAnimation()
+        {
+            // 设置动画类型为淡入淡出+缩放
+            SetAnimationType(PanelAnimationType.FadeAndScale);
+
+            // 设置动画方向为底部
+            SetAnimationDirection(PanelAnimationDirection.Bottom);
+
+            // 启用弹性效果
+            m_useElasticEffect = true;
+            m_elasticOvershoot = 1.2f;
+
+            // 自定义动画时长
+            m_showAnimationDuration = 0.4f;
+            m_hideAnimationDuration = 0.3f;
+        }
+
+        /// <summary>
+        /// 注册按钮事件
+        /// </summary>
+        private void RegisterButtonEvents()
+        {
+            if (m_singlePlayerButton != null)
+            {
+                m_singlePlayerButton.onClick.AddListener(OnSinglePlayerButtonClicked);
+            }
+
+            if (m_multiplayerButton != null)
+            {
+                m_multiplayerButton.onClick.AddListener(OnMultiplayerButtonClicked);
+            }
+
+            if (m_settingsButton != null)
+            {
+                m_settingsButton.onClick.AddListener(OnSettingsButtonClicked);
+            }
+
+            if (m_helpButton != null)
+            {
+                m_helpButton.onClick.AddListener(OnHelpButtonClicked);
+            }
+
+            if (m_exitButton != null)
+            {
+                m_exitButton.onClick.AddListener(OnExitButtonClicked);
             }
         }
 
-        private void OnLocalModeButtonClicked()
+        /// <summary>
+        /// 取消注册按钮事件
+        /// </summary>
+        private void UnregisterButtonEvents()
         {
-            Debug.Log("MainMenuPanel: Local mode selected - 选择单机模式");
-
-            // Switch to Local game mode
-            if (gameModeManager != null)
+            if (m_singlePlayerButton != null)
             {
-                gameModeManager.SwitchToMode(GameMode.Local);
+                m_singlePlayerButton.onClick.RemoveListener(OnSinglePlayerButtonClicked);
             }
 
-            // Hide menu after selection
-            if (tableMenuSystem != null)
+            if (m_multiplayerButton != null)
             {
-                tableMenuSystem.HideMenu();
+                m_multiplayerButton.onClick.RemoveListener(OnMultiplayerButtonClicked);
             }
 
-            OnLocalModeSelected?.Invoke();
+            if (m_settingsButton != null)
+            {
+                m_settingsButton.onClick.RemoveListener(OnSettingsButtonClicked);
+            }
+
+            if (m_helpButton != null)
+            {
+                m_helpButton.onClick.RemoveListener(OnHelpButtonClicked);
+            }
+
+            if (m_exitButton != null)
+            {
+                m_exitButton.onClick.RemoveListener(OnExitButtonClicked);
+            }
         }
 
-        private void OnNetworkModeButtonClicked()
+        /// <summary>
+        /// 播放音效
+        /// </summary>
+        private void PlaySound(AudioClip clip)
         {
-            Debug.Log("MainMenuPanel: Network mode selected - 选择多人模式");
-
-            // Switch to Network game mode
-            if (gameModeManager != null)
+            if (clip != null && m_audioSource != null)
             {
-                gameModeManager.SwitchToMode(GameMode.Network);
+                m_audioSource.PlayOneShot(clip);
             }
-
-            // Hide menu after selection
-            if (tableMenuSystem != null)
-            {
-                tableMenuSystem.HideMenu();
-            }
-
-            OnNetworkModeSelected?.Invoke();
         }
 
-        private void OnSettingsButtonClicked()
+        /// <summary>
+        /// 设置所有按钮的可交互状态
+        /// </summary>
+        private void SetButtonsInteractable(bool interactable)
         {
-            Debug.Log("MainMenuPanel: Settings selected - 选择设置");
-
-            // Switch to settings panel
-            if (tableMenuSystem != null)
-            {
-                tableMenuSystem.ShowPanel(MenuPanel.Settings);
-            }
-
-            OnSettingsSelected?.Invoke();
+            if (m_singlePlayerButton != null) m_singlePlayerButton.interactable = interactable;
+            if (m_multiplayerButton != null) m_multiplayerButton.interactable = interactable;
+            if (m_settingsButton != null) m_settingsButton.interactable = interactable;
+            if (m_helpButton != null) m_helpButton.interactable = interactable;
+            if (m_exitButton != null) m_exitButton.interactable = interactable;
         }
 
-        private void OnExitButtonClicked()
+        /// <summary>
+        /// 按顺序动画显示按钮
+        /// </summary>
+        private System.Collections.IEnumerator AnimateButtonsSequentially()
         {
-            Debug.Log("MainMenuPanel: Exit selected - 退出游戏");
-
-            // Switch to exit confirmation panel
-            if (tableMenuSystem != null)
+            // 创建按钮数组
+            Button[] buttons = new Button[]
             {
-                tableMenuSystem.ShowPanel(MenuPanel.Exit);
-            }
-
-            OnExitSelected?.Invoke();
-        }
-
-        public void SetButtonInteractable(bool localMode, bool networkMode, bool settings, bool exit)
-        {
-            if (singlePlayerButton != null)
-                singlePlayerButton.interactable = localMode;
-
-            if (multiPlayerButton != null)
-                multiPlayerButton.interactable = networkMode;
-
-            if (settingsButton != null)
-                settingsButton.interactable = settings;
-
-            if (exitButton != null)
-                exitButton.interactable = exit;
-        }
-
-        public void SetButtonColors(Color normalColor, Color highlightColor, Color pressedColor, Color disabledColor)
-        {
-            var colorBlock = new ColorBlock
-            {
-                normalColor = normalColor,
-                highlightedColor = highlightColor,
-                pressedColor = pressedColor,
-                disabledColor = disabledColor,
-                colorMultiplier = 1f,
-                fadeDuration = 0.1f
+                m_singlePlayerButton,
+                m_multiplayerButton,
+                m_settingsButton,
+                m_helpButton,
+                m_exitButton
             };
 
-            if (singlePlayerButton != null)
-                singlePlayerButton.colors = colorBlock;
-
-            if (multiPlayerButton != null)
-                multiPlayerButton.colors = colorBlock;
-
-            if (settingsButton != null)
-                settingsButton.colors = colorBlock;
-
-            if (exitButton != null)
-                exitButton.colors = colorBlock;
-        }
-
-        public void UpdateGameModeStatus(GameMode currentMode)
-        {
-            // 根据当前游戏模式更新按钮状态
-            bool isLocalMode = currentMode == GameMode.Local;
-            bool isNetworkMode = currentMode == GameMode.Network;
-
-            // 可以在这里添加视觉反馈，比如高亮当前模式的按钮
-            if (singlePlayerButton != null)
+            // 按顺序为每个按钮添加动画
+            foreach (Button button in buttons)
             {
-                var image = singlePlayerButton.GetComponent<Image>();
-                if (image != null)
+                if (button != null)
                 {
-                    image.color = isLocalMode ? Color.green : Color.white;
+                    // 确保按钮有RectTransform组件
+                    RectTransform buttonRect = button.GetComponent<RectTransform>();
+                    if (buttonRect != null)
+                    {
+                        // 保存原始缩放
+                        Vector3 originalScale = buttonRect.localScale;
+
+                        // 设置初始缩放
+                        buttonRect.localScale = originalScale * 0.5f;
+
+                        // 执行缩放动画
+                        float duration = 0.2f;
+                        float elapsed = 0f;
+
+                        while (elapsed < duration)
+                        {
+                            float t = elapsed / duration;
+                            float smoothT = Mathf.SmoothStep(0, 1, t);
+
+                            // 添加弹性效果
+                            if (t > 0.7f)
+                            {
+                                float bounce = Mathf.Sin((t - 0.7f) * 3 * Mathf.PI) * 0.1f * (1 - t);
+                                buttonRect.localScale = Vector3.Lerp(originalScale * 0.5f, originalScale, smoothT) * (1 + bounce);
+                            }
+                            else
+                            {
+                                buttonRect.localScale = Vector3.Lerp(originalScale * 0.5f, originalScale, smoothT);
+                            }
+
+                            elapsed += Time.deltaTime;
+                            yield return null;
+                        }
+
+                        // 确保最终缩放正确
+                        buttonRect.localScale = originalScale;
+                    }
+
+                    // 等待短暂时间后继续下一个按钮
+                    yield return new WaitForSeconds(0.05f);
                 }
             }
+        }
 
-            if (multiPlayerButton != null)
+        #endregion
+
+        #region 按钮事件处理
+
+        /// <summary>
+        /// 单机模式按钮点击
+        /// </summary>
+        private void OnSinglePlayerButtonClicked()
+        {
+            PlaySound(m_buttonClickSound);
+
+            // 调用事件
+            OnSinglePlayerSelected?.Invoke();
+
+            // 如果有主菜单控制器，则调用相应方法
+            if (m_menuController != null)
             {
-                var image = multiPlayerButton.GetComponent<Image>();
-                if (image != null)
-                {
-                    image.color = isNetworkMode ? Color.green : Color.white;
-                }
+                m_menuController.ShowGameModePanel();
             }
         }
 
-        private void OnDestroy()
+        /// <summary>
+        /// 多人模式按钮点击
+        /// </summary>
+        private void OnMultiplayerButtonClicked()
         {
-            // Clean up button events
-            if (singlePlayerButton != null)
-                singlePlayerButton.onClick.RemoveListener(OnLocalModeButtonClicked);
+            PlaySound(m_buttonClickSound);
 
-            if (multiPlayerButton != null)
-                multiPlayerButton.onClick.RemoveListener(OnNetworkModeButtonClicked);
+            // 调用事件
+            OnMultiplayerSelected?.Invoke();
 
-            if (settingsButton != null)
-                settingsButton.onClick.RemoveListener(OnSettingsButtonClicked);
-
-            if (exitButton != null)
-                exitButton.onClick.RemoveListener(OnExitButtonClicked);
+            // 如果有主菜单控制器，则调用相应方法
+            if (m_menuController != null)
+            {
+                m_menuController.ShowGameModePanel();
+            }
         }
+
+        /// <summary>
+        /// 设置按钮点击
+        /// </summary>
+        private void OnSettingsButtonClicked()
+        {
+            PlaySound(m_buttonClickSound);
+
+            // 调用事件
+            OnSettingsSelected?.Invoke();
+
+            // 如果有主菜单控制器，则调用相应方法
+            if (m_menuController != null)
+            {
+                m_menuController.ShowSettingsPanel();
+            }
+        }
+
+        /// <summary>
+        /// 帮助按钮点击
+        /// </summary>
+        private void OnHelpButtonClicked()
+        {
+            PlaySound(m_buttonClickSound);
+
+            // 调用事件
+            OnHelpSelected?.Invoke();
+
+            // TODO: 显示帮助面板
+        }
+
+        /// <summary>
+        /// 退出按钮点击
+        /// </summary>
+        private void OnExitButtonClicked()
+        {
+            PlaySound(m_buttonClickSound);
+
+            // 调用事件
+            OnExitSelected?.Invoke();
+
+            // 如果有主菜单控制器，则调用相应方法
+            if (m_menuController != null)
+            {
+                m_menuController.ShowExitConfirmPanel();
+            }
+        }
+
+        #endregion
     }
 }

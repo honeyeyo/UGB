@@ -1,0 +1,100 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using PongHub.Core;
+
+namespace PongHub.UI
+{
+    /// <summary>
+    /// 涓昏彍鍗曟帶鍒跺櫒锛岃礋璐ｇ鐞嗚彍鍗曢潰鏉跨殑鏄剧ず鍜屽垏鎹紝浠ュ強涓庢父鎴忔ā寮忕鐞嗗櫒鐨勪氦浜?
+    /// </summary>
+    public class MainMenuController : MonoBehaviour
+    {
+        [Header("闈㈡澘寮曠敤")]
+        [SerializeField] private MenuPanelBase m_mainMenuPanel;
+        [SerializeField] private MenuPanelBase m_settingsPanel;
+        [SerializeField] private MenuPanelBase m_gameModePanel;
+        [SerializeField] private MenuPanelBase m_exitConfirmPanel;
+
+        [Header("绯荤粺寮曠敤")]
+        [SerializeField] private TableMenuSystem m_tableMenuSystem;
+        [SerializeField] private VRMenuInteraction m_menuInteraction;
+        [SerializeField] private GameModeManager m_gameModeManager;
+
+        [Header("閰嶇疆")]
+        [SerializeField] private float m_panelTransitionTime = 0.3f;
+        [SerializeField] private bool m_showMenuOnStart = true;
+
+        // 褰撳墠娲诲姩闈㈡澘
+        private MenuPanelBase m_currentPanel;
+        // 闈㈡澘鍘嗗彶璁板綍锛岀敤浜庤繑鍥炲姛鑳?
+        private Stack<MenuPanelBase> m_panelHistory = new Stack<MenuPanelBase>();
+        // 鑿滃崟鏄惁鍙
+        private bool m_isMenuVisible = false;
+
+        #region Unity鐢熷懡鍛ㄦ湡
+
+        private void Awake()
+        {
+            // 鍒濆鍖栨墍鏈夐潰鏉?
+            InitializePanels();
+        }
+
+        private void Start()
+        {
+            // 娉ㄥ唽浜嬩欢鐩戝惉
+            RegisterEvents();
+
+            // 濡傛灉閰嶇疆涓哄惎鍔ㄦ椂鏄剧ず鑿滃崟锛屽垯鏄剧ず涓昏彍鍗?
+            if (m_showMenuOnStart)
+            {
+                ShowMenu();
+            }
+            else
+            {
+                HideMenu();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            // 鍙栨秷浜嬩欢鐩戝惉
+            UnregisterEvents();
+        }
+
+        #endregion
+
+        #region 鍏叡鏂规硶
+
+        /// <summary>
+        /// 鏄剧ず鑿滃崟锛堥粯璁ゆ樉绀轰富鑿滃崟锛?
+        /// </summary>
+        public void ShowMenu()
+        {
+            if (m_isMenuVisible) return;
+
+            m_isMenuVisible = true;
+            m_tableMenuSystem.ShowMenu();
+            ShowPanel(m_mainMenuPanel);
+        }
+
+        /// <summary>
+        /// 闅愯棌鑿滃崟
+        /// </summary>
+        public void HideMenu()
+        {
+            if (!m_isMenuVisible) return;
+
+            m_isMenuVisible = false;
+            m_currentPanel?.Hide();
+            m_tableMenuSystem.HideMenu();
+            m_panelHistory.Clear();
+        }
+
+        /// <summary>
+        /// 鍒囨崲鑿滃崟鏄剧ず鐘舵€?
+        /// </summary>
+        public void ToggleMenu()
+        {
+            if (m_isMenuVisible)

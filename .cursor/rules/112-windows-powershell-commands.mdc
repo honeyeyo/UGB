@@ -1,0 +1,142 @@
+# Windows PowerShell命令规则
+
+<version>1.0.0</version>
+
+## Context
+- 当在Windows环境中执行终端命令时
+- 当需要执行文件操作、目录操作、文本处理等常见命令时
+- 特别适用于Windows PowerShell环境
+
+## Requirements
+
+### 基本原则
+- 在Windows环境中始终使用PowerShell原生命令
+- 避免使用Linux/Unix风格的命令参数
+- 确保命令语法符合PowerShell规范
+- 在需要管理员权限时明确说明
+
+### Linux命令与PowerShell等效命令对照表
+
+| Linux命令 | PowerShell等效命令 | 说明 |
+|:---------|:-----------------|:-----|
+| `ls -la` | `Get-ChildItem -Force` 或 `dir -Force` | 显示所有文件（包括隐藏文件） |
+| `ls -l` | `Get-ChildItem \| Format-Table` 或 `dir \| Format-Table` | 以表格形式显示详细信息 |
+| `pwd` | `Get-Location` 或 `pwd` | 显示当前工作目录 |
+| `cd dir` | `Set-Location dir` 或 `cd dir` | 切换目录 |
+| `cat file` | `Get-Content file` 或 `type file` | 显示文件内容 |
+| `grep pattern file` | `Select-String pattern file` | 搜索文件内容 |
+| `grep -r pattern dir` | `Get-ChildItem -Recurse \| Select-String pattern` | 递归搜索目录 |
+| `mkdir dir` | `New-Item -ItemType Directory -Name dir` 或 `mkdir dir` | 创建目录 |
+| `rm file` | `Remove-Item file` 或 `del file` | 删除文件 |
+| `rm -r dir` | `Remove-Item -Recurse dir` | 递归删除目录 |
+| `cp src dst` | `Copy-Item src dst` 或 `copy src dst` | 复制文件 |
+| `mv src dst` | `Move-Item src dst` 或 `move src dst` | 移动文件 |
+| `touch file` | `New-Item -ItemType File -Name file` | 创建空文件 |
+| `echo text > file` | `Set-Content -Path file -Value text` | 写入文件（覆盖） |
+| `echo text >> file` | `Add-Content -Path file -Value text` | 追加到文件 |
+| `find dir -name pattern` | `Get-ChildItem -Path dir -Filter pattern -Recurse` | 查找文件 |
+| `chmod +x file` | 无直接等效命令，需要使用 `Set-ExecutionPolicy` 或修改文件权限 | 修改执行权限 |
+| `ps` | `Get-Process` | 显示进程 |
+| `kill pid` | `Stop-Process -Id pid` | 终止进程 |
+| `man command` | `Get-Help command` | 获取命令帮助 |
+| `wget url` | `Invoke-WebRequest -Uri url -OutFile filename` | 下载文件 |
+| `tar -xzf file.tar.gz` | `Expand-Archive file.zip -DestinationPath dir` | 解压文件（仅支持zip） |
+
+### 常见错误模式
+
+1. **参数格式错误**
+   - Linux: `ls -la`
+   - PowerShell错误: `ls -la`（-la不是有效参数）
+   - PowerShell正确: `Get-ChildItem -Force` 或 `dir -Force`
+
+2. **管道语法差异**
+   - Linux: `cat file | grep pattern`
+   - PowerShell正确: `Get-Content file | Select-String pattern`
+
+3. **路径分隔符**
+   - Linux: 使用正斜杠 `/`
+   - PowerShell: 支持正斜杠 `/` 和反斜杠 `\`，但在某些情况下最好使用 `\`
+
+4. **环境变量引用**
+   - Linux: `$HOME`
+   - PowerShell: `$env:USERPROFILE` 或 `$HOME`
+
+## Examples
+
+<example>
+Linux命令:
+```bash
+ls -la
+```
+
+PowerShell等效命令:
+```powershell
+Get-ChildItem -Force
+# 或者简写形式
+dir -Force
+```
+</example>
+
+<example>
+Linux命令:
+```bash
+mkdir -p path/to/directory
+```
+
+PowerShell等效命令:
+```powershell
+New-Item -ItemType Directory -Path "path\to\directory" -Force
+# 或者简写形式
+mkdir -Path "path\to\directory" -Force
+```
+</example>
+
+<example>
+Linux命令:
+```bash
+cat file.txt | grep "search" | sort
+```
+
+PowerShell等效命令:
+```powershell
+Get-Content file.txt | Select-String "search" | Sort-Object
+```
+</example>
+
+<example type="invalid">
+错误示例:
+```powershell
+ls -la
+```
+
+错误原因: PowerShell中的`ls`是`Get-ChildItem`的别名，但不支持`-la`参数
+</example>
+
+## 快速参考
+
+### 文件操作
+- 列出文件: `Get-ChildItem` 或 `dir`
+- 读取文件: `Get-Content file` 或 `type file`
+- 创建文件: `New-Item -ItemType File -Name file`
+- 删除文件: `Remove-Item file` 或 `del file`
+
+### 目录操作
+- 创建目录: `New-Item -ItemType Directory -Name dir` 或 `mkdir dir`
+- 删除目录: `Remove-Item -Recurse dir` 或 `rmdir /s /q dir`
+- 切换目录: `Set-Location dir` 或 `cd dir`
+
+### 文本处理
+- 搜索文本: `Select-String pattern file`
+- 排序: `Sort-Object`
+- 过滤: `Where-Object { $_ -match "pattern" }`
+
+### 系统操作
+- 查看进程: `Get-Process`
+- 停止进程: `Stop-Process -Name name`
+- 获取服务: `Get-Service`
+
+---
+description: 在Windows环境中使用正确的PowerShell命令替代Linux命令，确保命令执行正确
+globs: ["*.ps1", "*.psm1"]
+alwaysApply: true
+---

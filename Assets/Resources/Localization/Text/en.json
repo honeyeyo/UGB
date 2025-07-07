@@ -1,0 +1,50 @@
+{
+  "menu.title": "Main Menu",
+  "menu.singleplayer": "Single Player",
+  "menu.multiplayer": "Multiplayer",
+  "menu.settings": "Settings",
+  "menu.exit": "Exit",
+
+  "gamemode.practice": "Practice Mode",
+  "gamemode.ai": "AI Match",
+  "gamemode.create": "Create Room",
+  "gamemode.join": "Join Room",
+  "gamemode.friends": "Friends List",
+
+  "settings.title": "Settings",
+  "settings.audio": "Audio",
+  "settings.visual": "Visual",
+  "settings.controls": "Controls",
+  "settings.language": "Language",
+  "settings.language.preview": "This is a preview text in English. The quick brown fox jumps over the lazy dog.",
+
+  "common.back": "Back",
+  "common.apply": "Apply",
+  "common.cancel": "Cancel",
+  "common.reset": "Reset",
+  "common.yes": "Yes",
+  "common.no": "No",
+
+  "audio.master": "Master Volume",
+  "audio.music": "Music Volume",
+  "audio.effects": "Effects Volume",
+  "audio.voice": "Voice Volume",
+
+  "visual.quality": "Graphics Quality",
+  "visual.effects": "Visual Effects",
+  "visual.contrast": "High Contrast",
+  "visual.uisize": "UI Size",
+
+  "controls.sensitivity": "Controller Sensitivity",
+  "controls.vibration": "Vibration",
+  "controls.handedness": "Handedness",
+  "controls.handedness.left": "Left-handed",
+  "controls.handedness.right": "Right-handed",
+
+  "confirm.exit": "Are you sure you want to exit?",
+  "confirm.reset": "Reset all settings to default?",
+
+  "notification.saved": "Settings saved",
+  "notification.applied": "Changes applied",
+  "notification.error": "An error occurred"
+}

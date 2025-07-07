@@ -1,0 +1,50 @@
+{
+  "menu.title": "主菜单",
+  "menu.singleplayer": "单人模式",
+  "menu.multiplayer": "多人模式",
+  "menu.settings": "设置",
+  "menu.exit": "退出",
+
+  "gamemode.practice": "练习模式",
+  "gamemode.ai": "人机对战",
+  "gamemode.create": "创建房间",
+  "gamemode.join": "加入房间",
+  "gamemode.friends": "好友列表",
+
+  "settings.title": "设置",
+  "settings.audio": "音频",
+  "settings.visual": "视觉",
+  "settings.controls": "控制",
+  "settings.language": "语言",
+  "settings.language.preview": "这是中文预览文本。天地玄黄，宇宙洪荒。日月盈昃，辰宿列张。",
+
+  "common.back": "返回",
+  "common.apply": "应用",
+  "common.cancel": "取消",
+  "common.reset": "重置",
+  "common.yes": "是",
+  "common.no": "否",
+
+  "audio.master": "主音量",
+  "audio.music": "音乐音量",
+  "audio.effects": "音效音量",
+  "audio.voice": "语音音量",
+
+  "visual.quality": "图形质量",
+  "visual.effects": "视觉效果",
+  "visual.contrast": "高对比度",
+  "visual.uisize": "界面大小",
+
+  "controls.sensitivity": "控制器灵敏度",
+  "controls.vibration": "震动",
+  "controls.handedness": "习惯手",
+  "controls.handedness.left": "左手",
+  "controls.handedness.right": "右手",
+
+  "confirm.exit": "确定要退出吗？",
+  "confirm.reset": "将所有设置重置为默认值？",
+
+  "notification.saved": "设置已保存",
+  "notification.applied": "更改已应用",
+  "notification.error": "发生错误"
+}

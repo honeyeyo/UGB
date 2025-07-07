@@ -1,0 +1,17 @@
+{
+  "languages": [
+    {
+      "code": "en",
+      "name": "English",
+      "font": "HarmonyOS_Sans_Regular",
+      "fallback": ""
+    },
+    {
+      "code": "zh",
+      "name": "中文",
+      "font": "HarmonyOS_Sans_SC_Regular",
+      "fallback": "en"
+    }
+  ],
+  "defaultLanguage": "en"
+}
