@@ -23,6 +23,8 @@ namespace PongHub.UI.ModeSelection
         Starting           // 启动游戏中
     }
 
+
+
     /// <summary>
     /// 模式切换控制器
     /// 管理整个模式选择和切换流程
@@ -326,15 +328,15 @@ namespace PongHub.UI.ModeSelection
             // 初始化单机模式面板
             if (m_singlePlayerPanel != null)
             {
-                m_singlePlayerPanel.OnStartGame.AddListener((mode, difficulty) => HandleModeStarted(mode, difficulty));
-                m_singlePlayerPanel.OnBackClicked.AddListener(HandleBackToModeSelection);
+                m_singlePlayerPanel.OnModeSelected += (mode) => HandleSinglePlayerModeSelected(mode);
+                m_singlePlayerPanel.OnBackPressed += HandleBackToModeSelection;
             }
 
             // 初始化多人模式面板
             if (m_multiplayerPanel != null)
             {
-                m_multiplayerPanel.OnCreateRoom.AddListener((mode, settings) => HandleModeStarted(mode, DifficultyLevel.Normal));
-                m_multiplayerPanel.OnBackClicked.AddListener(HandleBackToModeSelection);
+                m_multiplayerPanel.OnModeSelected += (mode) => HandleMultiplayerModeSelected(mode);
+                m_multiplayerPanel.OnBackPressed += HandleBackToModeSelection;
             }
 
             // 隐藏所有面板
@@ -371,7 +373,7 @@ namespace PongHub.UI.ModeSelection
             if (m_transitionEffect != null)
             {
                 // 使用现有的过渡效果方法
-                m_transitionEffect.TriggerTransition(GameMode.Menu, GameMode.Local);
+                m_transitionEffect.TriggerTransition(null, m_modeSelectionPanel.gameObject);
                 yield return new WaitForSeconds(0.3f); // 等待过渡效果
             }
 
@@ -393,7 +395,7 @@ namespace PongHub.UI.ModeSelection
             if (m_transitionEffect != null)
             {
                 // 使用现有的过渡效果方法
-                m_transitionEffect.TriggerTransition(GameMode.Local, GameMode.Menu);
+                m_transitionEffect.TriggerTransition(m_modeSelectionPanel.gameObject, null);
                 yield return new WaitForSeconds(0.3f); // 等待过渡效果
             }
 
@@ -469,7 +471,8 @@ namespace PongHub.UI.ModeSelection
                 case GameModeType.Training:
                     if (m_singlePlayerPanel != null)
                     {
-                        m_singlePlayerPanel.ShowModeDetails(modeInfo);
+                        var singlePlayerMode = ConvertToSinglePlayerMode(modeInfo);
+                        m_singlePlayerPanel.ShowModeDetails(singlePlayerMode);
                         SetState(ModeSwitchState.ShowingSinglePlayer);
                     }
                     break;
@@ -478,7 +481,8 @@ namespace PongHub.UI.ModeSelection
                 case GameModeType.LocalMultiplayer:
                     if (m_multiplayerPanel != null)
                     {
-                        m_multiplayerPanel.ShowModeDetails(modeInfo);
+                        var multiplayerMode = ConvertToMultiplayerMode(modeInfo);
+                        m_multiplayerPanel.ShowModeDetails(multiplayerMode);
                         SetState(ModeSwitchState.ShowingMultiplayer);
                     }
                     break;
@@ -622,6 +626,98 @@ namespace PongHub.UI.ModeSelection
         private void HandleBackToModeSelection()
         {
             BackToModeSelection();
+        }
+
+        /// <summary>
+        /// 处理单机模式选择
+        /// </summary>
+        /// <param name="modeType">选择的单机模式类型</param>
+        private void HandleSinglePlayerModeSelected(SinglePlayerModePanel.SinglePlayerModeType modeType)
+        {
+            // 根据单机模式类型启动相应的游戏模式
+            GameModeInfo gameMode = null;
+
+            switch (modeType)
+            {
+                case SinglePlayerModePanel.SinglePlayerModeType.FreePractice:
+                case SinglePlayerModePanel.SinglePlayerModeType.TargetPractice:
+                case SinglePlayerModePanel.SinglePlayerModeType.SkillChallenge:
+                    gameMode = m_config.GetModeInfo("practice");
+                    break;
+                case SinglePlayerModePanel.SinglePlayerModeType.AIBattle:
+                    gameMode = m_config.GetModeInfo("ai_battle");
+                    break;
+            }
+
+            if (gameMode != null)
+            {
+                StartGameMode(gameMode);
+            }
+        }
+
+        /// <summary>
+        /// 处理多人模式选择
+        /// </summary>
+        /// <param name="modeType">选择的多人模式类型</param>
+        private void HandleMultiplayerModeSelected(MultiplayerModePanel.MultiplayerModeType modeType)
+        {
+            // 根据多人模式类型启动相应的游戏模式
+            GameModeInfo gameMode = null;
+
+            switch (modeType)
+            {
+                case MultiplayerModePanel.MultiplayerModeType.CreateRoom:
+                case MultiplayerModePanel.MultiplayerModeType.JoinRoom:
+                case MultiplayerModePanel.MultiplayerModeType.QuickMatch:
+                    gameMode = m_config.GetModeInfo("online_multiplayer");
+                    break;
+                case MultiplayerModePanel.MultiplayerModeType.Friends:
+                    gameMode = m_config.GetModeInfo("friends");
+                    break;
+            }
+
+            if (gameMode != null)
+            {
+                StartGameMode(gameMode);
+            }
+        }
+
+        /// <summary>
+        /// 将GameModeInfo转换为SinglePlayerModeType
+        /// </summary>
+        /// <param name="modeInfo">模式信息</param>
+        /// <returns>单机模式类型</returns>
+        private SinglePlayerModePanel.SinglePlayerModeType ConvertToSinglePlayerMode(GameModeInfo modeInfo)
+        {
+            switch (modeInfo.ModeType)
+            {
+                case GameModeType.Practice:
+                    return SinglePlayerModePanel.SinglePlayerModeType.FreePractice;
+                case GameModeType.AIBattle:
+                    return SinglePlayerModePanel.SinglePlayerModeType.AIBattle;
+                case GameModeType.Training:
+                    return SinglePlayerModePanel.SinglePlayerModeType.SkillChallenge;
+                default:
+                    return SinglePlayerModePanel.SinglePlayerModeType.FreePractice;
+            }
+        }
+
+        /// <summary>
+        /// 将GameModeInfo转换为MultiplayerModeType
+        /// </summary>
+        /// <param name="modeInfo">模式信息</param>
+        /// <returns>多人模式类型</returns>
+        private MultiplayerModePanel.MultiplayerModeType ConvertToMultiplayerMode(GameModeInfo modeInfo)
+        {
+            switch (modeInfo.ModeType)
+            {
+                case GameModeType.OnlineMultiplayer:
+                    return MultiplayerModePanel.MultiplayerModeType.CreateRoom;
+                case GameModeType.LocalMultiplayer:
+                    return MultiplayerModePanel.MultiplayerModeType.JoinRoom;
+                default:
+                    return MultiplayerModePanel.MultiplayerModeType.CreateRoom;
+            }
         }
 
         #endregion

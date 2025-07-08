@@ -707,6 +707,54 @@ namespace PongHub.Core.Audio
 
         #endregion
 
+        #region UI音效方法（兼容接口）
+
+        /// <summary>
+        /// 播放UI音效
+        /// </summary>
+        public void PlayUISound(string soundName, float volume = 1f)
+        {
+            if (AudioService == null) return;
+
+            // 这里可以根据soundName查找对应的AudioClip
+            // 目前使用简单的映射，实际项目中应该有更完善的资源管理
+            AudioClip clip = GetUISound(soundName);
+            if (clip != null)
+            {
+                AudioService.PlayOneShot(clip, AudioCategory.UI, volume);
+            }
+        }
+
+        /// <summary>
+        /// 播放音效（通用接口）
+        /// </summary>
+        public void PlaySound(AudioClip clip, float volume = 1f)
+        {
+            if (AudioService == null || clip == null) return;
+
+            AudioService.PlayOneShot(clip, AudioCategory.SFX, volume);
+        }
+
+        /// <summary>
+        /// 获取UI音效剪辑（临时实现）
+        /// </summary>
+        private AudioClip GetUISound(string soundName)
+        {
+            // 临时实现，返回按钮点击音效
+            // 实际项目中应该有专门的UI音效资源管理
+            switch (soundName.ToLower())
+            {
+                case "button_click":
+                    return m_pointScored; // 临时使用现有音效
+                case "button_hover":
+                    return m_ballHitPaddleSounds?.Length > 0 ? m_ballHitPaddleSounds[0] : null;
+                default:
+                    return null;
+            }
+        }
+
+        #endregion
+
         #region 循环音频管理
 
         /// <summary>
