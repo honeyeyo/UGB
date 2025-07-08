@@ -120,6 +120,7 @@ namespace PongHub.UI.ModeSelection
         private List<GameObject> m_friendItems = new List<GameObject>();
 
         private LocalizationManager m_localizationManager;
+        private VRHapticFeedback m_hapticFeedback;
 
         private bool m_isInitialized = false;
         private bool m_isConnected = false;
@@ -146,6 +147,7 @@ namespace PongHub.UI.ModeSelection
 
             // 获取管理器引用
             m_localizationManager = FindObjectOfType<LocalizationManager>();
+            m_hapticFeedback = FindObjectOfType<VRHapticFeedback>();
 
             m_isInitialized = true;
         }
@@ -910,9 +912,15 @@ namespace PongHub.UI.ModeSelection
         {
             PlayButtonClickSound();
 
+            // 播放触觉反馈
+            if (m_hapticFeedback != null)
+                m_hapticFeedback.OnModeConfirm();
+
             // 验证输入
             if (!ValidateInput())
             {
+                if (m_hapticFeedback != null)
+                    m_hapticFeedback.OnError();
                 return;
             }
 
@@ -926,6 +934,10 @@ namespace PongHub.UI.ModeSelection
         public void OnBackClicked()
         {
             PlayButtonClickSound();
+
+            // 播放触觉反馈
+            if (m_hapticFeedback != null)
+                m_hapticFeedback.OnBack();
 
             // 触发返回事件
             OnBack?.Invoke();

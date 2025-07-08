@@ -82,6 +82,7 @@ namespace PongHub.UI.ModeSelection
         private List<Button> m_difficultyButtons = new List<Button>();
         private PlayerStats m_playerStats;
         private LocalizationManager m_localizationManager;
+        private VRHapticFeedback m_hapticFeedback;
 
         private bool m_isInitialized = false;
         private SinglePlayerModeType m_selectedMode = SinglePlayerModeType.FreePractice;
@@ -107,6 +108,7 @@ namespace PongHub.UI.ModeSelection
 
             // 获取管理器引用
             m_localizationManager = FindObjectOfType<LocalizationManager>();
+            m_hapticFeedback = FindObjectOfType<VRHapticFeedback>();
 
             // 创建玩家统计数据
             m_playerStats = new PlayerStats();
@@ -538,6 +540,10 @@ namespace PongHub.UI.ModeSelection
         {
             PlayButtonClickSound();
 
+            // 播放触觉反馈
+            if (m_hapticFeedback != null)
+                m_hapticFeedback.OnModeConfirm();
+
             // 根据当前选择的模式类型开始相应的游戏
             switch (m_selectedMode)
             {
@@ -565,6 +571,10 @@ namespace PongHub.UI.ModeSelection
         public void OnBackClicked()
         {
             PlayButtonClickSound();
+
+            // 播放触觉反馈
+            if (m_hapticFeedback != null)
+                m_hapticFeedback.OnBack();
 
             // 触发返回事件
             OnBack?.Invoke();

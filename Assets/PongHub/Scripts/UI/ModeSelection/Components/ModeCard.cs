@@ -59,8 +59,9 @@ namespace PongHub.UI.ModeSelection
         private new bool m_isHovered = false;
         private Coroutine m_animationCoroutine;
 
-        // 本地化管理器
+        // 系统管理器引用
         private LocalizationManager m_localizationManager;
+        private VRHapticFeedback m_hapticFeedback;
 
         #region 属性
 
@@ -86,8 +87,9 @@ namespace PongHub.UI.ModeSelection
             if (m_backgroundImage != null)
                 m_originalBackgroundColor = m_backgroundImage.color;
 
-            // 查找本地化管理器
+            // 查找系统管理器
             m_localizationManager = FindObjectOfType<LocalizationManager>();
+            m_hapticFeedback = FindObjectOfType<VRHapticFeedback>();
         }
 
         private void Start()
@@ -295,6 +297,10 @@ namespace PongHub.UI.ModeSelection
             UpdateVisualState(InteractionState.Highlighted);
             PlayHoverAnimation();
 
+            // 播放悬停触觉反馈
+            if (m_hapticFeedback != null)
+                m_hapticFeedback.OnModeHover();
+
             // 触发悬停事件
             OnModeHovered?.Invoke(m_modeInfo);
         }
@@ -321,12 +327,18 @@ namespace PongHub.UI.ModeSelection
             // 检查模式可用性
             if (!m_modeInfo.CheckAvailability())
             {
-                // 播放不可用音效
+                // 播放不可用音效和触觉反馈
                 PlayUnavailableSound();
+                if (m_hapticFeedback != null)
+                    m_hapticFeedback.OnError();
                 return;
             }
 
             PlayClickAnimation();
+
+            // 播放选择触觉反馈
+            if (m_hapticFeedback != null)
+                m_hapticFeedback.OnModeSelect();
 
             // 触发选择事件
             OnModeSelected?.Invoke(m_modeInfo);

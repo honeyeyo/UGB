@@ -45,8 +45,9 @@ namespace PongHub.UI.ModeSelection
         [SerializeField] private ModeTransitionEffect m_transitionEffect;
         [SerializeField] private CanvasGroup m_mainCanvasGroup;
 
-        [Header("音频")]
+        [Header("音频和触觉")]
         [SerializeField] private AudioSource m_audioSource;
+        [SerializeField] private VRHapticFeedback m_hapticFeedback;
 
         [Header("事件")]
         public UnityEvent<GameModeInfo> OnModeSelected;
@@ -88,6 +89,10 @@ namespace PongHub.UI.ModeSelection
             // 设置音频源
             if (m_audioSource == null)
                 m_audioSource = GetComponent<AudioSource>();
+
+            // 设置触觉反馈
+            if (m_hapticFeedback == null)
+                m_hapticFeedback = GetComponent<VRHapticFeedback>();
         }
 
         private void Start()
@@ -192,11 +197,13 @@ namespace PongHub.UI.ModeSelection
             if (modeInfo == null || !modeInfo.CheckAvailability())
             {
                 PlaySound(m_config.ModeUnavailableSound);
+                PlayHapticFeedback(VRHapticFeedback.HapticType.Error);
                 return;
             }
 
             m_selectedMode = modeInfo;
             PlaySound(m_config.ModeSelectSound);
+            PlayHapticFeedback(VRHapticFeedback.HapticType.ModeSelect);
 
             // 触发事件
             OnModeSelected?.Invoke(modeInfo);
@@ -213,10 +220,12 @@ namespace PongHub.UI.ModeSelection
             GameModeInfo modeToStart = m_lastPlayedMode ?? m_config.GetDefaultMode();
             if (modeToStart != null && modeToStart.CheckAvailability())
             {
+                PlayHapticFeedback(VRHapticFeedback.HapticType.QuickStart);
                 StartGameMode(modeToStart);
             }
             else
             {
+                PlayHapticFeedback(VRHapticFeedback.HapticType.Warning);
                 ShowModeSelection();
             }
         }
@@ -229,7 +238,12 @@ namespace PongHub.UI.ModeSelection
             GameModeInfo randomMode = m_config.GetRandomMode();
             if (randomMode != null)
             {
+                PlayHapticFeedback(VRHapticFeedback.HapticType.Medium);
                 SelectMode(randomMode);
+            }
+            else
+            {
+                PlayHapticFeedback(VRHapticFeedback.HapticType.Warning);
             }
         }
 
@@ -242,10 +256,12 @@ namespace PongHub.UI.ModeSelection
         {
             if (modeInfo == null || !modeInfo.CheckAvailability())
             {
+                PlayHapticFeedback(VRHapticFeedback.HapticType.Error);
                 Debug.LogWarning("Cannot start unavailable mode!");
                 return;
             }
 
+            PlayHapticFeedback(VRHapticFeedback.HapticType.ModeConfirm);
             StartCoroutine(StartGameModeCoroutine(modeInfo, difficulty));
         }
 
@@ -257,6 +273,7 @@ namespace PongHub.UI.ModeSelection
             if (m_currentState == ModeSwitchState.ShowingModeList)
                 return;
 
+            PlayHapticFeedback(VRHapticFeedback.HapticType.Back);
             SetState(ModeSwitchState.ShowingModeList);
             ShowModeSelectionPanel();
         }
@@ -368,6 +385,7 @@ namespace PongHub.UI.ModeSelection
         {
             SetState(ModeSwitchState.Transitioning);
             OnModeSwitchStarted?.Invoke();
+            PlayHapticFeedback(VRHapticFeedback.HapticType.Transition);
 
             // 播放过渡效果
             if (m_transitionEffect != null)
@@ -390,6 +408,7 @@ namespace PongHub.UI.ModeSelection
         private IEnumerator HideModeSelectionCoroutine()
         {
             SetState(ModeSwitchState.Transitioning);
+            PlayHapticFeedback(VRHapticFeedback.HapticType.Transition);
 
             // 播放过渡效果
             if (m_transitionEffect != null)
@@ -417,8 +436,9 @@ namespace PongHub.UI.ModeSelection
             if (m_loadingPanel != null)
                 m_loadingPanel.SetActive(true);
 
-            // 播放确认音效
+            // 播放确认音效和触觉反馈
             PlaySound(m_config.ModeConfirmSound);
+            PlayHapticFeedback(VRHapticFeedback.HapticType.Strong);
 
             // 等待一帧确保UI更新
             yield return null;
@@ -533,6 +553,45 @@ namespace PongHub.UI.ModeSelection
             {
                 m_audioSource.PlayOneShot(clip);
             }
+        }
+
+        /// <summary>
+        /// 播放触觉反馈
+        /// </summary>
+        /// <param name="hapticType">触觉类型</param>
+        /// <param name="isLeftHand">是否为左手（默认检测活跃手）</param>
+        private void PlayHapticFeedback(VRHapticFeedback.HapticType hapticType, bool? isLeftHand = null)
+        {
+            if (m_hapticFeedback != null)
+            {
+                // 如果没有指定手，检测当前活跃的控制器
+                bool useLeftHand = isLeftHand ?? GetActiveControllerIsLeft();
+                m_hapticFeedback.PlayHaptic(hapticType, useLeftHand);
+            }
+        }
+
+        /// <summary>
+        /// 检测当前活跃的控制器是否为左手
+        /// </summary>
+        /// <returns>是否为左手控制器</returns>
+        private bool GetActiveControllerIsLeft()
+        {
+            // 检查哪个控制器最近有活动
+            bool leftActive = OVRInput.GetActiveController() == OVRInput.Controller.LTouch;
+            bool rightActive = OVRInput.GetActiveController() == OVRInput.Controller.RTouch;
+
+            if (leftActive) return true;
+            if (rightActive) return false;
+
+            // 如果都没有活动，默认检查触发器或抓取按钮的按压情况
+            bool leftTrigger = OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.LTouch);
+            bool rightTrigger = OVRInput.Get(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch);
+
+            if (leftTrigger) return true;
+            if (rightTrigger) return false;
+
+            // 默认返回右手
+            return false;
         }
 
         /// <summary>
