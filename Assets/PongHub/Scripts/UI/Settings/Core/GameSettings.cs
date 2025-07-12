@@ -116,7 +116,7 @@ namespace PongHub.UI.Settings.Core
         public AntiAliasing antiAliasing = AntiAliasing.MSAA_4x;
 
         [Tooltip("阴影质量")]
-        public ShadowQuality shadowQuality = ShadowQuality.High;
+        public ShadowQualityLevel shadowQuality = ShadowQualityLevel.High;
 
         [Tooltip("启用后处理")]
         public bool enablePostProcessing = true;
@@ -370,17 +370,6 @@ namespace PongHub.UI.Settings.Core
     }
 
     /// <summary>
-    /// 阴影质量枚举
-    /// </summary>
-    public enum ShadowQuality
-    {
-        Disabled = 0,
-        Low = 1,
-        Medium = 2,
-        High = 3
-    }
-
-    /// <summary>
     /// 控制方案枚举
     /// </summary>
     public enum ControlScheme
@@ -435,6 +424,182 @@ namespace PongHub.UI.Settings.Core
         French = 4,
         German = 5,
         Spanish = 6
+    }
+
+    /// <summary>
+    /// 分辨率设置枚举
+    /// </summary>
+    public enum ResolutionSetting
+    {
+        Auto = 0,
+        Low_1280x720 = 1,
+        Medium_1920x1080 = 2,
+        High_2560x1440 = 3,
+        Ultra_3840x2160 = 4
+    }
+
+    /// <summary>
+    /// 帧率限制枚举
+    /// </summary>
+    public enum FrameRateLimit
+    {
+        FPS_60 = 60,
+        FPS_72 = 72,
+        FPS_90 = 90,
+        FPS_120 = 120,
+        Unlimited = 0
+    }
+
+    /// <summary>
+    /// 抗锯齿级别枚举
+    /// </summary>
+    public enum AntiAliasingLevel
+    {
+        None = 0,
+        MSAA_2x = 1,
+        MSAA_4x = 2,
+        MSAA_8x = 3
+    }
+
+    /// <summary>
+    /// 阴影质量级别枚举
+    /// </summary>
+    public enum ShadowQualityLevel
+    {
+        Disabled = 0,
+        Low = 1,
+        Medium = 2,
+        High = 3
+    }
+
+    /// <summary>
+    /// VR舒适度级别枚举
+    /// </summary>
+    public enum VRComfortLevel
+    {
+        Disabled = 0,
+        Low = 1,
+        Medium = 2,
+        High = 3
+    }
+
+    /// <summary>
+    /// 主手偏好枚举
+    /// </summary>
+    public enum DominantHand
+    {
+        Left = 0,
+        Right = 1
+    }
+
+    /// <summary>
+    /// 移动类型枚举
+    /// </summary>
+    public enum MovementType
+    {
+        Teleport = 0,
+        SmoothLocomotion = 1,
+        Hybrid = 2
+    }
+
+    /// <summary>
+    /// 交互模式枚举
+    /// </summary>
+    public enum InteractionMode
+    {
+        RayInteraction = 0,
+        DirectTouch = 1,
+        GazeAndSelect = 2
+    }
+
+    /// <summary>
+    /// 游戏难度枚举
+    /// </summary>
+    public enum GameDifficulty
+    {
+        Easy = 0,
+        Normal = 1,
+        Hard = 2,
+        Expert = 3
+    }
+
+    /// <summary>
+    /// 比赛时长枚举
+    /// </summary>
+    public enum MatchDuration
+    {
+        Quick_5Min = 0,
+        Standard_10Min = 1,
+        Extended_15Min = 2,
+        Marathon_30Min = 3
+    }
+
+    /// <summary>
+    /// 分数限制枚举
+    /// </summary>
+    public enum ScoreLimit
+    {
+        FirstTo5 = 5,
+        FirstTo11 = 11,
+        FirstTo21 = 21,
+        NoLimit = 0
+    }
+
+    /// <summary>
+    /// 语言枚举
+    /// </summary>
+    public enum Language
+    {
+        English = 0,
+        Chinese = 1,
+        Japanese = 2,
+        Korean = 3,
+        French = 4,
+        German = 5,
+        Spanish = 6
+    }
+
+    /// <summary>
+    /// 比赛类型枚举
+    /// </summary>
+    public enum MatchType
+    {
+        Practice = 0,
+        Quick = 1,
+        Ranked = 2,
+        Tournament = 3
+    }
+
+    /// <summary>
+    /// 扳机映射枚举
+    /// </summary>
+    public enum TriggerMapping
+    {
+        None = 0,
+        Grab = 1,
+        Shoot = 2,
+        Menu = 3
+    }
+
+    /// <summary>
+    /// 用户主题枚举
+    /// </summary>
+    public enum UserTheme
+    {
+        Default = 0,
+        Dark = 1,
+        Light = 2,
+        HighContrast = 3
+    }
+
+    /// <summary>
+    /// 隐私级别枚举
+    /// </summary>
+    public enum PrivacyLevel
+    {
+        Public = 0,
+        Friends = 1,
+        Private = 2
     }
 
     #endregion

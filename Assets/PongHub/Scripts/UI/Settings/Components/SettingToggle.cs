@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using PongHub.UI.Settings.Core;
+using PongHub.UI.ModeSelection;
 
 namespace PongHub.UI.Settings.Components
 {
@@ -165,20 +166,12 @@ namespace PongHub.UI.Settings.Components
             if (isUpdatingUI) return;
 
             currentBoolValue = value;
-            currentValue = value;
 
             // 更新状态显示
             UpdateStatusDisplay();
 
-            // 应用设置
-            ApplyValue(value);
-            OnValueChanged?.Invoke(value);
-
-            // 触觉反馈
-            if (enableHapticFeedback && hapticFeedback != null)
-            {
-                hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ModeSelect);
-            }
+            // 通过基类的SetValue方法处理值变更
+            SetValue(value);
         }
 
         /// <summary>
@@ -371,6 +364,37 @@ namespace PongHub.UI.Settings.Components
         #endregion
 
         #region 公共接口
+
+        /// <summary>
+        /// 获取或设置开关状态
+        /// </summary>
+        public bool isOn
+        {
+            get
+            {
+                return toggle != null ? toggle.isOn : currentBoolValue;
+            }
+            set
+            {
+                if (toggle != null)
+                {
+                    toggle.isOn = value;
+                }
+                currentBoolValue = value;
+                UpdateUI();
+            }
+        }
+
+        /// <summary>
+        /// 值变更事件
+        /// </summary>
+        public UnityEngine.Events.UnityEvent<bool> onValueChanged
+        {
+            get
+            {
+                return toggle != null ? toggle.onValueChanged : null;
+            }
+        }
 
         /// <summary>
         /// 设置状态文本

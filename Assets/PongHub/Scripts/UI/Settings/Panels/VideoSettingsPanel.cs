@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.Rendering.Universal;
 using TMPro;
 using PongHub.UI.Settings.Core;
+using PongHub.UI.ModeSelection;
 using System.Collections.Generic;
 
 namespace PongHub.UI.Settings.Panels
@@ -96,7 +97,7 @@ namespace PongHub.UI.Settings.Panels
 
         // 组件引用
         private SettingsManager settingsManager;
-        private SettingsHapticFeedback hapticFeedback;
+        private VRHapticFeedback hapticFeedback;
 
         // 性能监控变量
         private float fpsUpdateTimer = 0f;
@@ -150,10 +151,10 @@ namespace PongHub.UI.Settings.Panels
             }
 
             // 获取触觉反馈组件
-            hapticFeedback = FindObjectOfType<SettingsHapticFeedback>();
+            hapticFeedback = FindObjectOfType<VRHapticFeedback>();
             if (hapticFeedback == null)
             {
-                Debug.LogWarning("SettingsHapticFeedback not found. Haptic feedback will be disabled.");
+                Debug.LogWarning("VRHapticFeedback not found. Haptic feedback will be disabled.");
             }
 
             // 获取URP资产
@@ -303,10 +304,10 @@ namespace PongHub.UI.Settings.Panels
         /// </summary>
         private void OnRenderQualityChanged(int value)
         {
-            var quality = (QualityLevel)value;
+            var quality = (RenderQuality)value;
 
             var videoSettings = settingsManager.GetVideoSettings();
-            videoSettings.qualityLevel = quality;
+            videoSettings.renderQuality = quality;
             settingsManager.UpdateVideoSettings(videoSettings);
 
             ApplyRenderQuality(quality);
@@ -314,7 +315,7 @@ namespace PongHub.UI.Settings.Panels
             // 播放触觉反馈
             if (hapticFeedback != null)
             {
-                hapticFeedback.PlayHaptic(SettingsHapticFeedback.HapticType.Selection);
+                hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ModeSelect);
             }
 
             Debug.Log($"Render quality changed to: {quality}");
@@ -327,10 +328,7 @@ namespace PongHub.UI.Settings.Panels
         {
             var resolution = (ResolutionSetting)value;
 
-            var videoSettings = settingsManager.GetVideoSettings();
-            videoSettings.resolution = resolution;
-            settingsManager.UpdateVideoSettings(videoSettings);
-
+            // 直接应用分辨率设置，不保存到VideoSettings结构中
             ApplyResolution(resolution);
             Debug.Log($"Resolution changed to: {resolution}");
         }
@@ -343,7 +341,7 @@ namespace PongHub.UI.Settings.Panels
             var frameRateLimit = GetFrameRateLimitFromIndex(value);
 
             var videoSettings = settingsManager.GetVideoSettings();
-            videoSettings.frameRateLimit = frameRateLimit;
+            videoSettings.targetFrameRate = (int)frameRateLimit;
             settingsManager.UpdateVideoSettings(videoSettings);
 
             ApplyFrameRateLimit(frameRateLimit);
@@ -358,7 +356,7 @@ namespace PongHub.UI.Settings.Panels
             var antiAliasing = (AntiAliasingLevel)value;
 
             var videoSettings = settingsManager.GetVideoSettings();
-            videoSettings.antiAliasing = antiAliasing;
+            videoSettings.antiAliasing = (AntiAliasing)value;
             settingsManager.UpdateVideoSettings(videoSettings);
 
             ApplyAntiAliasing(antiAliasing);
@@ -386,7 +384,7 @@ namespace PongHub.UI.Settings.Panels
         private void OnPostProcessingChanged(bool value)
         {
             var videoSettings = settingsManager.GetVideoSettings();
-            videoSettings.postProcessing = value;
+            videoSettings.enablePostProcessing = value;
             settingsManager.UpdateVideoSettings(videoSettings);
 
             ApplyPostProcessing(value);
@@ -399,7 +397,7 @@ namespace PongHub.UI.Settings.Panels
         private void OnVSyncChanged(bool value)
         {
             var videoSettings = settingsManager.GetVideoSettings();
-            videoSettings.vsync = value;
+            videoSettings.enableVSync = value;
             settingsManager.UpdateVideoSettings(videoSettings);
 
             QualitySettings.vSyncCount = value ? 1 : 0;
@@ -447,10 +445,7 @@ namespace PongHub.UI.Settings.Panels
         /// </summary>
         private void OnFixedFoveatedRenderingChanged(bool value)
         {
-            var videoSettings = settingsManager.GetVideoSettings();
-            videoSettings.fixedFoveatedRendering = value;
-            settingsManager.UpdateVideoSettings(videoSettings);
-
+            // 固定中心凹渲染设置不保存到VideoSettings结构中，直接应用
             ApplyFixedFoveatedRendering(value);
             Debug.Log($"Fixed foveated rendering: {(value ? "Enabled" : "Disabled")}");
         }
@@ -463,7 +458,7 @@ namespace PongHub.UI.Settings.Panels
             var comfortLevel = (VRComfortLevel)Mathf.RoundToInt(value * 3); // 0-3
 
             var videoSettings = settingsManager.GetVideoSettings();
-            videoSettings.comfortLevel = comfortLevel;
+            videoSettings.comfortSettings.comfortLevel = value;
             settingsManager.UpdateVideoSettings(videoSettings);
 
             ApplyComfortSettings(value);
@@ -485,7 +480,7 @@ namespace PongHub.UI.Settings.Panels
         private void OnMotionSicknessChanged(bool value)
         {
             var videoSettings = settingsManager.GetVideoSettings();
-            videoSettings.motionSicknessReduction = value;
+            videoSettings.comfortSettings.motionSicknessReduction = value;
             settingsManager.UpdateVideoSettings(videoSettings);
 
             ApplyMotionSicknessReduction(value);
@@ -497,10 +492,7 @@ namespace PongHub.UI.Settings.Panels
         /// </summary>
         private void OnVignetteChanged(bool value)
         {
-            var videoSettings = settingsManager.GetVideoSettings();
-            videoSettings.vignetting = value;
-            settingsManager.UpdateVideoSettings(videoSettings);
-
+            // 晕影效果设置不保存到VideoSettings结构中，直接应用
             ApplyVignetteEffect(value);
             Debug.Log($"Vignette effect: {(value ? "Enabled" : "Disabled")}");
         }
@@ -600,17 +592,16 @@ namespace PongHub.UI.Settings.Panels
         /// 应用渲染质量设置
         /// </summary>
         /// <param name="quality">渲染质量</param>
-        private void ApplyRenderQuality(QualityLevel quality)
+        private void ApplyRenderQuality(RenderQuality quality)
         {
             QualitySettings.SetQualityLevel((int)quality);
 
             if (qualityPresets != null && qualityPresets.Length > (int)quality)
             {
                 var preset = qualityPresets[(int)quality];
-                if (preset != null)
-                {
-                    UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline = preset;
-                }
+                // 注意：currentRenderPipeline是只读属性，不能在运行时修改
+                // 渲染管线需要在项目设置中配置
+                Debug.Log($"Quality preset: {preset.name}");
             }
         }
 
@@ -653,15 +644,15 @@ namespace PongHub.UI.Settings.Panels
                     break;
                 case ShadowQualityLevel.Low:
                     QualitySettings.shadows = UnityEngine.ShadowQuality.HardOnly;
-                    QualitySettings.shadowResolution = ShadowResolution.Low;
+                    QualitySettings.shadowResolution = UnityEngine.ShadowResolution.Low;
                     break;
                 case ShadowQualityLevel.Medium:
                     QualitySettings.shadows = UnityEngine.ShadowQuality.All;
-                    QualitySettings.shadowResolution = ShadowResolution.Medium;
+                    QualitySettings.shadowResolution = UnityEngine.ShadowResolution.Medium;
                     break;
                 case ShadowQualityLevel.High:
                     QualitySettings.shadows = UnityEngine.ShadowQuality.All;
-                    QualitySettings.shadowResolution = ShadowResolution.High;
+                    QualitySettings.shadowResolution = UnityEngine.ShadowResolution.High;
                     break;
             }
         }
@@ -884,13 +875,14 @@ namespace PongHub.UI.Settings.Panels
 
             // 更新渲染设置UI
             if (qualityDropdown != null)
-                qualityDropdown.value = (int)videoSettings.qualityLevel;
+                qualityDropdown.value = (int)videoSettings.renderQuality;
 
+            // 分辨率下拉菜单设置为默认值，因为VideoSettings中不存储分辨率
             if (resolutionDropdown != null)
-                resolutionDropdown.value = (int)videoSettings.resolution;
+                resolutionDropdown.value = 0; // 默认为Auto
 
             if (frameRateDropdown != null)
-                frameRateDropdown.value = GetFrameRateDropdownIndex(videoSettings.frameRateLimit);
+                frameRateDropdown.value = GetFrameRateDropdownIndex((FrameRateLimit)videoSettings.targetFrameRate);
 
             if (antiAliasingDropdown != null)
                 antiAliasingDropdown.value = (int)videoSettings.antiAliasing;
@@ -900,29 +892,31 @@ namespace PongHub.UI.Settings.Panels
 
             // 更新开关状态
             if (postProcessingToggle != null)
-                postProcessingToggle.isOn = videoSettings.postProcessing;
+                postProcessingToggle.isOn = videoSettings.enablePostProcessing;
 
             if (vsyncToggle != null)
-                vsyncToggle.isOn = videoSettings.vsync;
+                vsyncToggle.isOn = videoSettings.enableVSync;
 
             if (foveatedRenderingToggle != null)
                 foveatedRenderingToggle.isOn = videoSettings.foveatedRendering;
 
+            // 固定中心凹渲染设置为默认值，因为VideoSettings中不存储此设置
             if (fixedFoveatedRenderingToggle != null)
-                fixedFoveatedRenderingToggle.isOn = videoSettings.fixedFoveatedRendering;
+                fixedFoveatedRenderingToggle.isOn = false;
 
             if (motionSicknessToggle != null)
-                motionSicknessToggle.isOn = videoSettings.motionSicknessReduction;
+                motionSicknessToggle.isOn = videoSettings.comfortSettings.motionSicknessReduction;
 
+            // 晕影效果设置为默认值，因为VideoSettings中不存储此设置
             if (vignetteToggle != null)
-                vignetteToggle.isOn = videoSettings.vignetting;
+                vignetteToggle.isOn = false;
 
             // 更新滑块数值
             if (renderScaleSlider != null)
                 renderScaleSlider.value = videoSettings.renderScale;
 
             if (comfortLevelSlider != null)
-                comfortLevelSlider.value = (int)videoSettings.comfortLevel / 3f;
+                comfortLevelSlider.value = videoSettings.comfortSettings.comfortLevel;
         }
 
         /// <summary>
@@ -952,30 +946,30 @@ namespace PongHub.UI.Settings.Panels
             switch (preset.ToLower())
             {
                 case "performance":
-                    videoSettings.qualityLevel = QualityLevel.Low;
-                    videoSettings.antiAliasing = AntiAliasingLevel.None;
+                    videoSettings.renderQuality = RenderQuality.Low;
+                    videoSettings.antiAliasing = (AntiAliasing)((int)AntiAliasingLevel.None);
                     videoSettings.shadowQuality = ShadowQualityLevel.Low;
-                    videoSettings.postProcessing = false;
+                    videoSettings.enablePostProcessing = false;
                     videoSettings.renderScale = 0.8f;
-                    videoSettings.frameRateLimit = FrameRateLimit.FPS_90;
+                    videoSettings.targetFrameRate = (int)FrameRateLimit.FPS_90;
                     break;
 
                 case "balanced":
-                    videoSettings.qualityLevel = QualityLevel.Medium;
-                    videoSettings.antiAliasing = AntiAliasingLevel.MSAA_2x;
+                    videoSettings.renderQuality = RenderQuality.Medium;
+                    videoSettings.antiAliasing = (AntiAliasing)((int)AntiAliasingLevel.MSAA_2x);
                     videoSettings.shadowQuality = ShadowQualityLevel.Medium;
-                    videoSettings.postProcessing = true;
+                    videoSettings.enablePostProcessing = true;
                     videoSettings.renderScale = 1.0f;
-                    videoSettings.frameRateLimit = FrameRateLimit.FPS_72;
+                    videoSettings.targetFrameRate = (int)FrameRateLimit.FPS_72;
                     break;
 
                 case "quality":
-                    videoSettings.qualityLevel = QualityLevel.High;
-                    videoSettings.antiAliasing = AntiAliasingLevel.MSAA_4x;
+                    videoSettings.renderQuality = RenderQuality.High;
+                    videoSettings.antiAliasing = (AntiAliasing)((int)AntiAliasingLevel.MSAA_4x);
                     videoSettings.shadowQuality = ShadowQualityLevel.High;
-                    videoSettings.postProcessing = true;
+                    videoSettings.enablePostProcessing = true;
                     videoSettings.renderScale = 1.2f;
-                    videoSettings.frameRateLimit = FrameRateLimit.FPS_60;
+                    videoSettings.targetFrameRate = (int)FrameRateLimit.FPS_60;
                     break;
             }
 
@@ -985,7 +979,7 @@ namespace PongHub.UI.Settings.Panels
             // 播放确认反馈
             if (hapticFeedback != null)
             {
-                hapticFeedback.PlayHaptic(SettingsHapticFeedback.HapticType.ModeConfirm);
+                hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ModeConfirm);
             }
 
             Debug.Log($"Applied {preset} preset");

@@ -101,7 +101,7 @@ namespace PongHub.UI.Settings.Core
                 return false;
             if (!IsValidEnum<AntiAliasing>(settings.antiAliasing, "Anti Aliasing"))
                 return false;
-            if (!IsValidEnum<ShadowQuality>(settings.shadowQuality, "Shadow Quality"))
+            if (!IsValidEnum<ShadowQualityLevel>(settings.shadowQuality, "Shadow Quality"))
                 return false;
 
             // 验证舒适设置

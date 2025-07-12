@@ -131,7 +131,7 @@
 - **实施**:
   - `ShadowQuality` → `ShadowQualityLevel`
   - `AudioQuality` → `AudioQualityLevel` (如需要)
-  - `RenderQuality` → `QualityLevel`
+  - `QualityLevel` → `RenderQuality`
 
 ### 规则 4: 引用更新策略
 

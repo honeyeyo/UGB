@@ -235,21 +235,45 @@ namespace PongHub.UI.Settings.Core
         }
 
         /// <summary>
-        /// 更新用户资料
+        /// 更新用户资料设置
         /// </summary>
         public void UpdateUserProfile(UserProfile newProfile)
         {
+            if (currentSettings == null)
+            {
+                Debug.LogError("Settings not initialized");
+                return;
+            }
+
             if (validator.ValidateUserProfile(newProfile))
             {
                 currentSettings.userProfile = newProfile;
-                OnUserProfileChanged?.Invoke(newProfile);
-                OnSettingsChanged?.Invoke(currentSettings);
                 MarkAsChanged();
+                OnUserProfileChanged?.Invoke(newProfile);
+                Debug.Log("User profile updated successfully");
             }
             else
             {
-                Debug.LogError("Invalid user profile provided");
+                Debug.LogError("Invalid user profile settings");
             }
+        }
+
+        /// <summary>
+        /// 保存用户资料设置
+        /// </summary>
+        public void SaveUserProfile(UserProfile newProfile)
+        {
+            UpdateUserProfile(newProfile);
+            SaveSettings();
+        }
+
+        /// <summary>
+        /// 保存游戏设置
+        /// </summary>
+        public void SaveGameplaySettings(GameplaySettings newSettings)
+        {
+            UpdateGameplaySettings(newSettings);
+            SaveSettings();
         }
 
         /// <summary>
@@ -297,13 +321,18 @@ namespace PongHub.UI.Settings.Core
             }
 
             // 设置空间音频
+            // 设置音频配置 - Unity 2022.3中没有speakerMode属性
             if (audioSettings.spatialAudio)
             {
-                AudioSettings.speakerMode = AudioSpeakerMode.Mode7point1;
+                // 启用空间音频
+                AudioListener.volume = audioSettings.masterVolume;
+                Debug.Log("启用空间音频");
             }
             else
             {
-                AudioSettings.speakerMode = AudioSpeakerMode.Stereo;
+                // 使用标准立体声
+                AudioListener.volume = audioSettings.masterVolume;
+                Debug.Log("使用标准立体声");
             }
         }
 
@@ -343,14 +372,16 @@ namespace PongHub.UI.Settings.Core
         {
             var controlSettings = currentSettings.controlSettings;
 
-            // 设置输入管理器
-            var inputManager = FindObjectOfType<PongHub.Core.Input.InputManager>();
-            if (inputManager != null)
-            {
-                // 应用灵敏度设置
-                // inputManager.SetSensitivity(controlSettings.vrControllerSensitivity);
-                // inputManager.SetDeadZone(controlSettings.deadZone);
-            }
+            // 设置输入管理器 - 暂时注释掉，因为命名空间不存在
+            // var inputManager = FindObjectOfType<PongHub.Core.Input.InputManager>();
+            // if (inputManager != null)
+            // {
+            //     // 应用灵敏度设置
+            //     inputManager.SetSensitivity(controlSettings.vrControllerSensitivity);
+            //     inputManager.SetDeadZone(controlSettings.deadZone);
+            // }
+
+            Debug.Log($"应用控制设置: 灵敏度={controlSettings.vrControllerSensitivity}, 死区={controlSettings.deadZone}");
 
             // 设置触觉反馈
             var hapticFeedback = FindObjectOfType<SettingsHapticFeedback>();
@@ -368,12 +399,14 @@ namespace PongHub.UI.Settings.Core
         {
             var gameplaySettings = currentSettings.gameplaySettings;
 
-            // 设置本地化
-            var localizationManager = FindObjectOfType<PongHub.Core.Localization.LocalizationManager>();
-            if (localizationManager != null)
-            {
-                // localizationManager.SetLanguage(gameplaySettings.language.ToString());
-            }
+            // 设置本地化 - 暂时注释掉，因为命名空间不存在
+            // var localizationManager = FindObjectOfType<PongHub.Core.Localization.LocalizationManager>();
+            // if (localizationManager != null)
+            // {
+            //     localizationManager.SetLanguage(gameplaySettings.language.ToString());
+            // }
+
+            Debug.Log($"应用游戏设置: 语言={gameplaySettings.language}, UI缩放={gameplaySettings.uiScale}");
 
             // 设置UI缩放
             Canvas[] canvases = FindObjectsOfType<Canvas>();

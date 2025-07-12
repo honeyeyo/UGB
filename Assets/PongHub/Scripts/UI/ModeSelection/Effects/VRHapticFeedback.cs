@@ -241,24 +241,47 @@ namespace PongHub.UI.ModeSelection
         {
             if (!m_isInitialized) return;
 
-            if (isLeftHand)
+            OVRInput.Controller controller = isLeftHand ? m_leftController : m_rightController;
+
+            // 停止当前的触觉反馈
+            OVRInput.SetControllerVibration(0f, 0f, controller);
+
+            // 停止相关的协程
+            if (isLeftHand && m_currentLeftHaptic != null)
             {
-                if (m_currentLeftHaptic != null)
-                {
-                    StopCoroutine(m_currentLeftHaptic);
-                    m_currentLeftHaptic = null;
-                }
-                OVRInput.SetControllerVibration(0, 0, m_leftController);
+                StopCoroutine(m_currentLeftHaptic);
+                m_currentLeftHaptic = null;
             }
-            else
+            else if (!isLeftHand && m_currentRightHaptic != null)
             {
-                if (m_currentRightHaptic != null)
-                {
-                    StopCoroutine(m_currentRightHaptic);
-                    m_currentRightHaptic = null;
-                }
-                OVRInput.SetControllerVibration(0, 0, m_rightController);
+                StopCoroutine(m_currentRightHaptic);
+                m_currentRightHaptic = null;
             }
+        }
+
+        /// <summary>
+        /// 设置全局触觉反馈强度
+        /// </summary>
+        /// <param name="intensity">强度值 (0-1)</param>
+        public void SetIntensity(float intensity)
+        {
+            intensity = Mathf.Clamp01(intensity);
+
+            // 调整各种触觉强度
+            m_lightIntensity = 0.3f * intensity;
+            m_mediumIntensity = 0.6f * intensity;
+            m_strongIntensity = 1.0f * intensity;
+            m_modeHoverIntensity = 0.4f * intensity;
+            m_modeSelectIntensity = 0.8f * intensity;
+            m_modeConfirmIntensity = 1.0f * intensity;
+            m_errorIntensity = 0.9f * intensity;
+            m_warningIntensity = 0.6f * intensity;
+            m_transitionIntensity = 0.5f * intensity;
+            m_pageChangeIntensity = 0.7f * intensity;
+            m_quickStartIntensity = 0.6f * intensity;
+            m_backButtonIntensity = 0.4f * intensity;
+
+            Debug.Log($"VRHapticFeedback intensity set to: {intensity}");
         }
 
         #endregion

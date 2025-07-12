@@ -7,408 +7,475 @@ using PongHub.UI.Settings.Components;
 namespace PongHub.UI.Settings.Panels
 {
     /// <summary>
-    /// 游戏玩法设置面板
-    /// Gameplay settings panel for game mechanics and preferences
+    /// 游戏设置面板
     /// </summary>
     public class GameplaySettingsPanel : MonoBehaviour
     {
-        [Header("游戏难度设置")]
+        [Header("游戏难度")]
         [SerializeField] private SettingDropdown difficultyDropdown;
-        [SerializeField] private SettingSlider aiDifficultySlider;
+        [SerializeField] private SettingDropdown aiDifficultyDropdown;
         [SerializeField] private SettingSlider gameSpeedSlider;
         [SerializeField] private SettingSlider ballSpeedSlider;
 
-        [Header("辅助功能设置")]
+        [Header("游戏辅助")]
         [SerializeField] private SettingToggle autoAimToggle;
         [SerializeField] private SettingToggle ballTrailToggle;
         [SerializeField] private SettingToggle paddleVibrateToggle;
         [SerializeField] private SettingToggle slowMotionToggle;
         [SerializeField] private SettingSlider assistLevelSlider;
 
-        [Header("游戏界面设置")]
+        [Header("界面显示")]
         [SerializeField] private SettingToggle showUIToggle;
         [SerializeField] private SettingToggle showStatsToggle;
-        [SerializeField] private SettingSlider uiScaleSlider;
+        [SerializeField] private SettingToggle showTutorialsToggle;
         [SerializeField] private SettingToggle showScoreToggle;
         [SerializeField] private SettingToggle showTimerToggle;
 
-        [Header("音效设置")]
+        [Header("音频")]
         [SerializeField] private SettingToggle gameplaySoundsToggle;
         [SerializeField] private SettingToggle commentaryToggle;
         [SerializeField] private SettingSlider commentaryVolumeSlider;
 
         [Header("比赛设置")]
         [SerializeField] private SettingDropdown matchTypeDropdown;
-        [SerializeField] private SettingSlider matchDurationSlider;
+        [SerializeField] private SettingDropdown matchDurationDropdown;
         [SerializeField] private SettingSlider scoreToWinSlider;
         [SerializeField] private SettingToggle suddenDeathToggle;
 
-        private SettingsManager settingsManager;
-        private VRHapticFeedback hapticFeedback;
+        [Header("辅助功能")]
+        [SerializeField] private SettingToggle enableAssistModeToggle;
+        [SerializeField] private SettingToggle enableDebugInfoToggle;
+        [SerializeField] private SettingToggle highContrastToggle;
+        [SerializeField] private SettingSlider uiScaleSlider;
+        [SerializeField] private SettingToggle enableSubtitlesToggle;
 
-        private void Awake()
-        {
-            settingsManager = SettingsManager.Instance;
-            hapticFeedback = FindObjectOfType<VRHapticFeedback>();
-        }
+        [Header("本地化")]
+        [SerializeField] private SettingDropdown languageDropdown;
+
+        [Header("自动保存")]
+        [SerializeField] private SettingToggle autoSaveToggle;
+
+        private GameplaySettings currentSettings;
+        private bool isUpdating = false;
 
         private void Start()
         {
-            SetupComponents();
-            RefreshPanel();
+            InitializePanel();
+            SetupEventHandlers();
+            LoadCurrentSettings();
         }
 
-        private void SetupComponents()
+        private void InitializePanel()
         {
-            // 难度设置事件
-            difficultyDropdown?.OnValueChanged.AddListener(OnDifficultyChanged);
-            aiDifficultySlider?.OnValueChanged.AddListener(OnAIDifficultyChanged);
-            gameSpeedSlider?.OnValueChanged.AddListener(OnGameSpeedChanged);
-            ballSpeedSlider?.OnValueChanged.AddListener(OnBallSpeedChanged);
+            // 初始化难度下拉框
+            difficultyDropdown.ClearOptions();
+            difficultyDropdown.AddOptions(new[] { "简单", "普通", "困难", "专家" });
 
-            // 辅助功能事件
-            autoAimToggle?.OnValueChanged.AddListener(OnAutoAimChanged);
-            ballTrailToggle?.OnValueChanged.AddListener(OnBallTrailChanged);
-            paddleVibrateToggle?.OnValueChanged.AddListener(OnPaddleVibrateChanged);
-            slowMotionToggle?.OnValueChanged.AddListener(OnSlowMotionChanged);
-            assistLevelSlider?.OnValueChanged.AddListener(OnAssistLevelChanged);
+            // 初始化AI难度下拉框
+            aiDifficultyDropdown.ClearOptions();
+            aiDifficultyDropdown.AddOptions(new[] { "简单", "普通", "困难", "专家" });
 
-            // UI设置事件
-            showUIToggle?.OnValueChanged.AddListener(OnShowUIChanged);
-            showStatsToggle?.OnValueChanged.AddListener(OnShowStatsChanged);
-            uiScaleSlider?.OnValueChanged.AddListener(OnUIScaleChanged);
-            showScoreToggle?.OnValueChanged.AddListener(OnShowScoreChanged);
-            showTimerToggle?.OnValueChanged.AddListener(OnShowTimerChanged);
+            // 初始化比赛类型下拉框
+            matchTypeDropdown.ClearOptions();
+            matchTypeDropdown.AddOptions(new[] { "练习", "快速比赛", "排位赛", "锦标赛" });
 
-            // 音效设置事件
-            gameplaySoundsToggle?.OnValueChanged.AddListener(OnGameplaySoundsChanged);
-            commentaryToggle?.OnValueChanged.AddListener(OnCommentaryChanged);
-            commentaryVolumeSlider?.OnValueChanged.AddListener(OnCommentaryVolumeChanged);
+            // 初始化比赛时长下拉框
+            matchDurationDropdown.ClearOptions();
+            matchDurationDropdown.AddOptions(new[] { "5分钟", "10分钟", "15分钟", "30分钟" });
 
-            // 比赛设置事件
-            matchTypeDropdown?.OnValueChanged.AddListener(OnMatchTypeChanged);
-            matchDurationSlider?.OnValueChanged.AddListener(OnMatchDurationChanged);
-            scoreToWinSlider?.OnValueChanged.AddListener(OnScoreToWinChanged);
-            suddenDeathToggle?.OnValueChanged.AddListener(OnSuddenDeathChanged);
+            // 初始化语言下拉框
+            languageDropdown.ClearOptions();
+            languageDropdown.AddOptions(new[] { "英语", "中文", "日语", "韩语", "法语", "德语", "西班牙语" });
+
+            // 设置滑块范围
+            gameSpeedSlider.SetMinMaxValues(0.5f, 2.0f);
+            ballSpeedSlider.SetMinMaxValues(0.5f, 2.0f);
+            assistLevelSlider.SetMinMaxValues(0f, 1f);
+            commentaryVolumeSlider.SetMinMaxValues(0f, 1f);
+            scoreToWinSlider.SetMinMaxValues(5f, 21f);
+            uiScaleSlider.SetMinMaxValues(0.5f, 2.0f);
         }
 
-        #region 事件处理
-
-        private void OnDifficultyChanged(int difficulty)
+        private void SetupEventHandlers()
         {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.difficulty = (GameDifficulty)difficulty;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
+            // 游戏难度设置
+            difficultyDropdown.onValueChanged.AddListener(OnDifficultyChanged);
+            aiDifficultyDropdown.onValueChanged.AddListener(OnAIDifficultyChanged);
+            gameSpeedSlider.onValueChanged.AddListener(OnGameSpeedChanged);
+            ballSpeedSlider.onValueChanged.AddListener(OnBallSpeedChanged);
 
-                // 根据难度自动调整相关设置
-                ApplyDifficultyPreset((GameDifficulty)difficulty);
-            }
+            // 游戏辅助设置
+            autoAimToggle.onValueChanged.AddListener(OnAutoAimChanged);
+            ballTrailToggle.onValueChanged.AddListener(OnBallTrailChanged);
+            paddleVibrateToggle.onValueChanged.AddListener(OnPaddleVibrateChanged);
+            slowMotionToggle.onValueChanged.AddListener(OnSlowMotionChanged);
+            assistLevelSlider.onValueChanged.AddListener(OnAssistLevelChanged);
+
+            // 界面显示设置
+            showUIToggle.onValueChanged.AddListener(OnShowUIChanged);
+            showStatsToggle.onValueChanged.AddListener(OnShowStatsChanged);
+            showTutorialsToggle.onValueChanged.AddListener(OnShowTutorialsChanged);
+            showScoreToggle.onValueChanged.AddListener(OnShowScoreChanged);
+            showTimerToggle.onValueChanged.AddListener(OnShowTimerChanged);
+
+            // 音频设置
+            gameplaySoundsToggle.onValueChanged.AddListener(OnGameplaySoundsChanged);
+            commentaryToggle.onValueChanged.AddListener(OnCommentaryChanged);
+            commentaryVolumeSlider.onValueChanged.AddListener(OnCommentaryVolumeChanged);
+
+            // 比赛设置
+            matchTypeDropdown.onValueChanged.AddListener(OnMatchTypeChanged);
+            matchDurationDropdown.onValueChanged.AddListener(OnMatchDurationChanged);
+            scoreToWinSlider.onValueChanged.AddListener(OnScoreToWinChanged);
+            suddenDeathToggle.onValueChanged.AddListener(OnSuddenDeathChanged);
+
+            // 辅助功能设置
+            enableAssistModeToggle.onValueChanged.AddListener(OnEnableAssistModeChanged);
+            enableDebugInfoToggle.onValueChanged.AddListener(OnEnableDebugInfoChanged);
+            highContrastToggle.onValueChanged.AddListener(OnHighContrastChanged);
+            uiScaleSlider.onValueChanged.AddListener(OnUIScaleChanged);
+            enableSubtitlesToggle.onValueChanged.AddListener(OnEnableSubtitlesChanged);
+
+            // 本地化设置
+            languageDropdown.onValueChanged.AddListener(OnLanguageChanged);
+
+            // 自动保存设置
+            autoSaveToggle.onValueChanged.AddListener(OnAutoSaveChanged);
         }
 
-        private void OnAIDifficultyChanged(float difficulty)
+        private void LoadCurrentSettings()
         {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.aiDifficulty = difficulty;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
+            currentSettings = SettingsManager.Instance.GetGameplaySettings();
+            UpdateUI();
         }
 
-        private void OnGameSpeedChanged(float speed)
+        private void UpdateUI()
         {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.gameSpeed = speed;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
+            if (currentSettings == null) return;
+
+            isUpdating = true;
+
+            // 游戏难度设置
+            difficultyDropdown.value = (int)currentSettings.defaultDifficulty;
+            aiDifficultyDropdown.value = (int)currentSettings.defaultDifficulty; // 使用相同的难度
+            gameSpeedSlider.value = 1.0f; // 默认值，因为GameplaySettings中没有这个字段
+            ballSpeedSlider.value = 1.0f; // 默认值，因为GameplaySettings中没有这个字段
+
+            // 游戏辅助设置
+            autoAimToggle.isOn = currentSettings.enableAssistMode;
+            ballTrailToggle.isOn = true; // 默认值，因为GameplaySettings中没有这个字段
+            paddleVibrateToggle.isOn = true; // 默认值，因为GameplaySettings中没有这个字段
+            slowMotionToggle.isOn = false; // 默认值，因为GameplaySettings中没有这个字段
+            assistLevelSlider.value = currentSettings.enableAssistMode ? 1f : 0f;
+
+            // 界面显示设置
+            showUIToggle.isOn = true; // 默认值，因为GameplaySettings中没有这个字段
+            showStatsToggle.isOn = currentSettings.showStatistics;
+            showTutorialsToggle.isOn = currentSettings.showTutorials;
+            showScoreToggle.isOn = true; // 默认值，因为GameplaySettings中没有这个字段
+            showTimerToggle.isOn = true; // 默认值，因为GameplaySettings中没有这个字段
+
+            // 音频设置
+            gameplaySoundsToggle.isOn = true; // 默认值，因为GameplaySettings中没有这个字段
+            commentaryToggle.isOn = false; // 默认值，因为GameplaySettings中没有这个字段
+            commentaryVolumeSlider.value = 0.5f; // 默认值，因为GameplaySettings中没有这个字段
+
+            // 比赛设置
+            matchTypeDropdown.value = 0; // 默认值，因为GameplaySettings中没有这个字段
+            matchDurationDropdown.value = 1; // 默认值，因为GameplaySettings中没有这个字段
+            scoreToWinSlider.value = 11f; // 默认值，因为GameplaySettings中没有这个字段
+            suddenDeathToggle.isOn = false; // 默认值，因为GameplaySettings中没有这个字段
+
+            // 辅助功能设置
+            enableAssistModeToggle.isOn = currentSettings.enableAssistMode;
+            enableDebugInfoToggle.isOn = currentSettings.enableDebugInfo;
+            highContrastToggle.isOn = currentSettings.highContrast;
+            uiScaleSlider.value = currentSettings.uiScale;
+            enableSubtitlesToggle.isOn = currentSettings.enableSubtitles;
+
+            // 本地化设置
+            languageDropdown.value = (int)currentSettings.language;
+
+            // 自动保存设置
+            autoSaveToggle.isOn = currentSettings.autoSave;
+
+            isUpdating = false;
         }
 
-        private void OnBallSpeedChanged(float speed)
+        #region 难度预设
+
+        private void ApplyDifficultyPreset(DifficultyLevel difficulty)
         {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.ballSpeed = speed;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnAutoAimChanged(bool enabled)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.autoAim = enabled;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnBallTrailChanged(bool enabled)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.ballTrail = enabled;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnPaddleVibrateChanged(bool enabled)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.paddleVibrate = enabled;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnSlowMotionChanged(bool enabled)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.slowMotion = enabled;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnAssistLevelChanged(float level)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.assistLevel = level;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnShowUIChanged(bool show)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.showUI = show;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnShowStatsChanged(bool show)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.showStats = show;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnUIScaleChanged(float scale)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.uiScale = scale;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnShowScoreChanged(bool show)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.showScore = show;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnShowTimerChanged(bool show)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.showTimer = show;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnGameplaySoundsChanged(bool enabled)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.gameplaySounds = enabled;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnCommentaryChanged(bool enabled)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.commentary = enabled;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnCommentaryVolumeChanged(float volume)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.commentaryVolume = volume;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnMatchTypeChanged(int type)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.matchType = (MatchType)type;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnMatchDurationChanged(float duration)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.matchDuration = duration;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnScoreToWinChanged(float score)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.scoreToWin = (int)score;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        private void OnSuddenDeathChanged(bool enabled)
-        {
-            if (settingsManager != null)
-            {
-                var gameplaySettings = settingsManager.GetGameplaySettings();
-                gameplaySettings.suddenDeath = enabled;
-                settingsManager.UpdateGameplaySettings(gameplaySettings);
-            }
-        }
-
-        #endregion
-
-        #region 设置应用
-
-        /// <summary>
-        /// 应用难度预设
-        /// </summary>
-        private void ApplyDifficultyPreset(GameDifficulty difficulty)
-        {
-            var gameplaySettings = settingsManager.GetGameplaySettings();
-
             switch (difficulty)
             {
-                case GameDifficulty.Easy:
-                    gameplaySettings.aiDifficulty = 0.3f;
-                    gameplaySettings.gameSpeed = 0.8f;
-                    gameplaySettings.ballSpeed = 0.7f;
-                    gameplaySettings.autoAim = true;
-                    gameplaySettings.assistLevel = 0.7f;
+                case DifficultyLevel.Easy:
+                    aiDifficultyDropdown.value = 0;
+                    gameSpeedSlider.value = 0.8f;
+                    ballSpeedSlider.value = 0.8f;
+                    autoAimToggle.isOn = true;
+                    assistLevelSlider.value = 0.8f;
                     break;
 
-                case GameDifficulty.Normal:
-                    gameplaySettings.aiDifficulty = 0.5f;
-                    gameplaySettings.gameSpeed = 1.0f;
-                    gameplaySettings.ballSpeed = 1.0f;
-                    gameplaySettings.autoAim = false;
-                    gameplaySettings.assistLevel = 0.3f;
+                case DifficultyLevel.Normal:
+                    aiDifficultyDropdown.value = 1;
+                    gameSpeedSlider.value = 1.0f;
+                    ballSpeedSlider.value = 1.0f;
+                    autoAimToggle.isOn = false;
+                    assistLevelSlider.value = 0.4f;
                     break;
 
-                case GameDifficulty.Hard:
-                    gameplaySettings.aiDifficulty = 0.7f;
-                    gameplaySettings.gameSpeed = 1.2f;
-                    gameplaySettings.ballSpeed = 1.3f;
-                    gameplaySettings.autoAim = false;
-                    gameplaySettings.assistLevel = 0.1f;
+                case DifficultyLevel.Hard:
+                    aiDifficultyDropdown.value = 2;
+                    gameSpeedSlider.value = 1.2f;
+                    ballSpeedSlider.value = 1.2f;
+                    autoAimToggle.isOn = false;
+                    assistLevelSlider.value = 0.2f;
                     break;
 
-                case GameDifficulty.Expert:
-                    gameplaySettings.aiDifficulty = 0.9f;
-                    gameplaySettings.gameSpeed = 1.5f;
-                    gameplaySettings.ballSpeed = 1.5f;
-                    gameplaySettings.autoAim = false;
-                    gameplaySettings.assistLevel = 0.0f;
+                case DifficultyLevel.Expert:
+                    aiDifficultyDropdown.value = 3;
+                    gameSpeedSlider.value = 1.5f;
+                    ballSpeedSlider.value = 1.5f;
+                    autoAimToggle.isOn = false;
+                    assistLevelSlider.value = 0.0f;
                     break;
-            }
-
-            settingsManager.UpdateGameplaySettings(gameplaySettings);
-            RefreshPanel();
-
-            // 触觉反馈
-            if (hapticFeedback != null)
-            {
-                hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ModeConfirm);
             }
         }
 
         #endregion
 
+        #region 事件处理器
+
+        private void OnDifficultyChanged(int value)
+        {
+            if (isUpdating) return;
+            currentSettings.defaultDifficulty = (DifficultyLevel)value;
+            ApplyDifficultyPreset(currentSettings.defaultDifficulty);
+            SaveSettings();
+        }
+
+        private void OnAIDifficultyChanged(int value)
+        {
+            if (isUpdating) return;
+            // AI难度暂时映射到默认难度
+            currentSettings.defaultDifficulty = (DifficultyLevel)value;
+            SaveSettings();
+        }
+
+        private void OnGameSpeedChanged(float value)
+        {
+            if (isUpdating) return;
+            // 游戏速度设置暂时没有对应字段，只打印日志
+            Debug.Log($"游戏速度设置: {value}");
+        }
+
+        private void OnBallSpeedChanged(float value)
+        {
+            if (isUpdating) return;
+            // 球速设置暂时没有对应字段，只打印日志
+            Debug.Log($"球速设置: {value}");
+        }
+
+        private void OnAutoAimChanged(bool value)
+        {
+            if (isUpdating) return;
+            // 自动瞄准映射到辅助模式
+            currentSettings.enableAssistMode = value;
+            SaveSettings();
+        }
+
+        private void OnBallTrailChanged(bool value)
+        {
+            if (isUpdating) return;
+            // 球轨迹设置暂时没有对应字段，只打印日志
+            Debug.Log($"球轨迹设置: {value}");
+        }
+
+        private void OnPaddleVibrateChanged(bool value)
+        {
+            if (isUpdating) return;
+            // 球拍震动设置暂时没有对应字段，只打印日志
+            Debug.Log($"球拍震动设置: {value}");
+        }
+
+        private void OnSlowMotionChanged(bool value)
+        {
+            if (isUpdating) return;
+            // 慢动作设置暂时没有对应字段，只打印日志
+            Debug.Log($"慢动作设置: {value}");
+        }
+
+        private void OnAssistLevelChanged(float value)
+        {
+            if (isUpdating) return;
+            // 辅助级别映射到辅助模式
+            currentSettings.enableAssistMode = value > 0.5f;
+            SaveSettings();
+        }
+
+        private void OnShowUIChanged(bool value)
+        {
+            if (isUpdating) return;
+            // UI显示设置暂时没有对应字段，只打印日志
+            Debug.Log($"UI显示设置: {value}");
+        }
+
+        private void OnShowStatsChanged(bool value)
+        {
+            if (isUpdating) return;
+            currentSettings.showStatistics = value;
+            SaveSettings();
+        }
+
+        private void OnShowTutorialsChanged(bool value)
+        {
+            if (isUpdating) return;
+            currentSettings.showTutorials = value;
+            SaveSettings();
+        }
+
+        private void OnShowScoreChanged(bool value)
+        {
+            if (isUpdating) return;
+            // 分数显示设置暂时没有对应字段，只打印日志
+            Debug.Log($"分数显示设置: {value}");
+        }
+
+        private void OnShowTimerChanged(bool value)
+        {
+            if (isUpdating) return;
+            // 计时器显示设置暂时没有对应字段，只打印日志
+            Debug.Log($"计时器显示设置: {value}");
+        }
+
+        private void OnGameplaySoundsChanged(bool value)
+        {
+            if (isUpdating) return;
+            // 游戏音效设置暂时没有对应字段，只打印日志
+            Debug.Log($"游戏音效设置: {value}");
+        }
+
+        private void OnCommentaryChanged(bool value)
+        {
+            if (isUpdating) return;
+            // 解说设置暂时没有对应字段，只打印日志
+            Debug.Log($"解说设置: {value}");
+        }
+
+        private void OnCommentaryVolumeChanged(float value)
+        {
+            if (isUpdating) return;
+            // 解说音量设置暂时没有对应字段，只打印日志
+            Debug.Log($"解说音量设置: {value}");
+        }
+
+        private void OnMatchTypeChanged(int value)
+        {
+            if (isUpdating) return;
+            // 比赛类型设置暂时没有对应字段，只打印日志
+            Debug.Log($"比赛类型设置: {value}");
+        }
+
+        private void OnMatchDurationChanged(int value)
+        {
+            if (isUpdating) return;
+            // 比赛时长设置暂时没有对应字段，只打印日志
+            Debug.Log($"比赛时长设置: {value}");
+        }
+
+        private void OnScoreToWinChanged(float value)
+        {
+            if (isUpdating) return;
+            // 获胜分数设置暂时没有对应字段，只打印日志
+            Debug.Log($"获胜分数设置: {value}");
+        }
+
+        private void OnSuddenDeathChanged(bool value)
+        {
+            if (isUpdating) return;
+            // 突然死亡设置暂时没有对应字段，只打印日志
+            Debug.Log($"突然死亡设置: {value}");
+        }
+
+        private void OnEnableAssistModeChanged(bool value)
+        {
+            if (isUpdating) return;
+            currentSettings.enableAssistMode = value;
+            SaveSettings();
+        }
+
+        private void OnEnableDebugInfoChanged(bool value)
+        {
+            if (isUpdating) return;
+            currentSettings.enableDebugInfo = value;
+            SaveSettings();
+        }
+
+        private void OnHighContrastChanged(bool value)
+        {
+            if (isUpdating) return;
+            currentSettings.highContrast = value;
+            SaveSettings();
+        }
+
+        private void OnUIScaleChanged(float value)
+        {
+            if (isUpdating) return;
+            currentSettings.uiScale = value;
+            SaveSettings();
+        }
+
+        private void OnEnableSubtitlesChanged(bool value)
+        {
+            if (isUpdating) return;
+            currentSettings.enableSubtitles = value;
+            SaveSettings();
+        }
+
+        private void OnLanguageChanged(int value)
+        {
+            if (isUpdating) return;
+            currentSettings.language = (LanguageCode)value;
+            SaveSettings();
+        }
+
+        private void OnAutoSaveChanged(bool value)
+        {
+            if (isUpdating) return;
+            currentSettings.autoSave = value;
+            SaveSettings();
+        }
+
+        #endregion
+
+        #region 辅助方法
+
+        private void SaveSettings()
+        {
+            SettingsManager.Instance.SaveGameplaySettings(currentSettings);
+        }
+
+        public void ResetToDefaults()
+        {
+            currentSettings = new GameplaySettings();
+            SettingsManager.Instance.SaveGameplaySettings(currentSettings);
+            UpdateUI();
+        }
+
+        public void OnSettingsUpdated(GameplaySettings newSettings)
+        {
+            currentSettings = newSettings;
+            UpdateUI();
+        }
+
+        /// <summary>
+        /// 刷新面板
+        /// </summary>
         public void RefreshPanel()
         {
-            if (settingsManager == null) return;
-
-            var gameplaySettings = settingsManager.GetGameplaySettings();
-
-            // 更新难度设置
-            difficultyDropdown?.SetValue((int)gameplaySettings.difficulty);
-            aiDifficultySlider?.SetValue(gameplaySettings.aiDifficulty);
-            gameSpeedSlider?.SetValue(gameplaySettings.gameSpeed);
-            ballSpeedSlider?.SetValue(gameplaySettings.ballSpeed);
-
-            // 更新辅助功能
-            autoAimToggle?.SetValue(gameplaySettings.autoAim);
-            ballTrailToggle?.SetValue(gameplaySettings.ballTrail);
-            paddleVibrateToggle?.SetValue(gameplaySettings.paddleVibrate);
-            slowMotionToggle?.SetValue(gameplaySettings.slowMotion);
-            assistLevelSlider?.SetValue(gameplaySettings.assistLevel);
-
-            // 更新UI设置
-            showUIToggle?.SetValue(gameplaySettings.showUI);
-            showStatsToggle?.SetValue(gameplaySettings.showStats);
-            uiScaleSlider?.SetValue(gameplaySettings.uiScale);
-            showScoreToggle?.SetValue(gameplaySettings.showScore);
-            showTimerToggle?.SetValue(gameplaySettings.showTimer);
-
-            // 更新音效设置
-            gameplaySoundsToggle?.SetValue(gameplaySettings.gameplaySounds);
-            commentaryToggle?.SetValue(gameplaySettings.commentary);
-            commentaryVolumeSlider?.SetValue(gameplaySettings.commentaryVolume);
-
-            // 更新比赛设置
-            matchTypeDropdown?.SetValue((int)gameplaySettings.matchType);
-            matchDurationSlider?.SetValue(gameplaySettings.matchDuration);
-            scoreToWinSlider?.SetValue(gameplaySettings.scoreToWin);
-            suddenDeathToggle?.SetValue(gameplaySettings.suddenDeath);
+            LoadCurrentSettings();
         }
 
-        private void OnDestroy()
-        {
-            // 清理事件监听
-            difficultyDropdown?.OnValueChanged.RemoveAllListeners();
-            aiDifficultySlider?.OnValueChanged.RemoveAllListeners();
-            // ... 其他清理
-        }
+        #endregion
     }
 }

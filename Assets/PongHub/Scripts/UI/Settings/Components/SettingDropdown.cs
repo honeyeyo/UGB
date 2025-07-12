@@ -4,6 +4,7 @@ using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 using PongHub.UI.Settings.Core;
+using PongHub.UI.ModeSelection;
 
 namespace PongHub.UI.Settings.Components
 {
@@ -176,7 +177,7 @@ namespace PongHub.UI.Settings.Components
                 case DropdownSettingType.AntiAliasing:
                     return new List<string> { "关闭", "MSAA 2x", "MSAA 4x", "MSAA 8x" };
                 case DropdownSettingType.ShadowQuality:
-                    return System.Enum.GetNames(typeof(ShadowQuality)).Select(LocalizeEnumValue).ToList();
+                    return System.Enum.GetNames(typeof(ShadowQualityLevel)).Select(LocalizeEnumValue).ToList();
                 case DropdownSettingType.ControlScheme:
                     return new List<string> { "默认", "左手", "自定义", "无障碍" };
                 case DropdownSettingType.DominantHand:
@@ -226,18 +227,8 @@ namespace PongHub.UI.Settings.Components
         {
             if (isUpdatingUI) return;
 
-            currentIntValue = value;
-            currentValue = value;
-
-            // 应用设置
-            ApplyValue(value);
-            OnValueChanged?.Invoke(value);
-
-            // 触觉反馈
-            if (enableHapticFeedback && hapticFeedback != null)
-            {
-                hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ModeSelect);
-            }
+            // 通过基类的SetValue方法处理值变更
+            SetValue(value);
         }
 
         #endregion
@@ -315,7 +306,7 @@ namespace PongHub.UI.Settings.Components
                     break;
                 case DropdownSettingType.ShadowQuality:
                     videoSettings = settingsManager.GetVideoSettings();
-                    videoSettings.shadowQuality = (ShadowQuality)value;
+                    videoSettings.shadowQuality = (ShadowQualityLevel)value;
                     settingsManager.UpdateVideoSettings(videoSettings);
                     break;
                 case DropdownSettingType.ControlScheme:
@@ -335,7 +326,7 @@ namespace PongHub.UI.Settings.Components
                     break;
                 case DropdownSettingType.DefaultDifficulty:
                     var gameplaySettings = settingsManager.GetGameplaySettings();
-                    gameplaySettings.defaultDifficulty = (DifficultyLevel)value;
+                    gameplaySettings.defaultDifficulty = (PongHub.UI.Settings.Core.DifficultyLevel)value;
                     settingsManager.UpdateGameplaySettings(gameplaySettings);
                     break;
                 case DropdownSettingType.ExperienceLevel:
@@ -437,6 +428,30 @@ namespace PongHub.UI.Settings.Components
         }
 
         /// <summary>
+        /// 清空所有选项
+        /// </summary>
+        public void ClearOptions()
+        {
+            customOptions.Clear();
+            if (dropdown != null)
+            {
+                dropdown.options.Clear();
+            }
+        }
+
+        /// <summary>
+        /// 添加多个选项
+        /// </summary>
+        /// <param name="options">选项数组</param>
+        public void AddOptions(string[] options)
+        {
+            foreach (string option in options)
+            {
+                AddOption(option);
+            }
+        }
+
+        /// <summary>
         /// 添加选项
         /// </summary>
         /// <param name="option">选项</param>
@@ -446,6 +461,37 @@ namespace PongHub.UI.Settings.Components
             if (dropdown != null)
             {
                 dropdown.options.Add(new TMP_Dropdown.OptionData(option));
+            }
+        }
+
+        /// <summary>
+        /// 获取或设置当前值
+        /// </summary>
+        public int value
+        {
+            get
+            {
+                return dropdown != null ? dropdown.value : currentIntValue;
+            }
+            set
+            {
+                if (dropdown != null)
+                {
+                    dropdown.value = value;
+                }
+                currentIntValue = value;
+                UpdateUI();
+            }
+        }
+
+        /// <summary>
+        /// 值变更事件
+        /// </summary>
+        public UnityEngine.Events.UnityEvent<int> onValueChanged
+        {
+            get
+            {
+                return dropdown != null ? dropdown.onValueChanged : null;
             }
         }
 

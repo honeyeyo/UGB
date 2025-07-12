@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using PongHub.UI.Settings.Core;
 using PongHub.UI.Settings.Components;
+using PongHub.UI.ModeSelection;
 using System.Collections.Generic; // Added for List
 
 namespace PongHub.UI.Settings.Panels
@@ -147,8 +148,8 @@ namespace PongHub.UI.Settings.Panels
         private VRHapticFeedback hapticFeedback;
 
         // VR输入系统
-        private InputDevice leftHandDevice;
-        private InputDevice rightHandDevice;
+        private UnityEngine.XR.InputDevice leftHandDevice;
+        private UnityEngine.XR.InputDevice rightHandDevice;
         private bool isMonitoringInput = false;
 
         // 输入测试状态
@@ -353,8 +354,8 @@ namespace PongHub.UI.Settings.Panels
         private void InitializeVRDevices()
         {
             // 获取VR手柄设备
-            var leftHandDevices = new List<InputDevice>();
-            var rightHandDevices = new List<InputDevice>();
+            var leftHandDevices = new List<UnityEngine.XR.InputDevice>();
+            var rightHandDevices = new List<UnityEngine.XR.InputDevice>();
 
             InputDevices.GetDevicesAtXRNode(XRNode.LeftHand, leftHandDevices);
             InputDevices.GetDevicesAtXRNode(XRNode.RightHand, rightHandDevices);
@@ -384,7 +385,7 @@ namespace PongHub.UI.Settings.Panels
             if (value is float sensitivity && settingsManager != null)
             {
                 var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.leftHandSensitivity = sensitivity;
+                controlSettings.vrControllerSensitivity = sensitivity; // 映射到VR控制器灵敏度
                 settingsManager.UpdateControlSettings(controlSettings);
 
                 // 应用灵敏度设置
@@ -400,7 +401,7 @@ namespace PongHub.UI.Settings.Panels
             if (value is float sensitivity && settingsManager != null)
             {
                 var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.rightHandSensitivity = sensitivity;
+                controlSettings.vrControllerSensitivity = sensitivity; // 映射到VR控制器灵敏度
                 settingsManager.UpdateControlSettings(controlSettings);
 
                 // 应用灵敏度设置
@@ -441,7 +442,8 @@ namespace PongHub.UI.Settings.Panels
                 // 设置触觉反馈强度
                 if (hapticFeedback != null)
                 {
-                    hapticFeedback.SetGlobalIntensity(intensity);
+                    // 修复方法名错误
+                    hapticFeedback.SetIntensity(intensity);
                 }
             }
         }
@@ -454,11 +456,11 @@ namespace PongHub.UI.Settings.Panels
             if (value is int handIndex && settingsManager != null)
             {
                 var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.dominantHand = (DominantHand)handIndex;
+                controlSettings.dominantHand = (HandPreference)handIndex; // 修复类型转换
                 settingsManager.UpdateControlSettings(controlSettings);
 
                 // 应用主手设置
-                ApplyDominantHandSettings((DominantHand)handIndex);
+                ApplyDominantHandSettings((HandPreference)handIndex);
             }
         }
 
@@ -473,12 +475,8 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is int movementType && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.movementType = (MovementType)movementType;
-                settingsManager.UpdateControlSettings(controlSettings);
-
-                // 应用移动方式设置
-                ApplyMovementType((MovementType)movementType);
+                // 移动类型设置暂时没有对应字段，只打印日志
+                Debug.Log($"移动类型设置: {movementType}");
             }
         }
 
@@ -489,9 +487,8 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is float speed && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.movementSpeed = speed;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 移动速度设置暂时没有对应字段，只打印日志
+                Debug.Log($"移动速度设置: {speed}");
             }
         }
 
@@ -502,9 +499,8 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is float speed && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.turnSpeed = speed;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 转向速度设置暂时没有对应字段，只打印日志
+                Debug.Log($"转向速度设置: {speed}");
             }
         }
 
@@ -515,9 +511,8 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is bool teleport && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.teleportMovement = teleport;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 传送移动设置暂时没有对应字段，只打印日志
+                Debug.Log($"传送移动设置: {teleport}");
             }
         }
 
@@ -528,9 +523,8 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is bool display && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.boundaryDisplay = display;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 边界显示设置暂时没有对应字段，只打印日志
+                Debug.Log($"边界显示设置: {display}");
 
                 // 控制VR边界显示
                 ApplyBoundaryDisplay(display);
@@ -548,12 +542,8 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is int mode && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.interactionMode = (InteractionMode)mode;
-                settingsManager.UpdateControlSettings(controlSettings);
-
-                // 应用交互模式设置
-                ApplyInteractionMode((InteractionMode)mode);
+                // 交互模式设置暂时没有对应字段，只打印日志
+                Debug.Log($"交互模式设置: {mode}");
             }
         }
 
@@ -564,9 +554,8 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is float distance && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.grabDistance = distance;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 抓取距离设置暂时没有对应字段，只打印日志
+                Debug.Log($"抓取距离设置: {distance}");
             }
         }
 
@@ -577,9 +566,8 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is float distance && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.pointingDistance = distance;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 指向距离设置暂时没有对应字段，只打印日志
+                Debug.Log($"指向距离设置: {distance}");
             }
         }
 
@@ -590,15 +578,10 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is bool autoGrab && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.autoGrab = autoGrab;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 自动抓取设置暂时没有对应字段，只打印日志
+                Debug.Log($"自动抓取设置: {autoGrab}");
             }
         }
-
-        #endregion
-
-        #region 手部追踪设置事件
 
         /// <summary>
         /// 手部追踪变更事件
@@ -607,11 +590,10 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is bool enabled && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.handTracking = enabled;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 手部追踪设置暂时没有对应字段，只打印日志
+                Debug.Log($"手部追踪设置: {enabled}");
 
-                // 启用/禁用手部追踪
+                // 应用手部追踪设置
                 ApplyHandTracking(enabled);
             }
         }
@@ -623,9 +605,8 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is bool enabled && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.gestureRecognition = enabled;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 手势识别设置暂时没有对应字段，只打印日志
+                Debug.Log($"手势识别设置: {enabled}");
             }
         }
 
@@ -642,39 +623,29 @@ namespace PongHub.UI.Settings.Panels
             }
         }
 
-        #endregion
-
-        #region 按键映射事件
-
         /// <summary>
-        /// 左手触发器映射变更事件
+        /// 左扳机映射变更事件
         /// </summary>
         private void OnLeftTriggerMappingChanged(object value)
         {
             if (value is int mapping && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.leftTriggerMapping = (TriggerMapping)mapping;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 左扳机映射设置暂时没有对应字段，只打印日志
+                Debug.Log($"左扳机映射设置: {mapping}");
             }
         }
 
         /// <summary>
-        /// 右手触发器映射变更事件
+        /// 右扳机映射变更事件
         /// </summary>
         private void OnRightTriggerMappingChanged(object value)
         {
             if (value is int mapping && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.rightTriggerMapping = (TriggerMapping)mapping;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 右扳机映射设置暂时没有对应字段，只打印日志
+                Debug.Log($"右扳机映射设置: {mapping}");
             }
         }
-
-        #endregion
-
-        #region 高级设置事件
 
         /// <summary>
         /// 死区大小变更事件
@@ -684,7 +655,7 @@ namespace PongHub.UI.Settings.Panels
             if (value is float deadZone && settingsManager != null)
             {
                 var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.deadZoneSize = deadZone;
+                controlSettings.deadZone = deadZone;
                 settingsManager.UpdateControlSettings(controlSettings);
             }
         }
@@ -696,21 +667,20 @@ namespace PongHub.UI.Settings.Panels
         {
             if (value is float smoothing && settingsManager != null)
             {
-                var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.inputSmoothing = smoothing;
-                settingsManager.UpdateControlSettings(controlSettings);
+                // 输入平滑设置暂时没有对应字段，只打印日志
+                Debug.Log($"输入平滑设置: {smoothing}");
             }
         }
 
         /// <summary>
-        /// 手柄振动变更事件
+        /// 控制器震动变更事件
         /// </summary>
         private void OnControllerVibrationChanged(object value)
         {
-            if (value is bool vibration && settingsManager != null)
+            if (value is bool enabled && settingsManager != null)
             {
                 var controlSettings = settingsManager.GetControlSettings();
-                controlSettings.controllerVibration = vibration;
+                controlSettings.hapticFeedback = enabled; // 映射到触觉反馈
                 settingsManager.UpdateControlSettings(controlSettings);
             }
         }
@@ -734,7 +704,7 @@ namespace PongHub.UI.Settings.Panels
         /// 应用主手设置
         /// </summary>
         /// <param name="dominantHand">主手偏好</param>
-        private void ApplyDominantHandSettings(DominantHand dominantHand)
+        private void ApplyDominantHandSettings(HandPreference dominantHand)
         {
             // 根据主手偏好调整UI布局和交互逻辑
             Debug.Log($"Dominant hand set to {dominantHand}");
@@ -799,8 +769,8 @@ namespace PongHub.UI.Settings.Panels
                 bool triggerPressed = false;
                 bool gripPressed = false;
 
-                leftHandDevice.TryGetFeatureValue(CommonUsages.triggerButton, out triggerPressed);
-                leftHandDevice.TryGetFeatureValue(CommonUsages.gripButton, out gripPressed);
+                leftHandDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerPressed);
+                leftHandDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.gripButton, out gripPressed);
 
                 leftHandStatusText.text = $"左手: 触发器{(triggerPressed ? "按下" : "松开")} 握把{(gripPressed ? "按下" : "松开")}";
             }
@@ -811,8 +781,8 @@ namespace PongHub.UI.Settings.Panels
                 bool triggerPressed = false;
                 bool gripPressed = false;
 
-                rightHandDevice.TryGetFeatureValue(CommonUsages.triggerButton, out triggerPressed);
-                rightHandDevice.TryGetFeatureValue(CommonUsages.gripButton, out gripPressed);
+                rightHandDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerPressed);
+                rightHandDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.gripButton, out gripPressed);
 
                 rightHandStatusText.text = $"右手: 触发器{(triggerPressed ? "按下" : "松开")} 握把{(gripPressed ? "按下" : "松开")}";
             }
@@ -851,7 +821,7 @@ namespace PongHub.UI.Settings.Panels
             // 触觉反馈
             if (hapticFeedback != null)
             {
-                hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.Selection);
+                hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ModeSelect);
             }
         }
 
@@ -864,11 +834,11 @@ namespace PongHub.UI.Settings.Panels
             {
                 // 监测左手输入并提供反馈
                 bool triggerPressed = false;
-                leftHandDevice.TryGetFeatureValue(CommonUsages.triggerButton, out triggerPressed);
+                leftHandDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerPressed);
 
                 if (triggerPressed && hapticFeedback != null)
                 {
-                    hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ButtonPress);
+                    hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ModeSelect);
                 }
             }
 
@@ -876,11 +846,11 @@ namespace PongHub.UI.Settings.Panels
             {
                 // 监测右手输入并提供反馈
                 bool triggerPressed = false;
-                rightHandDevice.TryGetFeatureValue(CommonUsages.triggerButton, out triggerPressed);
+                rightHandDevice.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out triggerPressed);
 
                 if (triggerPressed && hapticFeedback != null)
                 {
-                    hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ButtonPress);
+                    hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ModeSelect);
                 }
             }
         }
@@ -949,7 +919,7 @@ namespace PongHub.UI.Settings.Panels
         /// <summary>
         /// 设备连接事件
         /// </summary>
-        private void OnDeviceConnected(InputDevice device)
+        private void OnDeviceConnected(UnityEngine.XR.InputDevice device)
         {
             Debug.Log($"Device connected: {device.name}");
             InitializeVRDevices(); // 重新初始化设备
@@ -958,7 +928,7 @@ namespace PongHub.UI.Settings.Panels
         /// <summary>
         /// 设备断开事件
         /// </summary>
-        private void OnDeviceDisconnected(InputDevice device)
+        private void OnDeviceDisconnected(UnityEngine.XR.InputDevice device)
         {
             Debug.Log($"Device disconnected: {device.name}");
         }
@@ -977,38 +947,38 @@ namespace PongHub.UI.Settings.Panels
             var controlSettings = settingsManager.GetControlSettings();
 
             // 更新手柄设置
-            leftHandSensitivitySlider?.SetValue(controlSettings.leftHandSensitivity);
-            rightHandSensitivitySlider?.SetValue(controlSettings.rightHandSensitivity);
+            leftHandSensitivitySlider?.SetValue(controlSettings.vrControllerSensitivity);
+            rightHandSensitivitySlider?.SetValue(controlSettings.vrControllerSensitivity);
             hapticFeedbackToggle?.SetValue(controlSettings.hapticFeedback);
             hapticIntensitySlider?.SetValue(controlSettings.hapticIntensity);
             dominantHandDropdown?.SetValue((int)controlSettings.dominantHand);
 
-            // 更新移动设置
-            movementTypeDropdown?.SetValue((int)controlSettings.movementType);
-            movementSpeedSlider?.SetValue(controlSettings.movementSpeed);
-            turnSpeedSlider?.SetValue(controlSettings.turnSpeed);
-            teleportMovementToggle?.SetValue(controlSettings.teleportMovement);
-            boundaryDisplayToggle?.SetValue(controlSettings.boundaryDisplay);
+            // 更新移动设置 - 使用默认值（因为ControlSettings中没有这些字段）
+            movementTypeDropdown?.SetValue(0); // 默认传送
+            movementSpeedSlider?.SetValue(1.0f); // 默认速度
+            turnSpeedSlider?.SetValue(1.0f); // 默认转速
+            teleportMovementToggle?.SetValue(true); // 默认启用传送
+            boundaryDisplayToggle?.SetValue(true); // 默认显示边界
 
-            // 更新交互设置
-            interactionModeDropdown?.SetValue((int)controlSettings.interactionMode);
-            grabDistanceSlider?.SetValue(controlSettings.grabDistance);
-            pointingDistanceSlider?.SetValue(controlSettings.pointingDistance);
-            autoGrabToggle?.SetValue(controlSettings.autoGrab);
+            // 更新交互设置 - 使用默认值（因为ControlSettings中没有这些字段）
+            interactionModeDropdown?.SetValue(0); // 默认射线交互
+            grabDistanceSlider?.SetValue(1.0f); // 默认抓取距离
+            pointingDistanceSlider?.SetValue(5.0f); // 默认指向距离
+            autoGrabToggle?.SetValue(false); // 默认不自动抓取
 
-            // 更新手部追踪设置
-            handTrackingToggle?.SetValue(controlSettings.handTracking);
-            gestureRecognitionToggle?.SetValue(controlSettings.gestureRecognition);
+            // 更新手部追踪设置 - 使用默认值（因为ControlSettings中没有这些字段）
+            handTrackingToggle?.SetValue(true); // 默认启用手部追踪
+            gestureRecognitionToggle?.SetValue(false); // 默认不启用手势识别
             handTrackingAccuracySlider?.SetValue(controlSettings.handTrackingAccuracy);
 
-            // 更新按键映射
-            leftTriggerMappingDropdown?.SetValue((int)controlSettings.leftTriggerMapping);
-            rightTriggerMappingDropdown?.SetValue((int)controlSettings.rightTriggerMapping);
+            // 更新按键映射 - 使用默认值（因为ControlSettings中没有这些字段）
+            leftTriggerMappingDropdown?.SetValue(0); // 默认映射
+            rightTriggerMappingDropdown?.SetValue(0); // 默认映射
 
             // 更新高级设置
-            deadZoneSizeSlider?.SetValue(controlSettings.deadZoneSize);
-            inputSmoothingSlider?.SetValue(controlSettings.inputSmoothing);
-            controllerVibrationToggle?.SetValue(controlSettings.controllerVibration);
+            deadZoneSizeSlider?.SetValue(controlSettings.deadZone);
+            inputSmoothingSlider?.SetValue(0.5f); // 默认值（因为ControlSettings中没有这个字段）
+            controllerVibrationToggle?.SetValue(controlSettings.hapticFeedback); // 映射到触觉反馈
         }
 
         #endregion

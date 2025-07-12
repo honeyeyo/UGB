@@ -519,11 +519,11 @@ namespace PongHub.UI.Settings.Panels
         {
             if (enabled)
             {
-                AudioSettings.speakerMode = AudioSpeakerMode.Mode7point1;
+                UnityEngine.AudioSettings.speakerMode = AudioSpeakerMode.Mode7point1;
             }
             else
             {
-                AudioSettings.speakerMode = AudioSpeakerMode.Stereo;
+                UnityEngine.AudioSettings.speakerMode = AudioSpeakerMode.Stereo;
             }
 
             // 更新所有音频源的空间化设置
@@ -540,7 +540,7 @@ namespace PongHub.UI.Settings.Panels
         /// <param name="quality">音频质量</param>
         private void ApplyAudioQualitySettings(AudioQuality quality)
         {
-            AudioConfiguration config = AudioSettings.GetConfiguration();
+            UnityEngine.AudioConfiguration config = UnityEngine.AudioSettings.GetConfiguration();
 
             switch (quality)
             {
@@ -562,7 +562,7 @@ namespace PongHub.UI.Settings.Panels
                     break;
             }
 
-            AudioSettings.Reset(config);
+            UnityEngine.AudioSettings.Reset(config);
         }
 
         /// <summary>

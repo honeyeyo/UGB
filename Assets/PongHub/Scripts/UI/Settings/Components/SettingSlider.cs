@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using PongHub.UI.Settings.Core;
+using PongHub.UI.ModeSelection;
 
 namespace PongHub.UI.Settings.Components
 {
@@ -213,14 +214,8 @@ namespace PongHub.UI.Settings.Components
             // 实时更新设置（如果启用）
             if (realtimeUpdate)
             {
-                ApplyValue(value);
-                OnValueChanged?.Invoke(value);
-            }
-
-            // 触觉反馈
-            if (enableHapticFeedback && hapticFeedback != null)
-            {
-                hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.Light);
+                // 通过基类的SetValue方法处理值变更
+                SetValue(value);
             }
         }
 
@@ -408,6 +403,47 @@ namespace PongHub.UI.Settings.Components
             {
                 slider.minValue = min;
                 slider.maxValue = max;
+            }
+        }
+
+        /// <summary>
+        /// 设置滑块最小最大值（兼容方法）
+        /// </summary>
+        /// <param name="min">最小值</param>
+        /// <param name="max">最大值</param>
+        public void SetMinMaxValues(float min, float max)
+        {
+            SetRange(min, max);
+        }
+
+        /// <summary>
+        /// 获取或设置当前值
+        /// </summary>
+        public float value
+        {
+            get
+            {
+                return slider != null ? slider.value : currentFloatValue;
+            }
+            set
+            {
+                if (slider != null)
+                {
+                    slider.value = value;
+                }
+                currentFloatValue = value;
+                UpdateUI();
+            }
+        }
+
+        /// <summary>
+        /// 值变更事件
+        /// </summary>
+        public UnityEngine.Events.UnityEvent<float> onValueChanged
+        {
+            get
+            {
+                return slider != null ? slider.onValueChanged : null;
             }
         }
 
