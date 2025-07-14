@@ -33,7 +33,7 @@ Completed
 - Unity 2022.3 LTS + Meta XR SDK
 - 使用 Unity Netcode for GameObjects 进行网络同步
 - Photon Realtime 作为传输层
-- 需要维持 90fps 的 VR 性能要求
+- 需要维持 120fps 的 VR 性能要求
 
 ## Estimation
 
@@ -72,7 +72,7 @@ Story Points: 3
 5. - [x] 性能优化和测试
    1. - [x] 分析模式切换的性能影响
    2. - [x] 优化组件生命周期管理
-   3. - [x] 确保 VR 90fps 性能要求
+   3. - [x] 确保 VR 120fps 性能要求
    4. - [x] 进行多种设备的兼容性测试
 
 ## Implementation Summary
@@ -141,7 +141,7 @@ Story-4 已成功完成，实现了环境组件的动态模式切换功能。主
 
 2. **用户体验测试**：进行更广泛的用户体验测试，收集反馈。
 
-3. **性能监控**：在不同设备上监控性能表现，确保 90fps 的 VR 要求。
+3. **性能监控**：在不同设备上监控性能表现，确保 120fps 的 VR 要求。
 
 ## Chat Command Log
 

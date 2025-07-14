@@ -23,7 +23,7 @@ Completed
 - Unity 2022.3 LTS + Meta XR SDK
 - 使用 Unity UI 系统作为基础
 - 需要支持 VR 控制器交互和射线指针
-- 需要保持 90fps 的 VR 性能要求
+- 需要保持 120fps 的 VR 性能要求
 
 ## Estimation
 
@@ -79,7 +79,7 @@ Story Points: 5
 
 1. **性能要求**：
 
-   - 所有 UI 组件必须在 VR 环境中保持 90fps
+   - 所有 UI 组件必须在 VR 环境中保持 120fps
    - 组件渲染批次应最小化
    - 内存占用应优化
 

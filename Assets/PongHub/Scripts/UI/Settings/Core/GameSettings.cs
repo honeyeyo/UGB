@@ -135,9 +135,9 @@ namespace PongHub.UI.Settings.Core
         [Tooltip("固定注视点渲染")]
         public bool foveatedRendering = true;
 
-        [Range(90f, 120f)]
+        [Range(72f, 144f)]
         [Tooltip("目标帧率")]
-        public int targetFrameRate = 90;
+        public int targetFrameRate = 120;
 
         public bool Validate()
         {
@@ -447,6 +447,7 @@ namespace PongHub.UI.Settings.Core
         FPS_72 = 72,
         FPS_90 = 90,
         FPS_120 = 120,
+        FPS_144 = 144,
         Unlimited = 0
     }
 

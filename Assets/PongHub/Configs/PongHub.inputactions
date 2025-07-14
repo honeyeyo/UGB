@@ -103,6 +103,24 @@
                     "processors": "",
                     "interactions": "Hold(duration=2.0)",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "SnapTurnLeft",
+                    "type": "Button",
+                    "id": "c1d2e3f4-a5b6-7890-abcd-ef1234567892",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SnapTurnRight",
+                    "type": "Button",
+                    "id": "d2e3f4a5-b6c7-7890-abcd-ef1234567893",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -224,6 +242,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "ResetPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e2f3a4b5-c6d7-7890-abcd-ef1234567896",
+                    "path": "<XRController>{RightHand}/secondary2DAxis/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SnapTurnLeft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f3a4b5c6-d7e8-7890-abcd-ef1234567897",
+                    "path": "<XRController>{RightHand}/secondary2DAxis/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SnapTurnRight",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
