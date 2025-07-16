@@ -4,14 +4,14 @@ using Unity.Netcode;
 
 namespace PongHub.Networking
 {
-    public class NetworkManager : MonoBehaviour
+    public class PongHubNetworkManager : MonoBehaviour
     {
-        private static NetworkManager s_instance;
-        public static NetworkManager Instance => s_instance;
+        private static PongHubNetworkManager s_instance;
+        public static PongHubNetworkManager Instance => s_instance;
 
         [SerializeField]
         [Tooltip("Network Manager / 网络管理器 - Unity Netcode NetworkManager component")]
-        private Unity.Netcode.NetworkManager m_networkManager;
+        private NetworkManager m_networkManager;
 
         [SerializeField]
         [Tooltip("Network Prefabs / 网络预制体 - Array of NetworkObject prefabs for spawning")]
@@ -53,7 +53,7 @@ namespace PongHub.Networking
 
             if (m_networkManager == null)
             {
-                m_networkManager = Unity.Netcode.NetworkManager.Singleton;
+                m_networkManager = NetworkManager.Singleton;
             }
         }
 

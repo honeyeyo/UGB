@@ -89,7 +89,7 @@ namespace PongHub.Editor
             CheckManager<UserIconManager>("UserIconManager");
             CheckManager<AudioManager>("AudioManager");
             CheckManager<VibrationManager>("VibrationManager");
-            CheckManager<PongHub.Networking.NetworkManager>("NetworkManager");
+            CheckManager<PongHubNetworkManager>("PongHubNetworkManager");
             CheckManager<GameCore>("GameCore");
             CheckManager<MenuCanvasController>("MenuCanvasController");
         }

@@ -40,7 +40,7 @@ namespace PongHub.App
 
             CheckManager<AudioManager>("AudioManager", m_audioManagerPrefab);
             CheckManager<VibrationManager>("VibrationManager", m_vibrationManagerPrefab);
-            CheckManager<NetworkManager>("NetworkManager", m_networkManagerPrefab);
+            CheckManager<PongHubNetworkManager>("PongHubNetworkManager", m_networkManagerPrefab);
             CheckManager<GameCore>("GameCore", m_gameCoreManagerPrefab);
             CheckManager<UIManager>("UIManager", m_uiManagerPrefab);
             CheckManager<UserIconManager>("UserIconManager", m_userIconManagerPrefab);

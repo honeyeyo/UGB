@@ -4,10 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Unity.Netcode;
+using PongHub.Networking;
 using UnityEngine;
 using UnityEngine.Assertions;
-
-#pragma warning disable CS0414
 
 namespace PongHub.Networking.Pooling
 {
@@ -64,9 +63,9 @@ namespace PongHub.Networking.Pooling
         /// </summary>
         private readonly Dictionary<GameObject, Queue<NetworkObject>> m_pooledObjects = new();
 
-        [SerializeField]
-        [Tooltip("Network Manager / 网络管理器 - Reference to the custom NetworkManager")]
-        private NetworkManager m_networkManager;
+        // [SerializeField]
+        // [Tooltip("Network Manager / 网络管理器 - Reference to the custom NetworkManager")]
+        // private PongHubNetworkManager m_networkManager;
         [SerializeField]
         [Tooltip("Prefab / 预制体 - Prefab to be pooled (single prefab mode)")]
         private GameObject m_prefab;
@@ -91,8 +90,8 @@ namespace PongHub.Networking.Pooling
             else
                 Singleton = this;
 
-            if (m_networkManager == null)
-                m_networkManager = FindObjectOfType<NetworkManager>();
+            // if (m_networkManager == null)
+            //     m_networkManager = FindObjectOfType<PongHubNetworkManager>();
 
             m_pool = new Queue<NetworkObject>();
         }
@@ -244,7 +243,7 @@ namespace PongHub.Networking.Pooling
                 ReturnNetworkObject(go.GetComponent<NetworkObject>(), prefab);
             }
 
-            _ = m_networkManager.PrefabHandler.AddHandler(prefab, new PooledPrefabInstanceHandler(prefab, this));
+            _ = PongHubNetworkManager.Instance.PrefabHandler.AddHandler(prefab, new PooledPrefabInstanceHandler(prefab, this));
         }
 
         /// <summary>
@@ -266,7 +265,7 @@ namespace PongHub.Networking.Pooling
         {
             foreach (var prefab in m_prefabs)
             {
-                _ = m_networkManager.PrefabHandler.RemoveHandler(prefab);
+                _ = PongHubNetworkManager.Instance.PrefabHandler.RemoveHandler(prefab);
             }
 
             m_pooledObjects.Clear();
@@ -274,6 +273,4 @@ namespace PongHub.Networking.Pooling
 
         #endregion
     }
-
-#pragma warning restore CS0414
 }

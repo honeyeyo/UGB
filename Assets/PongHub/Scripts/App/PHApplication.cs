@@ -144,9 +144,9 @@ namespace PongHub.App
                 VibrationManager.Instance.Cleanup();
             }
 
-            if (PongHub.Networking.NetworkManager.Instance != null)
+            if (PongHubNetworkManager.Instance != null)
             {
-                PongHub.Networking.NetworkManager.Instance.Shutdown();
+                PongHubNetworkManager.Instance.Shutdown();
             }
 
             if (GameCore.Instance != null)
@@ -454,15 +454,15 @@ namespace PongHub.App
                 }
 
                 // 初始化网络管理器
-                if (PongHub.Networking.NetworkManager.Instance != null)
+                if (PongHubNetworkManager.Instance != null)
                 {
-                    Debug.Log("初始化 NetworkManager...");
-                    await PongHub.Networking.NetworkManager.Instance.InitializeAsync();
-                    Debug.Log("NetworkManager 初始化完成");
+                    Debug.Log("初始化 PongHubNetworkManager...");
+                    await PongHubNetworkManager.Instance.InitializeAsync();
+                    Debug.Log("PongHubNetworkManager 初始化完成");
                 }
                 else
                 {
-                    Debug.LogWarning("NetworkManager.Instance 为 null");
+                    Debug.LogWarning("PongHubNetworkManager.Instance 为 null");
                 }
 
                 // 初始化游戏核心
