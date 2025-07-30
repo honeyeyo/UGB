@@ -124,5 +124,17 @@ namespace PongHub.Networking
         }
 
         public NetworkPrefabHandler PrefabHandler => m_networkManager?.PrefabHandler;
+
+        /// <summary>
+        /// 检查网络是否已连接且准备就绪
+        /// </summary>
+        public bool IsConnectedAndReady
+        {
+            get
+            {
+                if (m_networkManager == null) return false;
+                return m_networkManager.IsConnectedClient || m_networkManager.IsHost || m_networkManager.IsServer;
+            }
+        }
     }
 }

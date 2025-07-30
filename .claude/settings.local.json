@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"D:\\git\\PongHub_demo\")",
+      "Bash(grep -n \"class GameSettings\" Assets/PongHub/Scripts/UI/Settings/Core/GameSettings.cs)",
+      "Bash(grep -n -A5 -B5 \"}\" Assets/PongHub/Scripts/UI/Settings/Core/GameSettings.cs)",
+      "Bash(grep:*)"
+    ],
+    "deny": []
+  }
+}

@@ -736,6 +736,42 @@ namespace PongHub.Core.Audio
         }
 
         /// <summary>
+        /// 播放SFX音效
+        /// </summary>
+        public void PlaySFX(string sfxName, float volume = 1f)
+        {
+            AudioClip clip = GetUISound(sfxName);
+            if (clip != null)
+            {
+                PlaySound(clip, volume);
+            }
+        }
+
+        /// <summary>
+        /// 播放测试音效
+        /// </summary>
+        public void PlayTestSound()
+        {
+            if (m_pointScored != null)
+            {
+                PlaySound(m_pointScored, 0.5f);
+            }
+        }
+
+        /// <summary>
+        /// 更新音量设置
+        /// </summary>
+        public void UpdateVolumeSettings(PongHub.UI.Settings.Core.AudioSettings settings)
+        {
+            if (AudioService != null)
+            {
+                AudioService.SetCategoryVolume(AudioCategory.Master, settings.masterVolume);
+                AudioService.SetCategoryVolume(AudioCategory.Music, settings.musicVolume);
+                AudioService.SetCategoryVolume(AudioCategory.SFX, settings.sfxVolume);
+            }
+        }
+
+        /// <summary>
         /// 获取UI音效剪辑（临时实现）
         /// </summary>
         private AudioClip GetUISound(string soundName)

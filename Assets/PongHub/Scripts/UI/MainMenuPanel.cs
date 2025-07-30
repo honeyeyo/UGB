@@ -197,7 +197,7 @@ namespace PongHub.UI
             }
 
             // 查找VR触觉反馈组件
-            var hapticFeedback = FindObjectOfType<PongHub.UI.Settings.Core.VRHapticFeedback>();
+            var hapticFeedback = FindObjectOfType<PongHub.UI.ModeSelection.VRHapticFeedback>();
             if (hapticFeedback != null)
             {
                 hapticFeedback.SetEnabled(enableVibration);
@@ -205,7 +205,7 @@ namespace PongHub.UI
                 // 如果启用了振动，播放测试反馈
                 if (enableVibration)
                 {
-                    hapticFeedback.PlayHaptic(PongHub.UI.Settings.Core.VRHapticFeedback.HapticType.MenuHover);
+                    hapticFeedback.PlayHaptic(PongHub.UI.ModeSelection.VRHapticFeedback.HapticType.Medium);
                 }
             }
 

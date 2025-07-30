@@ -39,6 +39,16 @@ namespace PongHub.UI.Settings.Core
         }
 
         /// <summary>
+        /// 创建默认设置实例
+        /// </summary>
+        public static GameSettings CreateDefault()
+        {
+            var settings = new GameSettings();
+            settings.ResetToDefaults();
+            return settings;
+        }
+
+        /// <summary>
         /// 验证所有设置的有效性
         /// </summary>
         public bool ValidateSettings()
@@ -166,6 +176,12 @@ namespace PongHub.UI.Settings.Core
 
         [Tooltip("启用晕动症缓解")]
         public bool motionSicknessReduction = true;
+
+        [Tooltip("启用边缘渐晕效果")]
+        public bool vignette = true;
+
+        [Tooltip("启用瞬移移动模式")]
+        public bool teleportMovement = false;
 
         public bool Validate()
         {

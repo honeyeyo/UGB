@@ -251,7 +251,7 @@ namespace PongHub.UI.ModeSelection
             bool hasNetworkConnection = Application.internetReachability != NetworkReachability.NotReachable;
             
             // 检查Photon网络管理器状态
-            var networkManager = FindObjectOfType<PongHub.Networking.PongHubNetworkManager>();
+            var networkManager = UnityEngine.Object.FindObjectOfType<PongHub.Networking.PongHubNetworkManager>();
             bool photonConnected = false;
             
             if (networkManager != null)
@@ -313,7 +313,7 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private bool CheckMultiplayerRequirements()
         {
-            var networkManager = FindObjectOfType<PongHub.Networking.PongHubNetworkManager>();
+            var networkManager = UnityEngine.Object.FindObjectOfType<PongHub.Networking.PongHubNetworkManager>();
             bool hasNetcode = Unity.Netcode.NetworkManager.Singleton != null;
             return networkManager != null && hasNetcode;
         }
@@ -323,7 +323,7 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private bool CheckAIRequirements()
         {
-            var aiSingle = FindObjectOfType<PongHub.AI.AISingle>();
+            var aiSingle = UnityEngine.Object.FindObjectOfType<PongHub.AI.AISingle>();
             return aiSingle != null; // AI功能始终可用
         }
 
@@ -340,7 +340,7 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private bool CheckVRRequirements()
         {
-            var vrInputManager = FindObjectOfType<PongHub.Input.PongHubInputManager>();
+            var vrInputManager = UnityEngine.Object.FindObjectOfType<PongHub.Input.PongHubInputManager>();
             bool isVREnabled = UnityEngine.XR.XRSettings.enabled;
             return vrInputManager != null && isVREnabled;
         }
@@ -350,7 +350,7 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private bool CheckAvatarRequirements()
         {
-            var avatarEntity = FindObjectOfType<PongHub.Arena.Player.PlayerAvatarEntity>();
+            var avatarEntity = UnityEngine.Object.FindObjectOfType<PongHub.Arena.Player.PlayerAvatarEntity>();
             return avatarEntity != null;
         }
 

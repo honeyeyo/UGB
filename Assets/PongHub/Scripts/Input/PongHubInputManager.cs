@@ -223,6 +223,16 @@ namespace PongHub.Input
             }
         }
 
+        /// <summary>
+        /// 设置触觉反馈启用状态
+        /// </summary>
+        public void SetHapticEnabled(bool enabled)
+        {
+            // 这里可以设置全局触觉反馈状态
+            // 暂时只记录日志，后续可以添加具体实现
+            Debug.Log($"Haptic feedback {(enabled ? "enabled" : "disabled")}");
+        }
+
         private void Awake()
         {
             // 单例模式

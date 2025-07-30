@@ -277,6 +277,45 @@ namespace PongHub.UI.Settings.Core
         }
 
         /// <summary>
+        /// 保存音频设置
+        /// </summary>
+        public void SaveAudioSettings(AudioSettings newSettings)
+        {
+            UpdateAudioSettings(newSettings);
+            SaveSettings();
+        }
+
+        /// <summary>
+        /// 保存视频设置
+        /// </summary>
+        public void SaveVideoSettings(VideoSettings newSettings)
+        {
+            UpdateVideoSettings(newSettings);
+            SaveSettings();
+        }
+
+        /// <summary>
+        /// 保存控制设置
+        /// </summary>
+        public void SaveControlSettings(ControlSettings newSettings)
+        {
+            UpdateControlSettings(newSettings);
+            SaveSettings();
+        }
+
+        /// <summary>
+        /// 重置所有设置到默认值
+        /// </summary>
+        public void ResetAllSettings()
+        {
+            currentSettings = GameSettings.CreateDefault();
+            MarkAsChanged();
+            OnSettingsChanged?.Invoke(currentSettings);
+            SaveSettings();
+            Debug.Log("All settings reset to default");
+        }
+
+        /// <summary>
         /// 重置所有设置为默认值
         /// </summary>
         public void ResetToDefaults()

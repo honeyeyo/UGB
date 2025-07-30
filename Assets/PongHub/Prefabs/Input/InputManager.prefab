@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b66c86575a3a3a14c9976b3c88f089b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_inputActions: {fileID: 0}
+  m_inputActions: {fileID: -944628639613478452, guid: 2de88b9877afbf34f856d91c8862597f, type: 3}
   m_playerRig: {fileID: 0}
   m_leftHandAnchor: {fileID: 0}
   m_rightHandAnchor: {fileID: 0}
@@ -58,6 +58,10 @@ MonoBehaviour:
   m_paddleController: {fileID: 0}
   m_moveSpeed: 3
   m_deadZone: 0.1
+  m_snapTurnAngle: 30
+  m_continuousInputUpdateRate: 120
+  m_useOptimizedPolling: 1
+  m_enablePerformanceLogging: 0
 --- !u!114 &5618845114810184063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -125,8 +129,6 @@ MonoBehaviour:
   m_ballLifetime: 30
   m_maxActiveBalls: 3
   m_enforceServingRules: 1
-  m_minThrowHeight: 0.16
-  m_maxThrowAngle: 15
   m_initialVelocityMultiplier: 1
   m_ballPhysicMaterial: {fileID: 0}
   m_ballGenerateSound: {fileID: 0}
@@ -151,8 +153,6 @@ MonoBehaviour:
   m_followSpeed: 15
   m_rotationSpeed: 20
   m_usePhysicsJoint: 1
-  m_jointSpring: 3000
-  m_jointDamper: 50
   m_maxJointForce: 10000
   m_paddleGripSound: {fileID: 0}
   m_paddleReleaseSound: {fileID: 0}

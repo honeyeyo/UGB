@@ -55,6 +55,7 @@ namespace PongHub.UI.ModeSelection
             ModeHover,      // 模式悬停
             ModeSelect,     // 模式选择
             ModeConfirm,    // 模式确认
+            Selection,      // 选择反馈 (通用)
             Error,          // 错误反馈
             Warning,        // 警告反馈
             Transition,     // 过渡效果
@@ -140,6 +141,9 @@ namespace PongHub.UI.ModeSelection
                     break;
                 case HapticType.ModeConfirm:
                     TriggerHaptic(isLeftHand, m_modeConfirmIntensity, m_modeConfirmDuration);
+                    break;
+                case HapticType.Selection:
+                    TriggerHaptic(isLeftHand, m_modeSelectIntensity, m_modeSelectDuration);
                     break;
                 case HapticType.Error:
                     StartErrorHaptic(isLeftHand);
@@ -282,6 +286,19 @@ namespace PongHub.UI.ModeSelection
             m_backButtonIntensity = 0.4f * intensity;
 
             Debug.Log($"VRHapticFeedback intensity set to: {intensity}");
+        }
+
+        /// <summary>
+        /// 设置触觉反馈启用状态
+        /// </summary>
+        /// <param name="enabled">是否启用</param>
+        public void SetEnabled(bool enabled)
+        {
+            if (!enabled)
+            {
+                StopAllHaptics();
+            }
+            Debug.Log($"VRHapticFeedback {(enabled ? "enabled" : "disabled")}");
         }
 
         #endregion
