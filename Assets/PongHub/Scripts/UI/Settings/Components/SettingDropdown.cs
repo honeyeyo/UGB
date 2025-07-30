@@ -203,7 +203,22 @@ namespace PongHub.UI.Settings.Components
         /// <returns>本地化字符串</returns>
         private string LocalizeEnumValue(string enumValue)
         {
-            // TODO: 实现本地化
+            // 配合现有本地化系统实现本地化功能
+            if (PongHub.UI.Localization.LocalizationManager.Instance != null && 
+                PongHub.UI.Localization.LocalizationManager.Instance.IsInitialized)
+            {
+                // 构建本地化键，格式：settings.dropdown.{settingType}.{enumValue}
+                string localizationKey = $"settings.dropdown.{settingType.ToString().ToLower()}.{enumValue.ToLower()}";
+                string localizedText = PongHub.UI.Localization.LocalizationManager.Instance.GetLocalizedText(localizationKey);
+                
+                // 如果获取到了本地化文本且不等于键本身，则使用本地化文本
+                if (!string.IsNullOrEmpty(localizedText) && localizedText != localizationKey)
+                {
+                    return localizedText;
+                }
+            }
+            
+            // 回退到硬编码的中文翻译
             switch (enumValue)
             {
                 case "Low": return "低";
@@ -211,8 +226,86 @@ namespace PongHub.UI.Settings.Components
                 case "High": return "高";
                 case "Ultra": return "超高";
                 case "Disabled": return "禁用";
+                case "Enabled": return "启用";
+                case "Poor": return "差";
+                case "Good": return "好";
+                case "Excellent": return "优秀";
+                case "Beginner": return "新手";
+                case "Intermediate": return "中级";
+                case "Advanced": return "高级";
+                case "Expert": return "专家";
+                case "Easy": return "简单";
+                case "Normal": return "普通";
+                case "Hard": return "困难";
+                case "Default": return "默认";
+                case "Custom": return "自定义";
+                case "Left": return "左";
+                case "Right": return "右";
+                case "Both": return "双";
                 default: return enumValue;
             }
+        }
+
+        /// <summary>
+        /// 本地化下拉框选项 - 配合现有本地化系统
+        /// </summary>
+        private void LocalizeDropdownOptions()
+        {
+            if (dropdown == null) return;
+
+            // 如果本地化管理器可用，则监听语言变更事件
+            if (PongHub.UI.Localization.LocalizationManager.Instance != null)
+            {
+                // 注册语言变更事件监听
+                PongHub.UI.Localization.LocalizationManager.Instance.OnLanguageChanged -= OnLanguageChangedHandler;
+                PongHub.UI.Localization.LocalizationManager.Instance.OnLanguageChanged += OnLanguageChangedHandler;
+            }
+
+            // 立即更新选项文本
+            UpdateDropdownOptionsText();
+        }
+
+        /// <summary>
+        /// 语言变更事件处理器
+        /// </summary>
+        /// <param name="languageCode">新语言代码</param>
+        private void OnLanguageChangedHandler(string languageCode)
+        {
+            UpdateDropdownOptionsText();
+        }
+
+        /// <summary>
+        /// 更新下拉框选项文本
+        /// </summary>
+        private void UpdateDropdownOptionsText()
+        {
+            if (dropdown == null || dropdown.options == null) return;
+
+            // 根据当前语言更新选项文本
+            for (int i = 0; i < dropdown.options.Count; i++)
+            {
+                var option = dropdown.options[i];
+                string originalText = option.text;
+                
+                // 使用本地化键获取文本
+                string localizationKey = $"settings.dropdown.{settingType.ToString().ToLower()}.option_{i}";
+                
+                if (PongHub.UI.Localization.LocalizationManager.Instance != null && 
+                    PongHub.UI.Localization.LocalizationManager.Instance.IsInitialized)
+                {
+                    string localizedText = PongHub.UI.Localization.LocalizationManager.Instance.GetLocalizedText(localizationKey);
+                    
+                    // 如果获取到了本地化文本且不等于键本身，则使用本地化文本
+                    if (!string.IsNullOrEmpty(localizedText) && localizedText != localizationKey)
+                    {
+                        option.text = localizedText;
+                        dropdown.options[i] = option;
+                    }
+                }
+            }
+
+            // 刷新下拉框显示
+            dropdown.RefreshShownValue();
         }
 
         #endregion
@@ -517,6 +610,12 @@ namespace PongHub.UI.Settings.Components
 
         protected override void OnDestroy()
         {
+            // 清理本地化事件监听
+            if (PongHub.UI.Localization.LocalizationManager.Instance != null)
+            {
+                PongHub.UI.Localization.LocalizationManager.Instance.OnLanguageChanged -= OnLanguageChangedHandler;
+            }
+
             if (dropdown != null)
             {
                 dropdown.onValueChanged.RemoveListener(OnDropdownValueChanged);

@@ -184,22 +184,107 @@ namespace PongHub.UI
         // 显示胜利动画
         public void ShowVictoryAnimation(string winnerName)
         {
-            // TODO: 实现胜利动画
-            UpdateGameStatus($"{winnerName} 获胜!");
+            StartCoroutine(VictoryAnimationCoroutine(winnerName));
         }
 
         // 显示失败动画
         public void ShowDefeatAnimation(string winnerName)
         {
-            // TODO: 实现失败动画
-            UpdateGameStatus($"{winnerName} 获胜!");
+            StartCoroutine(DefeatAnimationCoroutine(winnerName));
         }
 
         // 显示平局动画
         public void ShowDrawAnimation()
         {
-            // TODO: 实现平局动画
-            UpdateGameStatus("平局!");
+            StartCoroutine(DrawAnimationCoroutine());
+        }
+
+        /// <summary>
+        /// 胜利动画协程 - 实现胜利特效和文本动画
+        /// </summary>
+        private System.Collections.IEnumerator VictoryAnimationCoroutine(string winnerName)
+        {
+            // 更新游戏状态文本
+            UpdateGameStatus($"🏆 {winnerName} 获胜!");
+            
+            // 闪烁效果
+            Color originalColor = m_gameStatusText.color;
+            Color victoryColor = Color.yellow;
+            
+            for (int i = 0; i < 6; i++)
+            {
+                m_gameStatusText.color = (i % 2 == 0) ? victoryColor : originalColor;
+                yield return new WaitForSeconds(0.3f);
+            }
+            
+            // 恢复原色
+            m_gameStatusText.color = originalColor;
+            
+            // 显示操作按钮
+            SetRematchButtonVisible(true);
+            SetMainMenuButtonVisible(true);
+        }
+
+        /// <summary>
+        /// 失败动画协程 - 实现失败提示和按钮显示
+        /// </summary>
+        private System.Collections.IEnumerator DefeatAnimationCoroutine(string winnerName)
+        {
+            // 更新游戏状态文本
+            UpdateGameStatus($"😔 {winnerName} 获胜!");
+            
+            // 淡入淡出效果
+            Color originalColor = m_gameStatusText.color;
+            Color defeatColor = Color.red;
+            
+            float duration = 2f;
+            float elapsedTime = 0f;
+            
+            while (elapsedTime < duration)
+            {
+                float t = Mathf.PingPong(elapsedTime * 2f, 1f);
+                m_gameStatusText.color = Color.Lerp(originalColor, defeatColor, t * 0.5f);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            
+            // 恢复原色
+            m_gameStatusText.color = originalColor;
+            
+            // 显示操作按钮
+            SetRematchButtonVisible(true);
+            SetMainMenuButtonVisible(true);
+        }
+
+        /// <summary>
+        /// 平局动画协程 - 实现平局提示动画
+        /// </summary>
+        private System.Collections.IEnumerator DrawAnimationCoroutine()
+        {
+            // 更新游戏状态文本
+            UpdateGameStatus("🤝 平局!");
+            
+            // 脉冲缩放效果
+            Vector3 originalScale = m_gameStatusText.transform.localScale;
+            Vector3 targetScale = originalScale * 1.2f;
+            
+            float duration = 1f;
+            float elapsedTime = 0f;
+            
+            while (elapsedTime < duration)
+            {
+                float t = Mathf.PingPong(elapsedTime * 2f, 1f);
+                m_gameStatusText.transform.localScale = Vector3.Lerp(originalScale, targetScale, t);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            
+            // 恢复原大小
+            m_gameStatusText.transform.localScale = originalScale;
+            
+            // 显示操作按钮
+            SetRematchButtonVisible(true);
+            SetMainMenuButtonVisible(true);
         }
     }
 }

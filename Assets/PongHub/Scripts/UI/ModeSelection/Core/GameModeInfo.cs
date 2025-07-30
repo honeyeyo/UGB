@@ -246,8 +246,34 @@ namespace PongHub.UI.ModeSelection
         /// <returns>网络是否可用</returns>
         private bool IsNetworkAvailable()
         {
-            // TODO: 实现网络状态检查
-            return Application.internetReachability != NetworkReachability.NotReachable;
+            // 实现网络状态检查
+            // 检查Unity网络连通性
+            bool hasNetworkConnection = Application.internetReachability != NetworkReachability.NotReachable;
+            
+            // 检查Photon网络管理器状态
+            var networkManager = FindObjectOfType<PongHub.Networking.PongHubNetworkManager>();
+            bool photonConnected = false;
+            
+            if (networkManager != null)
+            {
+                // 检查Photon连接状态
+                photonConnected = networkManager.IsConnectedAndReady;
+            }
+            
+            // 检查Unity Netcode连接状态
+            bool netcodeReady = false;
+            if (Unity.Netcode.NetworkManager.Singleton != null)
+            {
+                netcodeReady = Unity.Netcode.NetworkManager.Singleton.IsListening || 
+                              Unity.Netcode.NetworkManager.Singleton.IsConnectedClient;
+            }
+            
+            // 至少需要有网络连接
+            bool isAvailable = hasNetworkConnection;
+            
+            Debug.Log($"[GameModeInfo] 网络状态检查 - 连通性: {hasNetworkConnection}, Photon: {photonConnected}, Netcode: {netcodeReady}");
+            
+            return isAvailable;
         }
 
         /// <summary>
@@ -257,18 +283,75 @@ namespace PongHub.UI.ModeSelection
         /// <returns>功能是否可用</returns>
         private bool IsFeatureAvailable(string feature)
         {
-            // TODO: 实现功能可用性检查
+            // 实现功能可用性检查
             switch (feature.ToLower())
             {
-                case "ai":
-                    return true; // AI功能始终可用
+                case "multiplayer":
+                case "网络模式":
                 case "network":
-                    return IsNetworkAvailable();
+                    return IsNetworkAvailable() && CheckMultiplayerRequirements();
+                    
+                case "ai":
+                    return CheckAIRequirements();
+                    
                 case "voice":
-                    return Microphone.devices.Length > 0;
+                    return CheckVoiceRequirements();
+                    
+                case "vr":
+                    return CheckVRRequirements();
+                    
+                case "avatar":
+                    return CheckAvatarRequirements();
+                    
                 default:
-                    return true;
+                    return true; // 默认功能可用
             }
+        }
+
+        /// <summary>
+        /// 检查多人游戏需求
+        /// </summary>
+        private bool CheckMultiplayerRequirements()
+        {
+            var networkManager = FindObjectOfType<PongHub.Networking.PongHubNetworkManager>();
+            bool hasNetcode = Unity.Netcode.NetworkManager.Singleton != null;
+            return networkManager != null && hasNetcode;
+        }
+
+        /// <summary>
+        /// 检查AI功能需求
+        /// </summary>
+        private bool CheckAIRequirements()
+        {
+            var aiSingle = FindObjectOfType<PongHub.AI.AISingle>();
+            return aiSingle != null; // AI功能始终可用
+        }
+
+        /// <summary>
+        /// 检查语音功能需求
+        /// </summary>
+        private bool CheckVoiceRequirements()
+        {
+            return Microphone.devices.Length > 0;
+        }
+
+        /// <summary>
+        /// 检查VR功能需求
+        /// </summary>
+        private bool CheckVRRequirements()
+        {
+            var vrInputManager = FindObjectOfType<PongHub.Input.PongHubInputManager>();
+            bool isVREnabled = UnityEngine.XR.XRSettings.enabled;
+            return vrInputManager != null && isVREnabled;
+        }
+
+        /// <summary>
+        /// 检查Avatar功能需求
+        /// </summary>
+        private bool CheckAvatarRequirements()
+        {
+            var avatarEntity = FindObjectOfType<PongHub.Arena.Player.PlayerAvatarEntity>();
+            return avatarEntity != null;
         }
 
         #endregion

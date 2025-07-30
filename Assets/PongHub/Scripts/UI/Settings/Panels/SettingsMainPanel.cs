@@ -355,11 +355,53 @@ namespace PongHub.UI.Settings.Panels
         /// </summary>
         private void OnImportSettings()
         {
-            // TODO: 实现文件选择器或预定义路径
+            // 实现文件选择功能 - 在VR环境中使用预定义路径
             if (settingsManager != null)
             {
-                string filePath = System.IO.Path.Combine(Application.persistentDataPath, "exported_settings.json");
-                _ = settingsManager.ImportSettingsAsync(filePath);
+                // VR环境中使用预定义路径模式
+                string settingsDirectory = System.IO.Path.Combine(Application.persistentDataPath, "Settings");
+
+                // 确保目录存在
+                if (!System.IO.Directory.Exists(settingsDirectory))
+                {
+                    System.IO.Directory.CreateDirectory(settingsDirectory);
+                }
+
+                // 检查常见的设置文件
+                string[] possibleFiles = {
+                    "exported_settings.json",
+                    "backup_settings.json",
+                    "settings_backup.json",
+                    "user_settings.json"
+                };
+
+                string selectedFile = null;
+                foreach (string fileName in possibleFiles)
+                {
+                    string fullPath = System.IO.Path.Combine(settingsDirectory, fileName);
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        selectedFile = fullPath;
+                        break;
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(selectedFile))
+                {
+                    // 执行导入
+                    _ = settingsManager.ImportSettingsAsync(selectedFile);
+
+                    Debug.Log($"[SettingsMainPanel] 正在导入设置文件: {selectedFile}");
+
+                    // 显示成功反馈
+                    ShowImportMessage($"正在导入设置: {System.IO.Path.GetFileName(selectedFile)}");
+                }
+                else
+                {
+                    // 没有找到设置文件
+                    Debug.LogWarning("[SettingsMainPanel] 在设置目录中未找到可导入的设置文件");
+                    ShowImportMessage("未找到可导入的设置文件");
+                }
 
                 // 触觉反馈
                 if (hapticFeedback != null)
@@ -367,6 +409,19 @@ namespace PongHub.UI.Settings.Panels
                     hapticFeedback.PlayHaptic(VRHapticFeedback.HapticType.ModeConfirm);
                 }
             }
+        }
+
+        /// <summary>
+        /// 显示导入消息
+        /// </summary>
+        /// <param name="message">消息内容</param>
+        private void ShowImportMessage(string message)
+        {
+            // 简单的消息显示，可以扩展为更完整的消息面板
+            Debug.Log($"[SettingsMainPanel] 导入消息: {message}");
+
+            // 如果有状态文本组件，可以显示在UI上
+            // statusText?.SetText(message);
         }
 
         /// <summary>

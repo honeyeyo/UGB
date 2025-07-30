@@ -177,7 +177,41 @@ namespace PongHub.UI
 
             // 应用振动设置
             bool vibration = m_vibrationToggle != null ? m_vibrationToggle.isOn : true;
-            // TODO: 实现振动设置
+            // 实现振动设置功能
+            ApplyVibrationSettings(vibration);
+        }
+
+        /// <summary>
+        /// 应用振动设置
+        /// </summary>
+        /// <param name="enableVibration">是否启用振动</param>
+        private void ApplyVibrationSettings(bool enableVibration)
+        {
+            // 查找VR输入管理器或触觉反馈组件
+            var inputManager = FindObjectOfType<PongHub.Input.PongHubInputManager>();
+            if (inputManager != null)
+            {
+                // 设置振动开关状态
+                inputManager.SetHapticEnabled(enableVibration);
+                Debug.Log($"[MainMenuPanel] 振动设置已应用: {(enableVibration ? "启用" : "禁用")}");
+            }
+
+            // 查找VR触觉反馈组件
+            var hapticFeedback = FindObjectOfType<PongHub.UI.Settings.Core.VRHapticFeedback>();
+            if (hapticFeedback != null)
+            {
+                hapticFeedback.SetEnabled(enableVibration);
+                
+                // 如果启用了振动，播放测试反馈
+                if (enableVibration)
+                {
+                    hapticFeedback.PlayHaptic(PongHub.UI.Settings.Core.VRHapticFeedback.HapticType.MenuHover);
+                }
+            }
+
+            // 保存到PlayerPrefs
+            PlayerPrefs.SetInt("VibrationEnabled", enableVibration ? 1 : 0);
+            PlayerPrefs.Save();
         }
 
         private void ShowSettingsPanel(bool show)
