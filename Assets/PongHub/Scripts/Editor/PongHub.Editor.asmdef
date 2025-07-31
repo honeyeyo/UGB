@@ -1,0 +1,26 @@
+{
+    "name": "PongHub.Editor",
+    "rootNamespace": "PongHub.Editor",
+    "references": [
+        "PongHub.Runtime",
+        "Meta Multiplayer For Netcode and Photon",
+        "Meta.XR.MultiplayerBlocks.Shared",
+        "Unity.Netcode.Runtime",
+        "Unity.InputSystem",
+        "Oculus.VR",
+        "Meta Utilities",
+        "Meta Utilities Editor",
+        "ToolbarExtender.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

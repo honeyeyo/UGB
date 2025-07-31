@@ -45,9 +45,11 @@ namespace PongHub.Input.Performance
         private bool m_showDebugInfo = false;
 
         // 对象池
-        private ObjectPool<Vector3> m_vectorPool;
-        private ObjectPool<InputDataPacket> m_inputDataPool;
         private ObjectPool<System.Text.StringBuilder> m_stringBuilderPool;
+        
+        // 值类型缓存池（特殊处理）
+        private Queue<Vector3> m_vectorCache;
+        private Queue<InputDataPacket> m_inputDataCache;
 
         // 缓存字典（使用NativeHashMap避免GC）
         private Dictionary<string, string> m_cachedStrings;
@@ -86,6 +88,7 @@ namespace PongHub.Input.Performance
             public float rightTrigger;
             public uint buttonStates; // 位字段存储按钮状态
             public float timestamp;
+            public uint sequenceNumber; // 序列号用于测试
 
             /// <summary>
             /// 重置数据包到默认状态
@@ -215,15 +218,22 @@ namespace PongHub.Input.Performance
         /// </summary>
         private void InitializeObjectPools()
         {
-            // Vector3对象池
-            m_vectorPool = new ObjectPool<Vector3>(m_vectorPoolSize);
+            // 值类型缓存池（Vector3和InputDataPacket是值类型，不能用ObjectPool<T> where T : class）
+            m_vectorCache = new Queue<Vector3>(m_vectorPoolSize);
+            m_inputDataCache = new Queue<InputDataPacket>(m_inputDataPoolSize);
 
-            // 输入数据包对象池
-            m_inputDataPool = new ObjectPool<InputDataPacket>(
-                m_inputDataPoolSize,
-                () => new InputDataPacket(),
-                packet => packet.Reset()
-            );
+            // 预填充缓存
+            for (int i = 0; i < m_vectorPoolSize; i++)
+            {
+                m_vectorCache.Enqueue(Vector3.zero);
+            }
+            
+            for (int i = 0; i < m_inputDataPoolSize; i++)
+            {
+                var packet = new InputDataPacket();
+                packet.Reset();
+                m_inputDataCache.Enqueue(packet);
+            }
 
             // StringBuilder对象池
             m_stringBuilderPool = new ObjectPool<System.Text.StringBuilder>(
@@ -447,19 +457,28 @@ namespace PongHub.Input.Performance
         }
 
         /// <summary>
-        /// 获取输入数据包（从对象池）
+        /// 获取输入数据包（从缓存池）
         /// </summary>
         public InputDataPacket GetInputDataPacket()
         {
-            return m_inputDataPool.Get();
+            if (m_inputDataCache.Count > 0)
+            {
+                return m_inputDataCache.Dequeue();
+            }
+            
+            // 如果缓存为空，创建新的
+            var newPacket = new InputDataPacket();
+            newPacket.Reset();
+            return newPacket;
         }
 
         /// <summary>
-        /// 归还输入数据包（到对象池）
+        /// 归还输入数据包（到缓存池）
         /// </summary>
         public void ReturnInputDataPacket(InputDataPacket packet)
         {
-            m_inputDataPool.Return(packet);
+            packet.Reset();
+            m_inputDataCache.Enqueue(packet);
         }
 
         /// <summary>
@@ -481,8 +500,8 @@ namespace PongHub.Input.Performance
                 totalGCAlloc = m_totalGCAllocSinceStart,
                 cachedStringsCount = m_cachedStrings?.Count ?? 0,
                 cachedVectorsCount = m_cachedVectors?.Count ?? 0,
-                vectorPoolCount = m_vectorPool?.PoolCount ?? 0,
-                inputDataPoolCount = m_inputDataPool?.PoolCount ?? 0,
+                vectorPoolCount = m_vectorCache?.Count ?? 0,
+                inputDataPoolCount = m_inputDataCache?.Count ?? 0,
                 stringBuilderPoolCount = m_stringBuilderPool?.PoolCount ?? 0
             };
         }

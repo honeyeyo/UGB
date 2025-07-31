@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.XR;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 using Unity.XR.Oculus;
 
 namespace PongHub.Input.Device
@@ -638,6 +639,14 @@ namespace PongHub.Input.Device
         public List<DeviceEvent> GetDeviceEventHistory()
         {
             return new List<DeviceEvent>(m_deviceEvents);
+        }
+
+        /// <summary>
+        /// 获取设备诊断信息 - 测试用方法
+        /// </summary>
+        public DeviceDiagnostics GetDeviceDiagnostics()
+        {
+            return GenerateDiagnostics();
         }
 
         private void OnGUI()

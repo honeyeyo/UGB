@@ -93,7 +93,7 @@ namespace PongHub.Tests.Epic3
             for (int i = 0; i < packets.Length; i++)
             {
                 packets[i] = processor.GetInputDataPacket();
-                packets[i].sequenceNumber = i; // 设置唯一标识
+                packets[i].sequenceNumber = (uint)i; // 设置唯一标识
             }
             
             // Assert - 验证所有对象都是有效且唯一的
@@ -237,7 +237,7 @@ namespace PongHub.Tests.Epic3
                     inputPackets[i].leftHandPosition = new Vector3(i, i, i);
                     inputPackets[i].rightHandPosition = new Vector3(-i, i, -i);
                     inputPackets[i].timestamp = Time.unscaledTime;
-                    inputPackets[i].sequenceNumber = i;
+                    inputPackets[i].sequenceNumber = (uint)i;
                     
                     // 使用位操作设置按钮状态（避免装箱）
                     inputPackets[i].SetButtonState(ZeroGCInputProcessor.InputButton.LeftA, i % 2 == 0);
@@ -503,7 +503,7 @@ namespace PongHub.Tests.Epic3
                 for (int i = 0; i < packets.Length; i++)
                 {
                     packets[i] = processor.GetInputDataPacket();
-                    packets[i].sequenceNumber = i;
+                    packets[i].sequenceNumber = (uint)i;
                 }
                 
                 for (int i = 0; i < packets.Length; i++)

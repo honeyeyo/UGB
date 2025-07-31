@@ -86,6 +86,7 @@ namespace PongHub.Input.Performance
         /// </summary>
         public enum PerformanceGrade
         {
+            Unknown,    // 未知状态
             Excellent,  // A+ - 优秀: <3ms 总延迟
             Good,       // A  - 良好: <5ms 总延迟
             Average,    // B  - 中等: <8ms 总延迟

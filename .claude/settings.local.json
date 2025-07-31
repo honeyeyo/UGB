@@ -4,7 +4,10 @@
       "Bash(cd \"D:\\git\\PongHub_demo\")",
       "Bash(grep -n \"class GameSettings\" Assets/PongHub/Scripts/UI/Settings/Core/GameSettings.cs)",
       "Bash(grep -n -A5 -B5 \"}\" Assets/PongHub/Scripts/UI/Settings/Core/GameSettings.cs)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(find . -name \"*.dll\")",
+      "Bash(find ./Library/PackageCache -name \"*.asmdef\")"
     ],
     "deny": []
   }

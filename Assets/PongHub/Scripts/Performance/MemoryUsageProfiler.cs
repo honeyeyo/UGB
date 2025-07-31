@@ -222,11 +222,11 @@ namespace PongHub.Performance
             m_currentSnapshot = new MemorySnapshot
             {
                 Timestamp = Time.unscaledTime,
-                TotalAllocatedMemory = Profiler.GetTotalAllocatedMemory(Profiler.Area.Any) / (1024f * 1024f), // Convert to MB
-                TotalReservedMemory = Profiler.GetTotalReservedMemory(Profiler.Area.Any) / (1024f * 1024f),
-                TotalUnusedReservedMemory = Profiler.GetTotalUnusedReservedMemory(Profiler.Area.Any) / (1024f * 1024f),
-                MonoHeapSize = Profiler.GetMonoHeapSize() / (1024f * 1024f),
-                MonoUsedSize = Profiler.GetMonoUsedSize() / (1024f * 1024f),
+                TotalAllocatedMemory = Profiler.GetTotalAllocatedMemoryLong() / (1024f * 1024f), // Convert to MB
+                TotalReservedMemory = Profiler.GetTotalReservedMemoryLong() / (1024f * 1024f),
+                TotalUnusedReservedMemory = Profiler.GetTotalUnusedReservedMemoryLong() / (1024f * 1024f),
+                MonoHeapSize = Profiler.GetMonoHeapSizeLong() / (1024f * 1024f),
+                MonoUsedSize = Profiler.GetMonoUsedSizeLong() / (1024f * 1024f),
                 TempAllocatorSize = Profiler.GetTempAllocatorSize() / (1024f * 1024f),
                 TextureMemory = m_trackTextureMemory ? GetTextureMemoryUsage() : 0f,
                 MeshMemory = m_trackMeshMemory ? GetMeshMemoryUsage() : 0f,
