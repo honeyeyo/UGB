@@ -37,6 +37,26 @@ namespace PongHub.Core
         [SerializeField]
         [Tooltip("警告振动设置")]
         private VibrationSettings m_warningVibration = new VibrationSettings(0.8f, 0.25f);
+        
+        [SerializeField]
+        [Tooltip("抓取振动设置")]
+        private VibrationSettings m_grabVibration = new VibrationSettings(0.4f, 0.1f);
+        
+        [SerializeField]
+        [Tooltip("释放振动设置")]
+        private VibrationSettings m_releaseVibration = new VibrationSettings(0.3f, 0.08f);
+        
+        [SerializeField]
+        [Tooltip("按钮按下振动设置")]
+        private VibrationSettings m_buttonPressVibration = new VibrationSettings(0.5f, 0.12f);
+        
+        [SerializeField]
+        [Tooltip("菜单打开振动设置")]
+        private VibrationSettings m_menuOpenVibration = new VibrationSettings(0.4f, 0.15f);
+        
+        [SerializeField]
+        [Tooltip("菜单关闭振动设置")]
+        private VibrationSettings m_menuCloseVibration = new VibrationSettings(0.3f, 0.1f);
 
         // VR设备引用
         private InputDevice m_leftHandDevice;
@@ -54,7 +74,12 @@ namespace PongHub.Core
             PaddleHit,
             UIInteraction,
             Warning,
-            Custom
+            Custom,
+            Grab,
+            Release,
+            ButtonPress,
+            MenuOpen,
+            MenuClose
         }
 
         /// <summary>
@@ -289,6 +314,16 @@ namespace PongHub.Core
                     return m_uiInteractionVibration;
                 case VibrationType.Warning:
                     return m_warningVibration;
+                case VibrationType.Grab:
+                    return m_grabVibration;
+                case VibrationType.Release:
+                    return m_releaseVibration;
+                case VibrationType.ButtonPress:
+                    return m_buttonPressVibration;
+                case VibrationType.MenuOpen:
+                    return m_menuOpenVibration;
+                case VibrationType.MenuClose:
+                    return m_menuCloseVibration;
                 default:
                     return null;
             }

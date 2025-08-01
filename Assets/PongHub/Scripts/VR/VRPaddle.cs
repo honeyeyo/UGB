@@ -373,5 +373,14 @@ namespace PongHub.VR
                 m_paddle.SetState(PaddleState.Free);
             }
         }
+        
+        /// <summary>
+        /// 检查是否为左手球拍
+        /// </summary>
+        public bool IsLeftHand()
+        {
+            int handType = GetControllerHand();
+            return handType == 0; // 0 = 左手
+        }
     }
 }
