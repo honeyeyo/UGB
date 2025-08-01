@@ -1,7 +1,9 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem;
+using System.Linq;
 using PongHub.Core;
+using PongHub.Core.Audio;
 using PongHub.Gameplay.Paddle;
 
 namespace PongHub.VR
@@ -139,8 +141,10 @@ namespace PongHub.VR
                 if (m_paddle != null)
                 {
                     m_paddle.SetVelocity(velocity);
-                    // TODO: 根据手柄旋转判断正反手
-                    m_paddle.SetForehand(true);
+                    
+                    // 根据手柄旋转判断正反手
+                    bool isForehand = DetermineForehandFromRotation(currentRotation, velocity);
+                    m_paddle.SetForehand(isForehand);
                 }
 
                 // 保存当前位置和旋转
@@ -173,29 +177,121 @@ namespace PongHub.VR
         {
             m_isSwinging = true;
             PlaySwingVibration();
-            // TODO: 播放挥拍音效
+            
+            // 播放挥拍音效
+            if (AudioManager.Instance != null && m_paddleHead != null)
+            {
+                float swingIntensity = Mathf.Clamp01(m_swingSpeed / m_swingForce);
+                AudioManager.Instance.PlayPaddleSwing(m_paddleHead.position, swingIntensity);
+            }
         }
 
         private void OnSwingEnd()
         {
             m_isSwinging = false;
-            // TODO: 播放挥拍结束音效
+            
+            // 播放挥拍结束音效
+            if (AudioManager.Instance != null && m_paddleHead != null)
+            {
+                float swingIntensity = Mathf.Clamp01(m_swingSpeed / m_swingForce);
+                AudioManager.Instance.PlayPaddleSwingEnd(m_paddleHead.position, swingIntensity * 0.7f);
+            }
         }
 
         private void PlayHitVibration()
         {
-            if (m_controller != null)
+            // 使用新的VibrationManager系统
+            if (VibrationManager.Instance != null)
             {
+                VibrationManager.Instance.PlayVibration(VibrationManager.VibrationType.PaddleHit, GetControllerHand());
+            }
+            else if (m_controller != null)
+            {
+                // 备用方案：直接使用XR控制器
                 m_controller.SendHapticImpulse(m_hitVibrationIntensity, m_hitVibrationDuration);
             }
         }
 
         private void PlaySwingVibration()
         {
-            if (m_controller != null)
+            // 使用新的VibrationManager系统
+            if (VibrationManager.Instance != null)
             {
+                VibrationManager.Instance.PlayCustomVibration(m_swingVibrationIntensity, m_swingVibrationDuration, GetControllerHand());
+            }
+            else if (m_controller != null)
+            {
+                // 备用方案：直接使用XR控制器
                 m_controller.SendHapticImpulse(m_swingVibrationIntensity, m_swingVibrationDuration);
             }
+        }
+
+        /// <summary>
+        /// 获取控制器手部索引
+        /// </summary>
+        /// <returns>0=左手, 1=右手, -1=未知</returns>
+        private int GetControllerHand()
+        {
+            if (m_controller == null) return -1;
+            
+            // 通过控制器的节点类型判断左右手
+            var interactor = m_grabInteractable?.interactorsSelecting?.FirstOrDefault() as XRDirectInteractor;
+            if (interactor != null)
+            {
+                var controllerNode = interactor.GetComponent<XRController>()?.controllerNode;
+                switch (controllerNode)
+                {
+                    case UnityEngine.XR.XRNode.LeftHand:
+                        return 0;
+                    case UnityEngine.XR.XRNode.RightHand:
+                        return 1;
+                    default:
+                        return -1;
+                }
+            }
+            
+            return -1;
+        }
+
+        /// <summary>
+        /// 根据手柄旋转和挥拍方向判断正反手
+        /// </summary>
+        /// <param name="paddleRotation">球拍旋转</param>
+        /// <param name="velocity">挥拍速度向量</param>
+        /// <returns>true为正手，false为反手</returns>
+        private bool DetermineForehandFromRotation(Quaternion paddleRotation, Vector3 velocity)
+        {
+            if (velocity.magnitude < 0.1f) 
+                return true; // 静止时默认正手
+
+            // 获取控制器手部类型
+            int handType = GetControllerHand();
+            
+            // 计算球拍朝向（球拍面法线）
+            Vector3 paddleForward = paddleRotation * Vector3.forward;
+            
+            // 计算挥拍方向的水平分量
+            Vector3 horizontalVelocity = new Vector3(velocity.x, 0, velocity.z).normalized;
+            
+            if (handType == 0) // 左手
+            {
+                // 左手：如果球拍面朝向与挥拍方向大致相同，则为正手
+                float dot = Vector3.Dot(paddleForward, horizontalVelocity);
+                return dot > 0.3f; // 允许一定角度偏差
+            }
+            else if (handType == 1) // 右手
+            {
+                // 右手：如果球拍面朝向与挥拍方向大致相同，则为正手
+                float dot = Vector3.Dot(paddleForward, horizontalVelocity);
+                return dot > 0.3f; // 允许一定角度偏差
+            }
+            
+            // 未知手部或无法判断时，使用球拍旋转的Y轴旋转角度
+            float yRotation = paddleRotation.eulerAngles.y;
+            
+            // 基于旋转角度的简单判断
+            // 0-90度和270-360度认为是正手，90-270度认为是反手
+            return (yRotation <= 90f) || (yRotation >= 270f);
         }
 
         // 设置控制器引用

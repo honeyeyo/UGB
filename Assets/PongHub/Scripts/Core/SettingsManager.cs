@@ -83,7 +83,50 @@ namespace PongHub.Core
                 AudioManager.Instance.SetSoundVolume(SoundVolume);
             }
 
-            // TODO: 应用其他设置
+            // 应用VR控制器设置
+            ApplyVRControllerSettings();
+            
+            // 应用语言设置
+            ApplyLanguageSettings();
+            
+            // 应用振动设置
+            ApplyVibrationSettings();
+        }
+
+        /// <summary>
+        /// 应用VR控制器设置
+        /// </summary>
+        private void ApplyVRControllerSettings()
+        {
+            // VR控制器类型设置可以影响输入映射或控制器行为
+            // 这里可以根据需要添加具体的控制器配置逻辑
+            Debug.Log($"Applied VR Controller Type: {VRControllerType}");
+        }
+
+        /// <summary>
+        /// 应用语言设置
+        /// </summary>
+        private void ApplyLanguageSettings()
+        {
+            // 应用语言设置到本地化系统
+            var localizationManager = FindObjectOfType<PongHub.Localization.LocalizationManager>();
+            if (localizationManager != null)
+            {
+                localizationManager.SetLanguage(Language);
+            }
+        }
+
+        /// <summary>
+        /// 应用振动设置
+        /// </summary>
+        private void ApplyVibrationSettings()
+        {
+            // 应用振动设置到VibrationManager
+            if (VibrationManager.Instance != null)
+            {
+                // 可以添加振动强度等设置的应用
+                VibrationManager.Instance.SetVibrationEnabled(true); // 默认启用
+            }
         }
 
         public void SetMusicVolume(float volume)

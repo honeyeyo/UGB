@@ -47,6 +47,15 @@ namespace PongHub.Core.Audio
         [Tooltip("Ball Out Of Bounds / 球出界音效 - Audio clip for ball going out of bounds")]
         private AudioClip m_ballOutOfBounds;
 
+        [Header("球拍音效")]
+        [SerializeField]
+        [Tooltip("Paddle Swing Sounds / 球拍挥拍音效 - Audio clips for paddle swinging")]
+        private AudioClip[] m_paddleSwingSounds;
+
+        [SerializeField]
+        [Tooltip("Paddle Swing End Sounds / 球拍挥拍结束音效 - Audio clips for paddle swing ending")]
+        private AudioClip[] m_paddleSwingEndSounds;
+
         [Header("比赛音效")]
         [SerializeField]
         [Tooltip("Match Start / 比赛开始音效 - Audio clip for match start")]
@@ -248,6 +257,22 @@ namespace PongHub.Core.Audio
             PlayPointScored(true);
         }
 
+        /// <summary>
+        /// 播放球拍挥拍音效
+        /// </summary>
+        public void PlayPaddleSwing(Vector3 position, float intensity = 1f)
+        {
+            PlayPaddleSwingSound(position, intensity);
+        }
+
+        /// <summary>
+        /// 播放球拍挥拍结束音效
+        /// </summary>
+        public void PlayPaddleSwingEnd(Vector3 position, float intensity = 0.8f)
+        {
+            PlayPaddleSwingEndSound(position, intensity);
+        }
+
         #endregion
 
 
@@ -307,6 +332,12 @@ namespace PongHub.Core.Audio
 
             if (m_ballHitTableSounds == null || m_ballHitTableSounds.Length == 0)
                 Debug.LogWarning("AudioManager: Ball hit table sounds not assigned!");
+
+            if (m_paddleSwingSounds == null || m_paddleSwingSounds.Length == 0)
+                Debug.LogWarning("AudioManager: Paddle swing sounds not assigned!");
+
+            if (m_paddleSwingEndSounds == null || m_paddleSwingEndSounds.Length == 0)
+                Debug.LogWarning("AudioManager: Paddle swing end sounds not assigned!");
 
             if (m_crowdAmbient == null)
                 Debug.LogWarning("AudioManager: Crowd ambient sound not assigned!");
@@ -391,6 +422,30 @@ namespace PongHub.Core.Audio
         }
 
         /// <summary>
+        /// 播放球拍挥拍音效
+        /// </summary>
+        public void PlayPaddleSwingSound(Vector3 position, float intensity = 1f)
+        {
+            var clip = GetRandomClip(m_paddleSwingSounds);
+            if (clip == null) return;
+
+            var handle = AudioService.PlayOneShot(clip, position, AudioCategory.SFX, intensity * 0.6f);
+            ApplyPaddleSoundEffects(handle, intensity);
+        }
+
+        /// <summary>
+        /// 播放球拍挥拍结束音效
+        /// </summary>
+        public void PlayPaddleSwingEndSound(Vector3 position, float intensity = 0.8f)
+        {
+            var clip = GetRandomClip(m_paddleSwingEndSounds);
+            if (clip == null) return;
+
+            var handle = AudioService.PlayOneShot(clip, position, AudioCategory.SFX, intensity * 0.4f);
+            ApplyPaddleSoundEffects(handle, intensity);
+        }
+
+        /// <summary>
         /// 检查是否可以播放球音效（防止过于频繁）
         /// </summary>
         private bool CanPlayBallSound()
@@ -417,6 +472,19 @@ namespace PongHub.Core.Audio
             float pitchVariation = Random.Range(-m_ballSoundVariation, m_ballSoundVariation);
             float pitch = 1f + (intensity - 1f) * 0.3f + pitchVariation;
             handle.SetPitch(Mathf.Clamp(pitch, 0.5f, 2f));
+        }
+
+        /// <summary>
+        /// 应用球拍音效的特殊效果
+        /// </summary>
+        private void ApplyPaddleSoundEffects(AudioHandle handle, float intensity)
+        {
+            if (handle == null || !handle.IsValid) return;
+
+            // 根据强度调整音调和音量
+            float pitchVariation = Random.Range(-m_ballSoundVariation * 0.5f, m_ballSoundVariation * 0.5f);
+            float pitch = 1f + (intensity - 1f) * 0.2f + pitchVariation;
+            handle.SetPitch(Mathf.Clamp(pitch, 0.7f, 1.5f));
         }
 
         #endregion

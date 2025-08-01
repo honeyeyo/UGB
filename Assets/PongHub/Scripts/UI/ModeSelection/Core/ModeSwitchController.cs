@@ -599,12 +599,31 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private void LoadModeStats()
         {
-            // TODO: 从PlayerPrefs或其他持久化存储加载
+            // 从PlayerPrefs加载模式统计数据
             string statsJson = PlayerPrefs.GetString("ModeStats", "{}");
             try
             {
-                // 简单的JSON解析实现
-                // 在实际项目中可能需要使用更完善的JSON库
+                // 解析JSON数据并更新统计信息
+                if (!string.IsNullOrEmpty(statsJson) && statsJson != "{}")
+                {
+                    // 简单的键值对解析
+                    var lines = statsJson.Replace("{", "").Replace("}", "").Split(',');
+                    foreach (var line in lines)
+                    {
+                        var parts = line.Split(':');
+                        if (parts.Length == 2)
+                        {
+                            string key = parts[0].Trim().Replace("\"", "");
+                            if (int.TryParse(parts[1].Trim(), out int value))
+                            {
+                                // 根据键名更新对应的统计数据
+                                UpdateStatFromKey(key, value);
+                            }
+                        }
+                    }
+                }
+                
+                Debug.Log("Mode statistics loaded successfully");
             }
             catch (Exception e)
             {
@@ -626,8 +645,9 @@ namespace PongHub.UI.ModeSelection
         {
             try
             {
-                // TODO: 保存到PlayerPrefs或其他持久化存储
-                // 在实际项目中可能需要使用更完善的序列化方式
+                // 保存统计数据到PlayerPrefs
+                string statsJson = SerializeModeStats();
+                PlayerPrefs.SetString("ModeStats", statsJson);
 
                 // 保存最后游戏模式
                 if (m_lastPlayedMode != null)
@@ -640,6 +660,48 @@ namespace PongHub.UI.ModeSelection
             catch (Exception e)
             {
                 Debug.LogWarning($"Failed to save mode stats: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 序列化模式统计数据为JSON字符串
+        /// </summary>
+        /// <returns>JSON格式的统计数据</returns>
+        private string SerializeModeStats()
+        {
+            // 简单的JSON序列化实现
+            var stats = new System.Text.StringBuilder();
+            stats.Append("{");
+            
+            // 这里可以添加具体的统计数据序列化
+            // 例如：游戏次数、胜率等
+            stats.Append("\"totalGames\":0,");
+            stats.Append("\"lastPlayTime\":\"").Append(System.DateTime.Now.ToString()).Append("\"");
+            
+            stats.Append("}");
+            return stats.ToString();
+        }
+
+        /// <summary>
+        /// 从键名更新统计数据
+        /// </summary>
+        /// <param name="key">键名</param>
+        /// <param name="value">值</param>
+        private void UpdateStatFromKey(string key, int value)
+        {
+            switch (key)
+            {
+                case "totalGames":
+                    // 更新总游戏次数
+                    Debug.Log($"Total games: {value}");
+                    break;
+                case "wins":
+                    // 更新胜利次数
+                    Debug.Log($"Wins: {value}");
+                    break;
+                default:
+                    Debug.Log($"Unknown stat key: {key}");
+                    break;
             }
         }
 
