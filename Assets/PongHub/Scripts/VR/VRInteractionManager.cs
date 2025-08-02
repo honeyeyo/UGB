@@ -1,3 +1,5 @@
+#if HAS_META_AVATARS
+
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem;
@@ -44,10 +46,10 @@ namespace PongHub.VR
         public void RecordFrameTime(float deltaTime)
         {
             m_frameTimeHistory.Enqueue(deltaTime);
-            
+
             if (m_frameTimeHistory.Count > MAX_HISTORY_SIZE)
                 m_frameTimeHistory.Dequeue();
-                
+
             // 计算平均帧时间
             float total = 0f;
             foreach (float time in m_frameTimeHistory)
@@ -154,22 +156,22 @@ namespace PongHub.VR
         private VibrationManager m_vibrationManager;
         private AudioManager m_audioManager;
         private VRPerformanceMonitor m_performanceMonitor;
-        
+
         // 跟踪状态验证
         private Dictionary<XRNode, bool> m_controllerTrackingState = new Dictionary<XRNode, bool>();
-        
+
         // 悬停对象缓存
         private Dictionary<GameObject, Coroutine> m_hoverEffectCoroutines = new Dictionary<GameObject, Coroutine>();
-        
+
         [Header("Hand Tracking Integration")]
         [SerializeField]
         [Tooltip("增强XR输入管理器引用")]
         private EnhancedXRInputManager m_enhancedInputManager;
-        
+
         [SerializeField]
         [Tooltip("是否启用Hand Tracking交互")]
         private bool m_enableHandTrackingInteraction = true;
-        
+
         // Hand Tracking状态
         private bool m_handTrackingInitialized = false;
         private Dictionary<bool, EnhancedXRInputManager.HandGesture> m_lastHandGestures = new Dictionary<bool, EnhancedXRInputManager.HandGesture>();
@@ -178,23 +180,23 @@ namespace PongHub.VR
         [SerializeField]
         [Tooltip("MR透视管理器引用")]
         private PongHub.MR.MRPassthroughManager m_mrPassthroughManager;
-        
+
         [SerializeField]
         [Tooltip("环境融合系统引用")]
         private PongHub.MR.EnvironmentBlendingSystem m_environmentBlendingSystem;
-        
+
         [SerializeField]
         [Tooltip("MR安全边界系统引用")]
         private PongHub.MR.MRSafetyBoundary m_mrSafetyBoundary;
-        
+
         [SerializeField]
         [Tooltip("是否启用MR功能")]
         private bool m_enableMRFeatures = false;
-        
+
         [SerializeField]
         [Tooltip("自动切换MR模式")]
         private bool m_autoSwitchMRMode = true;
-        
+
         // MR状态管理
         private bool m_mrInitialized = false;
         private PongHub.MR.MRPassthroughManager.PassthroughMode m_currentMRMode = PongHub.MR.MRPassthroughManager.PassthroughMode.Disabled;
@@ -204,32 +206,32 @@ namespace PongHub.VR
         [SerializeField]
         [Tooltip("VR Avatar管理器引用")]
         private VRAvatarManager m_vrAvatarManager;
-        
+
         [SerializeField]
         [Tooltip("Avatar动作同步组件引用")]
         private AvatarMotionSync m_avatarMotionSync;
-        
+
         [SerializeField]
         [Tooltip("Avatar表情系统引用")]
         private AvatarExpressionSystem m_avatarExpressionSystem;
-        
+
         [SerializeField]
         [Tooltip("Avatar网络同步组件引用")]
         private NetworkAvatarSync m_networkAvatarSync;
-        
+
         [SerializeField]
         [Tooltip("是否启用Avatar集成")]
         private bool m_enableAvatarIntegration = true;
-        
+
         [SerializeField]
         [Tooltip("Avatar情绪响应强度")]
         [Range(0.1f, 2f)]
         private float m_avatarEmotionIntensity = 1f;
-        
+
         [SerializeField]
         [Tooltip("启用Avatar手势反应")]
         private bool m_enableAvatarGestureReaction = true;
-        
+
         // Avatar状态管理
         private bool m_avatarSystemInitialized = false;
         private Dictionary<string, float> m_avatarEmotionTimers = new Dictionary<string, float>();
@@ -246,27 +248,27 @@ namespace PongHub.VR
         {
             m_vibrationManager = VibrationManager.Instance;
             m_audioManager = AudioManager.Instance;
-            
+
             if (m_vibrationManager == null)
             {
                 Debug.LogWarning("[VRInteractionManager] VibrationManager instance not found");
             }
-            
+
             if (m_audioManager == null)
             {
                 Debug.LogWarning("[VRInteractionManager] AudioManager instance not found");
             }
-            
+
             // 初始化Hand Tracking
             InitializeHandTracking();
-            
+
             // 初始化MR功能
             InitializeMRIntegration();
-            
+
             // 初始化Avatar系统
             InitializeAvatarSystem();
         }
-        
+
         private void InitializeHandTracking()
         {
             // 如果没有手动分配，尝试自动查找
@@ -274,17 +276,17 @@ namespace PongHub.VR
             {
                 m_enhancedInputManager = FindObjectOfType<EnhancedXRInputManager>();
             }
-            
+
             if (m_enhancedInputManager != null && m_enableHandTrackingInteraction)
             {
                 // 注册手势事件
                 m_enhancedInputManager.OnGestureRecognized += OnHandGestureRecognized;
                 m_enhancedInputManager.OnInputModeChanged += OnInputModeChanged;
-                
+
                 // 初始化手势状态
                 m_lastHandGestures[true] = EnhancedXRInputManager.HandGesture.None;  // 左手
                 m_lastHandGestures[false] = EnhancedXRInputManager.HandGesture.None; // 右手
-                
+
                 m_handTrackingInitialized = true;
                 Debug.Log("[VRInteractionManager] Hand Tracking integration initialized");
             }
@@ -293,7 +295,7 @@ namespace PongHub.VR
                 Debug.LogWarning("[VRInteractionManager] EnhancedXRInputManager not found or Hand Tracking disabled");
             }
         }
-        
+
         private void InitializeMRIntegration()
         {
             if (!m_enableMRFeatures)
@@ -301,23 +303,23 @@ namespace PongHub.VR
                 Debug.Log("[VRInteractionManager] MR features disabled");
                 return;
             }
-            
+
             // 自动查找MR组件（如果没有手动分配）
             if (m_mrPassthroughManager == null)
             {
                 m_mrPassthroughManager = FindObjectOfType<PongHub.MR.MRPassthroughManager>();
             }
-            
+
             if (m_environmentBlendingSystem == null)
             {
                 m_environmentBlendingSystem = FindObjectOfType<PongHub.MR.EnvironmentBlendingSystem>();
             }
-            
+
             if (m_mrSafetyBoundary == null)
             {
                 m_mrSafetyBoundary = FindObjectOfType<PongHub.MR.MRSafetyBoundary>();
             }
-            
+
             // 注册MR事件
             if (m_mrPassthroughManager != null)
             {
@@ -325,23 +327,23 @@ namespace PongHub.VR
                 m_mrPassthroughManager.OnPassthroughAvailabilityChanged.AddListener(OnMRAvailabilityChanged);
                 Debug.Log("[VRInteractionManager] MR Passthrough Manager connected");
             }
-            
+
             if (m_mrSafetyBoundary != null)
             {
                 m_mrSafetyBoundary.OnBoundaryWarningChanged += OnMRBoundaryWarning;
                 m_mrSafetyBoundary.OnEmergencyStop += OnMREmergencyStop;
                 Debug.Log("[VRInteractionManager] MR Safety Boundary connected");
             }
-            
+
             if (m_environmentBlendingSystem != null)
             {
                 Debug.Log("[VRInteractionManager] Environment Blending System connected");
             }
-            
+
             m_mrInitialized = true;
             Debug.Log("[VRInteractionManager] MR integration initialized");
         }
-        
+
         private void InitializeAvatarSystem()
         {
             if (!m_enableAvatarIntegration)
@@ -349,28 +351,28 @@ namespace PongHub.VR
                 Debug.Log("[VRInteractionManager] Avatar integration disabled");
                 return;
             }
-            
+
             // 自动查找Avatar组件（如果没有手动分配）
             if (m_vrAvatarManager == null)
             {
                 m_vrAvatarManager = FindObjectOfType<VRAvatarManager>();
             }
-            
+
             if (m_avatarMotionSync == null)
             {
                 m_avatarMotionSync = FindObjectOfType<AvatarMotionSync>();
             }
-            
+
             if (m_avatarExpressionSystem == null)
             {
                 m_avatarExpressionSystem = FindObjectOfType<AvatarExpressionSystem>();
             }
-            
+
             if (m_networkAvatarSync == null)
             {
                 m_networkAvatarSync = FindObjectOfType<NetworkAvatarSync>();
             }
-            
+
             // 注册Avatar事件
             if (m_vrAvatarManager != null)
             {
@@ -379,7 +381,7 @@ namespace PongHub.VR
                 m_vrAvatarManager.OnAvatarError.AddListener(OnAvatarError);
                 Debug.Log("[VRInteractionManager] VR Avatar Manager connected");
             }
-            
+
             if (m_avatarMotionSync != null)
             {
                 m_avatarMotionSync.OnTrackingModeChanged.AddListener(OnAvatarTrackingModeChanged);
@@ -387,7 +389,7 @@ namespace PongHub.VR
                 m_avatarMotionSync.OnMotionSyncInitialized.AddListener(OnAvatarMotionSyncReady);
                 Debug.Log("[VRInteractionManager] Avatar Motion Sync connected");
             }
-            
+
             if (m_avatarExpressionSystem != null)
             {
                 m_avatarExpressionSystem.OnExpressionChanged.AddListener(OnAvatarExpressionChanged);
@@ -396,7 +398,7 @@ namespace PongHub.VR
                 m_avatarExpressionSystem.OnExpressionSystemInitialized.AddListener(OnAvatarExpressionSystemReady);
                 Debug.Log("[VRInteractionManager] Avatar Expression System connected");
             }
-            
+
             if (m_networkAvatarSync != null)
             {
                 m_networkAvatarSync.OnAvatarConnected.AddListener(OnNetworkAvatarConnected);
@@ -404,13 +406,13 @@ namespace PongHub.VR
                 m_networkAvatarSync.OnNetworkQualityChanged.AddListener(OnAvatarNetworkQualityChanged);
                 Debug.Log("[VRInteractionManager] Network Avatar Sync connected");
             }
-            
+
             // 初始化情绪计时器
             m_avatarEmotionTimers["victory"] = 0f;
             m_avatarEmotionTimers["defeat"] = 0f;
             m_avatarEmotionTimers["surprise"] = 0f;
             m_avatarEmotionTimers["focus"] = 0f;
-            
+
             m_avatarSystemInitialized = true;
             Debug.Log("[VRInteractionManager] Avatar system integration initialized");
         }
@@ -418,7 +420,7 @@ namespace PongHub.VR
         private void InitializePerformanceMonitor()
         {
             m_performanceMonitor = new VRPerformanceMonitor();
-            
+
             // 初始化控制器跟踪状态
             m_controllerTrackingState[XRNode.LeftHand] = false;
             m_controllerTrackingState[XRNode.RightHand] = false;
@@ -436,7 +438,7 @@ namespace PongHub.VR
             if (m_performanceMonitor != null)
             {
                 m_performanceMonitor.RecordFrameTime(Time.deltaTime);
-                
+
                 // 如果性能不佳，记录警告
                 if (!m_performanceMonitor.IsPerformanceGood())
                 {
@@ -444,23 +446,23 @@ namespace PongHub.VR
                 }
             }
         }
-        
+
         private void UpdateAvatarSystem()
         {
             if (!m_avatarSystemInitialized || !m_enableAvatarIntegration)
                 return;
-                
+
             // 更新情绪计时器
             UpdateAvatarEmotionTimers();
-            
+
             // 同步Avatar与VR交互状态
             SyncAvatarWithInteractionState();
         }
-        
+
         private void UpdateAvatarEmotionTimers()
         {
             var keysToUpdate = new List<string>(m_avatarEmotionTimers.Keys);
-            
+
             foreach (var key in keysToUpdate)
             {
                 if (m_avatarEmotionTimers[key] > 0f)
@@ -473,18 +475,18 @@ namespace PongHub.VR
                 }
             }
         }
-        
+
         private void SyncAvatarWithInteractionState()
         {
             if (m_avatarExpressionSystem == null) return;
-            
+
             // 根据交互状态调整Avatar表情
             if (m_isLeftGrabbing || m_isRightGrabbing)
             {
                 // 抓取时显示专注表情
                 TriggerAvatarEmotion("focus", 0.7f);
             }
-            
+
             // 根据Hand Tracking状态调整Avatar
             if (m_handTrackingInitialized && m_avatarMotionSync != null)
             {
@@ -508,18 +510,18 @@ namespace PongHub.VR
         {
             var device = InputDevices.GetDeviceAtNode(node);
             bool isTracking = false;
-            
+
             if (device.isValid)
             {
                 // 检查位置和旋转跟踪
                 bool hasPosition = device.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 position);
                 bool hasRotation = device.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion rotation);
                 bool hasTrackingState = device.TryGetFeatureValue(CommonUsages.trackingState, out InputTrackingState trackingState);
-                
-                isTracking = hasPosition && hasRotation && hasTrackingState && 
+
+                isTracking = hasPosition && hasRotation && hasTrackingState &&
                            (trackingState & (InputTrackingState.Position | InputTrackingState.Rotation)) != 0;
             }
-            
+
             // 跟踪状态变化时记录
             if (m_controllerTrackingState.TryGetValue(node, out bool previousState))
             {
@@ -616,7 +618,7 @@ namespace PongHub.VR
         }
 
         #region 交互反馈系统
-        
+
         /// <summary>
         /// 触发VR交互反馈（触觉+音频）
         /// </summary>
@@ -624,26 +626,26 @@ namespace PongHub.VR
         {
             // 记录性能监控
             m_performanceMonitor?.RecordInteraction();
-            
+
             // 触觉反馈
             TriggerHapticFeedback(interactionType, isLeftHand);
-            
+
             // 音频反馈
             TriggerAudioFeedback(interactionType, interactable);
-            
+
             // 视觉效果
             TriggerVisualFeedback(interactionType, interactable);
         }
-        
+
         /// <summary>
         /// 触发触觉反馈
         /// </summary>
         private void TriggerHapticFeedback(VRInteractionType interactionType, bool isLeftHand)
         {
             if (m_vibrationManager == null) return;
-            
+
             VibrationManager.VibrationType vibrationType = VibrationManager.VibrationType.ButtonPress;
-            
+
             switch (interactionType)
             {
                 case VRInteractionType.Hover:
@@ -665,20 +667,20 @@ namespace PongHub.VR
                     vibrationType = VibrationManager.VibrationType.ButtonPress;
                     break;
             }
-            
+
             int handIndex = isLeftHand ? 0 : 1;
             m_vibrationManager.PlayVibration(vibrationType, handIndex);
         }
-        
+
         /// <summary>
         /// 触发音频反馈
         /// </summary>
         private void TriggerAudioFeedback(VRInteractionType interactionType, GameObject interactable)
         {
             if (m_audioManager == null) return;
-            
+
             Vector3 audioPosition = interactable != null ? interactable.transform.position : transform.position;
-            
+
             switch (interactionType)
             {
                 case VRInteractionType.Hover:
@@ -701,14 +703,14 @@ namespace PongHub.VR
                     break;
             }
         }
-        
+
         /// <summary>
         /// 触发视觉效果
         /// </summary>
         private void TriggerVisualFeedback(VRInteractionType interactionType, GameObject interactable)
         {
             if (interactable == null) return;
-            
+
             switch (interactionType)
             {
                 case VRInteractionType.Hover:
@@ -733,40 +735,40 @@ namespace PongHub.VR
                     break;
             }
         }
-        
+
         /// <summary>
         /// 开始悬停效果
         /// </summary>
         private void StartHoverEffect(GameObject target)
         {
             if (target == null) return;
-            
+
             // 停止之前的悬停效果
             StopHoverEffect(target);
-            
+
             // 开始新的悬停效果协程
             var coroutine = StartCoroutine(HoverEffectCoroutine(target));
             m_hoverEffectCoroutines[target] = coroutine;
         }
-        
+
         /// <summary>
         /// 停止悬停效果
         /// </summary>
         private void StopHoverEffect(GameObject target)
         {
             if (target == null) return;
-            
+
             if (m_hoverEffectCoroutines.TryGetValue(target, out Coroutine coroutine))
             {
                 if (coroutine != null)
                     StopCoroutine(coroutine);
                 m_hoverEffectCoroutines.Remove(target);
             }
-            
+
             // 重置对象的视觉状态
             ResetObjectVisuals(target);
         }
-        
+
         /// <summary>
         /// 悬停效果协程
         /// </summary>
@@ -774,32 +776,32 @@ namespace PongHub.VR
         {
             var renderer = target.GetComponent<Renderer>();
             if (renderer == null) yield break;
-            
+
             var originalColor = GetOriginalColor(renderer);
             var hoverColor = originalColor + Color.white * m_hoverEffectIntensity;
-            
+
             float time = 0f;
             const float pulseSpeed = 2f;
-            
+
             while (true)
             {
                 time += Time.deltaTime * pulseSpeed;
                 float alpha = (Mathf.Sin(time) + 1f) * 0.5f;
                 var currentColor = Color.Lerp(originalColor, hoverColor, alpha * m_hoverEffectIntensity);
-                
+
                 SetObjectColor(renderer, currentColor);
-                
+
                 yield return null;
             }
         }
-        
+
         /// <summary>
         /// 开始抓取效果
         /// </summary>
         private void StartGrabEffect(GameObject target)
         {
             if (target == null) return;
-            
+
             var renderer = target.GetComponent<Renderer>();
             if (renderer != null)
             {
@@ -808,7 +810,7 @@ namespace PongHub.VR
                 SetObjectColor(renderer, grabColor);
             }
         }
-        
+
         /// <summary>
         /// 停止抓取效果
         /// </summary>
@@ -817,14 +819,14 @@ namespace PongHub.VR
             if (target == null) return;
             ResetObjectVisuals(target);
         }
-        
+
         /// <summary>
         /// 开始射线选择效果
         /// </summary>
         private void StartRaySelectEffect(GameObject target)
         {
             if (target == null) return;
-            
+
             var renderer = target.GetComponent<Renderer>();
             if (renderer != null)
             {
@@ -833,7 +835,7 @@ namespace PongHub.VR
                 SetObjectColor(renderer, selectColor);
             }
         }
-        
+
         /// <summary>
         /// 停止射线选择效果
         /// </summary>
@@ -842,14 +844,14 @@ namespace PongHub.VR
             if (target == null) return;
             ResetObjectVisuals(target);
         }
-        
+
         /// <summary>
         /// 重置对象视觉状态
         /// </summary>
         private void ResetObjectVisuals(GameObject target)
         {
             if (target == null) return;
-            
+
             var renderer = target.GetComponent<Renderer>();
             if (renderer != null)
             {
@@ -857,7 +859,7 @@ namespace PongHub.VR
                 SetObjectColor(renderer, originalColor);
             }
         }
-        
+
         /// <summary>
         /// 获取对象原始颜色
         /// </summary>
@@ -869,7 +871,7 @@ namespace PongHub.VR
             }
             return Color.white;
         }
-        
+
         /// <summary>
         /// 设置对象颜色
         /// </summary>
@@ -880,10 +882,10 @@ namespace PongHub.VR
                 renderer.material.color = color;
             }
         }
-        
+
         #endregion
         #region 直接交互事件处理
-        
+
         private void OnLeftHoverEntered(HoverEnterEventArgs args)
         {
             // 处理左手悬停进入
@@ -927,7 +929,7 @@ namespace PongHub.VR
             {
                 TriggerInteractionFeedback(VRInteractionType.Release, true, interactable.transform.gameObject);
                 Debug.Log($"[VRInteractionManager] Left hand released: {interactable.transform.name}");
-                
+
                 m_isLeftGrabbing = false;
                 m_leftGrabbedObject = null;
             }
@@ -976,7 +978,7 @@ namespace PongHub.VR
             {
                 TriggerInteractionFeedback(VRInteractionType.Release, false, interactable.transform.gameObject);
                 Debug.Log($"[VRInteractionManager] Right hand released: {interactable.transform.name}");
-                
+
                 m_isRightGrabbing = false;
                 m_rightGrabbedObject = null;
             }
@@ -984,8 +986,7 @@ namespace PongHub.VR
         #endregion
 
         #region 射线交互事件处理
-        #region 射线交互事件处理
-        
+
         private void OnLeftRayHoverEntered(HoverEnterEventArgs args)
         {
             // 处理左手射线悬停进入
@@ -1076,7 +1077,7 @@ namespace PongHub.VR
         #endregion
 
         #region 公共API和工具方法
-        
+
         /// <summary>
         /// 获取性能监控数据
         /// </summary>
@@ -1084,7 +1085,7 @@ namespace PongHub.VR
         {
             return m_performanceMonitor;
         }
-        
+
         /// <summary>
         /// 检查控制器跟踪状态
         /// </summary>
@@ -1092,7 +1093,7 @@ namespace PongHub.VR
         {
             return m_controllerTrackingState.TryGetValue(node, out bool isTracking) && isTracking;
         }
-        
+
         /// <summary>
         /// 获取控制器跟踪精度
         /// </summary>
@@ -1100,7 +1101,7 @@ namespace PongHub.VR
         {
             var device = InputDevices.GetDeviceAtNode(node);
             if (!device.isValid) return 0f;
-            
+
             if (device.TryGetFeatureValue(CommonUsages.trackingState, out InputTrackingState trackingState))
             {
                 float accuracy = 0f;
@@ -1108,10 +1109,10 @@ namespace PongHub.VR
                 if ((trackingState & InputTrackingState.Rotation) != 0) accuracy += 0.5f;
                 return accuracy;
             }
-            
+
             return 0f;
         }
-        
+
         /// <summary>
         /// 手动触发交互反馈（供外部系统调用）
         /// </summary>
@@ -1119,7 +1120,7 @@ namespace PongHub.VR
         {
             TriggerInteractionFeedback(interactionType, isLeftHand, target);
         }
-        
+
         /// <summary>
         /// 强制停止所有视觉效果
         /// </summary>
@@ -1133,7 +1134,7 @@ namespace PongHub.VR
             }
             m_hoverEffectCoroutines.Clear();
         }
-        
+
         /// <summary>
         /// 获取当前悬停的对象数量
         /// </summary>
@@ -1141,7 +1142,7 @@ namespace PongHub.VR
         {
             return m_hoverEffectCoroutines.Count;
         }
-        
+
         /// <summary>
         /// 设置交互效果强度
         /// </summary>
@@ -1151,7 +1152,7 @@ namespace PongHub.VR
             m_grabEffectIntensity = Mathf.Clamp01(grabIntensity);
             m_raySelectIntensity = Mathf.Clamp01(raySelectIntensity);
         }
-        
+
         /// <summary>
         /// 检查系统初始化状态
         /// </summary>
@@ -1159,7 +1160,7 @@ namespace PongHub.VR
         {
             return m_vibrationManager != null && m_audioManager != null && m_performanceMonitor != null;
         }
-        
+
         /// <summary>
         /// 获取系统诊断信息
         /// </summary>
@@ -1175,7 +1176,7 @@ namespace PongHub.VR
             diagnostics.AppendLine($"Left Hand Grabbing: {m_isLeftGrabbing}");
             diagnostics.AppendLine($"Right Hand Grabbing: {m_isRightGrabbing}");
             diagnostics.AppendLine($"Hovering Objects: {GetHoveringObjectCount()}");
-            
+
             // Hand Tracking状态
             diagnostics.AppendLine($"Hand Tracking Initialized: {m_handTrackingInitialized}");
             diagnostics.AppendLine($"Enhanced Input Manager: {(m_enhancedInputManager != null ? "OK" : "Missing")}");
@@ -1188,7 +1189,7 @@ namespace PongHub.VR
                 diagnostics.AppendLine($"Left Hand Confidence: {m_enhancedInputManager.GetHandTrackingConfidence(true):F2}");
                 diagnostics.AppendLine($"Right Hand Confidence: {m_enhancedInputManager.GetHandTrackingConfidence(false):F2}");
             }
-            
+
             // MR状态
             diagnostics.AppendLine($"MR Initialized: {m_mrInitialized}");
             diagnostics.AppendLine($"MR Features Enabled: {m_enableMRFeatures}");
@@ -1202,7 +1203,7 @@ namespace PongHub.VR
                 diagnostics.AppendLine($"MR Opacity: {m_mrPassthroughManager.CurrentOpacity:F2}");
                 diagnostics.AppendLine($"Near Boundary: {m_mrPassthroughManager.IsNearBoundary}");
             }
-            
+
             // Avatar系统状态
             diagnostics.AppendLine($"Avatar System Initialized: {m_avatarSystemInitialized}");
             diagnostics.AppendLine($"Avatar Integration Enabled: {m_enableAvatarIntegration}");
@@ -1210,32 +1211,32 @@ namespace PongHub.VR
             {
                 diagnostics.AppendLine(GetAvatarSystemDiagnostics());
             }
-            
+
             if (m_performanceMonitor != null)
             {
                 diagnostics.AppendLine($"Current FPS: {m_performanceMonitor.GetCurrentFPS():F1}");
                 diagnostics.AppendLine($"Interaction Count: {m_performanceMonitor.GetInteractionCount()}");
                 diagnostics.AppendLine($"Performance Good: {m_performanceMonitor.IsPerformanceGood()}");
             }
-            
+
             return diagnostics.ToString();
         }
-        
+
         /// <summary>
         /// 启用/禁用Hand Tracking交互
         /// </summary>
         public void SetHandTrackingEnabled(bool enabled)
         {
             m_enableHandTrackingInteraction = enabled;
-            
+
             if (m_enhancedInputManager != null)
             {
                 m_enhancedInputManager.SetHandTrackingEnabled(enabled);
             }
-            
+
             Debug.Log($"[VRInteractionManager] Hand Tracking interaction {(enabled ? "enabled" : "disabled")}");
         }
-        
+
         /// <summary>
         /// 获取当前输入模式
         /// </summary>
@@ -1243,7 +1244,7 @@ namespace PongHub.VR
         {
             return m_enhancedInputManager != null ? m_enhancedInputManager.CurrentInputMode : EnhancedXRInputManager.VRInputMode.Controller;
         }
-        
+
         /// <summary>
         /// 手动切换输入模式
         /// </summary>
@@ -1254,7 +1255,7 @@ namespace PongHub.VR
                 m_enhancedInputManager.SwitchToMode(mode);
             }
         }
-        
+
         /// <summary>
         /// 获取手部位置（世界坐标）
         /// </summary>
@@ -1266,7 +1267,7 @@ namespace PongHub.VR
             }
             return Vector3.zero;
         }
-        
+
         /// <summary>
         /// 获取扌部旋转（世界坐标）
         /// </summary>
@@ -1278,7 +1279,7 @@ namespace PongHub.VR
             }
             return Quaternion.identity;
         }
-        
+
         /// <summary>
         /// 获取当前手势
         /// </summary>
@@ -1290,7 +1291,7 @@ namespace PongHub.VR
             }
             return EnhancedXRInputManager.HandGesture.None;
         }
-        
+
         /// <summary>
         /// 获取手部追踪置信度
         /// </summary>
@@ -1302,7 +1303,7 @@ namespace PongHub.VR
             }
             return 0f;
         }
-        
+
         /// <summary>
         /// Hand Tracking是否可用
         /// </summary>
@@ -1310,7 +1311,7 @@ namespace PongHub.VR
         {
             return m_enhancedInputManager != null && m_enhancedInputManager.IsHandTrackingAvailable;
         }
-        
+
         /// <summary>
         /// 注册手势回调
         /// </summary>
@@ -1321,7 +1322,7 @@ namespace PongHub.VR
                 m_enhancedInputManager.RegisterGestureCallback(gesture, callback);
             }
         }
-        
+
         /// <summary>
         /// 取消注册手势回调
         /// </summary>
@@ -1332,16 +1333,16 @@ namespace PongHub.VR
                 m_enhancedInputManager.UnregisterGestureCallback(gesture);
             }
         }
-        
+
         #region Mixed Reality Public API
-        
+
         /// <summary>
         /// 启用/禁用MR功能
         /// </summary>
         public void SetMREnabled(bool enabled)
         {
             m_enableMRFeatures = enabled;
-            
+
             if (!enabled && m_mrInitialized)
             {
                 // 禁用MR时切换到VR模式
@@ -1350,10 +1351,10 @@ namespace PongHub.VR
                     m_mrPassthroughManager.SetPassthroughMode(PongHub.MR.MRPassthroughManager.PassthroughMode.Disabled);
                 }
             }
-            
+
             Debug.Log($"[VRInteractionManager] MR features {(enabled ? "enabled" : "disabled")}");
         }
-        
+
         /// <summary>
         /// 获取当前MR模式
         /// </summary>
@@ -1361,7 +1362,7 @@ namespace PongHub.VR
         {
             return m_currentMRMode;
         }
-        
+
         /// <summary>
         /// 设置MR模式
         /// </summary>
@@ -1372,23 +1373,23 @@ namespace PongHub.VR
                 Debug.LogWarning("[VRInteractionManager] MR not initialized or disabled");
                 return;
             }
-            
+
             if (m_mrPassthroughManager != null)
             {
                 m_mrPassthroughManager.SetPassthroughMode(mode);
             }
         }
-        
+
         /// <summary>
         /// MR功能是否可用
         /// </summary>
         public bool IsMRAvailable()
         {
-            return m_mrInitialized && m_enableMRFeatures && 
-                   m_mrPassthroughManager != null && 
+            return m_mrInitialized && m_enableMRFeatures &&
+                   m_mrPassthroughManager != null &&
                    m_mrPassthroughManager.IsPassthroughAvailable;
         }
-        
+
         /// <summary>
         /// 获取MR透视不透明度
         /// </summary>
@@ -1400,7 +1401,7 @@ namespace PongHub.VR
             }
             return 0f;
         }
-        
+
         /// <summary>
         /// 设置MR透视不透明度
         /// </summary>
@@ -1411,7 +1412,7 @@ namespace PongHub.VR
                 m_mrPassthroughManager.SetPassthroughOpacity(opacity);
             }
         }
-        
+
         /// <summary>
         /// 是否接近MR安全边界
         /// </summary>
@@ -1423,7 +1424,7 @@ namespace PongHub.VR
             }
             return false;
         }
-        
+
         /// <summary>
         /// 获取到MR边界的距离
         /// </summary>
@@ -1435,7 +1436,7 @@ namespace PongHub.VR
             }
             return float.MaxValue;
         }
-        
+
         /// <summary>
         /// 强制刷新MR边界数据
         /// </summary>
@@ -1446,22 +1447,22 @@ namespace PongHub.VR
                 m_mrSafetyBoundary.RefreshBoundaryData();
             }
         }
-        
+
         /// <summary>
         /// 启用/禁用MR安全功能
         /// </summary>
         public void SetMRSafetyEnabled(bool enabled)
         {
             m_isMRSafetyActive = enabled;
-            
+
             if (m_mrSafetyBoundary != null)
             {
                 m_mrSafetyBoundary.ShowBoundaryVisualization(enabled);
             }
-            
+
             Debug.Log($"[VRInteractionManager] MR safety {(enabled ? "enabled" : "disabled")}");
         }
-        
+
         /// <summary>
         /// 添加虚拟对象到环境融合系统
         /// </summary>
@@ -1472,7 +1473,7 @@ namespace PongHub.VR
                 m_environmentBlendingSystem.AddVirtualObject(obj);
             }
         }
-        
+
         /// <summary>
         /// 从环境融合系统移除虚拟对象
         /// </summary>
@@ -1483,7 +1484,7 @@ namespace PongHub.VR
                 m_environmentBlendingSystem.RemoveVirtualObject(obj);
             }
         }
-        
+
         /// <summary>
         /// 设置MR环境光照
         /// </summary>
@@ -1494,7 +1495,7 @@ namespace PongHub.VR
                 m_environmentBlendingSystem.SetEnvironmentLighting(intensity, color);
             }
         }
-        
+
         /// <summary>
         /// 获取MR诊断信息
         /// </summary>
@@ -1502,45 +1503,45 @@ namespace PongHub.VR
         {
             var diagnostics = new System.Text.StringBuilder();
             diagnostics.AppendLine("=== Mixed Reality Diagnostics ===");
-            
+
             if (m_mrPassthroughManager != null)
             {
                 diagnostics.AppendLine(m_mrPassthroughManager.GetDiagnostics());
             }
-            
+
             if (m_environmentBlendingSystem != null)
             {
                 diagnostics.AppendLine(m_environmentBlendingSystem.GetDiagnostics());
             }
-            
+
             if (m_mrSafetyBoundary != null)
             {
                 diagnostics.AppendLine(m_mrSafetyBoundary.GetDiagnostics());
             }
-            
+
             return diagnostics.ToString();
         }
-        
+
         #endregion
-        
+
         private void OnDestroy()
         {
             // 停止所有视觉效果
             StopAllVisualEffects();
-            
+
             // 取消事件监听
             UnsubscribeFromInteractorEvents();
-            
+
             // 取消Hand Tracking事件监听
             UnsubscribeFromHandTrackingEvents();
-            
+
             // 取消MR事件监听
             UnsubscribeFromMREvents();
-            
+
             // 取消Avatar事件监听
             UnsubscribeFromAvatarEvents();
         }
-        
+
         private void UnsubscribeFromHandTrackingEvents()
         {
             if (m_enhancedInputManager != null)
@@ -1549,7 +1550,7 @@ namespace PongHub.VR
                 m_enhancedInputManager.OnInputModeChanged -= OnInputModeChanged;
             }
         }
-        
+
         private void UnsubscribeFromMREvents()
         {
             if (m_mrPassthroughManager != null)
@@ -1557,14 +1558,14 @@ namespace PongHub.VR
                 m_mrPassthroughManager.OnPassthroughModeChanged.RemoveListener(OnMRModeChanged);
                 m_mrPassthroughManager.OnPassthroughAvailabilityChanged.RemoveListener(OnMRAvailabilityChanged);
             }
-            
+
             if (m_mrSafetyBoundary != null)
             {
                 m_mrSafetyBoundary.OnBoundaryWarningChanged -= OnMRBoundaryWarning;
                 m_mrSafetyBoundary.OnEmergencyStop -= OnMREmergencyStop;
             }
         }
-        
+
         private void UnsubscribeFromAvatarEvents()
         {
             if (m_vrAvatarManager != null)
@@ -1573,14 +1574,14 @@ namespace PongHub.VR
                 m_vrAvatarManager.OnAvatarLoaded.RemoveListener(OnAvatarLoaded);
                 m_vrAvatarManager.OnAvatarError.RemoveListener(OnAvatarError);
             }
-            
+
             if (m_avatarMotionSync != null)
             {
                 m_avatarMotionSync.OnTrackingModeChanged.RemoveListener(OnAvatarTrackingModeChanged);
                 m_avatarMotionSync.OnHandTrackingStateChanged.RemoveListener(OnAvatarHandTrackingChanged);
                 m_avatarMotionSync.OnMotionSyncInitialized.RemoveListener(OnAvatarMotionSyncReady);
             }
-            
+
             if (m_avatarExpressionSystem != null)
             {
                 m_avatarExpressionSystem.OnExpressionChanged.RemoveListener(OnAvatarExpressionChanged);
@@ -1588,7 +1589,7 @@ namespace PongHub.VR
                 m_avatarExpressionSystem.OnGazeDirectionChanged.RemoveListener(OnAvatarGazeChanged);
                 m_avatarExpressionSystem.OnExpressionSystemInitialized.RemoveListener(OnAvatarExpressionSystemReady);
             }
-            
+
             if (m_networkAvatarSync != null)
             {
                 m_networkAvatarSync.OnAvatarConnected.RemoveListener(OnNetworkAvatarConnected);
@@ -1596,7 +1597,7 @@ namespace PongHub.VR
                 m_networkAvatarSync.OnNetworkQualityChanged.RemoveListener(OnAvatarNetworkQualityChanged);
             }
         }
-        
+
         private void UnsubscribeFromInteractorEvents()
         {
             // 直接交互器事件取消订阅
@@ -1633,11 +1634,11 @@ namespace PongHub.VR
                 m_rightRayInteractor.selectExited.RemoveListener(OnRightRaySelectExited);
             }
         }
-        
+
         #endregion
-        
+
         #region Hand Tracking事件处理
-        
+
         /// <summary>
         /// 手势识别事件处理
         /// </summary>
@@ -1645,9 +1646,9 @@ namespace PongHub.VR
         {
             if (!m_handTrackingInitialized || !m_enableHandTrackingInteraction)
                 return;
-                
+
             Debug.Log($"[VRInteractionManager] Hand gesture {(started ? "started" : "ended")}: {gesture} ({(isLeftHand ? "Left" : "Right")} hand)");
-            
+
             if (started)
             {
                 HandleHandGestureStart(gesture, isLeftHand);
@@ -1656,17 +1657,17 @@ namespace PongHub.VR
             {
                 HandleHandGestureEnd(gesture, isLeftHand);
             }
-            
+
             m_lastHandGestures[isLeftHand] = started ? gesture : EnhancedXRInputManager.HandGesture.None;
         }
-        
+
         /// <summary>
         /// 输入模式变化事件处理
         /// </summary>
         private void OnInputModeChanged(EnhancedXRInputManager.VRInputMode newMode, EnhancedXRInputManager.VRInputMode previousMode)
         {
             Debug.Log($"[VRInteractionManager] Input mode changed: {previousMode} -> {newMode}");
-            
+
             // 根据输入模式调整交互行为
             switch (newMode)
             {
@@ -1675,13 +1676,13 @@ namespace PongHub.VR
                     SetHandTrackingInteractionEnabled(false);
                     SetControllerInteractionEnabled(true);
                     break;
-                    
+
                 case EnhancedXRInputManager.VRInputMode.HandTracking:
                     // 启用Hand Tracking交互，禁用控制器交互
                     SetHandTrackingInteractionEnabled(true);
                     SetControllerInteractionEnabled(false);
                     break;
-                    
+
                 case EnhancedXRInputManager.VRInputMode.Hybrid:
                     // 同时启用两种交互方式
                     SetHandTrackingInteractionEnabled(true);
@@ -1689,7 +1690,7 @@ namespace PongHub.VR
                     break;
             }
         }
-        
+
         /// <summary>
         /// 处理手势开始
         /// </summary>
@@ -1700,39 +1701,39 @@ namespace PongHub.VR
             {
                 TriggerAvatarGestureReaction(gesture, isLeftHand, true);
             }
-            
+
             switch (gesture)
             {
                 case EnhancedXRInputManager.HandGesture.Pinch:
                     HandleHandPinchStart(isLeftHand);
                     break;
-                    
+
                 case EnhancedXRInputManager.HandGesture.Point:
                     HandleHandPointStart(isLeftHand);
                     break;
-                    
+
                 case EnhancedXRInputManager.HandGesture.Fist:
                     HandleHandFistStart(isLeftHand);
                     break;
-                    
+
                 case EnhancedXRInputManager.HandGesture.OpenHand:
                     HandleHandOpenStart(isLeftHand);
                     break;
-                    
+
                 case EnhancedXRInputManager.HandGesture.PaddleGrip:
                     HandlePaddleGripStart(isLeftHand);
                     break;
-                    
+
                 case EnhancedXRInputManager.HandGesture.MenuGesture:
                     HandleMenuGestureStart(isLeftHand);
                     break;
-                    
+
                 case EnhancedXRInputManager.HandGesture.ThumbsUp:
                     HandleThumbsUpStart(isLeftHand);
                     break;
             }
         }
-        
+
         /// <summary>
         /// 处理手势结束
         /// </summary>
@@ -1743,25 +1744,25 @@ namespace PongHub.VR
                 case EnhancedXRInputManager.HandGesture.Pinch:
                     HandleHandPinchEnd(isLeftHand);
                     break;
-                    
+
                 case EnhancedXRInputManager.HandGesture.Point:
                     HandleHandPointEnd(isLeftHand);
                     break;
-                    
+
                 case EnhancedXRInputManager.HandGesture.Fist:
                     HandleHandFistEnd(isLeftHand);
                     break;
-                    
+
                 case EnhancedXRInputManager.HandGesture.PaddleGrip:
                     HandlePaddleGripEnd(isLeftHand);
                     break;
-                    
+
                 case EnhancedXRInputManager.HandGesture.MenuGesture:
                     HandleMenuGestureEnd(isLeftHand);
                     break;
             }
         }
-        
+
         /// <summary>
         /// 处理手部捉取开始
         /// </summary>
@@ -1790,7 +1791,7 @@ namespace PongHub.VR
                 }
             }
         }
-        
+
         /// <summary>
         /// 处理手部捉取结束
         /// </summary>
@@ -1815,7 +1816,7 @@ namespace PongHub.VR
                 }
             }
         }
-        
+
         /// <summary>
         /// 处理手部指向开始
         /// </summary>
@@ -1829,7 +1830,7 @@ namespace PongHub.VR
                 Debug.Log($"[VRInteractionManager] Hand ray activated for {(isLeftHand ? "left" : "right")} hand");
             }
         }
-        
+
         /// <summary>
         /// 处理手部指向结束
         /// </summary>
@@ -1843,7 +1844,7 @@ namespace PongHub.VR
                 Debug.Log($"[VRInteractionManager] Hand ray deactivated for {(isLeftHand ? "left" : "right")} hand");
             }
         }
-        
+
         /// <summary>
         /// 处理手部握拳开始
         /// </summary>
@@ -1852,7 +1853,7 @@ namespace PongHub.VR
             // 强力抓取模式
             TriggerInteractionFeedback(VRInteractionType.Grab, isLeftHand);
         }
-        
+
         /// <summary>
         /// 处理手部握拳结束
         /// </summary>
@@ -1860,7 +1861,7 @@ namespace PongHub.VR
         {
             TriggerInteractionFeedback(VRInteractionType.Release, isLeftHand);
         }
-        
+
         /// <summary>
         /// 处理手部张开开始
         /// </summary>
@@ -1876,7 +1877,7 @@ namespace PongHub.VR
                 HandleHandPinchEnd(isLeftHand);
             }
         }
-        
+
         /// <summary>
         /// 处理球拍握持开始（乒乓球专用）
         /// </summary>
@@ -1894,7 +1895,7 @@ namespace PongHub.VR
                 }
             }
         }
-        
+
         /// <summary>
         /// 处理球拍握持结束
         /// </summary>
@@ -1902,7 +1903,7 @@ namespace PongHub.VR
         {
             TriggerInteractionFeedback(VRInteractionType.Release, isLeftHand);
         }
-        
+
         /// <summary>
         /// 处理菜单手势开始
         /// </summary>
@@ -1911,7 +1912,7 @@ namespace PongHub.VR
             TriggerInteractionFeedback(VRInteractionType.MenuOpen, isLeftHand);
             Debug.Log($"[VRInteractionManager] Menu gesture detected for {(isLeftHand ? "left" : "right")} hand");
         }
-        
+
         /// <summary>
         /// 处理菜单手势结束
         /// </summary>
@@ -1919,7 +1920,7 @@ namespace PongHub.VR
         {
             TriggerInteractionFeedback(VRInteractionType.MenuClose, isLeftHand);
         }
-        
+
         /// <summary>
         /// 处理点赞手势开始
         /// </summary>
@@ -1929,7 +1930,7 @@ namespace PongHub.VR
             TriggerInteractionFeedback(VRInteractionType.ButtonPress, isLeftHand);
             Debug.Log($"[VRInteractionManager] Thumbs up gesture detected for {(isLeftHand ? "left" : "right")} hand");
         }
-        
+
         /// <summary>
         /// 查找附近可抓取的对象
         /// </summary>
@@ -1937,10 +1938,10 @@ namespace PongHub.VR
         {
             if (m_enhancedInputManager == null)
                 return null;
-                
+
             Vector3 handPosition = m_enhancedInputManager.GetHandPosition(isLeftHand);
             float grabRadius = 0.15f; // 15cm抓取半径
-            
+
             var colliders = Physics.OverlapSphere(handPosition, grabRadius);
             foreach (var collider in colliders)
             {
@@ -1951,10 +1952,10 @@ namespace PongHub.VR
                     return collider.gameObject;
                 }
             }
-            
+
             return null;
         }
-        
+
         /// <summary>
         /// 设置Hand Tracking交互启用状态
         /// </summary>
@@ -1963,7 +1964,7 @@ namespace PongHub.VR
             // 这里可以添加更多的Hand Tracking交互控制逻辑
             Debug.Log($"[VRInteractionManager] Hand Tracking interaction {(enabled ? "enabled" : "disabled")}");
         }
-        
+
         /// <summary>
         /// 设置控制器交互启用状态
         /// </summary>
@@ -1974,14 +1975,14 @@ namespace PongHub.VR
                 m_leftInteractor.enabled = enabled;
             if (m_rightInteractor != null)
                 m_rightInteractor.enabled = enabled;
-                
+
             Debug.Log($"[VRInteractionManager] Controller interaction {(enabled ? "enabled" : "disabled")}");
         }
-        
+
         #endregion
-        
+
         #region Mixed Reality事件处理
-        
+
         /// <summary>
         /// MR模式变化事件处理
         /// </summary>
@@ -1989,36 +1990,36 @@ namespace PongHub.VR
         {
             if (!m_mrInitialized)
                 return;
-                
+
             var previousMode = m_currentMRMode;
             m_currentMRMode = mode;
-            
+
             Debug.Log($"[VRInteractionManager] MR mode changed: {previousMode} -> {mode}");
-            
+
             // 根据MR模式调整交互行为
             switch (mode)
             {
                 case PongHub.MR.MRPassthroughManager.PassthroughMode.Disabled:
                     HandleMRModeDisabled();
                     break;
-                    
+
                 case PongHub.MR.MRPassthroughManager.PassthroughMode.FullPassthrough:
                     HandleMRModeFullPassthrough();
                     break;
-                    
+
                 case PongHub.MR.MRPassthroughManager.PassthroughMode.SelectivePassthrough:
                     HandleMRModeSelectivePassthrough();
                     break;
             }
         }
-        
+
         /// <summary>
         /// MR可用性变化事件处理
         /// </summary>
         private void OnMRAvailabilityChanged(bool isAvailable)
         {
             Debug.Log($"[VRInteractionManager] MR availability changed: {isAvailable}");
-            
+
             if (!isAvailable && m_currentMRMode != PongHub.MR.MRPassthroughManager.PassthroughMode.Disabled)
             {
                 // MR不可用时自动切换到VR模式
@@ -2028,7 +2029,7 @@ namespace PongHub.VR
                 }
             }
         }
-        
+
         /// <summary>
         /// MR边界警告事件处理
         /// </summary>
@@ -2036,9 +2037,9 @@ namespace PongHub.VR
         {
             if (!m_mrInitialized || !m_isMRSafetyActive)
                 return;
-                
+
             Debug.Log($"[VRInteractionManager] MR boundary warning: {isNearBoundary}");
-            
+
             if (isNearBoundary)
             {
                 // 用户接近边界时的处理
@@ -2050,28 +2051,28 @@ namespace PongHub.VR
                 HandleMRBoundaryCleared();
             }
         }
-        
+
         /// <summary>
         /// MR紧急停止事件处理
         /// </summary>
         private void OnMREmergencyStop()
         {
             Debug.LogError("[VRInteractionManager] MR EMERGENCY STOP triggered!");
-            
+
             // 立即禁用所有MR功能
             if (m_mrPassthroughManager != null)
             {
                 m_mrPassthroughManager.SetPassthroughMode(PongHub.MR.MRPassthroughManager.PassthroughMode.Disabled);
             }
-            
+
             // 触发强烈的触觉和音频反馈
             SendHapticImpulse(true, 1.0f, 0.5f);
             SendHapticImpulse(false, 1.0f, 0.5f);
-            
+
             // 播放警告音效
             PlayInteractionAudio(VRInteractionType.ButtonPress, true, 1.5f); // 使用按钮音效作为警告
         }
-        
+
         /// <summary>
         /// 处理MR模式禁用
         /// </summary>
@@ -2080,7 +2081,7 @@ namespace PongHub.VR
             // 纯VR模式，恢复标准VR交互
             Debug.Log("[VRInteractionManager] Entering pure VR mode");
         }
-        
+
         /// <summary>
         /// 处理全透视MR模式
         /// </summary>
@@ -2088,7 +2089,7 @@ namespace PongHub.VR
         {
             // 全透视模式，调整交互参数以适应MR
             Debug.Log("[VRInteractionManager] Entering full passthrough MR mode");
-            
+
             // 在MR模式下增强Hand Tracking（如果可用）
             if (m_handTrackingInitialized && m_autoSwitchMRMode)
             {
@@ -2098,7 +2099,7 @@ namespace PongHub.VR
                 }
             }
         }
-        
+
         /// <summary>
         /// 处理选择性透视MR模式
         /// </summary>
@@ -2107,7 +2108,7 @@ namespace PongHub.VR
             // 选择性透视模式，平衡VR和MR交互
             Debug.Log("[VRInteractionManager] Entering selective passthrough MR mode");
         }
-        
+
         /// <summary>
         /// 处理MR边界警告
         /// </summary>
@@ -2116,11 +2117,11 @@ namespace PongHub.VR
             // 触觉反馈
             SendHapticImpulse(true, 0.5f, 0.2f);
             SendHapticImpulse(false, 0.5f, 0.2f);
-            
+
             // 音频警告
             PlayInteractionAudio(VRInteractionType.HoverExit, true, 0.8f);
         }
-        
+
         /// <summary>
         /// 处理MR边界警告解除
         /// </summary>
@@ -2130,18 +2131,18 @@ namespace PongHub.VR
             SendHapticImpulse(true, 0.2f, 0.1f);
             SendHapticImpulse(false, 0.2f, 0.1f);
         }
-        
+
         #endregion
-        
+
         #region Avatar System事件处理和API
-        
+
         /// <summary>
         /// Avatar状态变化事件处理
         /// </summary>
         private void OnAvatarStateChanged(VRAvatarManager.AvatarState newState)
         {
             Debug.Log($"[VRInteractionManager] Avatar state changed to: {newState}");
-            
+
             switch (newState)
             {
                 case VRAvatarManager.AvatarState.Ready:
@@ -2153,14 +2154,14 @@ namespace PongHub.VR
                         OnInputModeChanged(currentMode, currentMode);
                     }
                     break;
-                    
+
                 case VRAvatarManager.AvatarState.Error:
                     Debug.LogError("[VRInteractionManager] Avatar system error detected");
                     // 可以在这里添加错误恢复逻辑
                     break;
             }
         }
-        
+
         /// <summary>
         /// Avatar加载完成事件处理
         /// </summary>
@@ -2169,7 +2170,7 @@ namespace PongHub.VR
             Debug.Log("[VRInteractionManager] Avatar loaded successfully");
             TriggerAvatarEmotion("surprise", 0.5f); // 轻微的惊喜表情
         }
-        
+
         /// <summary>
         /// Avatar错误事件处理
         /// </summary>
@@ -2177,7 +2178,7 @@ namespace PongHub.VR
         {
             Debug.LogWarning("[VRInteractionManager] Avatar error occurred");
         }
-        
+
         /// <summary>
         /// Avatar追踪模式变化事件处理
         /// </summary>
@@ -2185,7 +2186,7 @@ namespace PongHub.VR
         {
             Debug.Log($"[VRInteractionManager] Avatar tracking mode changed to: {newMode}");
         }
-        
+
         /// <summary>
         /// Avatar手部追踪状态变化事件处理
         /// </summary>
@@ -2193,7 +2194,7 @@ namespace PongHub.VR
         {
             Debug.Log($"[VRInteractionManager] Avatar hand tracking: {(isActive ? "active" : "inactive")}");
         }
-        
+
         /// <summary>
         /// Avatar动作同步就绪事件处理
         /// </summary>
@@ -2201,7 +2202,7 @@ namespace PongHub.VR
         {
             Debug.Log("[VRInteractionManager] Avatar motion sync ready");
         }
-        
+
         /// <summary>
         /// Avatar表情变化事件处理
         /// </summary>
@@ -2209,7 +2210,7 @@ namespace PongHub.VR
         {
             Debug.Log($"[VRInteractionManager] Avatar expression changed to: {expression}");
         }
-        
+
         /// <summary>
         /// Avatar语音检测事件处理
         /// </summary>
@@ -2223,7 +2224,7 @@ namespace PongHub.VR
                 SendHapticImpulse(false, volume * 0.3f, 0.1f);
             }
         }
-        
+
         /// <summary>
         /// Avatar注视方向变化事件处理
         /// </summary>
@@ -2231,7 +2232,7 @@ namespace PongHub.VR
         {
             // 可以根据注视方向调整UI或交互反馈
         }
-        
+
         /// <summary>
         /// Avatar表情系统就绪事件处理
         /// </summary>
@@ -2239,7 +2240,7 @@ namespace PongHub.VR
         {
             Debug.Log("[VRInteractionManager] Avatar expression system ready");
         }
-        
+
         /// <summary>
         /// 网络Avatar连接事件处理
         /// </summary>
@@ -2247,7 +2248,7 @@ namespace PongHub.VR
         {
             Debug.Log($"[VRInteractionManager] Network avatar connected: {clientId}");
         }
-        
+
         /// <summary>
         /// 网络Avatar断开事件处理
         /// </summary>
@@ -2255,7 +2256,7 @@ namespace PongHub.VR
         {
             Debug.Log($"[VRInteractionManager] Network avatar disconnected: {clientId}");
         }
-        
+
         /// <summary>
         /// Avatar网络质量变化事件处理
         /// </summary>
@@ -2266,14 +2267,14 @@ namespace PongHub.VR
                 Debug.LogWarning($"[VRInteractionManager] Avatar network quality low: {quality:F2}");
             }
         }
-        
+
         /// <summary>
         /// 触发Avatar手势反应
         /// </summary>
         private void TriggerAvatarGestureReaction(EnhancedXRInputManager.HandGesture gesture, bool isLeftHand, bool started)
         {
             if (m_avatarExpressionSystem == null) return;
-            
+
             if (started)
             {
                 switch (gesture)
@@ -2281,45 +2282,45 @@ namespace PongHub.VR
                     case EnhancedXRInputManager.HandGesture.Pinch:
                         m_avatarExpressionSystem.SetExpression(AvatarExpressionSystem.BasicExpression.Focused, 0.8f, 1f);
                         break;
-                        
+
                     case EnhancedXRInputManager.HandGesture.Point:
                         m_avatarExpressionSystem.SetExpression(AvatarExpressionSystem.BasicExpression.Focused, 0.6f, 0.5f);
                         break;
-                        
+
                     case EnhancedXRInputManager.HandGesture.Fist:
                         m_avatarExpressionSystem.SetExpression(AvatarExpressionSystem.BasicExpression.Focused, 1f, 1.5f);
                         break;
-                        
+
                     case EnhancedXRInputManager.HandGesture.ThumbsUp:
                         m_avatarExpressionSystem.SetExpression(AvatarExpressionSystem.BasicExpression.Happy, 1f, 2f);
                         break;
-                        
+
                     case EnhancedXRInputManager.HandGesture.MenuGesture:
                         m_avatarExpressionSystem.SetExpression(AvatarExpressionSystem.BasicExpression.Confused, 0.5f, 1f);
                         break;
-                        
+
                     case EnhancedXRInputManager.HandGesture.PaddleGrip:
                         m_avatarExpressionSystem.SetExpression(AvatarExpressionSystem.BasicExpression.Excited, 0.8f, 2f);
                         break;
                 }
             }
         }
-        
+
         /// <summary>
         /// 触发Avatar情绪反应
         /// </summary>
         private void TriggerAvatarEmotion(string emotionType, float intensity)
         {
             if (m_avatarExpressionSystem == null) return;
-            
+
             // 防止频繁触发同一情绪
             if (m_avatarEmotionTimers.ContainsKey(emotionType) && m_avatarEmotionTimers[emotionType] > 0f)
                 return;
-                
+
             m_avatarExpressionSystem.TriggerEmotion(emotionType, intensity * m_avatarEmotionIntensity);
             m_avatarEmotionTimers[emotionType] = 2f; // 2秒冷却时间
         }
-        
+
         /// <summary>
         /// 启用/禁用Avatar集成
         /// </summary>
@@ -2328,7 +2329,7 @@ namespace PongHub.VR
             m_enableAvatarIntegration = enabled;
             Debug.Log($"[VRInteractionManager] Avatar integration {(enabled ? "enabled" : "disabled")}");
         }
-        
+
         /// <summary>
         /// 获取Avatar系统是否已初始化
         /// </summary>
@@ -2336,7 +2337,7 @@ namespace PongHub.VR
         {
             return m_avatarSystemInitialized;
         }
-        
+
         /// <summary>
         /// 获取VR Avatar管理器
         /// </summary>
@@ -2344,7 +2345,7 @@ namespace PongHub.VR
         {
             return m_vrAvatarManager;
         }
-        
+
         /// <summary>
         /// 获取Avatar动作同步组件
         /// </summary>
@@ -2352,7 +2353,7 @@ namespace PongHub.VR
         {
             return m_avatarMotionSync;
         }
-        
+
         /// <summary>
         /// 获取Avatar表情系统
         /// </summary>
@@ -2360,7 +2361,7 @@ namespace PongHub.VR
         {
             return m_avatarExpressionSystem;
         }
-        
+
         /// <summary>
         /// 获取Avatar网络同步组件
         /// </summary>
@@ -2368,7 +2369,7 @@ namespace PongHub.VR
         {
             return m_networkAvatarSync;
         }
-        
+
         /// <summary>
         /// 设置Avatar表情
         /// </summary>
@@ -2379,7 +2380,7 @@ namespace PongHub.VR
                 m_avatarExpressionSystem.SetExpression(expression, intensity * m_avatarEmotionIntensity, duration);
             }
         }
-        
+
         /// <summary>
         /// 设置Avatar注视目标
         /// </summary>
@@ -2390,7 +2391,7 @@ namespace PongHub.VR
                 m_avatarExpressionSystem.SetGazeTarget(target);
             }
         }
-        
+
         /// <summary>
         /// 触发Avatar游戏事件情绪
         /// </summary>
@@ -2398,7 +2399,7 @@ namespace PongHub.VR
         {
             TriggerAvatarEmotion(eventType, intensity);
         }
-        
+
         /// <summary>
         /// 设置Avatar情绪响应强度
         /// </summary>
@@ -2406,7 +2407,7 @@ namespace PongHub.VR
         {
             m_avatarEmotionIntensity = Mathf.Clamp(intensity, 0.1f, 2f);
         }
-        
+
         /// <summary>
         /// 获取Avatar系统诊断信息
         /// </summary>
@@ -2422,28 +2423,28 @@ namespace PongHub.VR
             diagnostics.AppendLine($"Network Avatar Sync: {(m_networkAvatarSync != null ? "OK" : "Missing")}");
             diagnostics.AppendLine($"Avatar Gesture Reaction: {m_enableAvatarGestureReaction}");
             diagnostics.AppendLine($"Avatar Emotion Intensity: {m_avatarEmotionIntensity:F2}");
-            
+
             if (m_vrAvatarManager != null)
             {
                 diagnostics.AppendLine($"Avatar State: {m_vrAvatarManager.CurrentState}");
                 diagnostics.AppendLine($"Avatar Type: {m_vrAvatarManager.Type}");
                 diagnostics.AppendLine($"Avatar Loaded: {m_vrAvatarManager.IsAvatarLoaded}");
             }
-            
+
             if (m_avatarMotionSync != null)
             {
                 diagnostics.AppendLine($"Motion Sync Initialized: {m_avatarMotionSync.IsInitialized}");
                 diagnostics.AppendLine($"Motion Tracking Mode: {m_avatarMotionSync.CurrentTrackingMode}");
                 diagnostics.AppendLine($"Hand Tracking Active: {m_avatarMotionSync.IsHandTrackingActive}");
             }
-            
+
             if (m_avatarExpressionSystem != null)
             {
                 diagnostics.AppendLine($"Expression System Initialized: {m_avatarExpressionSystem.IsInitialized}");
                 diagnostics.AppendLine($"Current Expression: {m_avatarExpressionSystem.CurrentExpression}");
                 diagnostics.AppendLine($"Speech Volume: {m_avatarExpressionSystem.SpeechVolume:F3}");
             }
-            
+
             if (m_networkAvatarSync != null)
             {
                 diagnostics.AppendLine($"Network Sync Enabled: {m_networkAvatarSync.IsNetworkSyncEnabled}");
@@ -2451,14 +2452,14 @@ namespace PongHub.VR
                 diagnostics.AppendLine($"Bandwidth Usage: {m_networkAvatarSync.BandwidthUsage:F2}KB/s");
                 diagnostics.AppendLine($"Packets Per Second: {m_networkAvatarSync.PacketsPerSecond}");
             }
-            
+
             return diagnostics.ToString();
         }
-        
+
         #endregion
-        
+
         #region 原有公共方法保持（向后兼容）
-        
+
         // 获取控制器位置和旋转
         public Vector3 GetLeftControllerPosition()
         {
@@ -2548,7 +2549,8 @@ namespace PongHub.VR
 
             return gripValue > m_grabThreshold;
         }
-        
+
         #endregion
     }
 }
+#endif

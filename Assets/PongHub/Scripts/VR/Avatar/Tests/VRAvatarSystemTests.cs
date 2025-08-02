@@ -1,3 +1,5 @@
+#if HAS_META_AVATARS
+
 using UnityEngine;
 using UnityEngine.TestTools;
 using NUnit.Framework;
@@ -500,3 +502,4 @@ namespace PongHub.VR.Avatar.Tests
         }
     }
 }
+#endif

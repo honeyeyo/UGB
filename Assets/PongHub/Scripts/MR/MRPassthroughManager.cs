@@ -175,7 +175,7 @@ namespace PongHub.MR
         private IEnumerator InitializePassthroughAsync()
         {
             // 等待OVR系统初始化
-            while (!OVRManager.isHMDPresent)
+            while (!OVRManager.isHmdPresent)
             {
                 yield return new WaitForSeconds(0.1f);
             }
@@ -209,9 +209,10 @@ namespace PongHub.MR
             try
             {
                 // 尝试查询Passthrough支持
-                m_isPassthroughAvailable = OVRPlugin.GetSystemHeadsetType() == OVRPlugin.SystemHeadset.Meta_Quest_2 ||
-                                          OVRPlugin.GetSystemHeadsetType() == OVRPlugin.SystemHeadset.Meta_Quest_3 ||
-                                          OVRPlugin.GetSystemHeadsetType() == OVRPlugin.SystemHeadset.Meta_Quest_Pro;
+                var headsetType = OVRPlugin.GetSystemHeadsetType();
+                m_isPassthroughAvailable = headsetType == OVRPlugin.SystemHeadset.Oculus_Quest_2 ||
+                                          headsetType == OVRPlugin.SystemHeadset.Meta_Quest_3 ||
+                                          headsetType == OVRPlugin.SystemHeadset.Meta_Quest_Pro;
 
                 Debug.Log($"[MRPassthroughManager] Device: {OVRPlugin.GetSystemHeadsetType()}, Passthrough Available: {m_isPassthroughAvailable}");
             }
@@ -441,7 +442,7 @@ namespace PongHub.MR
             if (m_cameraRig?.centerEyeAnchor == null) return;
 
             Vector3 headPosition = m_cameraRig.centerEyeAnchor.position;
-            
+
             // 检查是否接近边界
             bool wasNearBoundary = m_isNearBoundary;
             m_isNearBoundary = CheckBoundaryProximity(headPosition);
@@ -454,7 +455,7 @@ namespace PongHub.MR
                 if (m_isNearBoundary)
                 {
                     Debug.LogWarning("[MRPassthroughManager] User approaching boundary");
-                    
+
                     // 如果非常接近边界，自动禁用透视以确保安全
                     float distanceToBoundary = GetDistanceToBoundary(headPosition);
                     if (distanceToBoundary < m_boundaryDisableDistance)
@@ -479,7 +480,8 @@ namespace PongHub.MR
             // 使用OVRBoundary API获取边界距离
             try
             {
-                var boundaryPoints = OVRBoundary.GetGeometry(OVRBoundary.BoundaryType.PlayArea);
+                var ovrBoundary = new OVRBoundary();
+                var boundaryPoints = ovrBoundary.GetGeometry(OVRBoundary.BoundaryType.PlayArea);
                 if (boundaryPoints.Length == 0)
                     return float.MaxValue;
 
@@ -558,7 +560,7 @@ namespace PongHub.MR
         public bool SupportsColorPassthrough()
         {
             var headsetType = OVRPlugin.GetSystemHeadsetType();
-            return headsetType == OVRPlugin.SystemHeadset.Meta_Quest_3 || 
+            return headsetType == OVRPlugin.SystemHeadset.Meta_Quest_3 ||
                    headsetType == OVRPlugin.SystemHeadset.Meta_Quest_Pro;
         }
 
@@ -568,10 +570,10 @@ namespace PongHub.MR
         public void ApplyRecommendedSettings()
         {
             var headsetType = OVRPlugin.GetSystemHeadsetType();
-            
+
             switch (headsetType)
             {
-                case OVRPlugin.SystemHeadset.Meta_Quest_2:
+                case OVRPlugin.SystemHeadset.Oculus_Quest_2:
                     // Quest 2: 黑白透视，较低分辨率
                     m_passthroughOpacity = 0.8f;
                     m_enableEdgeRendering = true;
@@ -582,12 +584,12 @@ namespace PongHub.MR
                     // Quest 3: 彩色透视，高分辨率
                     m_passthroughOpacity = 0.9f;
                     m_enableEdgeRendering = false;
-                    m_passthroughUpdateRate = 72f;
+                    m_passthroughUpdateRate = 90f;
                     break;
 
                 case OVRPlugin.SystemHeadset.Meta_Quest_Pro:
-                    // Quest Pro: 高质量彩色透视
-                    m_passthroughOpacity = 1.0f;
+                    // Quest Pro: 彩色透视，高分辨率
+                    m_passthroughOpacity = 0.9f;
                     m_enableEdgeRendering = false;
                     m_passthroughUpdateRate = 90f;
                     break;

@@ -1,3 +1,4 @@
+#if HAS_META_AVATARS
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -400,3 +401,4 @@ namespace PongHub.MR.Tests
         #endregion
     }
 }
+#endif

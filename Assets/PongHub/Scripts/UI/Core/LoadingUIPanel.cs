@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using PongHub.UI.Core;
-using PongHub.Localization;
+using PongHub.UI.Localization;
 
 namespace PongHub.UI.Core
 {
@@ -92,7 +92,7 @@ namespace PongHub.UI.Core
         protected override void Awake()
         {
             base.Awake();
-            
+
             // 获取或创建CanvasGroup
             m_canvasGroup = GetComponent<CanvasGroup>();
             if (m_canvasGroup == null)
@@ -102,7 +102,7 @@ namespace PongHub.UI.Core
 
             // 初始化组件
             InitializeComponents();
-            
+
             // 初始状态为隐藏
             SetVisibilityImmediate(false);
         }
@@ -110,7 +110,7 @@ namespace PongHub.UI.Core
         protected override void OnEnable()
         {
             base.OnEnable();
-            
+
             // 订阅本地化事件
             if (LocalizationManager.Instance != null)
             {
@@ -119,10 +119,10 @@ namespace PongHub.UI.Core
             }
         }
 
-        protected override void OnDisable()
+        public override void OnDisable()
         {
             base.OnDisable();
-            
+
             // 取消订阅本地化事件
             if (LocalizationManager.Instance != null)
             {
@@ -194,13 +194,13 @@ namespace PongHub.UI.Core
         {
             if (m_titleText != null)
             {
-                string titleText = LocalizationManager.Instance?.GetLocalizedString(LOADING_TITLE_KEY) ?? "Loading";
+                string titleText = LocalizationManager.Instance?.GetLocalizedText(LOADING_TITLE_KEY) ?? "Loading";
                 m_titleText.text = titleText;
             }
 
             if (m_loadingText != null)
             {
-                string loadingText = LocalizationManager.Instance?.GetLocalizedString(LOADING_TEXT_KEY) ?? "Loading...";
+                string loadingText = LocalizationManager.Instance?.GetLocalizedText(LOADING_TEXT_KEY) ?? "Loading...";
                 m_loadingText.text = loadingText;
             }
         }
@@ -271,7 +271,7 @@ namespace PongHub.UI.Core
         public void SetProgress(float progress, bool animated = true)
         {
             progress = Mathf.Clamp01(progress);
-            
+
             if (animated)
             {
                 AnimateProgress(progress);
@@ -331,7 +331,8 @@ namespace PongHub.UI.Core
             m_canvasGroup.interactable = true;
             m_canvasGroup.blocksRaycasts = true;
 
-            m_canvasGroup.DOFade(1f, m_fadeInDuration)
+            m_canvasGroup.alpha = 0f;
+            DOTween.To(() => m_canvasGroup.alpha, x => m_canvasGroup.alpha = x, 1f, m_fadeInDuration)
                 .SetEase(Ease.OutQuad);
         }
 
@@ -345,7 +346,7 @@ namespace PongHub.UI.Core
             m_canvasGroup.interactable = false;
             m_canvasGroup.blocksRaycasts = false;
 
-            m_canvasGroup.DOFade(0f, m_fadeOutDuration)
+            DOTween.To(() => m_canvasGroup.alpha, x => m_canvasGroup.alpha = x, 0f, m_fadeOutDuration)
                 .SetEase(Ease.InQuad)
                 .OnComplete(() => gameObject.SetActive(false));
         }
@@ -427,7 +428,7 @@ namespace PongHub.UI.Core
 
         #region VRUIComponent重写
 
-        protected override void UpdateVisualState(InteractionState state)
+        public override void UpdateVisualState(InteractionState state)
         {
             // 加载界面通常不需要交互状态变化
             // 这里可以根据需要添加特殊的视觉效果
@@ -474,7 +475,7 @@ namespace PongHub.UI.Core
                 SetProgress(progress);
                 yield return new WaitForSeconds(0.3f);
             }
-            
+
             yield return new WaitForSeconds(1f);
             Hide();
         }

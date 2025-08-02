@@ -1,3 +1,4 @@
+#if HAS_META_AVATARS
 using UnityEngine;
 using PongHub.UI.Core;
 using PongHub.UI.Components;
@@ -422,3 +423,4 @@ namespace PongHub.UI.Testing
         }
     }
 }
+#endif

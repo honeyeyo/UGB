@@ -1,3 +1,5 @@
+#if HAS_META_AVATARS
+
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
@@ -777,3 +779,4 @@ namespace PongHub.VR.Avatar
         }
     }
 }
+#endif

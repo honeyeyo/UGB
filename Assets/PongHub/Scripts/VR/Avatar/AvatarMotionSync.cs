@@ -1,3 +1,5 @@
+#if HAS_META_AVATARS
+
 using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
@@ -5,6 +7,7 @@ using System.Collections;
 using Oculus.Avatar2;
 using PongHub.Core;
 using PongHub.VR;
+using Meta.Utilities.Input;
 
 namespace PongHub.VR.Avatar
 {
@@ -250,7 +253,7 @@ namespace PongHub.VR.Avatar
 
             m_isInitialized = true;
             OnMotionSyncInitialized?.Invoke();
-            
+
             Debug.Log("[AvatarMotionSync] Motion sync initialized successfully");
         }
 
@@ -265,7 +268,7 @@ namespace PongHub.VR.Avatar
                 {
                     yield break;
                 }
-                
+
                 elapsed += Time.deltaTime;
                 yield return null;
             }
@@ -487,7 +490,7 @@ namespace PongHub.VR.Avatar
 
             // 同步左手手指
             SyncFingers(true);
-            
+
             // 同步右手手指
             SyncFingers(false);
         }
@@ -517,17 +520,17 @@ namespace PongHub.VR.Avatar
                 return;
 
             var joint = m_jointTransforms[jointType];
-            
+
             // 基于置信度调整平滑因子
             float confidenceBasedSmoothing = Mathf.Lerp(m_handSmoothingFactor * 0.5f, m_handSmoothingFactor, trackingData.confidence);
-            
+
             joint.position = Vector3.Lerp(joint.position, trackingData.position, 1f - confidenceBasedSmoothing);
             joint.rotation = Quaternion.Lerp(joint.rotation, trackingData.rotation, 1f - confidenceBasedSmoothing);
         }
 
         private void SyncFingers(bool isLeftHand)
         {
-            var fingerJointTypes = isLeftHand ? 
+            var fingerJointTypes = isLeftHand ?
                 new CAPI.ovrAvatar2JointType[]
                 {
                     CAPI.ovrAvatar2JointType.LeftHandThumbTip,
@@ -558,7 +561,7 @@ namespace PongHub.VR.Avatar
                 {
                     var joint = m_jointTransforms[jointType];
                     float fingerSmoothing = m_handSmoothingFactor * m_fingerFlexSensitivity;
-                    
+
                     joint.position = Vector3.Lerp(joint.position, trackingData.position, 1f - fingerSmoothing);
                     joint.rotation = Quaternion.Lerp(joint.rotation, trackingData.rotation, 1f - fingerSmoothing);
                 }
@@ -591,7 +594,7 @@ namespace PongHub.VR.Avatar
 
             // 计算肩膀到手的方向
             Vector3 direction = shoulderToHand.normalized;
-            
+
             // 基于是否为左肩调整方向
             if (isLeftShoulder)
             {
@@ -620,7 +623,7 @@ namespace PongHub.VR.Avatar
         private void OnInputModeChanged(EnhancedXRInputManager.VRInputMode newMode, EnhancedXRInputManager.VRInputMode previousMode)
         {
             bool wasHandTrackingActive = m_isHandTrackingActive;
-            m_isHandTrackingActive = newMode == EnhancedXRInputManager.VRInputMode.HandTracking || 
+            m_isHandTrackingActive = newMode == EnhancedXRInputManager.VRInputMode.HandTracking ||
                                    newMode == EnhancedXRInputManager.VRInputMode.Hybrid;
 
             // 更新追踪模式
@@ -705,8 +708,9 @@ namespace PongHub.VR.Avatar
             diagnostics.AppendLine($"Body Tracking Enabled: {m_enableBodyTracking}");
             diagnostics.AppendLine($"Distance Culling: {m_enableDistanceCulling}");
             diagnostics.AppendLine($"Max Sync Distance: {m_maxSyncDistance:F1}m");
-            
+
             return diagnostics.ToString();
         }
     }
 }
+#endif

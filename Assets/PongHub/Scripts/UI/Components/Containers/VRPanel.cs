@@ -1,6 +1,9 @@
+#if HAS_META_AVATARS
+
 using UnityEngine;
 using UnityEngine.UI;
 using PongHub.UI.Core;
+using PongHub.VR;
 using System.Collections.Generic;
 using TMPro;
 
@@ -438,18 +441,20 @@ namespace PongHub.UI.Components
         private Vector3 GetVRPointerPosition()
         {
             // 尝试从VR交互管理器获取射线位置
-            var vrInteractionManager = FindObjectOfType<PongHub.VR.VRInteractionManager>();
+            var vrInteractionManager = FindObjectOfType<VRInteractionManager>();
             if (vrInteractionManager != null)
             {
                 // 检查左右手射线交互器
+                RaycastHit leftHit = new RaycastHit();
                 if (vrInteractionManager.LeftRayInteractor != null &&
-                    vrInteractionManager.LeftRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit leftHit))
+                    vrInteractionManager.LeftRayInteractor.TryGetCurrent3DRaycastHit(out leftHit))
                 {
                     return leftHit.point;
                 }
 
+                RaycastHit rightHit = new RaycastHit();
                 if (vrInteractionManager.RightRayInteractor != null &&
-                    vrInteractionManager.RightRayInteractor.TryGetCurrent3DRaycastHit(out RaycastHit rightHit))
+                    vrInteractionManager.RightRayInteractor.TryGetCurrent3DRaycastHit(out rightHit))
                 {
                     return rightHit.point;
                 }
@@ -732,3 +737,4 @@ namespace PongHub.UI.Components
         #endregion
     }
 }
+#endif

@@ -96,6 +96,13 @@ namespace PongHub.UI.Core
             UpdateVisualState(m_interactable ? InteractionState.Normal : InteractionState.Disabled);
         }
 
+        public virtual void OnDisable()
+        {
+            // 清理状态
+            m_isHovered = false;
+            m_isPressed = false;
+        }
+
         #endregion
 
         #region 公共API

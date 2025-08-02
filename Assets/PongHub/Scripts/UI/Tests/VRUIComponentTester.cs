@@ -1,3 +1,5 @@
+#if HAS_META_AVATARS
+
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -524,3 +526,4 @@ namespace PongHub.UI.Tests
         #endregion
     }
 }
+#endif

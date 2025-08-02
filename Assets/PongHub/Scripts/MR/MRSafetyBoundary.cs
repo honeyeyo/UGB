@@ -198,7 +198,7 @@ namespace PongHub.MR
         private IEnumerator InitializeAsync()
         {
             // 等待OVR系统初始化
-            while (!OVRManager.isHMDPresent)
+            while (!OVRManager.isHmdPresent)
             {
                 yield return new WaitForSeconds(0.1f);
             }
@@ -227,7 +227,8 @@ namespace PongHub.MR
             try
             {
                 // 获取游戏区域边界点
-                var boundaryPoints = OVRBoundary.GetGeometry(OVRBoundary.BoundaryType.PlayArea);
+                var ovrBoundary = new OVRBoundary();
+                var boundaryPoints = ovrBoundary.GetGeometry(OVRBoundary.BoundaryType.PlayArea);
                 if (boundaryPoints != null && boundaryPoints.Length > 0)
                 {
                     m_boundaryPoints.Clear();
@@ -238,7 +239,7 @@ namespace PongHub.MR
 
                     // 计算游戏区域中心和大小
                     CalculatePlayAreaBounds();
-                    
+
                     Debug.Log($"[MRSafetyBoundary] Loaded {m_boundaryPoints.Count} boundary points");
                     return true;
                 }
@@ -275,7 +276,7 @@ namespace PongHub.MR
             // 创建默认的2x2米游戏区域
             m_boundaryPoints.Clear();
             float halfSize = 1f;
-            
+
             m_boundaryPoints.Add(new Vector3(-halfSize, 0, -halfSize));
             m_boundaryPoints.Add(new Vector3(halfSize, 0, -halfSize));
             m_boundaryPoints.Add(new Vector3(halfSize, 0, halfSize));
@@ -292,7 +293,7 @@ namespace PongHub.MR
             // 创建边界线渲染器
             var boundaryLineObject = new GameObject("BoundaryLine");
             boundaryLineObject.transform.SetParent(transform);
-            
+
             m_boundaryLineRenderer = boundaryLineObject.AddComponent<LineRenderer>();
             m_boundaryLineRenderer.material = CreateBoundaryMaterial();
             m_boundaryLineRenderer.startWidth = m_boundaryLineWidth;
@@ -326,7 +327,7 @@ namespace PongHub.MR
 
             // 创建3D边界点（包含高度）
             var visualPoints = new List<Vector3>();
-            
+
             foreach (var point in m_boundaryPoints)
             {
                 // 底部点
@@ -351,7 +352,7 @@ namespace PongHub.MR
             {
                 StopCoroutine(m_boundaryCheckCoroutine);
             }
-            
+
             m_boundaryCheckCoroutine = StartCoroutine(BoundaryCheckLoop());
             Debug.Log("[MRSafetyBoundary] Boundary monitoring started");
         }
@@ -364,7 +365,7 @@ namespace PongHub.MR
                 {
                     UpdateBoundaryStatus();
                 }
-                
+
                 yield return new WaitForSeconds(m_updateInterval);
             }
         }
@@ -375,7 +376,7 @@ namespace PongHub.MR
 
             Vector3 headPosition = m_headTransform.position;
             float closestDistance = GetDistanceToBoundary(headPosition);
-            
+
             // 平滑距离变化
             m_closestBoundaryDistance = Mathf.Lerp(m_closestBoundaryDistance, closestDistance, 1f - m_smoothingFactor);
 
@@ -423,10 +424,10 @@ namespace PongHub.MR
             {
                 Vector3 p1 = m_boundaryPoints[i];
                 Vector3 p2 = m_boundaryPoints[(i + 1) % m_boundaryPoints.Count];
-                
+
                 Vector3 closestPointOnLine = GetClosestPointOnLine(position, p1, p2);
                 float distance = Vector3.Distance(position, closestPointOnLine);
-                
+
                 if (distance < minDistance)
                 {
                     minDistance = distance;
@@ -446,7 +447,7 @@ namespace PongHub.MR
 
             Vector3 pointDirection = point - lineStart;
             float dot = Vector3.Dot(pointDirection, lineDirection);
-            
+
             dot = Mathf.Clamp(dot, 0f, lineLength);
             return lineStart + lineDirection * dot;
         }
@@ -456,17 +457,17 @@ namespace PongHub.MR
             if (isNear)
             {
                 ShowBoundaryVisualization(true);
-                
+
                 if (m_enableAudioWarning)
                 {
                     PlayWarningSound();
                 }
-                
+
                 if (m_enableHapticFeedback)
                 {
                     TriggerHapticFeedback(0.3f);
                 }
-                
+
                 Debug.LogWarning("[MRSafetyBoundary] User approaching boundary");
             }
             else
@@ -485,12 +486,12 @@ namespace PongHub.MR
                 {
                     m_passthroughManager.SetPassthroughMode(MRPassthroughManager.PassthroughMode.Disabled);
                 }
-                
+
                 if (m_enableHapticFeedback)
                 {
                     TriggerHapticFeedback(0.7f);
                 }
-                
+
                 Debug.LogWarning("[MRSafetyBoundary] Critical zone entered - Passthrough disabled for safety");
             }
         }
@@ -501,18 +502,18 @@ namespace PongHub.MR
             {
                 // 触发紧急停止
                 OnEmergencyStop?.Invoke();
-                
+
                 // 强制禁用所有MR功能
                 if (m_passthroughManager != null)
                 {
                     m_passthroughManager.SetPassthroughMode(MRPassthroughManager.PassthroughMode.Disabled);
                 }
-                
+
                 if (m_enableHapticFeedback)
                 {
                     TriggerHapticFeedback(1.0f);
                 }
-                
+
                 Debug.LogError("[MRSafetyBoundary] EMERGENCY: User too close to boundary - All MR functions disabled");
             }
         }
@@ -525,7 +526,7 @@ namespace PongHub.MR
             if (m_boundaryLineRenderer != null)
             {
                 m_boundaryLineRenderer.enabled = show;
-                
+
                 // 根据安全状态更新颜色
                 Color targetColor = m_safeColor;
                 if (m_isInEmergencyZone)
@@ -534,14 +535,14 @@ namespace PongHub.MR
                     targetColor = m_dangerColor;
                 else if (m_isNearBoundary)
                     targetColor = m_warningColor;
-                
+
                 m_boundaryLineRenderer.material.color = targetColor;
             }
 
             if (m_warningIndicator != null)
             {
                 m_warningIndicator.SetActive(show && m_isNearBoundary);
-                
+
                 if (show && m_isNearBoundary)
                 {
                     // 将警告指示器放置在最近的边界点
@@ -565,7 +566,7 @@ namespace PongHub.MR
         {
             // 触发控制器震动反馈
             OVRInput.SetControllerVibration(intensity, intensity, OVRInput.Controller.Touch);
-            
+
             // 延迟停止震动
             StartCoroutine(StopHapticFeedback(0.2f));
         }
@@ -584,7 +585,7 @@ namespace PongHub.MR
                 // 创建脉动效果
                 float pulse = (Mathf.Sin(Time.time * 3f) + 1f) * 0.5f;
                 float alpha = m_isNearBoundary ? 0.5f + pulse * 0.5f : 0.3f;
-                
+
                 var color = m_boundaryLineRenderer.material.color;
                 color.a = alpha;
                 m_boundaryLineRenderer.material.color = color;
@@ -599,7 +600,7 @@ namespace PongHub.MR
             m_warningDistance = Mathf.Clamp(warning, 0.1f, 2f);
             m_criticalDistance = Mathf.Clamp(critical, 0.1f, 1f);
             m_emergencyDistance = Mathf.Clamp(emergency, 0.05f, 0.5f);
-            
+
             Debug.Log($"[MRSafetyBoundary] Safety distances updated: warning={warning:F2}m, critical={critical:F2}m, emergency={emergency:F2}m");
         }
 
@@ -637,7 +638,7 @@ namespace PongHub.MR
             diagnostics.AppendLine($"Update Rate: {m_updateRate:F1}Hz");
             diagnostics.AppendLine($"Audio Warning: {m_enableAudioWarning}");
             diagnostics.AppendLine($"Haptic Feedback: {m_enableHapticFeedback}");
-            
+
             return diagnostics.ToString();
         }
 

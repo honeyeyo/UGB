@@ -85,10 +85,10 @@ namespace PongHub.Core
 
             // 应用VR控制器设置
             ApplyVRControllerSettings();
-            
+
             // 应用语言设置
             ApplyLanguageSettings();
-            
+
             // 应用振动设置
             ApplyVibrationSettings();
         }
@@ -109,10 +109,10 @@ namespace PongHub.Core
         private void ApplyLanguageSettings()
         {
             // 应用语言设置到本地化系统
-            var localizationManager = FindObjectOfType<PongHub.Localization.LocalizationManager>();
+            var localizationManager = FindObjectOfType<PongHub.UI.Localization.LocalizationManager>();
             if (localizationManager != null)
             {
-                localizationManager.SetLanguage(Language);
+                localizationManager.SwitchLanguage(Language);
             }
         }
 

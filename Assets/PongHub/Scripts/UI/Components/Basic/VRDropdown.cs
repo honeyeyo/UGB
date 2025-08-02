@@ -194,7 +194,7 @@ namespace PongHub.UI.Components
             }
         }
 
-        protected virtual void OnDisable()
+        public override void OnDisable()
         {
             // 确保下拉面板关闭
             if (m_IsExpanded)

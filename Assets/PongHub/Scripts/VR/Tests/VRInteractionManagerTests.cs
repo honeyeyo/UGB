@@ -5,6 +5,7 @@ using UnityEngine.XR;
 using PongHub.VR;
 using PongHub.Core;
 
+#if HAS_META_AVATARS
 namespace PongHub.VR.Tests
 {
     /// <summary>
@@ -181,3 +182,4 @@ namespace PongHub.VR.Tests
         }
     }
 }
+#endif
