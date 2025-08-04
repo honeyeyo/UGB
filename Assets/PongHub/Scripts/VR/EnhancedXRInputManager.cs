@@ -18,7 +18,7 @@ namespace Meta.Utilities.Input
     /// <summary>
     /// 增强的XR输入管理器
     /// 在原有XRInputManager基础上添加Hand Tracking支持
-    /// 支持手势识别、输入模式切换和乒乓球专用手势
+    /// 支持手势识别、输入模式切换和通用VR交互手势
     /// </summary>
     public class EnhancedXRInputManager : XRInputManager
     {
@@ -40,10 +40,9 @@ namespace Meta.Utilities.Input
             None,
             Pinch,          // 捏取 - UI交互和小物体抓取  
             Point,          // 指向 - 射线交互和选择
-            Fist,           // 握拳 - 抓取球拍和物体
+            Fist,           // 握拳 - 通用抓取手势
             OpenHand,       // 张开 - 释放和展示
             ThumbsUp,       // 点赞 - 确认操作
-            PaddleGrip,     // 球拍握持 - 乒乓球专用
             MenuGesture     // 菜单手势 - 打开/关闭菜单
         }
 

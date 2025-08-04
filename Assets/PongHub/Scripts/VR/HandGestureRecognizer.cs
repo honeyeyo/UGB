@@ -9,7 +9,7 @@ namespace PongHub.VR
     /// <summary>
     /// 手势识别器
     /// 基于OVRHand和OVRSkeleton数据识别各种手势
-    /// 针对VR乒乓球游戏优化的手势识别算法
+    /// 针对VR交互体验优化的手势识别算法
     /// </summary>
     public class HandGestureRecognizer
     {
@@ -59,7 +59,6 @@ namespace PongHub.VR
             CalculateFistConfidence(hand, skeleton);
             CalculateOpenHandConfidence(hand, skeleton);
             CalculateThumbsUpConfidence(hand, skeleton);
-            CalculatePaddleGripConfidence(hand, skeleton);
             CalculateMenuGestureConfidence(hand, skeleton);
 
             // 找出置信度最高的手势
@@ -239,43 +238,6 @@ namespace PongHub.VR
             }
 
             m_gestureConfidences[EnhancedXRInputManager.HandGesture.ThumbsUp] = Mathf.Clamp01(confidence);
-        }
-
-        /// <summary>
-        /// 计算球拍握持手势置信度（乒乓球专用）
-        /// </summary>
-        private void CalculatePaddleGripConfidence(OVRHand hand, OVRSkeleton skeleton)
-        {
-            float confidence = 0f;
-
-            if (skeleton != null && skeleton.IsDataValid)
-            {
-                var bones = skeleton.Bones;
-                if (bones != null && bones.Count > HandBoneIndices.ThumbTip)
-                {
-                    // 球拍握持：拇指和食指轻微分开，其他手指弯曲但不完全握拳
-                    var thumbTip = bones[HandBoneIndices.ThumbTip].Transform.position;
-                    var indexTip = bones[HandBoneIndices.IndexTip].Transform.position;
-                    float thumbIndexDistance = Vector3.Distance(thumbTip, indexTip);
-
-                    // 拇指和食指应该有适中的距离（0.04-0.08m）
-                    if (thumbIndexDistance > 0.04f && thumbIndexDistance < 0.08f)
-                    {
-                        confidence += 0.4f;
-                    }
-
-                    // 中指、无名指、小指应该弯曲但不完全握拳
-                    bool middlePartialCurled = IsFingerPartiallyCurled(bones, HandBoneIndices.MiddleMcp, HandBoneIndices.MiddleTip);
-                    bool ringPartialCurled = IsFingerPartiallyCurled(bones, HandBoneIndices.RingMcp, HandBoneIndices.RingTip);
-                    bool pinkyPartialCurled = IsFingerPartiallyCurled(bones, HandBoneIndices.PinkyMcp, HandBoneIndices.PinkyTip);
-
-                    if (middlePartialCurled) confidence += 0.2f;
-                    if (ringPartialCurled) confidence += 0.2f;
-                    if (pinkyPartialCurled) confidence += 0.2f;
-                }
-            }
-
-            m_gestureConfidences[EnhancedXRInputManager.HandGesture.PaddleGrip] = Mathf.Clamp01(confidence);
         }
 
         /// <summary>

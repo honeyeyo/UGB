@@ -24,7 +24,7 @@
 - [ ] **Hand Tracking检测**: 自动检测手部追踪可用性
 - [ ] **手势识别**: 实现基础手势识别（捏取、指向、握拳、张开）
 - [ ] **手部/控制器切换**: 支持手部追踪和控制器间的无缝切换
-- [ ] **乒乓球手势**: 实现乒乓球专用手势（挥拍、抓球拍、菜单操作）
+- [ ] **通用手势**: 实现通用VR交互手势（抓取、指向、菜单操作）
 - [ ] **UI交互**: 手部追踪模式下的UI交互支持
 - [ ] **视觉反馈**: 手部状态的视觉反馈和指示
 - [ ] **性能优化**: Hand Tracking不影响120fps性能目标
@@ -78,10 +78,9 @@ public enum HandGesture
     None,
     Pinch,          // 捏取 - UI交互和小物体抓取  
     Point,          // 指向 - 射线交互和选择
-    Fist,           // 握拳 - 抓取球拍和物体
+    Fist,           // 握拳 - 通用抓取手势
     OpenHand,       // 张开 - 释放和展示
     ThumbsUp,       // 点赞 - 确认操作
-    PaddleGrip,     // 球拍握持 - 乒乓球专用
     MenuGesture     // 菜单手势 - 打开/关闭菜单
 }
 
@@ -123,7 +122,7 @@ public class VRInputModeManager
 
 ### 子任务2: 实现手势识别系统 (1天)
 - [ ] 创建HandGestureRecognizer类
-- [ ] 实现7种基础手势的识别算法
+- [ ] 实现基本手势识别算法
 - [ ] 添加手势置信度计算
 - [ ] 实现手势回调系统
 - [ ] 优化手势识别性能
@@ -134,11 +133,11 @@ public class VRInputModeManager
 - [ ] 添加手动模式切换功能
 - [ ] 实现平滑过渡动画
 
-### 子任务4: 乒乓球专用功能集成 (0.5天)
-- [ ] 实现球拍握持手势识别
-- [ ] 添加挥拍动作检测
-- [ ] 集成到VRPaddle组件
-- [ ] 实现手势菜单操作
+### 子任务4: 通用VR交互集成 (0.5天)
+- [ ] 优化UI交互手势识别
+- [ ] 完善手势菜单操作
+- [ ] 集成到VRInteractionManager
+- [ ] 添加手势操作反馈
 
 ## 依赖关系
 
@@ -199,9 +198,9 @@ public void TestInputModeSwitching()
 
 ### 功能验收
 - [ ] 手部追踪准确检测双手位置和姿态
-- [ ] 7种基础手势识别准确率>90%
+- [ ] 基本手势识别准确率>90%
 - [ ] 控制器和手部追踪无缝切换无卡顿
-- [ ] 乒乓球手势控制流畅自然
+- [ ] 通用VR手势控制流畅自然
 - [ ] UI交互在手部追踪模式下正常工作
 
 ### 性能验收
@@ -243,7 +242,7 @@ public void TestInputModeSwitching()
 - [ ] HandGestureRecognizer.cs  
 - [ ] VRInputModeManager.cs
 - [ ] HandTrackingVisualFeedback.cs
-- [ ] PingPongHandGestures.cs
+- [ ] VRHandGestureIntegration.cs
 
 ### 测试文件
 - [ ] HandTrackingTests.cs
@@ -266,20 +265,20 @@ public void TestInputModeSwitching()
 
 ### Phase 2 (第2天): 手势识别
 1. 实现HandGestureRecognizer  
-2. 添加7种基础手势
+2. 添加基本手势功能
 3. 优化识别算法
 4. 添加置信度计算
 
 ### Phase 3 (第3天): 集成和优化
 1. 实现输入模式管理
 2. 集成到VRInteractionManager
-3. 添加乒乓球专用手势
+3. 完善手势交互系统
 4. 性能优化和测试
 
 ## 成功指标
 
 - ✅ **Hand Tracking可用**: 在支持的Quest设备上正常工作
-- ✅ **手势识别准确**: 7种手势识别准确率>90%  
+- ✅ **手势识别准确**: 基本手势识别准确率>90%  
 - ✅ **性能达标**: 不影响VR帧率要求
 - ✅ **用户体验**: 自然直观的手部交互
 - ✅ **兼容性**: 与现有VR系统完整兼容

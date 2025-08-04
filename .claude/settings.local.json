@@ -8,7 +8,10 @@
       "Bash(find:*)",
       "Bash(find . -name \"*.dll\")",
       "Bash(find ./Library/PackageCache -name \"*.asmdef\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push origin main)",
+      "WebFetch(domain:developer.oculus.com)"
     ],
     "deny": []
   }
