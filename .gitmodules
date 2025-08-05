@@ -1,0 +1,3 @@
+[submodule "Assets/Plugins/CodeBind"]
+	path = Assets/Plugins/CodeBind
+	url = https://github.com/XuToWei/CodeBind.git
