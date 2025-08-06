@@ -19,7 +19,7 @@ namespace Photon.Realtime
 {
     using UnityEditor;
     using UnityEditor.Compilation;
-    
+
 
     public class EditorIntegration
     {
@@ -40,9 +40,9 @@ namespace Photon.Realtime
         public const string UrlCloudDashboard = "https://id.photonengine.com/en-US/account/signin?email=";
 
         public const string UrlPunSettings = "https://doc.photonengine.com/en-us/pun/v2/getting-started/initial-setup"; // the SeverSettings class has this url directly in it's HelpURL attribute.
-        
+
         public const string UrlDiscordGeneral = "https://discord.gg/qP6XVe3XWK";
-        
+
         public const string UrlRealtimeDocsOnline = "https://doc.photonengine.com/en-us/realtime/";
 
 
@@ -67,11 +67,11 @@ namespace Photon.Realtime
         private static void OnDelayCall()
         {
             //Debug.Log("OnDelayCall()");// DEBUG
-   
+
             EditorApplication.playModeStateChanged += PlayModeStateChanged;
 
-            CompilationPipeline.assemblyCompilationStarted -= OnCompileStarted;
-            CompilationPipeline.assemblyCompilationStarted += OnCompileStarted;
+            CompilationPipeline.compilationStarted -= OnCompileStarted;
+            CompilationPipeline.compilationStarted += OnCompileStarted;
 
 
             #if (UNITY_2018 || UNITY_2018_1_OR_NEWER)
@@ -101,7 +101,7 @@ namespace Photon.Realtime
             if (!PhotonAppSettings.Instance.DisableAutoOpenWizard)
             {
                 PhotonAppSettings.Instance.DisableAutoOpenWizard = true;
-                
+
                 // Marks settings object as dirty, so it gets saved.
                 // unity 5.3 changes the usecase for SetDirty(). but here we don't modify a scene object! so it's ok to use
                 EditorUtility.SetDirty(PhotonAppSettings.Instance);
@@ -110,7 +110,7 @@ namespace Photon.Realtime
             }
         }
 
-        private static void OnCompileStarted(string obj)
+        private static void OnCompileStarted(object obj)
         {
             // Photon should disconnect on compile
         }
