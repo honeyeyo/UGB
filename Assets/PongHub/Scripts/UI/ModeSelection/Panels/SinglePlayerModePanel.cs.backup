@@ -9,39 +9,42 @@ using PongHub.UI.Localization;
 using System.Collections.Generic;
 using PongHub.Core;
 using PongHub.Core.Audio;
-using CodeBind;
 
 namespace PongHub.UI.ModeSelection
 {
     /// <summary>
-    /// 单机模式面板 - 使用CodeBind自动组件绑定
+    /// 单机模式面板
     /// 提供练习模式选项、AI对战难度选择和个人成绩显示功能
     /// </summary>
-    [MonoCodeBind('_')]
-    public partial class SinglePlayerModePanel : MonoBehaviour
+    public class SinglePlayerModePanel : MonoBehaviour
     {
-        // CodeBind自动生成的属性会在.Bind.cs文件中
-        // 组件映射:
-        // PanelRoot_GO → GameObject PanelRootGO
-        // Title_Txt → TextMeshProUGUI TitleTxt
-        // ModesContainer_Tr → Transform ModesContainerTr
-        // ModeButtonPrefab_GO → GameObject ModeButtonPrefabGO
-        // Back_Btn → Button BackBtn
-        // PracticePanel_GO → GameObject PracticePanelGO
-        // FreePractice_Btn → Button FreePracticeBtn
-        // TargetPractice_Btn → Button TargetPracticeBtn
-        // SkillChallenge_Btn → Button SkillChallengeBtn
-        // AIPanel_GO → GameObject AIPanelGO
-        // DifficultyContainer_Tr → Transform DifficultyContainerTr
-        // DifficultyButtonPrefab_GO → GameObject DifficultyButtonPrefabGO
-        // Difficulty_Sld → Slider DifficultySld
-        // DifficultyLevel_Txt → TextMeshProUGUI DifficultyLevelTxt
-        // StatsPanel_GO → GameObject StatsPanelGO
-        // TotalGames_Txt → TextMeshProUGUI TotalGamesTxt
-        // WinRate_Txt → TextMeshProUGUI WinRateTxt
-        // BestScore_Txt → TextMeshProUGUI BestScoreTxt
-        // PlayTime_Txt → TextMeshProUGUI PlayTimeTxt
-        // LastPlayed_Txt → TextMeshProUGUI LastPlayedTxt
+        [Header("面板配置")]
+        [SerializeField] private GameObject m_panelRoot;
+        [SerializeField] private TextMeshProUGUI m_titleText;
+        [SerializeField] private Transform m_modesContainer;
+        [SerializeField] private GameObject m_modeButtonPrefab;
+        [SerializeField] private Button m_backButton;
+
+        [Header("练习模式配置")]
+        [SerializeField] private GameObject m_practicePanel;
+        [SerializeField] private Button m_freePracticeButton;
+        [SerializeField] private Button m_targetPracticeButton;
+        [SerializeField] private Button m_skillChallengeButton;
+
+        [Header("AI对战配置")]
+        [SerializeField] private GameObject m_aiPanel;
+        [SerializeField] private Transform m_difficultyContainer;
+        [SerializeField] private GameObject m_difficultyButtonPrefab;
+        [SerializeField] private Slider m_difficultySlider;
+        [SerializeField] private TextMeshProUGUI m_difficultyText;
+
+        [Header("个人成绩显示")]
+        [SerializeField] private GameObject m_statsPanel;
+        [SerializeField] private TextMeshProUGUI m_totalGamesText;
+        [SerializeField] private TextMeshProUGUI m_winRateText;
+        [SerializeField] private TextMeshProUGUI m_bestScoreText;
+        [SerializeField] private TextMeshProUGUI m_playTimeText;
+        [SerializeField] private TextMeshProUGUI m_lastPlayedText;
 
         [Header("本地化键")]
         [SerializeField] private string m_titleKey = "single_player.title";
@@ -139,9 +142,9 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private void UpdateTitle()
         {
-            if (TitleTxt != null && m_localizationManager != null)
+            if (m_titleText != null && m_localizationManager != null)
             {
-                TitleTxt.text = m_localizationManager.GetLocalizedText(m_titleKey);
+                m_titleText.text = m_localizationManager.GetLocalizedText(m_titleKey);
             }
         }
 
@@ -150,7 +153,7 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private void CreateModeButtons()
         {
-            if (ModesContainerTr == null || ModeButtonPrefabGO == null) return;
+            if (m_modesContainer == null || m_modeButtonPrefab == null) return;
 
             // 清除现有按钮
             ClearModeButtons();
@@ -176,7 +179,7 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private void CreateModeButton(SinglePlayerModeType modeType)
         {
-            GameObject buttonObj = Instantiate(ModeButtonPrefabGO, ModesContainerTr);
+            GameObject buttonObj = Instantiate(m_modeButtonPrefab, m_modesContainer);
             Button button = buttonObj.GetComponent<Button>();
 
             if (button != null)
@@ -201,7 +204,7 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private void CreateDifficultyButtons()
         {
-            if (DifficultyContainerTr == null || DifficultyButtonPrefabGO == null) return;
+            if (m_difficultyContainer == null || m_difficultyButtonPrefab == null) return;
 
             // 清除现有按钮
             ClearDifficultyButtons();
@@ -214,12 +217,12 @@ namespace PongHub.UI.ModeSelection
             }
 
             // 设置难度滑块
-            if (DifficultySld != null)
+            if (m_difficultySlider != null)
             {
-                DifficultySld.minValue = 0;
-                DifficultySld.maxValue = 4;
-                DifficultySld.value = 1; // 默认简单难度
-                DifficultySld.onValueChanged.AddListener(OnDifficultySliderChanged);
+                m_difficultySlider.minValue = 0;
+                m_difficultySlider.maxValue = 4;
+                m_difficultySlider.value = 1; // 默认简单难度
+                m_difficultySlider.onValueChanged.AddListener(OnDifficultySliderChanged);
             }
         }
 
@@ -228,7 +231,7 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private void CreateDifficultyButton(AIDifficulty difficulty)
         {
-            GameObject buttonObj = Instantiate(DifficultyButtonPrefabGO, DifficultyContainerTr);
+            GameObject buttonObj = Instantiate(m_difficultyButtonPrefab, m_difficultyContainer);
             Button button = buttonObj.GetComponent<Button>();
 
             if (button != null)
@@ -254,25 +257,25 @@ namespace PongHub.UI.ModeSelection
         private void SetupEventListeners()
         {
             // 返回按钮
-            if (BackBtn != null)
+            if (m_backButton != null)
             {
-                BackBtn.onClick.AddListener(OnBackButtonClicked);
+                m_backButton.onClick.AddListener(OnBackButtonClicked);
             }
 
             // 练习模式按钮
-            if (FreePracticeBtn != null)
+            if (m_freePracticeButton != null)
             {
-                FreePracticeBtn.onClick.AddListener(() => StartPracticeMode(SinglePlayerModeType.FreePractice));
+                m_freePracticeButton.onClick.AddListener(() => StartPracticeMode(SinglePlayerModeType.FreePractice));
             }
 
-            if (TargetPracticeBtn != null)
+            if (m_targetPracticeButton != null)
             {
-                TargetPracticeBtn.onClick.AddListener(() => StartPracticeMode(SinglePlayerModeType.TargetPractice));
+                m_targetPracticeButton.onClick.AddListener(() => StartPracticeMode(SinglePlayerModeType.TargetPractice));
             }
 
-            if (SkillChallengeBtn != null)
+            if (m_skillChallengeButton != null)
             {
-                SkillChallengeBtn.onClick.AddListener(() => StartPracticeMode(SinglePlayerModeType.SkillChallenge));
+                m_skillChallengeButton.onClick.AddListener(() => StartPracticeMode(SinglePlayerModeType.SkillChallenge));
             }
         }
 
@@ -309,31 +312,31 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private void UpdateStatsDisplay()
         {
-            if (TotalGamesTxt != null)
+            if (m_totalGamesText != null)
             {
-                TotalGamesTxt.text = $"总场次: {m_playerStats.totalGames}";
+                m_totalGamesText.text = $"总场次: {m_playerStats.totalGames}";
             }
 
-            if (WinRateTxt != null)
+            if (m_winRateText != null)
             {
-                WinRateTxt.text = $"胜率: {m_playerStats.winRate:P1}";
+                m_winRateText.text = $"胜率: {m_playerStats.winRate:P1}";
             }
 
-            if (BestScoreTxt != null)
+            if (m_bestScoreText != null)
             {
-                BestScoreTxt.text = $"最高分: {m_playerStats.bestScore:F0}";
+                m_bestScoreText.text = $"最高分: {m_playerStats.bestScore:F0}";
             }
 
-            if (PlayTimeTxt != null)
+            if (m_playTimeText != null)
             {
                 int hours = Mathf.FloorToInt(m_playerStats.totalPlayTime / 3600f);
                 int minutes = Mathf.FloorToInt((m_playerStats.totalPlayTime % 3600f) / 60f);
-                PlayTimeTxt.text = $"游戏时间: {hours}h {minutes}m";
+                m_playTimeText.text = $"游戏时间: {hours}h {minutes}m";
             }
 
-            if (LastPlayedTxt != null)
+            if (m_lastPlayedText != null)
             {
-                LastPlayedTxt.text = $"上次游戏: {m_playerStats.lastPlayedTime}";
+                m_lastPlayedText.text = $"上次游戏: {m_playerStats.lastPlayedTime}";
             }
         }
 
@@ -342,10 +345,10 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         private void UpdateDifficultyDisplay()
         {
-            if (DifficultyLevelTxt != null && DifficultySld != null)
+            if (m_difficultyText != null && m_difficultySlider != null)
             {
-                AIDifficulty currentDifficulty = (AIDifficulty)Mathf.RoundToInt(DifficultySld.value);
-                DifficultyLevelTxt.text = GetDifficultyDisplayName(currentDifficulty);
+                AIDifficulty currentDifficulty = (AIDifficulty)Mathf.RoundToInt(m_difficultySlider.value);
+                m_difficultyText.text = GetDifficultyDisplayName(currentDifficulty);
             }
         }
 
@@ -354,10 +357,10 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         public void ShowModeSelection()
         {
-            SetPanelActive(PanelRootGO, true);
-            SetPanelActive(PracticePanelGO, false);
-            SetPanelActive(AIPanelGO, false);
-            SetPanelActive(StatsPanelGO, false);
+            SetPanelActive(m_panelRoot, true);
+            SetPanelActive(m_practicePanel, false);
+            SetPanelActive(m_aiPanel, false);
+            SetPanelActive(m_statsPanel, false);
         }
 
         /// <summary>
@@ -365,10 +368,10 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         public void ShowPracticeMode()
         {
-            SetPanelActive(PanelRootGO, false);
-            SetPanelActive(PracticePanelGO, true);
-            SetPanelActive(AIPanelGO, false);
-            SetPanelActive(StatsPanelGO, false);
+            SetPanelActive(m_panelRoot, false);
+            SetPanelActive(m_practicePanel, true);
+            SetPanelActive(m_aiPanel, false);
+            SetPanelActive(m_statsPanel, false);
         }
 
         /// <summary>
@@ -376,10 +379,10 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         public void ShowAIBattleMode()
         {
-            SetPanelActive(PanelRootGO, false);
-            SetPanelActive(PracticePanelGO, false);
-            SetPanelActive(AIPanelGO, true);
-            SetPanelActive(StatsPanelGO, false);
+            SetPanelActive(m_panelRoot, false);
+            SetPanelActive(m_practicePanel, false);
+            SetPanelActive(m_aiPanel, true);
+            SetPanelActive(m_statsPanel, false);
         }
 
         /// <summary>
@@ -387,10 +390,10 @@ namespace PongHub.UI.ModeSelection
         /// </summary>
         public void ShowStats()
         {
-            SetPanelActive(PanelRootGO, false);
-            SetPanelActive(PracticePanelGO, false);
-            SetPanelActive(AIPanelGO, false);
-            SetPanelActive(StatsPanelGO, true);
+            SetPanelActive(m_panelRoot, false);
+            SetPanelActive(m_practicePanel, false);
+            SetPanelActive(m_aiPanel, false);
+            SetPanelActive(m_statsPanel, true);
 
             // 刷新统计数据
             LoadPlayerStats();
@@ -430,9 +433,9 @@ namespace PongHub.UI.ModeSelection
             PlayButtonClickSound();
 
             // 更新滑块值
-            if (DifficultySld != null)
+            if (m_difficultySlider != null)
             {
-                DifficultySld.value = (int)difficulty;
+                m_difficultySlider.value = (int)difficulty;
             }
 
             // 更新显示

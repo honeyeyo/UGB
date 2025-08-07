@@ -89,3 +89,6 @@ keystore-passwords.txt
 # Documentation and templates
 xnotes/
 docs/
+
+# CodeBind: Keep both .Bind.cs files and their .meta files in version control
+# No CodeBind-specific ignores needed - standard Unity .gitignore handles everything correctly

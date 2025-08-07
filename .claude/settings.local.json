@@ -13,7 +13,13 @@
       "Bash(git push origin main)",
       "WebFetch(domain:developer.oculus.com)",
       "Bash(dir \"C:\\Users\\jliminh\\git\\PongHub_demo\\node_modules\" /A)",
-      "Bash(powershell:*)"
+      "Bash(powershell:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(chmod:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(ls -la \"C:\\Users\\jliminh\\git\\PongHub_demo\\.ai\")",
+      "Bash(ls -la \"C:\\Users\\jliminh\\git\\PongHub_demo\\.ai\\epic-target-assist\")"
     ],
     "deny": []
   }
