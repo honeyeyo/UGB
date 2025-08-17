@@ -14,22 +14,22 @@ namespace PongHub.Gameplay.Ball
     public class Ball : MonoBehaviour
     {
         [Header("核心组件")]
-        [SerializeField] private BallPhysics m_physics;
-        [SerializeField] private BallNetworking m_networking;
-        [SerializeField] private BallSpin m_spin;
-        [SerializeField] private BallAttachment m_attachment;
-        [SerializeField] private BallStateSync m_stateSync;
-        [SerializeField] private BallAudio m_audio;
-        [SerializeField] private BallParticles m_particles;
-        [SerializeField] private BallSpinVisual m_spinVisual;
+        [SerializeField] private BallPhysics m_physics; // 球物理组件 , 不需要在Inspector中手动设置，在初始化时自动设置，下同
+        [SerializeField] private BallNetworking m_networking; // 球网络组件
+        [SerializeField] private BallSpin m_spin; // 球旋转组件
+        [SerializeField] private BallAttachment m_attachment; // 球附件组件
+        [SerializeField] private BallStateSync m_stateSync; // 球状态同步组件
+        [SerializeField] private BallAudio m_audio; // 球音频组件
+        [SerializeField] private BallParticles m_particles; // 球粒子组件
+        [SerializeField] private BallSpinVisual m_spinVisual; // 球旋转视觉组件
 
         [Header("Unity组件")]
-        [SerializeField] private Rigidbody m_rigidbody;
-        [SerializeField] private Collider m_collider;
-        [SerializeField] private MeshRenderer m_renderer;
+        [SerializeField] private Rigidbody m_rigidbody; // 球刚体组件
+        [SerializeField] private Collider m_collider; // 球碰撞组件
+        [SerializeField] private MeshRenderer m_renderer; // 球渲染组件
 
         [Header("配置")]
-        [SerializeField] private BallData m_ballData;
+        [SerializeField] private BallData m_ballData; // 球数据
 
         [Header("调试")]
         [SerializeField] private bool m_enableDebugLog = false;

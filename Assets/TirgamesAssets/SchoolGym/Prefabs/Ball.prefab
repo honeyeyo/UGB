@@ -20,8 +20,9 @@ GameObject:
   - component: {fileID: 2897144753846181050}
   - component: {fileID: 8158830696313015199}
   - component: {fileID: 1396133053901610244}
-  - component: {fileID: 1315461161979393756}
   - component: {fileID: 4366183102827771823}
+  - component: {fileID: -1284240366707919562}
+  - component: {fileID: 1315461161979393756}
   - component: {fileID: 1655775034606178646}
   m_Layer: 0
   m_Name: Ball
@@ -297,6 +298,53 @@ MonoBehaviour:
   m_spinParticles: {fileID: 0}
   m_particleEmissionRate: 10
   m_minSpinThreshold: 10
+--- !u!114 &4366183102827771823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffbc9bb976bd99b4896999131bfac46b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_hitSound: {fileID: 0}
+  m_spinSound: {fileID: 0}
+  m_scoreSound: {fileID: 0}
+  m_netSound: {fileID: 0}
+  m_edgeSound: {fileID: 0}
+  m_hitVolume: 1
+  m_spinVolume: 0.5
+  m_scoreVolume: 1
+  m_netVolume: 0.8
+  m_edgeVolume: 0.8
+--- !u!114 &-1284240366707919562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 145934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0056429abc090e54ebd2ac0402950f28, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_physics: {fileID: 0}
+  m_networking: {fileID: 0}
+  m_spin: {fileID: 0}
+  m_attachment: {fileID: 0}
+  m_stateSync: {fileID: 0}
+  m_audio: {fileID: 0}
+  m_particles: {fileID: 0}
+  m_spinVisual: {fileID: 0}
+  m_rigidbody: {fileID: 0}
+  m_collider: {fileID: 0}
+  m_renderer: {fileID: 0}
+  m_ballData: {fileID: 0}
+  m_enableDebugLog: 0
 --- !u!82 &1315461161979393756
 AudioSource:
   m_ObjectHideFlags: 0
@@ -393,28 +441,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &4366183102827771823
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 145934}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffbc9bb976bd99b4896999131bfac46b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_hitSound: {fileID: 0}
-  m_spinSound: {fileID: 0}
-  m_scoreSound: {fileID: 0}
-  m_netSound: {fileID: 0}
-  m_edgeSound: {fileID: 0}
-  m_hitVolume: 1
-  m_spinVolume: 0.5
-  m_scoreVolume: 1
-  m_netVolume: 0.8
-  m_edgeVolume: 0.8
 --- !u!96 &1655775034606178646
 TrailRenderer:
   serializedVersion: 3
