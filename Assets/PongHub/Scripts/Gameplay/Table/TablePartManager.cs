@@ -216,6 +216,71 @@ namespace PongHub.Gameplay.Table
         }
 
         /// <summary>
+        /// 根据TableData配置所有TablePart组件
+        /// </summary>
+        /// <param name="tableData">球桌数据</param>
+        public void ConfigureFromTableData(TableData tableData)
+        {
+            if (tableData == null)
+            {
+                LogDebug("TableData is null, cannot configure parts");
+                return;
+            }
+
+            LogDebug($"Configuring table parts from TableData: {tableData.name}");
+
+            // 配置桌面部件
+            if (m_partsByType.ContainsKey(TablePartType.Surface))
+            {
+                foreach (var surfacePart in m_partsByType[TablePartType.Surface])
+                {
+                    if (surfacePart?.Collider is BoxCollider boxCollider)
+                    {
+                        boxCollider.size = new Vector3(tableData.Width, 0.1f, tableData.Length);
+                        boxCollider.center = tableData.GetTableCenter();
+                        
+                        // 设置物理材质
+                        if (boxCollider.material == null)
+                        {
+                            boxCollider.material = new PhysicMaterial("TableSurface")
+                            {
+                                bounciness = tableData.Bounce,
+                                dynamicFriction = tableData.Friction,
+                                staticFriction = tableData.Friction
+                            };
+                        }
+                    }
+                }
+            }
+
+            // 配置球网部件
+            if (m_partsByType.ContainsKey(TablePartType.Net))
+            {
+                foreach (var netPart in m_partsByType[TablePartType.Net])
+                {
+                    if (netPart?.Collider is BoxCollider boxCollider)
+                    {
+                        boxCollider.size = new Vector3(tableData.Width, tableData.NetHeight, 0.1f);
+                        boxCollider.center = tableData.GetNetPosition();
+                        
+                        // 设置物理材质
+                        if (boxCollider.material == null)
+                        {
+                            boxCollider.material = new PhysicMaterial("TableNet")
+                            {
+                                bounciness = tableData.NetBounce,
+                                dynamicFriction = tableData.NetFriction,
+                                staticFriction = tableData.NetFriction
+                            };
+                        }
+                    }
+                }
+            }
+
+            LogDebug("Table parts configuration completed");
+        }
+
+        /// <summary>
         /// 验证所有部件配置
         /// </summary>
         /// <returns>验证结果</returns>

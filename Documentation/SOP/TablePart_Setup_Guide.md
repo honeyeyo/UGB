@@ -32,8 +32,9 @@ Table对象上应该有多个BoxCollider组件，按从上到下顺序：
 2. 重命名为 `TableSurface`
 3. 在Inspector中设置Tag为 `Untagged`（后续可创建专用Tag）
 4. 移动第一个BoxCollider组件到TableSurface对象：
+   - 选中TableSurface → Add Component → Box Collider
    - 在Table上右键第一个BoxCollider → Copy Component
-   - 选中TableSurface → 右键 → Paste Component As New
+   - 选中TableSurface的BoxCollider → 右键 → Paste Component Values
    - 删除Table上的第一个BoxCollider
 
 ### 2.2 创建球网子对象
@@ -179,6 +180,7 @@ private void HandleCollision(Collision collision)
 2. **碰撞检测不工作**：检查Collider的isTrigger设置（应为false）
 3. **音效不播放**：确认AudioManager可用且音效文件已分配
 4. **Physics Material丢失**：重新分配对应的PhysicMaterial
+5. **Table脚本错误"Can't remove BoxCollider"**：Table脚本已更新，不再需要BoxCollider组件。现在Table主要作为空间锚点，碰撞检测由子对象的TablePart组件处理
 
 ### 调试技巧
 1. 启用TablePart的`Show Debug Info`查看详细日志

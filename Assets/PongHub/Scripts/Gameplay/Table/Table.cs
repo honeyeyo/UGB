@@ -8,21 +8,11 @@ namespace PongHub.Gameplay.Table
 {
     /// <summary>
     /// 乒乓球桌 - 作为本地VR空间锚点
-    /// 提供空间参考和碰撞检测，不进行网络同步
+    /// 提供空间参考，碰撞检测由TablePart系统管理，不进行网络同步
     /// </summary>
-    [RequireComponent(typeof(BoxCollider))]
     public class Table : MonoBehaviour
     {
         [Header("组件引用")]
-        [SerializeField]
-        [Tooltip("Table Collider / 球桌碰撞体 - Box collider for table surface")]
-        private BoxCollider m_tableCollider;
-        [SerializeField]
-        [Tooltip("Net Collider / 网碰撞体 - Box collider for net")]
-        private BoxCollider m_netCollider;
-        [SerializeField]
-        [Tooltip("Edge Collider / 边缘碰撞体 - Box collider for table edges")]
-        private BoxCollider m_edgeCollider;
         [SerializeField]
         [Tooltip("Table Renderer / 球桌渲染器 - Mesh renderer for table surface")]
         private MeshRenderer m_tableRenderer;
@@ -61,10 +51,8 @@ namespace PongHub.Gameplay.Table
         [Tooltip("Table Data / 球桌数据 - Table configuration data")]
         private TableData m_tableData;
 
-        // 碰撞检测区域
-        private Bounds m_tableBounds;
-        private Bounds m_netBounds;
-        private Bounds m_edgeBounds;
+        // TablePartManager引用 - 管理碰撞检测
+        private TablePartManager m_tablePartManager;
 
         // 颜色属性
         private Color m_tableColor;
@@ -86,13 +74,10 @@ namespace PongHub.Gameplay.Table
 
         private void InitializeComponents()
         {
-            // 自动获取组件引用
-            if (m_tableCollider == null)
-                m_tableCollider = GetComponent<BoxCollider>();
-            if (m_netCollider == null)
-                m_netCollider = transform.Find("Net")?.GetComponent<BoxCollider>();
-            if (m_edgeCollider == null)
-                m_edgeCollider = transform.Find("Edge")?.GetComponent<BoxCollider>();
+            // 获取TablePartManager组件
+            m_tablePartManager = GetComponent<TablePartManager>();
+            
+            // 自动获取渲染器组件引用
             if (m_tableRenderer == null)
                 m_tableRenderer = GetComponent<MeshRenderer>();
             if (m_netRenderer == null)
@@ -123,50 +108,16 @@ namespace PongHub.Gameplay.Table
         {
             if (m_tableData == null) return;
 
-            // 设置球桌碰撞体
-            m_tableCollider.size = new Vector3(m_tableData.Width, 0.1f, m_tableData.Length);
-            m_tableCollider.center = m_tableData.GetTableCenter();
-            m_tableCollider.material = new PhysicMaterial("Table")
+            // 如果有TablePartManager，让它负责设置碰撞体
+            if (m_tablePartManager != null)
             {
-                bounciness = m_tableData.Bounce,
-                dynamicFriction = m_tableData.Friction,
-                staticFriction = m_tableData.Friction
-            };
-
-            // 设置球网碰撞体
-            if (m_netCollider != null)
-            {
-                m_netCollider.size = new Vector3(m_tableData.Width, m_tableData.NetHeight, 0.1f);
-                m_netCollider.center = m_tableData.GetNetPosition();
-                m_netCollider.material = new PhysicMaterial("Net")
-                {
-                    bounciness = m_tableData.NetBounce,
-                    dynamicFriction = m_tableData.NetFriction,
-                    staticFriction = m_tableData.NetFriction
-                };
+                // TablePartManager会根据TableData配置各个TablePart组件
+                m_tablePartManager.ConfigureFromTableData(m_tableData);
             }
-
-            // 设置边缘碰撞体
-            if (m_edgeCollider != null)
+            else
             {
-                m_edgeCollider.size = new Vector3(
-                    m_tableData.Width + m_tableData.EdgeWidth * 2,
-                    m_tableData.NetHeight,
-                    m_tableData.Length + m_tableData.EdgeWidth * 2
-                );
-                m_edgeCollider.center = m_tableData.GetTableCenter();
-                m_edgeCollider.material = new PhysicMaterial("Edge")
-                {
-                    bounciness = m_tableData.Bounce * 1.2f,
-                    dynamicFriction = m_tableData.Friction * 1.5f,
-                    staticFriction = m_tableData.Friction * 1.5f
-                };
+                Debug.LogWarning("TablePartManager not found. Colliders will not be configured automatically.");
             }
-
-            // 更新碰撞区域
-            m_tableBounds = m_tableCollider.bounds;
-            if (m_netCollider != null) m_netBounds = m_netCollider.bounds;
-            if (m_edgeCollider != null) m_edgeBounds = m_edgeCollider.bounds;
         }
 
         private void SetupVisuals()
@@ -187,36 +138,8 @@ namespace PongHub.Gameplay.Table
                 m_lineRenderer.material.color = m_lineColor;
         }
 
-        private void OnCollisionEnter(Collision collision)
-        {
-            if (collision.gameObject.TryGetComponent<BallPhysics>(out var ball))
-            {
-                var contact = collision.GetContact(0);
-                var contactPoint = contact.point;
-                var contactNormal = contact.normal;
-
-                // 计算击球力度
-                float hitForce = CalculateHitForce(ball.Velocity);
-
-                // 应用碰撞力
-                ball.ApplyCollisionForce(contactPoint, contactNormal, hitForce, HitType.Table);
-
-                // 播放击球音效 - 由Ball统一处理，这里可以移除
-                // if (AudioManager.Instance != null)
-                // {
-                //     AudioManager.Instance.PlayTableHit(contactPoint, m_tableData.HitVolume);
-                // }
-            }
-        }
-
-        private float CalculateHitForce(Vector3 ballVelocity)
-        {
-            if (m_tableData == null) return 0f;
-
-            // 计算击球力度
-            float hitForce = ballVelocity.magnitude * m_tableData.HitMultiplier;
-            return hitForce;
-        }
+        // 碰撞检测现在由TablePart系统管理
+        // OnCollisionEnter方法已移除，碰撞处理由各个TablePart组件处理
 
         #region 本地锚点功能
         /// <summary>
