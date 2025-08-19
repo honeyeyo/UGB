@@ -203,6 +203,16 @@ namespace PongHub.Gameplay.Ball
         {
             if (m_currentState == BallState.None) return;
 
+            // 尝试使用TablePart系统
+            var ballTableInteraction = GetComponent<BallTableInteraction>();
+            if (ballTableInteraction != null && BallTableInteraction.IsTableRelated(collision.gameObject))
+            {
+                if (ballTableInteraction.HandleTableCollision(collision))
+                {
+                    return; // TablePart系统已处理，不需要继续原有逻辑
+                }
+            }
+
             var hitObject = collision.gameObject;
             var contact = collision.GetContact(0);
             var contactPoint = contact.point;
