@@ -19,7 +19,8 @@
       "Bash(chmod:*)",
       "WebFetch(domain:github.com)",
       "Bash(ls -la \"C:\\Users\\jliminh\\git\\PongHub_demo\\.ai\")",
-      "Bash(ls -la \"C:\\Users\\jliminh\\git\\PongHub_demo\\.ai\\epic-target-assist\")"
+      "Bash(ls -la \"C:\\Users\\jliminh\\git\\PongHub_demo\\.ai\\epic-target-assist\")",
+      "Bash(git mv:*)"
     ],
     "deny": []
   }
